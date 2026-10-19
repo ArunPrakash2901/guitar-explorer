@@ -4,6 +4,7 @@ export function resetSessionState(state) {
   state.savedMap = [];
   state.timerRemaining = 35;
   state.timerDeadlineMs = null;
+  state.timerPhase = "READY";
   state.timerStarted = false;
   state.timerFinished = false;
   state.reflection = null;
