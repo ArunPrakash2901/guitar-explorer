@@ -4,8 +4,9 @@ import { buildChord, buildScale } from "../core/collections.js";
 import { assertRecord, MusicError } from "../core/errors.js";
 import type { ErrorCode } from "../core/errors.js";
 import { getIntervalBetweenPitches, intervalBetweenNotes, invertSimpleInterval, transposeNote as transposeWrittenNote, transposePitch as transposeRegisteredPitch } from "../core/intervals.js";
+import { buildKeyProfile, buildKeySignature, getFifthsRelationships, getRelativeKeyRelationship } from "../core/keys.js";
 import { mod12, validateNote } from "../core/pitch.js";
-import type { ChordSpec, HarmonicContext, Interval, IntervalInfo, NoteName, Pitch, PitchClass, ScaleSpec, SpellingPreference } from "../core/types.js";
+import type { ChordSpec, HarmonicContext, Interval, IntervalInfo, Key, NoteName, Pitch, PitchClass, ScaleSpec, SpellingPreference } from "../core/types.js";
 import { findLocations, getNoteAt, STANDARD_FRETBOARD } from "../guitar/fretboard.js";
 import type { Fretboard, FretPosition, FretRange, LocatedPitch } from "../guitar/types.js";
 
@@ -33,6 +34,22 @@ export function getScale(request: ScaleSpec) {
 
 export function getChord(request: ChordSpec) {
   return query(request, () => buildChord(request));
+}
+
+export function getKeySignature(request: Key) {
+  return query(request, () => buildKeySignature(request));
+}
+
+export function getRelativeKey(request: Key) {
+  return query(request, () => getRelativeKeyRelationship(request));
+}
+
+export function getFifthsNeighbors(request: Key) {
+  return query(request, () => getFifthsRelationships(request));
+}
+
+export function getKeyProfile(request: Key) {
+  return query(request, () => buildKeyProfile(request));
 }
 
 type LocationContext = Readonly<{
@@ -120,7 +137,8 @@ export function invertInterval(request: Readonly<{ interval: Interval }>) {
 
 /** Musical truth only. Playback and learner state never enter this interface. */
 export const musicQueries = Object.freeze({
-  getInterval, getScale, getChord, getNoteAtFret, getFretboardLocations, analyseNotes,
+  getInterval, getScale, getChord, getKeySignature, getRelativeKey, getFifthsNeighbors, getKeyProfile,
+  getNoteAtFret, getFretboardLocations, analyseNotes,
   transposePitch: transposePitchQuery,
   transposeNote: transposeNoteQuery,
   invertInterval,

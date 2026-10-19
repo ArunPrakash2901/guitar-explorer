@@ -1,15 +1,15 @@
 # AGENTS.md
 
-## Approved scope override — Music Engine Phase 1
+## Approved scope override — Music Engine through Phase 2A
 
 The user-approved Music Engine plan supersedes the historical v0.2 implementation
-order, `src/music` layout, and UI-first kickoff below. Read `docs/ENGINE_PHASE1.md`
-as well as the required documents. Implement only `src/engine/{core,guitar,query}`:
-spelled/registered pitches, intervals, transposition, major/natural-minor scales,
-four triads, configurable tuning, bounded fretboard queries and note analysis.
+order, `src/music` layout, and UI-first kickoff below. Phase 1 plus Issue #2 slice
+2A implement `src/engine/{core,guitar,query}`: the foundation kernel together with
+conventional key signatures, relative keys and fifths relationships.
 
-Do not begin CAGED, broader harmony, Audio, Ear, Learning, storage, React or rhythm
-implementation without later authorization. Do not add future-engine placeholders.
+Do not begin Issue #2 slice 2B, CAGED, broader harmony, Audio, Ear, Learning,
+storage, React or rhythm implementation without later authorization. Do not add
+future-engine placeholders.
 The preserved prototype remains a reference, not the production implementation.
 
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
@@ -19,7 +19,7 @@ Learning Query Interface. Musical time, audio seconds and learning wall-clock ti
 remain separate. See the current architecture for documentation-only extensions.
 
 Verify with `npm run typecheck`, `npm test`, and `npm run test:prototype`. Stop after
-Phase 1. The exact original handoff is in `references/approved-v0.2-handoff.zip`.
+Phase 2A. The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical v0.2 instructions (subject to the override above)
 

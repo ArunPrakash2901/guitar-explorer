@@ -1,4 +1,4 @@
-# Phase 1 musical API
+# Musical API — Phase 1 plus Phase 2A
 
 Import the pure public surface from `src/engine/index.ts`. Source uses ESM syntax
 and .js import specifiers for TypeScript bundlers; the preserved prototype remains
@@ -24,6 +24,10 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 | getInterval | { from: Pitch, to: Pitch } | Signed interval, number, quality, direction, label |
 | getScale | { tonic: NoteName, scaleId } | Formula and spelled degree/tone metadata |
 | getChord | { root: NoteName, chordId } | Formula and spelled degree/tone metadata |
+| getKeySignature | Key | Conventional signed fifths count and ordered alterations |
+| getRelativeKey | Key | Relative major/minor, relationship kind and tonic interval |
+| getFifthsNeighbors | Key | Clockwise P5 and counterclockwise descending-P5 neighbors |
+| getKeyProfile | Key | Composition of signature, relative and fifths results |
 | getNoteAtFret | { position, board?, context?, root?, spellingPreference? } | Location, registered pitch, spelling source, contextual relationships |
 | getFretboardLocations | { board?, fretRange?, stringIndices?, pitchClasses?, context?, root?, spellingPreference? } | Annotated locations in string-index then fret order |
 | analyseNotes | { notes: Pitch[], context: HarmonicContext } | Analysis in input order, preserving supplied spelling |
@@ -76,6 +80,14 @@ musicQueries.analyseNotes({
     currentChord: { root: parseNote("D"), chordId: "major" },
   },
 }); // key degree 6; selected-scale degree 3; current-chord M3
+
+const profile = musicQueries.getKeyProfile({ tonic: parseNote("F#"), mode: "major" });
+if (profile.ok) {
+  profile.data.signature.fifths; // 6
+  profile.data.signature.alterations.map(formatNote); // F# C# G# D# A# E#
+  profile.data.relative.relativeKey; // D# minor, related by an ascending M6
+  profile.data.fifths.clockwise.destinationKey; // C# major, related by P5
+}
 ```
 
 ## Values and conventions
@@ -99,6 +111,14 @@ musicQueries.analyseNotes({
 - Scale IDs: major, naturalMinor. Chord IDs: major, minor, diminished, augmented.
   Formula alterations use major/perfect reference intervals, independent of key.
   Derived formulas/results preserve degrees and spellings; IDs select catalogs.
+- Conventional key signatures cover signed fifths positions -7..7: Cb..C# major
+  and their Ab..A# relative minors. Signature alterations are generated from the
+  fifths position in conventional order rather than selected from finished per-key
+  tables. Signature/profile requests outside that range return UNSUPPORTED.
+- Relative-key and fifths queries remain valid beyond the conventional signature
+  range. Relative results identify relativeMajor/relativeMinor and include the
+  tonic interval. Fifths results preserve mode and spelling; twelve clockwise
+  moves from C produce B#, which sounds as pitch class C.
 - HarmonicContext has independent optional key, activeScale and currentChord.
   A minor key means natural-minor reference in this phase; key signatures and
   functional/Roman/progression interpretation are later scope.

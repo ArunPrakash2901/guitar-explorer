@@ -56,6 +56,19 @@ Key-relative alteration and formula alteration are different measurements.
 Sounding membership and exact spelling membership are reported separately.
 See API.md for unison, spelling-precedence and numeric/resource conventions.
 
+## Implemented key relationships — Phase 2A
+
+Conventional signatures are located on a signed fifths axis from C major. Minor
+keys reach that axis through their relative major. Alterations are then generated
+in conventional order from the fifths count; the engine does not store a table of
+finished signatures for every key.
+
+Relative keys and clockwise/counterclockwise fifths neighbors are constructed by
+spelled interval transposition and retain the relationship interval in their
+results. These relationships remain available outside the conventional signature
+range, while signature and composed-profile requests beyond seven sharps/flats
+return UNSUPPORTED. No key is inferred from unordered notes or a progression.
+
 ## Future rhythm/time domain — documentation only
 
 A future instrument-independent time domain will describe meter, beats, duration,
@@ -77,7 +90,7 @@ or musical query results. No Learning query code exists in Phase 1.
 
 ## Later v1 direction and exclusions
 
-Subsequently authorized phases add the approved scale/chord catalogs,
+Subsequently authorized slices add the approved broader scale/chord catalogs,
 explicit-context harmony, maps/triad voicings, standard-tuning CAGED, playback and
 all five auditory exercise families. The auditory-to-fretboard composition remains
 owned by Learning. Evidence summaries precede mastery estimation.
