@@ -7,6 +7,7 @@ import {
   parseNote,
   pitchClass,
 } from "/engine/index.js";
+import { reflectionNextHidden, resetSessionState, timerSnapshot } from "/session-logic.mjs";
 
 const $ = (id) => document.getElementById(id);
 
@@ -40,6 +41,8 @@ const state = {
   mapRoleIndex: 0,
   savedMap: [],
   timerRemaining: 35,
+  timerDeadlineMs: null,
+  timerPhase: "READY",
   timerId: null,
   timerStarted: false,
   timerFinished: false,
@@ -176,6 +179,8 @@ function setStage(index) {
   }
   if (next.kind !== "musicalize") {
     state.timerRemaining = 35;
+    state.timerDeadlineMs = null;
+    state.timerPhase = "READY";
     state.timerStarted = false;
     state.timerFinished = false;
   }
@@ -202,7 +207,7 @@ function stageContext(stage) {
 function stageMaterial(stage) {
   if (stage.kind === "target") {
     const tone = targetTone(stage);
-    return `Current relationship: ${degreeLabel(tone)} · ${targetInterval(stage).label}`;
+    return `Current simple relationship: ${degreeLabel(tone)} · ${targetInterval(stage).label}`;
   }
   if (stage.kind === "map") return "Material: D minor = 1 · ♭3 · 5";
   if (stage.kind === "contrast") return "Contrast: ♭3 ↔ 3";
@@ -244,7 +249,7 @@ function renderStage() {
 
 function renderOrient() {
   $("stage-prompt").textContent = "Strike the open A string a few times and keep that pitch in your head. Today, every theoretical label must become something you try to hear before you find it.";
-  $("stage-instruction").textContent = "You are not practising vocal technique. Singing is only a checkpoint: can you form an auditory target before your fingers move? We will stay on one string so a familiar 2D box cannot do the thinking for you.";
+  $("stage-instruction").textContent = "You are not practising vocal technique. Singing is only a checkpoint: can you form an auditory target before your fingers move? We will stay on one string so a familiar 2D box cannot do the thinking for you. Degree labels and interval labels below describe the simple relationship to the root; the actual guitar pitches may be separated by one or more octaves from the open-string drone.";
   setFeedback("Say this once: “A is 1. I will hear the relationship, then find it.”");
   $("done-button").hidden = false;
   $("done-button").textContent = "Start with the tonic";
@@ -270,7 +275,7 @@ function targetTheoryRows(stage, position) {
   const role = degreeLabel(tone);
   const rows = [
     ["Note", formatNote(tone.note)],
-    ["From tonic", `${interval.label} · ${role}`],
+    ["Simple interval from root", `${interval.label} · ${role}`],
     ["Chord role", `${role} in ${stage.rootName} ${quality}`],
     ["Fretboard", `${simpleStringName(stage.stringIndex)} string · fret ${position.fret}`],
   ];
@@ -294,14 +299,14 @@ function renderTarget(stage) {
 
   if (state.checked) {
     const rows = targetTheoryRows(stage, state.selected);
-    setFeedback(`Correct. ${formatNote(targetTone(stage).note)} is ${degreeLabel(targetTone(stage))} (${targetInterval(stage).label}) from ${stage.rootName}. Now connect the label to the sound you just heard.`, "good");
+    setFeedback(`Correct. ${formatNote(targetTone(stage).note)} is ${degreeLabel(targetTone(stage))} (${targetInterval(stage).label} as a simple interval) from ${stage.rootName}. Now connect the label to the sound you just heard.`, "good");
     setTheory("Multi-representational theory lens", rows);
     setLens(rows);
     $("next-button").hidden = false;
     $("next-button").textContent = "Continue";
   } else if (state.lastWrong) {
     const wrong = state.lastWrong;
-    setFeedback(`You committed ${wrong.note} at fret ${wrong.fret}. Relative to ${stage.rootName}, that is ${wrong.interval}. The target is ${degreeLabel(targetTone(stage))} (${targetInterval(stage).label}). Sing the target again before moving your finger.`, "bad");
+    setFeedback(`You committed ${wrong.note} at fret ${wrong.fret}. Relative to ${stage.rootName}, its simple written relationship is ${wrong.interval}. The target is ${degreeLabel(targetTone(stage))} (${targetInterval(stage).label}). Sing the target again before moving your finger.`, "bad");
   } else {
     setFeedback(stage.requireSing ? "Sing first. Play second. Commit the fret third." : "Play first, then commit the fret you actually used.");
   }
@@ -309,7 +314,7 @@ function renderTarget(stage) {
 
 function renderContrast() {
   $("stage-prompt").textContent = "Keep the open A string as the drone. Alternate G-string fret 5 (C) and fret 6 (C#). Sing each one before playing it. What changes when only the third moves by one fret?";
-  $("stage-instruction").textContent = "Do several slow A→C and A→C# comparisons. Do not rush to the labels. First notice that the two sounds create different chord qualities against the same root; then attach ♭3 / m3 and 3 / M3 to what you heard.";
+  $("stage-instruction").textContent = "Do several slow A→C and A→C# comparisons. Do not rush to the labels. First notice that the two sounds create different chord qualities against the same root; then attach ♭3 / simple m3 and 3 / simple M3 to what you heard.";
   if (!state.theoryRevealed) {
     setFeedback("Say your observation aloud before revealing. The useful part is the contrast, not choosing a button.");
     $("reveal-button").hidden = false;
@@ -317,8 +322,8 @@ function renderContrast() {
     return;
   }
   const rows = [
-    ["A → C", "m3 · ♭3 · C is the third of A minor"],
-    ["A → C#", "M3 · 3 · C# is the third of A major"],
+    ["A → C", "simple m3 · ♭3 · C is the third of A minor"],
+    ["A → C#", "simple M3 · 3 · C# is the third of A major"],
     ["What stayed fixed", "Root A and fifth E"],
     ["What changed", "Only the third: C ↔ C#"],
     ["Theory meaning", "The third distinguishes these parallel minor and major triads."],
@@ -416,7 +421,7 @@ function renderMap(stage) {
 
   const tone = targetTone(stage);
   const interval = targetInterval(stage);
-  $("stage-prompt").textContent = `Current target: ${degreeLabel(tone)} (${interval.label}) of D. Sing it first, find it on the B string, play it against open D, then commit the fret.`;
+  $("stage-prompt").textContent = `Current target: ${degreeLabel(tone)} (${interval.label} as a simple interval) of D. Sing it first, find it on the B string, play it against open D, then commit the fret.`;
   $("stage-instruction").textContent = state.mapRoleIndex === 0
     ? "Start from function, not from the D-minor shape. Build the map one role at a time."
     : `Already established: ${state.savedMap.map((item) => item.label).join(" → ")}. Do not let those saved locations mechanically dictate the next one.`;
@@ -454,13 +459,15 @@ function renderStringBoard(stringIndex) {
     const cell = document.createElement("td");
     const button = document.createElement("button");
     const position = { stringIndex, fret };
+    const selected = Boolean(state.selected && positionKey(state.selected) === positionKey(position));
     button.type = "button";
     button.className = "fret-cell";
     button.dataset.stringIndex = String(stringIndex);
     button.dataset.fret = String(fret);
     button.setAttribute("aria-label", `${simpleStringName(stringIndex)} string, fret ${fret}`);
+    button.setAttribute("aria-pressed", String(selected));
 
-    if (state.selected && positionKey(state.selected) === positionKey(position)) button.classList.add("selected");
+    if (selected) button.classList.add("selected");
     if (state.lastWrong && state.lastWrong.fret === fret && state.lastWrong.stringIndex === stringIndex) {
       button.classList.add("wrong");
       button.textContent = state.lastWrong.note;
@@ -471,7 +478,7 @@ function renderStringBoard(stringIndex) {
         button.textContent = saved.label;
       }
     }
-    if (state.checked && state.selected && positionKey(state.selected) === positionKey(position)) {
+    if (state.checked && selected) {
       button.classList.add("correct");
       button.textContent = formatNote(getLocation(position, currentStage().rootName).pitch.note);
     }
@@ -481,6 +488,8 @@ function renderStringBoard(stringIndex) {
       state.selected = position;
       state.lastWrong = null;
       renderStringBoard(stringIndex);
+      const replacement = board.querySelector(`button[data-string-index="${stringIndex}"][data-fret="${fret}"]`);
+      replacement?.focus();
       setFeedback(`Committed ${simpleStringName(stringIndex)} string fret ${fret}. Play it again against the drone, then check.`);
     });
     cell.append(button);
@@ -521,7 +530,7 @@ function handleCheck() {
     };
     state.selected = null;
     renderStringBoard(stage.stringIndex);
-    setFeedback(`You played ${state.lastWrong.note}, which is ${state.lastWrong.interval} from ${stage.rootName}. Target: ${degreeLabel(tone)} (${targetInterval(stage).label}). Sing the target again before repairing the fret.`, "bad");
+    setFeedback(`You played ${state.lastWrong.note}, whose simple written relationship to ${stage.rootName} is ${state.lastWrong.interval}. Target: ${degreeLabel(tone)} (${targetInterval(stage).label}). Sing the target again before repairing the fret.`, "bad");
     return;
   }
 
@@ -551,7 +560,7 @@ function handleHint() {
   const tone = targetTone(stage);
   const interval = targetInterval(stage);
   if (state.hintLevel === 1) {
-    setFeedback(`Hint 1: hear the relationship first. The target is ${degreeLabel(tone)} (${interval.label}) from ${stage.rootName}. Use the root as the auditory anchor, not a memorized box.`, "warn");
+    setFeedback(`Hint 1: hear the relationship first. The target is ${degreeLabel(tone)} (${interval.label} as a simple interval) from ${stage.rootName}. Use the root as the auditory anchor, not a memorized box.`, "warn");
     return;
   }
   if (state.hintLevel === 2) {
@@ -575,16 +584,9 @@ function renderMusicalize() {
   updateTimerDisplay();
 }
 
-function currentTimerPhase() {
-  if (!state.timerStarted) return "READY";
-  if (state.timerFinished) return "DONE";
-  const elapsed = 35 - state.timerRemaining;
-  return Math.floor(elapsed / 5) % 2 === 0 ? "PLAY" : "REST";
-}
-
 function updateTimerDisplay() {
   $("timer-value").textContent = `${state.timerRemaining}s`;
-  $("timer-phase").textContent = currentTimerPhase();
+  $("timer-phase").textContent = state.timerPhase;
   if (state.timerFinished) {
     $("timer-start").hidden = true;
     $("timer-next").hidden = false;
@@ -595,27 +597,31 @@ function updateTimerDisplay() {
   }
 }
 
+function syncTimer(nowMs = performance.now()) {
+  if (!state.timerStarted || state.timerDeadlineMs === null) return;
+  const snapshot = timerSnapshot(state.timerDeadlineMs, nowMs);
+  state.timerRemaining = snapshot.remaining;
+  state.timerFinished = snapshot.finished;
+  state.timerPhase = snapshot.phase;
+  if (state.timerFinished) stopTimer();
+  updateTimerDisplay();
+}
+
 function startTimer() {
   if (state.timerStarted || state.timerFinished) return;
   state.timerStarted = true;
-  updateTimerDisplay();
-  state.timerId = setInterval(() => {
-    state.timerRemaining -= 1;
-    if (state.timerRemaining <= 0) {
-      state.timerRemaining = 0;
-      state.timerFinished = true;
-      stopTimer();
-    }
-    updateTimerDisplay();
-  }, 1000);
+  state.timerDeadlineMs = performance.now() + 35_000;
+  state.timerPhase = "PLAY";
+  syncTimer();
+  state.timerId = setInterval(() => syncTimer(), 100);
 }
 
 function renderReflect() {
   $("stage-prompt").textContent = "Which connection failed first when the session became harder?";
-  $("stage-instruction").textContent = "Pick the most accurate failure mode. We are not creating a mastery score; this is simply evidence about what the next session should stress.";
+  $("stage-instruction").textContent = "Pick the most accurate failure mode, or choose no clear breakdown. We are not creating a mastery score; this is simply evidence about what the next session should stress.";
   setFeedback(state.reflection ? `Recorded: ${state.reflection}.` : "Choose one. The answer disappears when the page reloads.");
   $("reflection-panel").hidden = false;
-  if (state.reflection) $("reflection-next").hidden = false;
+  $("reflection-next").hidden = reflectionNextHidden(state.reflection);
 }
 
 function renderComplete() {
@@ -625,7 +631,7 @@ function renderComplete() {
   const rows = [
     ["What you trained", "A sound before a fret"],
     ["Core contrast", "♭3 ↔ 3"],
-    ["Context shift", "C as ♭3 / 5 / 1 / ♭7"],
+    ["Context shift", "One pitch under changing harmonic roles"],
     ["Transfer", "A minor → D minor"],
     ["Application", "1 / ♭3 / 5 in timed phrases"],
   ];
@@ -636,7 +642,7 @@ function renderComplete() {
 function handleReflectionSubmit() {
   const selected = document.querySelector('input[name="breakdown"]:checked');
   if (!selected) {
-    setFeedback("Choose the failure mode that felt most true.", "warn");
+    setFeedback("Choose the failure mode that felt most true, or choose no clear breakdown.", "warn");
     return;
   }
   const labels = {
@@ -645,10 +651,11 @@ function handleReflectionSubmit() {
     location: "the sound was available but the fretboard location was slow",
     shape: "a familiar shape took over",
     context: "the same note became confusing when harmony changed",
+    none: "no clear breakdown",
   };
   state.reflection = labels[selected.value];
   setFeedback(`Recorded for this session only: ${state.reflection}.`, "good");
-  $("reflection-next").hidden = false;
+  $("reflection-next").hidden = reflectionNextHidden(state.reflection);
 }
 
 $("check-button").addEventListener("click", handleCheck);
@@ -665,14 +672,7 @@ $("reflection-submit").addEventListener("click", handleReflectionSubmit);
 $("reflection-next").addEventListener("click", advanceStage);
 $("restart-button").addEventListener("click", () => {
   stopTimer();
-  state.stageIndex = 0;
-  state.mapRoleIndex = 0;
-  state.savedMap = [];
-  state.timerRemaining = 35;
-  state.timerStarted = false;
-  state.timerFinished = false;
-  state.reflection = null;
-  resetStageInteraction();
+  resetSessionState(state);
   for (const input of document.querySelectorAll('input[name="breakdown"]')) input.checked = false;
   renderStage();
 });
