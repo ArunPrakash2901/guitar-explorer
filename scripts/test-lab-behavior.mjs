@@ -39,10 +39,14 @@ assert.deepEqual(timerSnapshot(deadline, deadline + 9_000), { remaining: 0, fini
 
 const app = await readFile(new URL("../lab/app.js", import.meta.url), "utf8");
 const html = await readFile(new URL("../lab/index.html", import.meta.url), "utf8");
+const server = await readFile(new URL("./serve-lab.mjs", import.meta.url), "utf8");
 assert.match(app, /aria-pressed/);
 assert.match(app, /Simple interval from root/);
+assert.match(app, /from "\/session-logic\.mjs"/);
 assert.match(html, /No clear breakdown/);
 assert.doesNotMatch(html, /C versus C#/);
 assert.doesNotMatch(html, /C can be ♭3/);
+assert.match(server, /\["\.mjs", "text\/javascript; charset=utf-8"\]/);
+assert.match(server, /pathname === "\/session-logic\.mjs"/);
 
 console.log("Learning Lab focused behavior checks passed.");
