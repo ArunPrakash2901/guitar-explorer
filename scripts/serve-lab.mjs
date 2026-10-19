@@ -15,6 +15,7 @@ if (!Number.isInteger(port) || port < 1 || port > 65535) {
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
   [".js", "text/javascript; charset=utf-8"],
+  [".mjs", "text/javascript; charset=utf-8"],
   [".map", "application/json; charset=utf-8"],
 ]);
 
@@ -28,6 +29,9 @@ function resolveRequest(pathname) {
   }
   if (pathname === "/app.js") {
     return resolve(labRoot, "app.js");
+  }
+  if (pathname === "/session-logic.mjs") {
+    return resolve(labRoot, "session-logic.mjs");
   }
   if (pathname.startsWith("/engine/")) {
     const candidate = resolve(engineRoot, pathname.slice("/engine/".length));
