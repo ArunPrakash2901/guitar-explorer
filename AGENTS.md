@@ -1,14 +1,14 @@
 # AGENTS.md
 
-## Approved scope override — Music Engine through Phase 2B
+## Approved scope override — Music Engine through Phase 2C
 
 The user-approved Music Engine plan supersedes the historical v0.2 implementation
 order, `src/music` layout, and UI-first kickoff below. Phase 1 plus Issue #2 slices
-2A and 2B implement `src/engine/{core,guitar,query}`: the foundation kernel,
-conventional key relationships, broader scale formulas and generalized selected-
-scale contextual analysis.
+2A through 2C implement `src/engine/{core,guitar,query}`: the foundation kernel,
+conventional key relationships, broader scale formulas, generalized selected-scale
+contextual analysis and the approved chord catalogue.
 
-Do not begin Issue #2 slice 2C, CAGED, broader harmony, Audio, Ear, Learning,
+Do not begin Issue #2 slice 2D, CAGED, inversions, voicings, progressions, Audio, Ear, Learning,
 storage, React or rhythm implementation without later authorization. Do not add
 future-engine placeholders. Do not introduce bitsets, fretboard graphs, caching or
 adaptive-learning infrastructure without a concrete later requirement.
@@ -22,7 +22,7 @@ added. It may call existing Core/Guitar/query exports, but it must not create a
 second source of musical truth or silently begin the future Learning Engine.
 
 Keep the lab intentionally thin: no persistence, learner history, mastery scores,
-adaptive scheduling, analytics, accounts, AI, audio, React or Phase 2C theory. New
+adaptive scheduling, analytics, accounts, AI, audio or React. New
 lab interactions should earn their place by improving interval understanding,
 fretboard reconstruction, scale-degree understanding or transfer. If an interaction
 is not useful in practice, simplify or remove it rather than building infrastructure
@@ -39,8 +39,21 @@ must preserve written-degree evidence separately from sounding membership; omitt
 and repeated formula degrees are explicit data, not errors or implicit choices.
 Key analysis remains the existing seven-note major/natural-minor contract.
 
+`CHORD_FORMULAS` is the only declaration of chord formula truth. Chord catalogue
+metadata may contain only identity and presentation data; attach the authoritative
+formula object when producing catalogue results. Preserve compound roles 9, 11 and
+13 and diminished seventh alteration -2. A formula interval such as M13 describes
+the abstract chord role; any physical Lab reveal must separately calculate the
+registered interval actually played from the frozen root anchor.
+
+Every physical Lab task must be sampled from engine-returned fretboard locations.
+Freeze the selected chord, role, anchor, location, string and window before render.
+Transfer preserves quality plus exact degree/alteration identity. Formulas longer
+than four tones remain complete in Core while a physical reconstruction selects at
+most four roles, including a compound extension for ninth/eleventh/thirteenth work.
+
 Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
-`npm run test:lab`. Stop engine breadth after Phase 2B unless separately authorized.
+`npm run test:lab`. Stop engine breadth after Phase 2C unless separately authorized.
 The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical v0.2 instructions (subject to the override above)

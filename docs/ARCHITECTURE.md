@@ -88,6 +88,28 @@ seven-degree assumption.
 Key analysis remains major/natural-minor and seven-note by design. Broad harmonic
 interpretation, Roman numerals and functional analysis are later Phase 2 work.
 
+## Implemented chord catalogue and Lab planning — Phase 2C
+
+Core declares all 35 approved formulas in `CHORD_FORMULAS`. Catalogue metadata is
+limited to identity and presentation fields, and catalogue construction attaches
+the exact formula object rather than redeclaring theory. The public
+`getChordCatalog({})` query returns frozen families and entries in deterministic
+order through the existing version-1 envelope.
+
+Chord formulas retain their abstract compound roles. A chordal 9, 11 or 13 keeps
+its compound degree and canonical interval even when a chosen guitar location lies
+within a simple octave of the root anchor. The Lab asks `getInterval` for the two
+registered pitches and presents that played interval as a separate fact. This is
+also the boundary between an abstract chord collection and a later concrete voicing.
+
+The Lab planner is a pure consumer with injected randomness. It chooses permitted
+material and a formula role, derives valid locations through Guitar queries, samples
+an actual result, derives a containing window and freezes the complete plan.
+Transfers preserve quality and exact degree/alteration identity on a different root.
+Collections of at most four tones are reconstructed completely; longer formulas use
+at most four structural roles while the complete formula remains visible and
+authoritative. No inversion, fingering or voicing model is implied.
+
 ## Future rhythm/time domain — documentation only
 
 A future instrument-independent time domain will describe meter, beats, duration,
@@ -110,8 +132,8 @@ or musical query results.
 
 ## Later v1 direction and exclusions
 
-Subsequently authorized slices add the approved broader chord catalog,
-explicit-context harmony, maps/triad voicings, standard-tuning CAGED, playback and
+Subsequently authorized slices may add explicit-context harmony, maps/triad
+voicings, standard-tuning CAGED, playback and
 all five auditory exercise families. The auditory-to-fretboard composition remains
 owned by Learning. Evidence summaries precede mastery estimation.
 

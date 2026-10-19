@@ -88,3 +88,22 @@ Key analysis deliberately retains the existing seven-note major/natural-minor
 contract. Sounding membership never replaces spelled identity. Phase 2C and later
 theory breadth remain separate implementation runs; no bitset, graph, caching or
 adaptive-learning infrastructure is introduced merely for scale breadth.
+
+## D015 — One chord-formula authority; physical intervals remain registered facts
+
+Phase 2C keeps `CHORD_FORMULAS` as the sole declaration of chord formula truth.
+Catalogue metadata contains only identity and presentation fields, and the query
+attaches those existing formula objects. Compound degrees 9, 11 and 13 are retained
+because add-tone and extension roles are part of chord identity, not display aliases
+for 2, 4 and 6.
+
+The Chord Lab distinguishes that canonical formula interval from the registered
+interval sounded by its frozen fretboard locations. It creates physical constraints
+only after the Guitar engine returns valid locations, then freezes the anchor,
+target, string and window. Transfers preserve the exact role. Long formulas remain
+complete in Core while physical reconstruction is bounded to four structural roles.
+
+The catalogue deliberately excludes dominant-7-sharp-11 and dominant-7-flat-13
+identities until a later chord-language policy can define their implied natural
+extensions without ambiguity. Inversions, voicings, CAGED and progression meaning
+remain separate models rather than properties inferred by the catalogue.

@@ -26,7 +26,7 @@ function failure(result: QueryResult<unknown>, code: "INVALID_INPUT" | "UNSUPPOR
 describe("version 1 public music queries", () => {
   it("exposes the complete implemented kernel without future-operation placeholders", () => {
     expect(Object.keys(musicQueries).sort()).toEqual([
-      "analyseNotes", "getChord", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "analyseNotes", "getChord", "getChordCatalog", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "transposeNote", "transposePitch",
     ]);
@@ -281,14 +281,14 @@ describe("untrusted public query requests", () => {
     for (const payload of [null, undefined, [], "C4", NaN, 12, true]) {
       failure(operation(payload as never));
     }
-    if (_name !== "getFretboardLocations") failure(operation({} as never));
+    if (!["getFretboardLocations", "getChordCatalog"].includes(_name)) failure(operation({} as never));
   });
 
   it.each(["wholeTone", "__proto__", "constructor", "toString"])("rejects unsupported scale ID %s", (scaleId) => {
     failure(musicQueries.getScale({ tonic: parseNote("C"), scaleId } as never), "UNSUPPORTED");
   });
 
-  it.each(["dominant7", "__proto__", "constructor", "toString"])("rejects unsupported chord ID %s", (chordId) => {
+  it.each(["dominant7Sharp11", "__proto__", "constructor", "toString"])("rejects unsupported chord ID %s", (chordId) => {
     failure(musicQueries.getChord({ root: parseNote("C"), chordId } as never), "UNSUPPORTED");
   });
 
@@ -308,7 +308,7 @@ describe("untrusted public query requests", () => {
 
   it("does not return partial scale or chord answers for unsupported collections", () => {
     failure(musicQueries.getScale({ tonic: parseNote("C"), scaleId: "melodicMinor" } as never), "UNSUPPORTED");
-    failure(musicQueries.getChord({ root: parseNote("C"), chordId: "major9" } as never), "UNSUPPORTED");
+    failure(musicQueries.getChord({ root: parseNote("C"), chordId: "dominant7Flat13" } as never), "UNSUPPORTED");
   });
 
   it("ignores extra note metadata without leaking BigInt or cyclic input references", () => {
