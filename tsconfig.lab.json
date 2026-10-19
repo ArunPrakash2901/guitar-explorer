@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": ".lab-dist/engine",
+    "rootDir": "src/engine",
+    "noEmit": false,
+    "declaration": false,
+    "sourceMap": true,
+    "types": []
+  },
+  "include": ["src/engine/**/*.ts"],
+  "exclude": ["tests", "prototype", "lab"]
+}

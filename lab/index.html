@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer Lab</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0f1115;
+      --panel: #171a20;
+      --panel-2: #1d2129;
+      --text: #f3f5f7;
+      --muted: #9aa4b2;
+      --line: #303642;
+      --accent: #8ab4ff;
+      --good: #8bd49c;
+      --warn: #f2c879;
+      --bad: #ef8a8a;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.5 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    main { max-width: 1040px; margin: 0 auto; padding: 28px 18px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { font-size: clamp(1.7rem, 4vw, 2.5rem); margin-bottom: 8px; }
+    .lede { color: var(--muted); max-width: 760px; }
+    .notice {
+      margin: 20px 0;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: 12px;
+    }
+    .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin: 20px 0; }
+    button, input, select { font: inherit; }
+    button, select, input[type="text"] {
+      min-height: 44px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: var(--panel-2);
+      color: var(--text);
+    }
+    button { padding: 9px 14px; cursor: pointer; }
+    button:hover { border-color: #4d5666; }
+    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(138, 180, 255, .35); outline-offset: 2px; }
+    button.primary { background: #263f66; border-color: #426da8; }
+    .tab[aria-selected="true"] { background: #263f66; border-color: #426da8; }
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      padding: 18px;
+    }
+    .panel[hidden] { display: none; }
+    .controls { display: flex; gap: 12px; flex-wrap: wrap; align-items: end; margin-bottom: 18px; }
+    label { display: grid; gap: 6px; color: var(--muted); }
+    select, input[type="text"] { padding: 9px 11px; min-width: 150px; }
+    .prompt { font-size: 1.2rem; margin: 12px 0 16px; }
+    .answer-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .answer-row input { flex: 1 1 180px; }
+    .feedback {
+      min-height: 48px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-left: 4px solid var(--line);
+      background: var(--panel-2);
+      border-radius: 8px;
+      white-space: pre-line;
+    }
+    .feedback.good { border-left-color: var(--good); }
+    .feedback.warn { border-left-color: var(--warn); }
+    .feedback.bad { border-left-color: var(--bad); }
+    .subpanel {
+      margin-top: 22px;
+      padding-top: 18px;
+      border-top: 1px solid var(--line);
+    }
+    .subpanel h3 { margin-bottom: 6px; }
+    .muted { color: var(--muted); }
+    .evidence {
+      margin-top: 12px;
+      display: grid;
+      gap: 6px;
+      color: #d7dde7;
+    }
+    .board-wrap { overflow-x: auto; margin: 16px 0; }
+    .fretboard {
+      border-collapse: separate;
+      border-spacing: 4px;
+      min-width: 760px;
+      width: 100%;
+    }
+    .fretboard th { color: var(--muted); font-weight: 600; font-size: .82rem; }
+    .fretboard .string-name { text-align: right; padding-right: 6px; min-width: 54px; }
+    .fretboard td { padding: 0; }
+    .fret-cell {
+      width: 100%;
+      min-width: 46px;
+      height: 44px;
+      padding: 0;
+      border-radius: 8px;
+      position: relative;
+    }
+    .fret-cell::after {
+      content: "";
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      margin: auto;
+      background: #596273;
+    }
+    .fret-cell.selected { border-color: var(--accent); background: #23324a; }
+    .fret-cell.selected::after { background: var(--accent); }
+    .fret-cell.correct { border-color: var(--good); background: #20392a; }
+    .fret-cell.correct::after { background: var(--good); }
+    .fret-cell.wrong { border-color: var(--bad); background: #432727; }
+    .fret-cell.wrong::after { background: var(--bad); }
+    .fret-cell.revealed { border-color: var(--warn); background: #3e3521; color: #fff0c6; }
+    .fret-cell.revealed::after { display: none; }
+    .board-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+    details { margin-top: 16px; }
+    summary { cursor: pointer; color: var(--muted); }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      background: #0b0d11;
+      border: 1px solid var(--line);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: .86rem;
+    }
+    footer { color: var(--muted); margin-top: 22px; font-size: .92rem; }
+    @media (max-width: 620px) {
+      main { padding: 20px 12px 36px; }
+      .panel { padding: 14px; }
+      .controls > label, .controls > button { width: 100%; }
+      select, input[type="text"] { width: 100%; min-width: 0; }
+      .answer-row > button { flex: 1 1 120px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Guitar Explorer Lab</h1>
+      <p class="lede">A deliberately small learning harness over the real engine. No accounts, streaks, analytics, AI tutor or production UI. The goal is to find out whether the musical foundation is actually useful with a guitar in your hands.</p>
+    </header>
+
+    <div class="notice">
+      <strong>How to use this:</strong> keep your guitar beside you. Answer before revealing. When you miss, read the musical explanation rather than memorising the screen.
+    </div>
+
+    <nav class="tabs" aria-label="Learning modes">
+      <button class="tab" type="button" data-panel="interval" aria-selected="true">Interval transfer</button>
+      <button class="tab" type="button" data-panel="scale" aria-selected="false">Scale degree</button>
+      <button class="tab" type="button" data-panel="fretboard" aria-selected="false">Find on fretboard</button>
+    </nav>
+
+    <section class="panel" id="panel-interval">
+      <h2>Interval transfer</h2>
+      <p class="muted">Name the target note, then move the same relationship to another root.</p>
+      <div class="controls">
+        <label>Root
+          <select id="interval-root"></select>
+        </label>
+        <label>Target interval
+          <select id="interval-kind"></select>
+        </label>
+        <button type="button" id="interval-random">Random challenge</button>
+      </div>
+      <div class="prompt" id="interval-prompt"></div>
+      <div class="answer-row">
+        <input id="interval-answer" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. C#">
+        <button class="primary" type="button" id="interval-check">Check</button>
+        <button type="button" id="interval-reveal">Reveal</button>
+      </div>
+      <div class="feedback" id="interval-feedback" aria-live="polite">Answer first. Enharmonic sound and written spelling are evaluated separately.</div>
+      <details>
+        <summary>Engine evidence</summary>
+        <pre id="interval-evidence">No answer checked yet.</pre>
+      </details>
+    </section>
+
+    <section class="panel" id="panel-scale" hidden>
+      <h2>Scale degree</h2>
+      <p class="muted">Recall a spelled scale tone, then probe any note against the same scale context.</p>
+      <div class="controls">
+        <label>Tonic
+          <select id="scale-tonic"></select>
+        </label>
+        <label>Scale
+          <select id="scale-id"></select>
+        </label>
+        <button type="button" id="scale-new">New degree</button>
+      </div>
+      <div class="prompt" id="scale-prompt"></div>
+      <div class="answer-row">
+        <input id="scale-answer" type="text" autocomplete="off" spellcheck="false" placeholder="e.g. Eb">
+        <button class="primary" type="button" id="scale-check">Check</button>
+        <button type="button" id="scale-reveal">Reveal</button>
+      </div>
+      <div class="feedback" id="scale-feedback" aria-live="polite">Use the degree label, not a remembered box shape.</div>
+
+      <div class="subpanel">
+        <h3>Probe any note against this scale</h3>
+        <p class="muted">This exposes the Phase 2B contextual evidence directly: written degree, omitted/multiple references, sounding membership and spelling match.</p>
+        <div class="answer-row">
+          <input id="scale-probe" type="text" autocomplete="off" spellcheck="false" placeholder="Try F, F#, Gb, B#...">
+          <button type="button" id="scale-analyse">Analyse note</button>
+        </div>
+        <div class="feedback" id="scale-analysis" aria-live="polite">Try a note to inspect its relationship.</div>
+      </div>
+    </section>
+
+    <section class="panel" id="panel-fretboard" hidden>
+      <h2>Find on fretboard</h2>
+      <p class="muted">Select every occurrence of the target sounding note from fret 0 through 12. Do not reveal until you have searched all six strings.</p>
+      <div class="controls">
+        <label>Target note
+          <input id="fret-target" type="text" autocomplete="off" spellcheck="false" value="C">
+        </label>
+        <button type="button" id="fret-set">Set target</button>
+        <button type="button" id="fret-random">Random note</button>
+      </div>
+      <div class="prompt" id="fret-prompt"></div>
+      <div class="board-wrap">
+        <table class="fretboard" id="fretboard" aria-label="Guitar fretboard from open strings through fret 12"></table>
+      </div>
+      <div class="board-actions">
+        <button class="primary" type="button" id="fret-check">Check selections</button>
+        <button type="button" id="fret-reveal">Reveal targets</button>
+        <button type="button" id="fret-clear">Clear</button>
+      </div>
+      <div class="feedback" id="fret-feedback" aria-live="polite">Click every place you think the target note occurs.</div>
+    </section>
+
+    <footer>
+      This lab keeps no learner history. That is intentional. First we prove the learning interactions are useful; persistence and adaptation can come later only if they earn their place.
+    </footer>
+  </main>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>

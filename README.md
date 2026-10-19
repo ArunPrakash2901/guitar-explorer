@@ -36,6 +36,32 @@ CAGED production logic, diatonic harmony, audio, ear training, learning telemetr
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
+## Try the Learning Lab
+
+`lab/` is a deliberately thin browser consumer of the existing engine. It is not
+the production app and it does not introduce a Learning Engine, persistence,
+mastery scores or new musical truth. Its purpose is to answer one question early:
+**does the foundation already help a real learner practise?**
+
+Requires Node.js 22.17 or newer.
+
+```sh
+npm ci
+npm run lab
+```
+
+Then open `http://127.0.0.1:4173`.
+
+The first lab contains only three interactions:
+
+- interval transfer with separate sounding/spelling feedback
+- scale-degree recall plus direct inspection of Phase 2B scale-context evidence
+- finding every occurrence of a note on the standard fretboard from fret 0–12
+
+The lab compiles and imports `src/engine/` directly. It does not duplicate a second
+theory implementation in the UI. Treat it as a disposable learning probe: keep,
+change or delete interactions based on whether they actually improve practice.
+
 ## Verify the foundation kernel
 
 Requires Node.js 22.17 or newer.
@@ -45,6 +71,7 @@ npm ci
 npm run typecheck
 npm test
 npm run test:prototype
+npm run test:lab
 ```
 
 Import `src/engine/index.ts` from a TypeScript consumer. See:
@@ -87,7 +114,7 @@ Key principles:
 5. **Audio and ear training** — playback plans, browser audio and auditory exercise families
 6. **Production integration and stabilization** — React/PWA consumers, persistence and end-to-end verification
 
-The roadmap is intentionally incremental. Each phase should pass its own tests and acceptance criteria before later phases begin.
+The roadmap is intentionally incremental. Each phase should pass its own tests and acceptance criteria before later phases begin. The Learning Lab may be used between slices to validate that existing capabilities earn their place before more engine breadth is added.
 
 ## Prototype and historical references
 
