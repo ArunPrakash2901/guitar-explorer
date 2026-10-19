@@ -36,12 +36,12 @@ CAGED production logic, diatonic harmony, audio, ear training, learning telemetr
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
-## Try the Learning Lab
+## Try Learning Lab v1 — Relational Transfer
 
 `lab/` is a deliberately thin browser consumer of the existing engine. It is not
 the production app and it does not introduce a Learning Engine, persistence,
 mastery scores or new musical truth. Its purpose is to answer one question early:
-**does the foundation already help a real learner practise?**
+**can the existing foundation drive a serious guitar-first practice interaction?**
 
 Requires Node.js 22.17 or newer.
 
@@ -52,15 +52,24 @@ npm run lab
 
 Then open `http://127.0.0.1:4173`.
 
-The first lab contains only three interactions:
+Learning Lab v1 replaces the earlier quiz-style tabs with one connected 10–15 minute
+relational-transfer session built around the minor-triad relationship `1–♭3–5`:
 
-- interval transfer with separate sounding/spelling feedback
-- scale-degree recall plus direct inspection of Phase 2B scale-context evidence
-- finding every occurrence of a note on the standard fretboard from fret 0–12
+- orient in A minor inside frets 5–9
+- play first, then commit a root and minor-third location on the blank fretboard
+- find a second minor third on a different string
+- add the fifth and reconstruct the triad away from the screen
+- transfer the same relationship to D minor in the same window
+- transfer again to C minor in a different fret region
+- finish with a 30-second constrained phrase using only `1`, `♭3` and `5`
+- reflect briefly on whether note names, interval relationships, fretboard locations or finger pattern broke first
+- stop with a delayed-retest instruction rather than another quiz question
 
 The lab compiles and imports `src/engine/` directly. It does not duplicate a second
-theory implementation in the UI. Treat it as a disposable learning probe: keep,
-change or delete interactions based on whether they actually improve practice.
+theory implementation in the UI. Incorrect fret choices are described musically and
+repaired before reveal; hints progress from relational information to the note name
+without exposing the entire solution. Treat the lab as a disposable learning probe:
+keep, change or delete interactions based on whether they improve real practice.
 
 ## Verify the foundation kernel
 
