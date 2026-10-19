@@ -253,13 +253,14 @@ function renderOrient() {
 function targetPrompt(stage) {
   const tone = targetTone(stage);
   const label = degreeLabel(tone);
-  const interval = targetInterval(stage).label;
   const stringName = simpleStringName(stage.stringIndex);
   if (stage.toneIndex === 0) {
     return `Strike open ${stage.rootName}. On the ${stringName} string, find another ${stage.rootName}. Play it first, then commit the fret you used.`;
   }
-  const qualityWord = stage.chordId === "minor" ? "minor" : "major";
-  return `Keep ${stage.rootName} as the anchor. Before your fingers move, sing the ${label} (${qualityWord} third${stage.toneIndex === 2 ? "" : ""}${stage.toneIndex === 2 ? "" : ""}) you expect. Then find it on the ${stringName} string, play it against the drone, and commit the fret.`.replace("major third third", "major third").replace("minor third third", "minor third");
+  const roleName = stage.toneIndex === 1
+    ? `${stage.chordId === "minor" ? "minor" : "major"} third`
+    : "perfect fifth";
+  return `Keep ${stage.rootName} as the anchor. Before your fingers move, sing the ${label} (${roleName}) you expect. Then find it on the ${stringName} string, play it against the drone, and commit the fret.`;
 }
 
 function targetTheoryRows(stage, position) {
