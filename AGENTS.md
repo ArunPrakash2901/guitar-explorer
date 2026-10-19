@@ -14,6 +14,20 @@ future-engine placeholders. Do not introduce bitsets, fretboard graphs, caching 
 adaptive-learning infrastructure without a concrete later requirement.
 The preserved prototype remains a reference, not the production implementation.
 
+### Approved learning-harness experiment
+
+`lab/` is authorized as a disposable browser consumer of the already-implemented
+engine. Its job is to validate educational usefulness before more engine breadth is
+added. It may call existing Core/Guitar/query exports, but it must not create a
+second source of musical truth or silently begin the future Learning Engine.
+
+Keep the lab intentionally thin: no persistence, learner history, mastery scores,
+adaptive scheduling, analytics, accounts, AI, audio, React or Phase 2C theory. New
+lab interactions should earn their place by improving interval understanding,
+fretboard reconstruction, scale-degree understanding or transfer. If an interaction
+is not useful in practice, simplify or remove it rather than building infrastructure
+around it.
+
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
 Learning composes Ear + Guitar for auditory-to-fretboard tasks. Musical queries
 expose musical truth only; future evidence/history queries belong to a separate
@@ -25,8 +39,9 @@ must preserve written-degree evidence separately from sounding membership; omitt
 and repeated formula degrees are explicit data, not errors or implicit choices.
 Key analysis remains the existing seven-note major/natural-minor contract.
 
-Verify with `npm run typecheck`, `npm test`, and `npm run test:prototype`. Stop after
-Phase 2B. The exact original handoff is in `references/approved-v0.2-handoff.zip`.
+Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
+`npm run test:lab`. Stop engine breadth after Phase 2B unless separately authorized.
+The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical v0.2 instructions (subject to the override above)
 
