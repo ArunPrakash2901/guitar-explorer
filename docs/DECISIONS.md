@@ -36,7 +36,7 @@ Reason: `prototype/` proves interaction ideas quickly. Production code should no
 
 The user approved one TypeScript package under src/engine/{core,guitar,query}.
 React/Vite remains the eventual UI direction; CAGED and progressions are later work.
-Current scope and stop conditions are in ENGINE_PHASE1.md.
+Current scope and stop conditions are in ENGINE_PHASE1.md and GitHub Issue #2.
 
 ## D010 — Ear is instrument-independent
 
@@ -48,14 +48,14 @@ for hear → identify → find. No direct Ear → Guitar dependency is allowed.
 Future meter/beats/duration/subdivision/harmonic rhythm belong to a pure musical
 time domain distinct from Audio seconds and Learning wall-clock time. Musical
 queries remain learner-independent; evidence/history will use a separate Learning
-Query Interface. Both extension points are documentation-only in Phase 1.
+Query Interface. Both extension points remain documentation-only.
 
 ## D012 — Bounded source-only kernel
 
 Default board is standard tuning through fret 15; callers supply other tunings and
 fret limits. Enumeration has a 10000-position budget before pitch filtering. Only
-working Phase 1 operations are exported. The original prototype remains standalone
-and its exact original archive is preserved under references/.
+working operations are exported. The original prototype remains standalone and its
+exact original archive is preserved under references/.
 
 ## D013 — Key signatures are relational, with a conventional display boundary
 
@@ -66,4 +66,25 @@ per-key signature tables. Signature/profile queries support -7..7 and return
 UNSUPPORTED outside that range; relative and fifths relationships remain valid.
 
 Phase 2A adds focused musical-truth queries plus getKeyProfile as their convenience
-composition. Phase 2B and later theory breadth remain separate implementation runs.
+composition.
+
+## D014 — Scale analysis separates written-degree references from sounding membership
+
+Phase 2B extends the scale catalog without creating per-scale query methods. Scale
+formulas remain frozen structured `{ degree, alteration }` values and are resolved
+through the existing spelling-aware transposition pipeline.
+
+Selected-scale analysis may encounter a written degree that is omitted (for example
+degree 4 in major pentatonic) or represented more than once (the flat-five and
+perfect-five references in minor blues). `ScaleRelation` therefore exposes an
+explicit `referenceStatus`, ordered `degreeReferences`, nullable
+`alterationFromScale`, and independent pitch-class `matchingTones`.
+
+The nullable field is an intentional TypeScript contract change: existing
+major/natural-minor runtime answers remain numeric, while consumers must handle
+`null` when a selected scale has no unique written-degree reference.
+
+Key analysis deliberately retains the existing seven-note major/natural-minor
+contract. Sounding membership never replaces spelled identity. Phase 2C and later
+theory breadth remain separate implementation runs; no bitset, graph, caching or
+adaptive-learning infrastructure is introduced merely for scale breadth.

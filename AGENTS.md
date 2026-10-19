@@ -1,15 +1,17 @@
 # AGENTS.md
 
-## Approved scope override — Music Engine through Phase 2A
+## Approved scope override — Music Engine through Phase 2B
 
 The user-approved Music Engine plan supersedes the historical v0.2 implementation
-order, `src/music` layout, and UI-first kickoff below. Phase 1 plus Issue #2 slice
-2A implement `src/engine/{core,guitar,query}`: the foundation kernel together with
-conventional key signatures, relative keys and fifths relationships.
+order, `src/music` layout, and UI-first kickoff below. Phase 1 plus Issue #2 slices
+2A and 2B implement `src/engine/{core,guitar,query}`: the foundation kernel,
+conventional key relationships, broader scale formulas and generalized selected-
+scale contextual analysis.
 
-Do not begin Issue #2 slice 2B, CAGED, broader harmony, Audio, Ear, Learning,
+Do not begin Issue #2 slice 2C, CAGED, broader harmony, Audio, Ear, Learning,
 storage, React or rhythm implementation without later authorization. Do not add
-future-engine placeholders.
+future-engine placeholders. Do not introduce bitsets, fretboard graphs, caching or
+adaptive-learning infrastructure without a concrete later requirement.
 The preserved prototype remains a reference, not the production implementation.
 
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
@@ -18,8 +20,13 @@ expose musical truth only; future evidence/history queries belong to a separate
 Learning Query Interface. Musical time, audio seconds and learning wall-clock time
 remain separate. See the current architecture for documentation-only extensions.
 
+Scale formulas are structured degree/alteration values. Selected-scale analysis
+must preserve written-degree evidence separately from sounding membership; omitted
+and repeated formula degrees are explicit data, not errors or implicit choices.
+Key analysis remains the existing seven-note major/natural-minor contract.
+
 Verify with `npm run typecheck`, `npm test`, and `npm run test:prototype`. Stop after
-Phase 2A. The exact original handoff is in `references/approved-v0.2-handoff.zip`.
+Phase 2B. The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical v0.2 instructions (subject to the override above)
 
