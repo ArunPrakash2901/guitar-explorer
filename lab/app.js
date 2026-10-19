@@ -2,6 +2,7 @@ import {
   STANDARD_FRETBOARD,
   formatNote,
   formatPitch,
+  intervalBetweenNotes,
   musicQueries,
   parseNote,
   pitchClass,
@@ -9,44 +10,40 @@ import {
 
 const $ = (id) => document.getElementById(id);
 
-const contexts = [
-  { rootName: "A", label: "A minor", minFret: 5, maxFret: 9 },
-  { rootName: "D", label: "D minor", minFret: 5, maxFret: 9 },
-  { rootName: "C", label: "C minor", minFret: 8, maxFret: 13 },
-];
+const G_STRING = 3;
+const B_STRING = 4;
+const MAX_FRET = 12;
 
 const stages = [
-  { kind: "orient", context: 0, title: "Orient", kicker: "Build the relationship before the shape" },
-  { kind: "location", context: 0, role: "root", title: "Find the root", kicker: "Guitar first" },
-  { kind: "location", context: 0, role: "third", title: "Anticipate the minor third", kicker: "Retrieve, then locate" },
-  { kind: "location", context: 0, role: "third", alternate: true, title: "Find another minor third", kicker: "Break the single-location habit" },
-  { kind: "location", context: 0, role: "fifth", title: "Add the fifth", kicker: "Construct the triad" },
-  { kind: "physical", context: 0, title: "Reconstruct without the screen", kicker: "Play and listen" },
-  { kind: "transfer", context: 1, title: "Near transfer: D minor", kicker: "Same window, new root" },
-  { kind: "transfer", context: 2, title: "Farther transfer: C minor", kicker: "New root, new region" },
-  { kind: "musicalize", context: 2, title: "Use it musically", kicker: "The answer is now a phrase" },
-  { kind: "reflect", context: 2, title: "Reflect", kicker: "Diagnose what actually broke" },
-  { kind: "complete", context: 2, title: "Session complete", kicker: "Retest later, not immediately" },
+  { kind: "orient", title: "Orient the ear", kicker: "Theory becomes a sound before it becomes a fret" },
+  { kind: "target", rootName: "A", chordId: "minor", toneIndex: 0, stringIndex: G_STRING, title: "Anchor the tonic", kicker: "One string · one reference" },
+  { kind: "target", rootName: "A", chordId: "minor", toneIndex: 1, stringIndex: G_STRING, requireSing: true, title: "Predict the minor third", kicker: "Sing → find → play → explain" },
+  { kind: "target", rootName: "A", chordId: "major", toneIndex: 1, stringIndex: G_STRING, requireSing: true, title: "Contrast the major third", kicker: "Change one thing and listen" },
+  { kind: "contrast", title: "Hear what the third changes", kicker: "Minimal pair: ♭3 versus 3" },
+  { kind: "target", rootName: "A", chordId: "minor", toneIndex: 2, stringIndex: G_STRING, requireSing: true, title: "Add the fifth", kicker: "Complete 1–♭3–5 on one line" },
+  { kind: "context", title: "Same C, different job", kicker: "Pitch stays fixed · function changes" },
+  { kind: "target", rootName: "D", chordId: "minor", toneIndex: 1, stringIndex: B_STRING, requireSing: true, title: "Transfer the sound to D minor", kicker: "New root · new string · same function" },
+  { kind: "target", rootName: "D", chordId: "major", toneIndex: 1, stringIndex: B_STRING, requireSing: true, title: "Contrast again in the new key", kicker: "Prove the sound is not A-specific" },
+  { kind: "map", rootName: "D", chordId: "minor", stringIndex: B_STRING, title: "Rebuild D minor by function", kicker: "Retrieve 1 → ♭3 → 5 without a box" },
+  { kind: "musicalize", title: "Use the functions in time", kicker: "Play / rest / audiate" },
+  { kind: "reflect", title: "Find the weak link", kicker: "Theory, ear, location or context?" },
+  { kind: "complete", title: "Session complete", kicker: "Retest later in a new key" },
 ];
-
-const roleMeta = {
-  root: { label: "1", long: "root", semitones: 0 },
-  third: { label: "♭3", long: "minor third", semitones: 3 },
-  fifth: { label: "5", long: "perfect fifth", semitones: 7 },
-};
 
 const state = {
   stageIndex: 0,
   selected: null,
   checked: false,
   hintLevel: 0,
-  firstThirdString: null,
-  transferSelections: [],
-  transferRoleIndex: 0,
-  timerRemaining: 30,
+  lastWrong: null,
+  theoryRevealed: false,
+  mapRoleIndex: 0,
+  savedMap: [],
+  timerRemaining: 35,
   timerId: null,
   timerStarted: false,
   timerFinished: false,
+  reflection: null,
 };
 
 function unwrap(result) {
@@ -54,48 +51,110 @@ function unwrap(result) {
   return result.data;
 }
 
-function contextAt(index = currentStage().context) {
-  return contexts[index];
-}
-
 function currentStage() {
   return stages[state.stageIndex];
 }
 
-function minorTriad(context) {
-  return unwrap(musicQueries.getChord({ root: parseNote(context.rootName), chordId: "minor" }));
+function notePc(note) {
+  return pitchClass(note);
 }
 
-function roleTone(context, role) {
-  const toneIndex = role === "root" ? 0 : role === "third" ? 1 : 2;
-  return minorTriad(context).tones[toneIndex];
+function degreeLabel(tone) {
+  const count = Math.abs(tone.alteration);
+  const accidental = tone.alteration > 0 ? "#".repeat(count) : tone.alteration < 0 ? "♭".repeat(count) : "";
+  return `${accidental}${tone.degree}`;
 }
 
-function setFeedback(text, kind = "") {
-  const feedback = $("feedback");
-  feedback.textContent = text;
-  feedback.className = `feedback${kind ? ` ${kind}` : ""}`;
+function chord(rootName, chordId) {
+  return unwrap(musicQueries.getChord({ root: parseNote(rootName), chordId }));
+}
+
+function scale(rootName, scaleId) {
+  return unwrap(musicQueries.getScale({ tonic: parseNote(rootName), scaleId }));
+}
+
+function targetTone(stage = currentStage()) {
+  if (stage.kind === "map") return chord(stage.rootName, stage.chordId).tones[state.mapRoleIndex];
+  if (stage.kind !== "target") return null;
+  return chord(stage.rootName, stage.chordId).tones[stage.toneIndex];
+}
+
+function targetInterval(stage = currentStage()) {
+  const tone = targetTone(stage);
+  return tone ? intervalBetweenNotes(parseNote(stage.rootName), tone.note) : null;
+}
+
+function getLocation(position, rootName) {
+  return unwrap(musicQueries.getNoteAtFret({ position, root: parseNote(rootName) }));
 }
 
 function positionKey(position) {
   return `${position.stringIndex}:${position.fret}`;
 }
 
-function getLocation(position, rootName) {
-  return unwrap(musicQueries.getNoteAtFret({
-    position,
-    root: parseNote(rootName),
-  }));
+function stringNumber(stringIndex) {
+  return 6 - stringIndex;
 }
 
-function activeRole(stage = currentStage()) {
-  if (stage.kind === "location") return stage.role;
-  if (stage.kind === "transfer") return ["root", "third", "fifth"][state.transferRoleIndex];
-  return null;
+function openPitch(stringIndex) {
+  return STANDARD_FRETBOARD.tuning.openStrings[stringIndex];
 }
 
-function stageProgressText() {
-  return `${Math.min(state.stageIndex + 1, stages.length)} / ${stages.length}`;
+function stringLabel(stringIndex) {
+  return `${stringNumber(stringIndex)} · ${formatPitch(openPitch(stringIndex))}`;
+}
+
+function simpleStringName(stringIndex) {
+  return formatNote(openPitch(stringIndex).note);
+}
+
+function setFeedback(text, kind = "") {
+  const element = $("feedback");
+  element.textContent = text;
+  element.className = `feedback${kind ? ` ${kind}` : ""}`;
+}
+
+function clearLens() {
+  const lens = $("lens-content");
+  lens.className = "lens-placeholder";
+  lens.textContent = "The lens stays deliberately sparse until you act. After a correct commitment or reveal, the same sound is relabeled across theory, fretboard and harmony.";
+}
+
+function appendRows(container, rows) {
+  const grid = document.createElement("div");
+  grid.className = "theory-grid";
+  for (const [key, value] of rows) {
+    const row = document.createElement("div");
+    row.className = "theory-row";
+    const keyEl = document.createElement("div");
+    keyEl.className = "theory-key";
+    keyEl.textContent = key;
+    const valueEl = document.createElement("div");
+    valueEl.textContent = value;
+    row.append(keyEl, valueEl);
+    grid.append(row);
+  }
+  container.replaceChildren(grid);
+}
+
+function setTheory(title, rows) {
+  $("theory-panel").hidden = false;
+  $("theory-title").textContent = title;
+  appendRows($("theory-content"), rows);
+}
+
+function setLens(rows) {
+  const lens = $("lens-content");
+  lens.className = "";
+  appendRows(lens, rows);
+}
+
+function resetStageInteraction() {
+  state.selected = null;
+  state.checked = false;
+  state.hintLevel = 0;
+  state.lastWrong = null;
+  state.theoryRevealed = false;
 }
 
 function stopTimer() {
@@ -105,24 +164,18 @@ function stopTimer() {
   }
 }
 
-function resetInteractionState() {
-  state.selected = null;
-  state.checked = false;
-  state.hintLevel = 0;
-}
-
 function setStage(index) {
+  const previous = currentStage();
   stopTimer();
-  const previousStage = currentStage();
   state.stageIndex = Math.max(0, Math.min(index, stages.length - 1));
-  resetInteractionState();
-  const nextStage = currentStage();
-  if (nextStage.kind !== "transfer" || previousStage.kind !== "transfer" || previousStage.context !== nextStage.context) {
-    state.transferSelections = [];
-    state.transferRoleIndex = 0;
+  resetStageInteraction();
+  const next = currentStage();
+  if (next.kind === "map" && previous.kind !== "map") {
+    state.mapRoleIndex = 0;
+    state.savedMap = [];
   }
-  if (currentStage().kind !== "musicalize") {
-    state.timerRemaining = 30;
+  if (next.kind !== "musicalize") {
+    state.timerRemaining = 35;
     state.timerStarted = false;
     state.timerFinished = false;
   }
@@ -133,333 +186,494 @@ function advanceStage() {
   if (state.stageIndex < stages.length - 1) setStage(state.stageIndex + 1);
 }
 
-function selectedLocationInfo() {
-  if (!state.selected) return null;
-  const context = contextAt();
-  return getLocation(state.selected, context.rootName);
-}
-
-function targetMatches(position, context, role) {
-  const target = roleTone(context, role);
-  const location = getLocation(position, context.rootName);
-  return location.pitchClass === target.pitchClass;
-}
-
-function contextSummary(context) {
-  return `${context.label} · frets ${context.minFret}–${context.maxFret}`;
-}
-
-function rolePrompt(context, role, alternate = false) {
-  if (role === "root") {
-    return `Find ${context.rootName} inside frets ${context.minFret}–${context.maxFret}. Play it on the guitar first, then tap the location you used.`;
+function stageContext(stage) {
+  if (stage.kind === "target" || stage.kind === "map") {
+    const drone = stage.rootName === "A" ? "open A drone" : "open D drone";
+    return `${stage.rootName} center · ${drone} · ${simpleStringName(stage.stringIndex)} string only`;
   }
-  if (role === "third" && alternate) {
-    return `Find a second ${roleMeta.third.label} on a different string. Play ${context.rootName} → ${roleMeta.third.label}, then commit the new location.`;
+  if (stage.kind === "contrast") return "A center · open A drone · G string";
+  if (stage.kind === "context") return "Static pitch C · changing harmony";
+  if (stage.kind === "musicalize") return "D minor · open D drone · B string only";
+  if (stage.kind === "reflect") return "Reflection · no score";
+  if (stage.kind === "complete") return "Delayed transfer beats same-session repetition";
+  return "A center · open A string is the auditory anchor";
+}
+
+function stageMaterial(stage) {
+  if (stage.kind === "target") {
+    const tone = targetTone(stage);
+    return `Current relationship: ${degreeLabel(tone)} · ${targetInterval(stage).label}`;
   }
-  return `Before touching the screen, anticipate the ${roleMeta[role].long} (${roleMeta[role].label}) of ${context.rootName}. Play the relationship, listen, then tap the target location you used.`;
+  if (stage.kind === "map") return "Material: D minor = 1 · ♭3 · 5";
+  if (stage.kind === "contrast") return "Contrast: ♭3 ↔ 3";
+  if (stage.kind === "context") return "One pitch: C · several functions";
+  if (stage.kind === "musicalize") return "Phrase vocabulary: 1 · ♭3 · 5";
+  return "Theory lens: note ↔ interval ↔ degree ↔ chord role ↔ sound ↔ location";
 }
 
 function renderStage() {
   const stage = currentStage();
-  const context = contextAt();
-  $("progress-text").textContent = stageProgressText();
+  $("progress-text").textContent = `${state.stageIndex + 1} / ${stages.length}`;
   $("progress-fill").style.width = `${((state.stageIndex + 1) / stages.length) * 100}%`;
   $("stage-kicker").textContent = stage.kicker;
   $("stage-title").textContent = stage.title;
-  $("context-label").textContent = contextSummary(context);
-  $("material-label").textContent = "Material: 1 · ♭3 · 5";
+  $("context-label").textContent = stageContext(stage);
+  $("material-label").textContent = stageMaterial(stage);
 
-  $("board-section").hidden = !["location", "transfer"].includes(stage.kind);
-  $("hint-button").hidden = !["location", "transfer"].includes(stage.kind);
-  $("check-button").hidden = !["location", "transfer"].includes(stage.kind);
-  $("next-button").hidden = true;
-  $("done-button").hidden = true;
+  $("string-section").hidden = true;
+  $("theory-panel").hidden = true;
   $("timer-panel").hidden = true;
   $("reflection-panel").hidden = true;
+  $("check-button").hidden = true;
+  $("hint-button").hidden = true;
+  $("reveal-button").hidden = true;
+  $("done-button").hidden = true;
+  $("next-button").hidden = true;
   $("restart-button").hidden = stage.kind !== "complete";
+  clearLens();
 
-  if (stage.kind === "orient") renderOrient(stage, context);
-  if (stage.kind === "location") renderLocationStage(stage, context);
-  if (stage.kind === "physical") renderPhysical(stage, context);
-  if (stage.kind === "transfer") renderTransfer(stage, context);
-  if (stage.kind === "musicalize") renderMusicalize(stage, context);
-  if (stage.kind === "reflect") renderReflect(stage, context);
-  if (stage.kind === "complete") renderComplete(stage, context);
-
-  renderFretboard(context);
+  if (stage.kind === "orient") renderOrient();
+  if (stage.kind === "target") renderTarget(stage);
+  if (stage.kind === "contrast") renderContrast();
+  if (stage.kind === "context") renderContextShift();
+  if (stage.kind === "map") renderMap(stage);
+  if (stage.kind === "musicalize") renderMusicalize();
+  if (stage.kind === "reflect") renderReflect();
+  if (stage.kind === "complete") renderComplete();
 }
 
-function renderOrient(_stage, context) {
-  $("stage-prompt").textContent = `Today you are learning one relationship, not a shape: ${context.rootName} minor = 1–♭3–5.`;
-  $("stage-instruction").textContent = "Keep the guitar in your hands. The screen gives you a goal and a fret window, but the decisive action happens on the instrument before the screen reveals anything.";
-  setFeedback("Say “root, minor third, fifth” once. Do not look for a stored A-minor grip yet.");
+function renderOrient() {
+  $("stage-prompt").textContent = "Strike the open A string a few times and keep that pitch in your head. Today, every theoretical label must become something you try to hear before you find it.";
+  $("stage-instruction").textContent = "You are not practising vocal technique. Singing is only a checkpoint: can you form an auditory target before your fingers move? We will stay on one string so a familiar 2D box cannot do the thinking for you.";
+  setFeedback("Say this once: “A is 1. I will hear the relationship, then find it.”");
   $("done-button").hidden = false;
-  $("done-button").textContent = "Start guitar-first session";
+  $("done-button").textContent = "Start with the tonic";
 }
 
-function renderLocationStage(stage, context) {
-  $("stage-prompt").textContent = rolePrompt(context, stage.role, stage.alternate === true);
-  $("stage-instruction").textContent = "After you play, decide for yourself whether it sounded like what you intended. Then use the blank fretboard only to record the location you actually used.";
-  setFeedback("No answer is visible yet. Play first, then commit one location.");
-  $("check-button").textContent = "Check committed location";
+function targetPrompt(stage) {
+  const tone = targetTone(stage);
+  const label = degreeLabel(tone);
+  const interval = targetInterval(stage).label;
+  const stringName = simpleStringName(stage.stringIndex);
+  if (stage.toneIndex === 0) {
+    return `Strike open ${stage.rootName}. On the ${stringName} string, find another ${stage.rootName}. Play it first, then commit the fret you used.`;
+  }
+  const qualityWord = stage.chordId === "minor" ? "minor" : "major";
+  return `Keep ${stage.rootName} as the anchor. Before your fingers move, sing the ${label} (${qualityWord} third${stage.toneIndex === 2 ? "" : ""}${stage.toneIndex === 2 ? "" : ""}) you expect. Then find it on the ${stringName} string, play it against the drone, and commit the fret.`.replace("major third third", "major third").replace("minor third third", "minor third");
 }
 
-function renderPhysical(_stage, context) {
-  $("stage-prompt").textContent = `Look away from the screen. In ${context.label}, play 1–♭3–5 in any order, then play the three tones one octave higher if you can find them.`;
-  $("stage-instruction").textContent = "Do not touch the fretboard graphic. Listen for whether the relationship still feels like a minor triad when you move it.";
-  setFeedback("The app cannot hear you yet. This step is deliberately self-evaluated on the physical guitar.");
-  $("done-button").hidden = false;
-  $("done-button").textContent = "I played and listened";
+function targetTheoryRows(stage, position) {
+  const tone = targetTone(stage);
+  const interval = targetInterval(stage);
+  const quality = stage.chordId === "minor" ? "minor" : "major";
+  const role = degreeLabel(tone);
+  const rows = [
+    ["Note", formatNote(tone.note)],
+    ["From tonic", `${interval.label} · ${role}`],
+    ["Chord role", `${role} in ${stage.rootName} ${quality}`],
+    ["Fretboard", `${simpleStringName(stage.stringIndex)} string · fret ${position.fret}`],
+  ];
+  if (stage.toneIndex === 0) rows.push(["Listening job", "Treat this as home. Keep returning to it so the other degrees have a reference."]);
+  if (stage.chordId === "minor" && stage.toneIndex === 1) rows.push(["Listening job", "Hear how this third defines the minor quality when contrasted with the natural 3."]);
+  if (stage.chordId === "major" && stage.toneIndex === 1) rows.push(["Listening job", "Compare this directly with ♭3. Only one semitone changed, but the chord quality changed."]);
+  if (stage.toneIndex === 2) rows.push(["Listening job", "The 5 is shared by the parallel major and minor triads; the third is what changes their quality here."]);
+  return rows;
 }
 
-function renderTransfer(_stage, context) {
-  const role = activeRole();
-  const completed = state.transferRoleIndex;
-  $("stage-prompt").textContent = `${context.label}, frets ${context.minFret}–${context.maxFret}. Rebuild 1–♭3–5 from scratch. Current target: ${roleMeta[role].label} (${roleMeta[role].long}).`;
-  $("stage-instruction").textContent = completed === 0
-    ? "Do not transpose a memorized fingering mechanically. Re-orient to the new root, play the target, then commit its location."
-    : `You have already established ${["1", "♭3", "5"].slice(0, completed).join(" → ")}. Now solve the next role without revealing the full triad.`;
-  setFeedback(`${completed}/3 roles committed correctly in this context.`);
-  $("check-button").textContent = `Check ${roleMeta[role].label}`;
+function renderTarget(stage) {
+  $("string-section").hidden = false;
+  $("stage-prompt").textContent = targetPrompt(stage);
+  $("stage-instruction").textContent = stage.requireSing
+    ? "Do not judge the exercise by whether you eventually found the fret. Notice whether the sound existed in your head before the guitar confirmed it."
+    : "Use the physical guitar first. The screen only records the fret after you have played it.";
+  $("check-button").hidden = false;
+  $("hint-button").hidden = false;
+  $("check-button").textContent = "Check committed fret";
+  renderStringBoard(stage.stringIndex);
+
+  if (state.checked) {
+    const rows = targetTheoryRows(stage, state.selected);
+    setFeedback(`Correct. ${formatNote(targetTone(stage).note)} is ${degreeLabel(targetTone(stage))} (${targetInterval(stage).label}) from ${stage.rootName}. Now connect the label to the sound you just heard.`, "good");
+    setTheory("Multi-representational theory lens", rows);
+    setLens(rows);
+    $("next-button").hidden = false;
+    $("next-button").textContent = "Continue";
+  } else if (state.lastWrong) {
+    const wrong = state.lastWrong;
+    setFeedback(`You committed ${wrong.note} at fret ${wrong.fret}. Relative to ${stage.rootName}, that is ${wrong.interval}. The target is ${degreeLabel(targetTone(stage))} (${targetInterval(stage).label}). Sing the target again before moving your finger.`, "bad");
+  } else {
+    setFeedback(stage.requireSing ? "Sing first. Play second. Commit the fret third." : "Play first, then commit the fret you actually used.");
+  }
 }
 
-function renderMusicalize(_stage, context) {
-  $("stage-prompt").textContent = `${context.label}: make music with only 1, ♭3 and 5 for 30 seconds.`;
-  $("stage-instruction").textContent = "Start at least one phrase on ♭3. Finish the final phrase on 1. You decide whether it sounds musical; the app is only supplying the constraint.";
-  setFeedback("No correctness score. The goal is to turn the relationship into a musical decision in time.");
-  $("timer-panel").hidden = false;
-  updateTimerDisplay();
+function renderContrast() {
+  $("stage-prompt").textContent = "Keep the open A string as the drone. Alternate G-string fret 5 (C) and fret 6 (C#). Sing each one before playing it. What changes when only the third moves by one fret?";
+  $("stage-instruction").textContent = "Do several slow A→C and A→C# comparisons. Do not rush to the labels. First notice that the two sounds create different chord qualities against the same root; then attach ♭3 / m3 and 3 / M3 to what you heard.";
+  if (!state.theoryRevealed) {
+    setFeedback("Say your observation aloud before revealing. The useful part is the contrast, not choosing a button.");
+    $("reveal-button").hidden = false;
+    $("reveal-button").textContent = "Reveal the contrast lens";
+    return;
+  }
+  const rows = [
+    ["A → C", "m3 · ♭3 · C is the third of A minor"],
+    ["A → C#", "M3 · 3 · C# is the third of A major"],
+    ["What stayed fixed", "Root A and fifth E"],
+    ["What changed", "Only the third: C ↔ C#"],
+    ["Theory meaning", "The third distinguishes these parallel minor and major triads."],
+  ];
+  setFeedback("Now the labels should name a contrast you have already heard, not replace the hearing.", "good");
+  setTheory("Minor-third / major-third contrast", rows);
+  setLens(rows);
+  $("next-button").hidden = false;
+  $("next-button").textContent = "Add the fifth";
 }
 
-function renderReflect() {
-  $("stage-prompt").textContent = "What broke first when the context changed?";
-  $("stage-instruction").textContent = "Choose the failure mode that felt most real. This is reflection, not a score.";
-  setFeedback("Your answer is kept only in this browser session and disappears when you reload.");
-  $("reflection-panel").hidden = false;
+function roleInChord(noteName, rootName, chordId) {
+  const note = parseNote(noteName);
+  const matching = chord(rootName, chordId).tones.find((tone) => tone.pitchClass === notePc(note));
+  return matching ? degreeLabel(matching) : null;
 }
 
-function renderComplete() {
-  $("stage-prompt").textContent = "Stop here. Do not grind the same solved pattern for another twenty minutes.";
-  $("stage-instruction").textContent = "A useful next-session probe is a new minor key and a different fret window before any diagram is shown. That delayed transfer tells us more than today's smooth repetition.";
-  setFeedback("Learning Lab v1 ends with a later-test instruction instead of another quiz question.", "good");
+function roleInScale(noteName, rootName, scaleId) {
+  const note = parseNote(noteName);
+  const matching = scale(rootName, scaleId).tones.find((tone) => tone.pitchClass === notePc(note));
+  return matching ? degreeLabel(matching) : null;
 }
 
-function renderFretboard(context) {
-  const fretboard = $("fretboard");
-  const maxDisplayedFret = 13;
+function renderContextTable() {
+  const content = $("theory-content");
+  const table = document.createElement("table");
+  table.className = "context-table";
+  const head = document.createElement("thead");
+  const headRow = document.createElement("tr");
+  for (const text of ["Context", "C becomes", "Why it matters"]) {
+    const th = document.createElement("th");
+    th.textContent = text;
+    headRow.append(th);
+  }
+  head.append(headRow);
+  const body = document.createElement("tbody");
+  const rows = [
+    ["A minor chord", roleInChord("C", "A", "minor"), "Chord tone: the minor third"],
+    ["F major chord", roleInChord("C", "F", "major"), "Chord tone: the fifth"],
+    ["C major chord", roleInChord("C", "C", "major"), "Chord tone: the root"],
+    ["D natural minor", roleInScale("C", "D", "naturalMinor"), "Scale tone: ♭7; C is not in the D-minor triad"],
+  ];
+  for (const rowValues of rows) {
+    const row = document.createElement("tr");
+    for (const value of rowValues) {
+      const td = document.createElement("td");
+      td.textContent = value ?? "outside current triad";
+      row.append(td);
+    }
+    body.append(row);
+  }
+  table.append(head, body);
+  content.replaceChildren(table);
+}
+
+function renderContextShift() {
+  $("stage-prompt").textContent = "Keep C fixed at G-string fret 5. Before revealing anything, say what C is relative to four contexts: A minor, F major, C major, and D natural minor.";
+  $("stage-instruction").textContent = "Use the guitar. Strum or arpeggiate each chord you know, then play the same C. For D minor, play Dm and then C as a colour tone. The pitch does not move; only its theoretical and perceptual job changes.";
+  if (!state.theoryRevealed) {
+    setFeedback("Predict the roles aloud first. Calculation is allowed, but notice which ones are immediate and which ones need counting.");
+    $("reveal-button").hidden = false;
+    $("reveal-button").textContent = "Reveal C's changing functions";
+    return;
+  }
+  $("theory-panel").hidden = false;
+  $("theory-title").textContent = "Same pitch, different function";
+  renderContextTable();
+  const lensRows = [
+    ["C over A minor", "♭3"],
+    ["C over F major", "5"],
+    ["C over C major", "1"],
+    ["C in D natural minor", "♭7"],
+  ];
+  setLens(lensRows);
+  setFeedback("This is the multi-representational step: C is not permanently 'the ♭3'. Its function depends on what the music treats as the root and harmony.", "good");
+  $("next-button").hidden = false;
+  $("next-button").textContent = "Transfer to D minor";
+}
+
+function renderMap(stage) {
+  $("string-section").hidden = false;
+  const tones = chord(stage.rootName, stage.chordId).tones;
+  if (state.mapRoleIndex >= tones.length) {
+    $("stage-prompt").textContent = "You rebuilt D–F–A as 1–♭3–5 on the B string. Now look at the three functions as one connected map, not three unrelated frets.";
+    $("stage-instruction").textContent = "Play D→F→A, then A→F→D. Sing each target just before you strike it. Try to feel the interval/function before remembering the fret numbers.";
+    renderStringBoard(stage.stringIndex);
+    const rows = state.savedMap.map((item) => [item.label, `${item.note} · ${simpleStringName(stage.stringIndex)} string fret ${item.position.fret}`]);
+    setTheory("D-minor functional map", rows);
+    setLens(rows);
+    setFeedback("Map complete. The point is not the three dots; it is the direct link D↔1, F↔♭3, A↔5, with a sound and location attached to each.", "good");
+    $("next-button").hidden = false;
+    $("next-button").textContent = "Use it in time";
+    return;
+  }
+
+  const tone = targetTone(stage);
+  const interval = targetInterval(stage);
+  $("stage-prompt").textContent = `Current target: ${degreeLabel(tone)} (${interval.label}) of D. Sing it first, find it on the B string, play it against open D, then commit the fret.`;
+  $("stage-instruction").textContent = state.mapRoleIndex === 0
+    ? "Start from function, not from the D-minor shape. Build the map one role at a time."
+    : `Already established: ${state.savedMap.map((item) => item.label).join(" → ")}. Do not let those saved locations mechanically dictate the next one.`;
+  $("check-button").hidden = false;
+  $("hint-button").hidden = false;
+  $("check-button").textContent = `Check ${degreeLabel(tone)}`;
+  renderStringBoard(stage.stringIndex);
+  setFeedback("Sing → play → commit. The saved labels remain visible only after each role is earned.");
+}
+
+function renderStringBoard(stringIndex) {
+  const board = $("string-board");
   const thead = document.createElement("thead");
   const header = document.createElement("tr");
   const corner = document.createElement("th");
   corner.textContent = "String";
   header.append(corner);
-  for (let fret = 0; fret <= maxDisplayedFret; fret += 1) {
+  for (let fret = 0; fret <= MAX_FRET; fret += 1) {
     const th = document.createElement("th");
     th.scope = "col";
     th.textContent = String(fret);
-    th.className = fret >= context.minFret && fret <= context.maxFret ? "active-fret" : "outside-fret";
     header.append(th);
   }
   thead.append(header);
 
   const tbody = document.createElement("tbody");
-  STANDARD_FRETBOARD.tuning.openStrings.forEach((openPitch, stringIndex) => {
-    const row = document.createElement("tr");
-    const label = document.createElement("th");
-    label.scope = "row";
-    label.className = "string-name";
-    label.textContent = `${6 - stringIndex} · ${formatPitch(openPitch)}`;
-    row.append(label);
+  const row = document.createElement("tr");
+  const label = document.createElement("th");
+  label.scope = "row";
+  label.className = "string-name";
+  label.textContent = stringLabel(stringIndex);
+  row.append(label);
 
-    for (let fret = 0; fret <= maxDisplayedFret; fret += 1) {
-      const cell = document.createElement("td");
-      const button = document.createElement("button");
-      const active = fret >= context.minFret && fret <= context.maxFret;
-      const position = { stringIndex, fret };
-      button.type = "button";
-      button.className = `fret-cell${active ? "" : " outside"}`;
-      button.disabled = !active;
-      button.dataset.stringIndex = String(stringIndex);
-      button.dataset.fret = String(fret);
-      button.setAttribute("aria-label", `String ${6 - stringIndex}, fret ${fret}${active ? "" : ", outside active window"}`);
-      if (state.selected && positionKey(state.selected) === positionKey(position)) button.classList.add("selected");
-      for (const saved of state.transferSelections) {
-        if (positionKey(saved.position) === positionKey(position)) {
-          button.classList.add("saved");
-          button.textContent = saved.label;
-        }
-      }
-      if (state.checked && state.selected && positionKey(state.selected) === positionKey(position)) {
-        const role = activeRole();
-        if (role && targetMatches(position, context, role)) {
-          const info = getLocation(position, context.rootName);
-          button.classList.add("correct");
-          button.textContent = formatNote(info.pitch.note);
-        }
-      }
-      button.addEventListener("click", () => {
-        if (state.checked) return;
-        state.selected = position;
-        renderFretboard(context);
-        setFeedback(`Committed string ${6 - stringIndex}, fret ${fret}. Play it once more, self-judge, then check.`);
-      });
-      cell.append(button);
-      row.append(cell);
+  for (let fret = 0; fret <= MAX_FRET; fret += 1) {
+    const cell = document.createElement("td");
+    const button = document.createElement("button");
+    const position = { stringIndex, fret };
+    button.type = "button";
+    button.className = "fret-cell";
+    button.dataset.stringIndex = String(stringIndex);
+    button.dataset.fret = String(fret);
+    button.setAttribute("aria-label", `${simpleStringName(stringIndex)} string, fret ${fret}`);
+
+    if (state.selected && positionKey(state.selected) === positionKey(position)) button.classList.add("selected");
+    if (state.lastWrong && state.lastWrong.fret === fret && state.lastWrong.stringIndex === stringIndex) {
+      button.classList.add("wrong");
+      button.textContent = state.lastWrong.note;
     }
-    tbody.append(row);
-  });
-  fretboard.replaceChildren(thead, tbody);
+    for (const saved of state.savedMap) {
+      if (positionKey(saved.position) === positionKey(position)) {
+        button.classList.add("saved");
+        button.textContent = saved.label;
+      }
+    }
+    if (state.checked && state.selected && positionKey(state.selected) === positionKey(position)) {
+      button.classList.add("correct");
+      button.textContent = formatNote(getLocation(position, currentStage().rootName).pitch.note);
+    }
+
+    button.addEventListener("click", () => {
+      if (state.checked) return;
+      state.selected = position;
+      state.lastWrong = null;
+      renderStringBoard(stringIndex);
+      setFeedback(`Committed ${simpleStringName(stringIndex)} string fret ${fret}. Play it again against the drone, then check.`);
+    });
+    cell.append(button);
+    row.append(cell);
+  }
+  tbody.append(row);
+  board.replaceChildren(thead, tbody);
+}
+
+function targetFrets(stage) {
+  const target = targetTone(stage);
+  const hits = [];
+  for (let fret = 0; fret <= MAX_FRET; fret += 1) {
+    const location = getLocation({ stringIndex: stage.stringIndex, fret }, stage.rootName);
+    if (location.pitchClass === target.pitchClass) hits.push(fret);
+  }
+  return hits;
 }
 
 function handleCheck() {
   const stage = currentStage();
-  if (!["location", "transfer"].includes(stage.kind)) return;
+  if (!["target", "map"].includes(stage.kind)) return;
   if (!state.selected) {
-    setFeedback("Commit one fretboard location after you have played it on the guitar.", "warn");
+    setFeedback("Play the target on the guitar first, then commit the fret you used.", "warn");
     return;
   }
 
-  const context = contextAt();
-  const role = activeRole();
-  const location = selectedLocationInfo();
-  const target = roleTone(context, role);
-  const alternateViolation = stage.kind === "location"
-    && stage.alternate === true
-    && state.firstThirdString !== null
-    && state.selected.stringIndex === state.firstThirdString;
-
-  if (alternateViolation) {
-    state.checked = false;
-    setFeedback("That is on the same string as your first ♭3. Keep the pitch target, but solve it on a different string.", "warn");
+  const tone = targetTone(stage);
+  const location = getLocation(state.selected, stage.rootName);
+  const correct = location.pitchClass === tone.pitchClass;
+  if (!correct) {
+    const relation = intervalBetweenNotes(parseNote(stage.rootName), location.pitch.note);
+    state.lastWrong = {
+      fret: state.selected.fret,
+      stringIndex: state.selected.stringIndex,
+      note: formatNote(location.pitch.note),
+      interval: relation.label,
+    };
     state.selected = null;
-    renderFretboard(context);
+    renderStringBoard(stage.stringIndex);
+    setFeedback(`You played ${state.lastWrong.note}, which is ${state.lastWrong.interval} from ${stage.rootName}. Target: ${degreeLabel(tone)} (${targetInterval(stage).label}). Sing the target again before repairing the fret.`, "bad");
     return;
   }
 
-  if (location.pitchClass !== target.pitchClass) {
-    state.checked = false;
-    const actual = formatNote(location.pitch.note);
-    const relation = location.rootRelation?.interval?.label ?? "another relationship";
-    setFeedback(`You committed ${actual}. From ${context.rootName}, that is ${relation}. Target: ${roleMeta[role].label} (${roleMeta[role].long}). Repair it yourself before revealing.`, "bad");
+  if (stage.kind === "map") {
+    const saved = {
+      position: { ...state.selected },
+      label: degreeLabel(tone),
+      note: formatNote(tone.note),
+    };
+    state.savedMap.push(saved);
+    state.mapRoleIndex += 1;
     state.selected = null;
-    renderFretboard(context);
+    state.lastWrong = null;
+    state.hintLevel = 0;
+    renderStage();
     return;
   }
 
   state.checked = true;
-  const actual = formatNote(location.pitch.note);
-  const relation = location.rootRelation?.interval?.label ?? roleMeta[role].label;
-
-  if (stage.kind === "location" && stage.role === "third" && stage.alternate !== true) {
-    state.firstThirdString = state.selected.stringIndex;
-  }
-
-  if (stage.kind === "transfer") {
-    state.transferSelections.push({ position: { ...state.selected }, label: roleMeta[role].label });
-    state.transferRoleIndex += 1;
-    if (state.transferRoleIndex < 3) {
-      state.selected = null;
-      state.checked = false;
-      state.hintLevel = 0;
-      renderStage();
-      setFeedback(`Correct: ${actual} is ${roleMeta[role].label} from ${context.rootName}. Keep the solved location visible; now reconstruct the next role.`, "good");
-      return;
-    }
-  }
-
-  renderFretboard(context);
-  setFeedback(`Correct: ${actual}. ${context.rootName} → ${actual} = ${relation}. Play the relationship once more before moving on.`, "good");
-  $("check-button").hidden = true;
-  $("hint-button").hidden = true;
-  $("next-button").hidden = false;
-  $("next-button").textContent = stage.kind === "transfer" ? "Move to next context" : "Continue";
+  renderStage();
 }
 
 function handleHint() {
   const stage = currentStage();
-  if (!["location", "transfer"].includes(stage.kind)) return;
-  const context = contextAt();
-  const role = activeRole();
-  const meta = roleMeta[role];
+  if (!["target", "map"].includes(stage.kind)) return;
   state.hintLevel += 1;
-
-  if (role === "root") {
-    setFeedback(`Anchor hint: the target is the root ${context.rootName}. Use an octave relationship you already know, not random scanning.`, "warn");
-    return;
-  }
-
+  const tone = targetTone(stage);
+  const interval = targetInterval(stage);
   if (state.hintLevel === 1) {
-    setFeedback(`Relational hint: ${meta.label} is ${meta.semitones} semitones from the root. Reconstruct it before asking for the note name.`, "warn");
+    setFeedback(`Hint 1: hear the relationship first. The target is ${degreeLabel(tone)} (${interval.label}) from ${stage.rootName}. Use the root as the auditory anchor, not a memorized box.`, "warn");
     return;
   }
+  if (state.hintLevel === 2) {
+    setFeedback(`Hint 2: the target note name is ${formatNote(tone.note)}. Sing that pitch before searching the ${simpleStringName(stage.stringIndex)} string.`, "warn");
+    return;
+  }
+  const hits = targetFrets(stage);
+  setFeedback(`Hint 3: within frets 0–${MAX_FRET}, ${formatNote(tone.note)} occurs at fret ${hits.join(" / ")} on the ${simpleStringName(stage.stringIndex)} string. Play it against the drone before committing.`, "warn");
+}
 
-  const target = roleTone(context, role);
-  setFeedback(`Explicit hint: in ${context.label}, ${meta.label} is ${formatNote(target.note)}. Now find it on the guitar without revealing every location.`, "warn");
+function renderMusicalize() {
+  $("stage-prompt").textContent = "Keep open D as the anchor. On the B string, improvise with only D (1), F (♭3) and A (5). The timer alternates PLAY and REST every five seconds.";
+  $("stage-instruction").textContent = "During PLAY, make a short phrase and deliberately target a function. During REST, keep your hands still and audiate the next phrase before it happens. Start one PLAY block on ♭3 and make the final note of the last PLAY block the root.";
+  const rows = state.savedMap.length
+    ? state.savedMap.map((item) => [item.label, `${item.note} · B string fret ${item.position.fret}`])
+    : [["1", "D"], ["♭3", "F"], ["5", "A"]];
+  setTheory("Phrase vocabulary", rows);
+  setLens(rows);
+  setFeedback("This stage tests whether theory can guide a phrase in time instead of remaining a static answer.");
+  $("timer-panel").hidden = false;
+  updateTimerDisplay();
+}
+
+function currentTimerPhase() {
+  if (!state.timerStarted) return "READY";
+  if (state.timerFinished) return "DONE";
+  const elapsed = 35 - state.timerRemaining;
+  return Math.floor(elapsed / 5) % 2 === 0 ? "PLAY" : "REST";
 }
 
 function updateTimerDisplay() {
   $("timer-value").textContent = `${state.timerRemaining}s`;
-  $("timer-start").textContent = state.timerFinished ? "Run again" : state.timerId !== null ? "Pause" : state.timerStarted ? "Resume" : "Start 30 seconds";
-  $("timer-next").hidden = !state.timerFinished;
+  $("timer-phase").textContent = currentTimerPhase();
+  if (state.timerFinished) {
+    $("timer-start").hidden = true;
+    $("timer-next").hidden = false;
+    setFeedback("Finished. Before moving on, ask: were you hearing a target function before each PLAY block, or merely moving among three frets?", "good");
+  } else {
+    $("timer-start").hidden = state.timerStarted;
+    $("timer-next").hidden = true;
+  }
 }
 
-function toggleTimer() {
-  if (state.timerFinished) {
-    state.timerRemaining = 30;
-    state.timerFinished = false;
-    state.timerStarted = false;
-  }
-  if (state.timerId !== null) {
-    stopTimer();
-    updateTimerDisplay();
-    return;
-  }
+function startTimer() {
+  if (state.timerStarted || state.timerFinished) return;
   state.timerStarted = true;
+  updateTimerDisplay();
   state.timerId = setInterval(() => {
     state.timerRemaining -= 1;
     if (state.timerRemaining <= 0) {
       state.timerRemaining = 0;
       state.timerFinished = true;
       stopTimer();
-      setFeedback("Time. Let the phrase end. Did you actually use the three roles as choices rather than run a memorized shape?", "good");
     }
     updateTimerDisplay();
   }, 1000);
-  updateTimerDisplay();
 }
 
-function submitReflection() {
+function renderReflect() {
+  $("stage-prompt").textContent = "Which connection failed first when the session became harder?";
+  $("stage-instruction").textContent = "Pick the most accurate failure mode. We are not creating a mastery score; this is simply evidence about what the next session should stress.";
+  setFeedback(state.reflection ? `Recorded: ${state.reflection}.` : "Choose one. The answer disappears when the page reloads.");
+  $("reflection-panel").hidden = false;
+  if (state.reflection) $("reflection-next").hidden = false;
+}
+
+function renderComplete() {
+  $("stage-prompt").textContent = "Stop here. The next useful test is not another repetition of A or D minor.";
+  $("stage-instruction").textContent = "On a later session, use a new minor key and another single string. The first question should again be auditory: can you sing the target function before your fingers search for it? Delayed transfer will tell us whether today's links survived.";
+  setFeedback("Learning Lab v2 ends after theory, ear, fretboard, harmonic context and phrase use have all touched the same small set of relationships.", "good");
+  const rows = [
+    ["What you trained", "A sound before a fret"],
+    ["Core contrast", "♭3 ↔ 3"],
+    ["Context shift", "C as ♭3 / 5 / 1 / ♭7"],
+    ["Transfer", "A minor → D minor"],
+    ["Application", "1 / ♭3 / 5 in timed phrases"],
+  ];
+  setTheory("Session integration", rows);
+  setLens(rows);
+}
+
+function handleReflectionSubmit() {
   const selected = document.querySelector('input[name="breakdown"]:checked');
   if (!selected) {
-    setFeedback("Choose the thing that broke first. There is no correct answer here.", "warn");
+    setFeedback("Choose the failure mode that felt most true.", "warn");
     return;
   }
   const labels = {
-    notes: "note names",
-    intervals: "interval relationships",
-    locations: "fretboard locations",
-    fingers: "finger pattern",
+    calculation: "theory was still calculation-heavy",
+    audiation: "the label was known but the sound was not available before playing",
+    location: "the sound was available but the fretboard location was slow",
+    shape: "a familiar shape took over",
+    context: "the same note became confusing when harmony changed",
   };
-  setFeedback(`Recorded for this session: ${labels[selected.value]}. Next session should probe that weakness before giving you the old visual cues.`, "good");
+  state.reflection = labels[selected.value];
+  setFeedback(`Recorded for this session only: ${state.reflection}.`, "good");
   $("reflection-next").hidden = false;
 }
 
-$("done-button").addEventListener("click", advanceStage);
-$("next-button").addEventListener("click", advanceStage);
 $("check-button").addEventListener("click", handleCheck);
 $("hint-button").addEventListener("click", handleHint);
-$("timer-start").addEventListener("click", toggleTimer);
+$("reveal-button").addEventListener("click", () => {
+  state.theoryRevealed = true;
+  renderStage();
+});
+$("done-button").addEventListener("click", advanceStage);
+$("next-button").addEventListener("click", advanceStage);
+$("timer-start").addEventListener("click", startTimer);
 $("timer-next").addEventListener("click", advanceStage);
-$("reflection-submit").addEventListener("click", submitReflection);
+$("reflection-submit").addEventListener("click", handleReflectionSubmit);
 $("reflection-next").addEventListener("click", advanceStage);
 $("restart-button").addEventListener("click", () => {
-  state.firstThirdString = null;
-  state.transferSelections = [];
-  state.transferRoleIndex = 0;
-  state.timerRemaining = 30;
+  stopTimer();
+  state.stageIndex = 0;
+  state.mapRoleIndex = 0;
+  state.savedMap = [];
+  state.timerRemaining = 35;
   state.timerStarted = false;
   state.timerFinished = false;
+  state.reflection = null;
+  resetStageInteraction();
   for (const input of document.querySelectorAll('input[name="breakdown"]')) input.checked = false;
-  setStage(0);
+  renderStage();
 });
 
 renderStage();
