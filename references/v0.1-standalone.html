@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CAGED Major Chord Explorer</title>
+  <style>
+    :root {
+      --bg: #0d0e0f;
+      --panel: #151617;
+      --panel-2: #111213;
+      --line: #9da0a3;
+      --fret: #30343c;
+      --text: #f2f2f2;
+      --muted: #a4a7ab;
+      --blue: #2755c7;
+      --root: #ff484d;
+      --third: #80c2f8;
+      --fifth: #ffd76d;
+      --dot: #3d3e40;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    .wrap {
+      width: min(1220px, calc(100% - 40px));
+      margin: 32px auto 48px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 26px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(34px, 4vw, 52px);
+      line-height: 1.05;
+      font-weight: 500;
+    }
+
+    .subtitle {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: clamp(18px, 2vw, 24px);
+    }
+
+    .notes-pill {
+      background: #111213;
+      border-radius: 999px;
+      padding: 14px 22px;
+      font-size: clamp(18px, 2vw, 24px);
+      white-space: nowrap;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .panel {
+      background: var(--panel);
+      border-radius: 22px;
+      padding: 28px;
+      margin-top: 20px;
+    }
+
+    .fret-panel {
+      padding: 26px 28px 20px;
+    }
+
+    #fretboard {
+      width: 100%;
+      height: auto;
+      display: block;
+      overflow: visible;
+    }
+
+    .legend {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 34px;
+      flex-wrap: wrap;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 19px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .legend-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: white;
+    }
+
+    .root { background: var(--root); }
+    .third { background: var(--third); }
+    .fifth { background: var(--fifth); }
+
+    .controls {
+      padding: 28px 30px 30px;
+    }
+
+    .controls-top {
+      display: grid;
+      grid-template-columns: 1fr minmax(180px, 220px);
+      align-items: center;
+      gap: 28px;
+    }
+
+    .control-label {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    select {
+      appearance: none;
+      width: 100%;
+      border: 1px solid #30343a;
+      border-radius: 999px;
+      background:
+        linear-gradient(45deg, transparent 50%, #8e939a 50%) calc(100% - 26px) 50% / 8px 8px no-repeat,
+        linear-gradient(135deg, #8e939a 50%, transparent 50%) calc(100% - 20px) 50% / 8px 8px no-repeat,
+        #111213;
+      color: var(--text);
+      padding: 17px 52px 17px 22px;
+      font-size: 23px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .shape-row {
+      display: grid;
+      grid-template-columns: 1.3fr repeat(5, minmax(104px, 1fr));
+      align-items: center;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .shape-label {
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    .shape-btn {
+      border: 0;
+      border-radius: 999px;
+      padding: 14px 18px;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 20px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background .15s ease, color .15s ease, transform .15s ease;
+    }
+
+    .shape-btn:hover { background: #1d2330; }
+    .shape-btn:active { transform: scale(.98); }
+    .shape-btn.active {
+      background: #223f98;
+      color: #4381ff;
+    }
+
+    .hint {
+      margin: 15px 4px 0;
+      color: #70747a;
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .tooltip {
+      position: fixed;
+      pointer-events: none;
+      background: #08090a;
+      color: white;
+      border: 1px solid #2d3138;
+      border-radius: 10px;
+      padding: 8px 10px;
+      font-size: 13px;
+      opacity: 0;
+      transform: translate(-50%, calc(-100% - 14px));
+      transition: opacity .08s ease;
+      z-index: 20;
+      white-space: nowrap;
+      box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    }
+
+    @media (max-width: 760px) {
+      .wrap { width: min(100% - 20px, 1220px); margin-top: 20px; }
+      .header { flex-direction: column; }
+      .notes-pill { align-self: flex-start; }
+      .panel { border-radius: 16px; padding: 16px; }
+      .controls-top { grid-template-columns: 1fr; gap: 12px; }
+      .shape-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .shape-label { grid-column: 1 / -1; }
+      .shape-btn { font-size: 16px; padding: 12px; }
+      .legend { gap: 16px; font-size: 15px; }
+      .legend-dot { width: 28px; height: 28px; }
+      .hint { text-align: left; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="wrap">
+    <div class="header">
+      <div>
+        <h1 id="title">A Major (G Shape)</h1>
+        <div class="subtitle">Explore CAGED chord shapes and interval structures across 15 frets.</div>
+      </div>
+      <div class="notes-pill" id="notesPill">Notes: A - C# - E</div>
+    </div>
+
+    <section class="panel fret-panel">
+      <svg id="fretboard" viewBox="0 0 1280 350" role="img" aria-label="Interactive guitar fretboard"></svg>
+
+      <div class="legend">
+        <span class="legend-item"><span class="legend-dot root">R</span> Root</span>
+        <span class="legend-item"><span class="legend-dot third">3</span> Major 3rd</span>
+        <span class="legend-item"><span class="legend-dot fifth">5</span> Perfect 5th</span>
+      </div>
+    </section>
+
+    <section class="panel controls">
+      <div class="controls-top">
+        <div class="control-label">Key / Root Note</div>
+        <select id="rootSelect" aria-label="Key or root note"></select>
+      </div>
+
+      <div class="shape-row">
+        <div class="shape-label">CAGED Shape</div>
+        <button class="shape-btn" data-shape="C">C Shape</button>
+        <button class="shape-btn" data-shape="A">A Shape</button>
+        <button class="shape-btn" data-shape="G">G Shape</button>
+        <button class="shape-btn" data-shape="E">E Shape</button>
+        <button class="shape-btn" data-shape="D">D Shape</button>
+      </div>
+      <div class="hint">Hover a chord tone to see its note, interval, string and fret.</div>
+    </section>
+  </main>
+
+  <div class="tooltip" id="tooltip"></div>
+
+  <script>
+    const NS = "http://www.w3.org/2000/svg";
+
+    // Pitch classes: C = 0 ... B = 11
+    const pitchClass = {
+      "C":0, "C#":1, "Db":1, "D":2, "D#":3, "Eb":3, "E":4,
+      "F":5, "F#":6, "Gb":6, "G":7, "G#":8, "Ab":8, "A":9,
+      "A#":10, "Bb":10, "B":11
+    };
+
+    // Root spellings chosen to keep major-triad spelling readable and conventional.
+    const roots = ["C","C#","D","Eb","E","F","F#","G","Ab","A","Bb","B"];
+
+    // Open-position major chord templates, ordered low E -> high E.
+    // Transposing one of these templates preserves its CAGED shape.
+    const templates = {
+      C: { baseRoot: "C", frets: [null, 3, 2, 0, 1, 0] },
+      A: { baseRoot: "A", frets: [null, 0, 2, 2, 2, 0] },
+      G: { baseRoot: "G", frets: [3, 2, 0, 0, 0, 3] },
+      E: { baseRoot: "E", frets: [0, 2, 2, 1, 0, 0] },
+      D: { baseRoot: "D", frets: [null, null, 0, 2, 3, 2] }
+    };
+
+    // Open string pitch classes, low E -> high E.
+    const stringPCs = [4, 9, 2, 7, 11, 4];
+    const displayStrings = [
+      { label: "E", idx: 5 }, // high E
+      { label: "B", idx: 4 },
+      { label: "G", idx: 3 },
+      { label: "D", idx: 2 },
+      { label: "A", idx: 1 },
+      { label: "E", idx: 0 }  // low E
+    ];
+
+    let selectedRoot = "A";
+    let selectedShape = "G";
+
+    const svg = document.getElementById("fretboard");
+    const rootSelect = document.getElementById("rootSelect");
+    const title = document.getElementById("title");
+    const notesPill = document.getElementById("notesPill");
+    const tooltip = document.getElementById("tooltip");
+
+    roots.forEach(note => {
+      const option = document.createElement("option");
+      option.value = note;
+      option.textContent = note;
+      if (note === selectedRoot) option.selected = true;
+      rootSelect.appendChild(option);
+    });
+
+    rootSelect.addEventListener("change", () => {
+      selectedRoot = rootSelect.value;
+      render();
+    });
+
+    document.querySelectorAll(".shape-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        selectedShape = btn.dataset.shape;
+        render();
+      });
+    });
+
+    function svgEl(name, attrs = {}, text = "") {
+      const el = document.createElementNS(NS, name);
+      Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, v));
+      if (text) el.textContent = text;
+      return el;
+    }
+
+    function accidentalFor(delta) {
+      if (delta === 0) return "";
+      if (delta === 1) return "#";
+      if (delta === 2) return "##";
+      if (delta === -1) return "b";
+      if (delta === -2) return "bb";
+      return "";
+    }
+
+    function naturalPC(letter) {
+      return {C:0, D:2, E:4, F:5, G:7, A:9, B:11}[letter];
+    }
+
+    function spellMajorTriad(root) {
+      const m = root.match(/^([A-G])([#b]?)$/);
+      const rootLetter = m[1];
+      const letters = ["C","D","E","F","G","A","B"];
+      const i = letters.indexOf(rootLetter);
+      const thirdLetter = letters[(i + 2) % 7];
+      const fifthLetter = letters[(i + 4) % 7];
+
+      const rootPC = pitchClass[root];
+      const targets = [rootPC, (rootPC + 4) % 12, (rootPC + 7) % 12];
+      const targetLetters = [rootLetter, thirdLetter, fifthLetter];
+
+      return targetLetters.map((letter, idx) => {
+        const natural = naturalPC(letter);
+        let delta = (targets[idx] - natural + 12) % 12;
+        if (delta > 6) delta -= 12;
+        return letter + accidentalFor(delta);
+      });
+    }
+
+    function noteLabelFromPC(pc, triad) {
+      // For chord tones, use theoretically correct spelling from the selected root.
+      const pcs = [
+        pitchClass[selectedRoot],
+        (pitchClass[selectedRoot] + 4) % 12,
+        (pitchClass[selectedRoot] + 7) % 12
+      ];
+      const idx = pcs.indexOf(pc);
+      if (idx >= 0) return triad[idx];
+
+      // Fallback for any unexpected note.
+      const sharpNames = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+      return sharpNames[pc];
+    }
+
+    function shapeFrets(root, shape) {
+      const template = templates[shape];
+      const t = (pitchClass[root] - pitchClass[template.baseRoot] + 12) % 12;
+      return template.frets.map(f => f === null ? null : f + t);
+    }
+
+    function intervalInfo(pc, rootPC) {
+      const d = (pc - rootPC + 12) % 12;
+      if (d === 0) return { label: "R", name: "Root", cls: "root", color: "#ff484d" };
+      if (d === 4) return { label: "3", name: "Major 3rd", cls: "third", color: "#80c2f8" };
+      if (d === 7) return { label: "5", name: "Perfect 5th", cls: "fifth", color: "#ffd76d" };
+      return { label: "?", name: "Chord tone", cls: "other", color: "#ddd" };
+    }
+
+    function showTooltip(evt, text) {
+      tooltip.textContent = text;
+      tooltip.style.left = evt.clientX + "px";
+      tooltip.style.top = evt.clientY + "px";
+      tooltip.style.opacity = 1;
+    }
+
+    function hideTooltip() {
+      tooltip.style.opacity = 0;
+    }
+
+    function render() {
+      svg.innerHTML = "";
+
+      document.querySelectorAll(".shape-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.shape === selectedShape);
+      });
+
+      const triad = spellMajorTriad(selectedRoot);
+      title.textContent = `${selectedRoot} Major (${selectedShape} Shape)`;
+      notesPill.textContent = `Notes: ${triad.join(" - ")}`;
+
+      const x0 = 82;
+      const x1 = 1235;
+      const boardTop = 46;
+      const boardBottom = 282;
+      const stringGap = (boardBottom - boardTop) / 5;
+      const nutX = x0 + 2;
+      const fretStartX = x0 + 78;
+      const fretEndX = x1 - 12;
+      const fretWidth = (fretEndX - fretStartX) / 15;
+
+      // Fretboard boundary
+      svg.appendChild(svgEl("rect", {
+        x: x0, y: boardTop - 10, width: x1 - x0, height: boardBottom - boardTop + 20,
+        rx: 9, fill: "#141516", stroke: "#2b2f36", "stroke-width": 2
+      }));
+
+      // Fret lines
+      for (let fret = 0; fret <= 15; fret++) {
+        const x = fretStartX + fret * fretWidth;
+        svg.appendChild(svgEl("line", {
+          x1: x, y1: boardTop - 6, x2: x, y2: boardBottom + 6,
+          stroke: "#2f333a", "stroke-width": fret === 0 ? 0 : 2
+        }));
+      }
+
+      // Nut
+      svg.appendChild(svgEl("line", {
+        x1: nutX, y1: boardTop - 7, x2: nutX, y2: boardBottom + 7,
+        stroke: "#9da0a3", "stroke-width": 12, "stroke-linecap": "round"
+      }));
+
+      // Fret markers
+      const dotFrets = [3,5,7,9,12,15];
+      dotFrets.forEach(fret => {
+        const cx = fretStartX + (fret - 0.5) * fretWidth;
+        if (fret === 12) {
+          [boardTop + stringGap, boardBottom - stringGap].forEach(cy => {
+            svg.appendChild(svgEl("circle", { cx, cy, r: 8, fill: "#3d3e40" }));
+          });
+        } else {
+          svg.appendChild(svgEl("circle", {
+            cx, cy: (boardTop + boardBottom) / 2, r: 10, fill: "#3d3e40"
+          }));
+        }
+      });
+
+      // Strings and string labels
+      displayStrings.forEach((s, row) => {
+        const y = boardTop + row * stringGap;
+        svg.appendChild(svgEl("text", {
+          x: 45, y: y + 8, fill: "#f2f2f2", "font-size": 23, "font-weight": 700,
+          "text-anchor": "middle"
+        }, s.label));
+
+        svg.appendChild(svgEl("line", {
+          x1: nutX, y1: y, x2: fretEndX, y2: y,
+          stroke: "#9da0a3",
+          "stroke-width": (6 - row) * 0.55 + 1.7,
+          "stroke-linecap": "round"
+        }));
+      });
+
+      // Fret labels
+      svg.appendChild(svgEl("text", {
+        x: nutX - 18, y: 321, fill: "#9ca1a8", "font-size": 21, "text-anchor": "end"
+      }, "Open"));
+
+      for (let fret = 1; fret <= 15; fret++) {
+        const x = fretStartX + (fret - 0.5) * fretWidth;
+        svg.appendChild(svgEl("text", {
+          x, y: 321, fill: "#9ca1a8", "font-size": 21, "text-anchor": "middle"
+        }, String(fret)));
+      }
+
+      // Chord tones
+      const frets = shapeFrets(selectedRoot, selectedShape);
+      const rootPC = pitchClass[selectedRoot];
+
+      displayStrings.forEach((s, row) => {
+        const fret = frets[s.idx];
+        if (fret === null || fret > 15) return;
+
+        const y = boardTop + row * stringGap;
+        const x = fret === 0
+          ? nutX - 18
+          : fretStartX + (fret - 0.5) * fretWidth;
+
+        const pc = (stringPCs[s.idx] + fret) % 12;
+        const info = intervalInfo(pc, rootPC);
+        const noteName = noteLabelFromPC(pc, triad);
+
+        const group = svgEl("g", { style: "cursor:pointer" });
+
+        const circle = svgEl("circle", {
+          cx: x, cy: y, r: 21,
+          fill: info.color,
+          stroke: "#151617",
+          "stroke-width": 4
+        });
+
+        const txt = svgEl("text", {
+          x, y: y + 7,
+          fill: "#ffffff",
+          "font-size": 20,
+          "font-weight": 800,
+          "text-anchor": "middle",
+          "pointer-events": "none"
+        }, info.label);
+
+        group.appendChild(circle);
+        group.appendChild(txt);
+
+        const stringNumber = 6 - s.idx;
+        group.addEventListener("mousemove", evt => {
+          const fretText = fret === 0 ? "open" : `fret ${fret}`;
+          showTooltip(evt, `${noteName} • ${info.name} • string ${stringNumber} • ${fretText}`);
+        });
+        group.addEventListener("mouseleave", hideTooltip);
+
+        svg.appendChild(group);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
