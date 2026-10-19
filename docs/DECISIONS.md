@@ -56,3 +56,14 @@ Default board is standard tuning through fret 15; callers supply other tunings a
 fret limits. Enumeration has a 10000-position budget before pitch filtering. Only
 working Phase 1 operations are exported. The original prototype remains standalone
 and its exact original archive is preserved under references/.
+
+## D013 — Key signatures are relational, with a conventional display boundary
+
+Keys, relatives and fifths neighbors are constructed from spelled intervals and
+transposition. A signed fifths position selects the conventional alteration count,
+and alteration order is generated algorithmically rather than stored as complete
+per-key signature tables. Signature/profile queries support -7..7 and return
+UNSUPPORTED outside that range; relative and fifths relationships remain valid.
+
+Phase 2A adds focused musical-truth queries plus getKeyProfile as their convenience
+composition. Phase 2B and later theory breadth remain separate implementation runs.

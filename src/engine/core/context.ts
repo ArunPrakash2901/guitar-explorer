@@ -1,6 +1,7 @@
 import { assertInteger, assertRecord, MusicError } from "./errors.js";
 import { buildChord, buildScale } from "./collections.js";
 import { intervalBetweenNotes } from "./intervals.js";
+import { validateKey } from "./keys.js";
 import { formatPitch, NATURAL_PITCH_CLASSES, pitchClass, pitchFromSemitone, toSemitone, validateNote, validatePitch } from "./pitch.js";
 import type { ChordId, ChordSpec, HarmonicContext, IntervalInfo, NoteName, Pitch, PitchClass, ScaleId, ScaleSpec, SpellingPreference, Tone } from "./types.js";
 
@@ -52,16 +53,7 @@ export type SpelledPitch = Readonly<{
 
 export function validateContext(value: unknown): asserts value is HarmonicContext {
   assertRecord(value, "context");
-  if (value.key !== undefined) {
-    assertRecord(value.key, "context.key");
-    validateNote(value.key.tonic);
-    if (typeof value.key.mode !== "string") {
-      throw new MusicError("INVALID_INPUT", "Key mode must be text");
-    }
-    if (value.key.mode !== "major" && value.key.mode !== "minor") {
-      throw new MusicError("UNSUPPORTED", "Key mode must be major or minor");
-    }
-  }
+  if (value.key !== undefined) validateKey(value.key);
   if (value.activeScale !== undefined) buildScale(value.activeScale as ScaleSpec);
   if (value.currentChord !== undefined) buildChord(value.currentChord as ChordSpec);
 }

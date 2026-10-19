@@ -26,8 +26,9 @@ function failure(result: QueryResult<unknown>, code: "INVALID_INPUT" | "UNSUPPOR
 describe("version 1 public music queries", () => {
   it("exposes the complete implemented kernel without future-operation placeholders", () => {
     expect(Object.keys(musicQueries).sort()).toEqual([
-      "analyseNotes", "getChord", "getFretboardLocations", "getInterval", "getNoteAtFret",
-      "getScale", "invertInterval", "transposeNote", "transposePitch",
+      "analyseNotes", "getChord", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
+      "invertInterval", "transposeNote", "transposePitch",
     ]);
     expect(Object.isFrozen(musicQueries)).toBe(true);
   });
@@ -81,6 +82,10 @@ describe("version 1 public music queries", () => {
       musicQueries.getInterval({ from: parsePitch("C4"), to: parsePitch("G4") }),
       musicQueries.getScale({ tonic: parseNote("A"), scaleId: "naturalMinor" }),
       musicQueries.getChord({ root: parseNote("D"), chordId: "diminished" }),
+      musicQueries.getKeySignature({ tonic: parseNote("F#"), mode: "major" }),
+      musicQueries.getRelativeKey({ tonic: parseNote("A"), mode: "minor" }),
+      musicQueries.getFifthsNeighbors({ tonic: parseNote("C"), mode: "major" }),
+      musicQueries.getKeyProfile({ tonic: parseNote("Eb"), mode: "major" }),
       musicQueries.getNoteAtFret({ position: { stringIndex: 5, fret: 12 } }),
       musicQueries.getFretboardLocations({ stringIndices: [0], pitchClasses: [4] }),
       musicQueries.analyseNotes({ notes: [parsePitch("C4")], context: {} }),

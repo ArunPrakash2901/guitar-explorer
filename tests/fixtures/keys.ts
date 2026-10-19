@@ -1,0 +1,17 @@
+export const conventionalSignatures = [
+  { fifths: -7, major: "Cb", minor: "Ab", alterations: ["Bb", "Eb", "Ab", "Db", "Gb", "Cb", "Fb"] },
+  { fifths: -6, major: "Gb", minor: "Eb", alterations: ["Bb", "Eb", "Ab", "Db", "Gb", "Cb"] },
+  { fifths: -5, major: "Db", minor: "Bb", alterations: ["Bb", "Eb", "Ab", "Db", "Gb"] },
+  { fifths: -4, major: "Ab", minor: "F", alterations: ["Bb", "Eb", "Ab", "Db"] },
+  { fifths: -3, major: "Eb", minor: "C", alterations: ["Bb", "Eb", "Ab"] },
+  { fifths: -2, major: "Bb", minor: "G", alterations: ["Bb", "Eb"] },
+  { fifths: -1, major: "F", minor: "D", alterations: ["Bb"] },
+  { fifths: 0, major: "C", minor: "A", alterations: [] },
+  { fifths: 1, major: "G", minor: "E", alterations: ["F#"] },
+  { fifths: 2, major: "D", minor: "B", alterations: ["F#", "C#"] },
+  { fifths: 3, major: "A", minor: "F#", alterations: ["F#", "C#", "G#"] },
+  { fifths: 4, major: "E", minor: "C#", alterations: ["F#", "C#", "G#", "D#"] },
+  { fifths: 5, major: "B", minor: "G#", alterations: ["F#", "C#", "G#", "D#", "A#"] },
+  { fifths: 6, major: "F#", minor: "D#", alterations: ["F#", "C#", "G#", "D#", "A#", "E#"] },
+  { fifths: 7, major: "C#", minor: "A#", alterations: ["F#", "C#", "G#", "D#", "A#", "E#", "B#"] },
+] as const;
