@@ -10,7 +10,7 @@
     "test:prototype": "node prototype/music.test.js && node --check prototype/app.js",
     "lab:build": "tsc -p tsconfig.lab.json",
     "lab": "npm run lab:build && node scripts/serve-lab.mjs",
-    "test:lab": "npm run lab:build && node --check lab/app.js && node --check scripts/serve-lab.mjs"
+    "test:lab": "npm run lab:build && node --check lab/app.js && node --check lab/session-logic.mjs && node --check scripts/serve-lab.mjs && node scripts/test-lab-behavior.mjs"
   },
   "engines": {
     "node": ">=22.17.0"
