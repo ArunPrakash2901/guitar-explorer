@@ -36,12 +36,13 @@ CAGED production logic, diatonic harmony, audio, ear training, learning telemetr
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
-## Try Learning Lab v1 — Relational Transfer
+## Try Learning Lab v2 — Theory Immersion
 
 `lab/` is a deliberately thin browser consumer of the existing engine. It is not
-the production app and it does not introduce a Learning Engine, persistence,
-mastery scores or new musical truth. Its purpose is to answer one question early:
-**can the existing foundation drive a serious guitar-first practice interaction?**
+the production app and it does not introduce a general Learning Engine, persistence,
+mastery scores or new musical truth. Its purpose is to test whether already-known
+theory can become more tightly connected to sound, fretboard location, harmonic
+function and phrase use.
 
 Requires Node.js 22.17 or newer.
 
@@ -52,24 +53,29 @@ npm run lab
 
 Then open `http://127.0.0.1:4173`.
 
-Learning Lab v1 replaces the earlier quiz-style tabs with one connected 10–15 minute
-relational-transfer session built around the minor-triad relationship `1–♭3–5`:
+Learning Lab v2 keeps the connected session workflow from v1 but replaces broad
+fretboard searching with a deeper theory-immersion thread:
 
-- orient in A minor inside frets 5–9
-- play first, then commit a root and minor-third location on the blank fretboard
-- find a second minor third on a different string
-- add the fifth and reconstruct the triad away from the screen
-- transfer the same relationship to D minor in the same window
-- transfer again to C minor in a different fret region
-- finish with a 30-second constrained phrase using only `1`, `♭3` and `5`
-- reflect briefly on whether note names, interval relationships, fretboard locations or finger pattern broke first
-- stop with a delayed-retest instruction rather than another quiz question
+- use open A and open D as physical tonic drones
+- work on one string at a time so a familiar two-dimensional box cannot solve the task
+- sing or audiate a functional target before playing it
+- commit the fret only after the guitar has produced the sound
+- inspect engine-derived note, interval, degree, chord-role and fretboard labels after success
+- contrast `♭3` with `3` against the same root to hear the minor/major distinction
+- keep C physically fixed while relabeling it as `♭3`, `5`, `1` and `♭7` in changing contexts
+- transfer the same functional hearing from A minor on the G string to D minor on the B string
+- rebuild D minor as `1–♭3–5` by function rather than by copying a shape
+- finish with a 35-second PLAY/REST phrase constraint, using the REST blocks to audiate the next phrase
+- reflect on whether the weak link was calculation, audiation, fretboard location, shape dependence or harmonic re-labeling
 
 The lab compiles and imports `src/engine/` directly. It does not duplicate a second
-theory implementation in the UI. Incorrect fret choices are described musically and
-repaired before reveal; hints progress from relational information to the note name
-without exposing the entire solution. Treat the lab as a disposable learning probe:
-keep, change or delete interactions based on whether they improve real practice.
+theory implementation in the UI. The physical guitar supplies the sound; the app
+supplies prompts, constraints and deterministic theory/location verification. There
+is deliberately no microphone grading or claim that the software can judge whether
+your improvisation was musically good.
+
+Treat the lab as a disposable learning probe: keep, change or delete interactions
+based on whether they improve real practice.
 
 ## Verify the foundation kernel
 
