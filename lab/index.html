@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Guitar Explorer Lab v1</title>
+  <title>Guitar Explorer Lab v2</title>
   <style>
     :root {
       color-scheme: dark;
@@ -39,10 +39,10 @@
     button:focus-visible, input:focus-visible { outline: 3px solid rgba(138, 180, 255, .35); outline-offset: 2px; }
     button.primary { background: #263f66; border-color: #426da8; }
     button:disabled { cursor: default; opacity: .28; }
-    main { max-width: 1080px; margin: 0 auto; padding: 28px 18px 48px; }
-    h1, h2, p { margin-top: 0; }
+    main { max-width: 1120px; margin: 0 auto; padding: 28px 18px 48px; }
+    h1, h2, h3, p { margin-top: 0; }
     h1 { font-size: clamp(1.7rem, 4vw, 2.45rem); margin-bottom: 8px; }
-    .lede { color: var(--muted); max-width: 820px; }
+    .lede { color: var(--muted); max-width: 860px; }
     .notice {
       margin: 20px 0;
       padding: 14px 16px;
@@ -52,7 +52,7 @@
     }
     .session-shell {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) 250px;
+      grid-template-columns: minmax(0, 1fr) 285px;
       gap: 18px;
       align-items: start;
     }
@@ -72,7 +72,7 @@
     }
     .stage-title { margin-bottom: 10px; }
     .prompt { font-size: clamp(1.1rem, 2.5vw, 1.35rem); margin: 14px 0 10px; }
-    .instruction { color: var(--muted); max-width: 760px; }
+    .instruction { color: var(--muted); max-width: 780px; }
     .context-chip {
       display: block;
       padding: 11px 12px;
@@ -97,21 +97,19 @@
     .feedback.warn { border-left-color: var(--warn); }
     .feedback.bad { border-left-color: var(--bad); }
     .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
-    .board-wrap { overflow-x: auto; margin: 16px 0 8px; }
-    .fretboard {
+    .string-wrap { overflow-x: auto; margin: 18px 0 8px; }
+    .string-board {
       border-collapse: separate;
       border-spacing: 4px;
-      min-width: 820px;
+      min-width: 760px;
       width: 100%;
     }
-    .fretboard th { color: var(--muted); font-size: .78rem; font-weight: 650; }
-    .fretboard th.active-fret { color: var(--text); }
-    .fretboard th.outside-fret { opacity: .35; }
-    .string-name { text-align: right; padding-right: 6px; min-width: 58px; white-space: nowrap; }
+    .string-board th { color: var(--muted); font-size: .78rem; font-weight: 650; }
+    .string-name { text-align: right; padding-right: 8px; min-width: 74px; white-space: nowrap; }
     .fret-cell {
       width: 100%;
       min-width: 48px;
-      height: 46px;
+      height: 50px;
       padding: 0;
       border-radius: 8px;
       position: relative;
@@ -128,13 +126,33 @@
       top: 50%;
       transform: translate(-50%, -50%);
     }
-    .fret-cell.outside { background: #12151a; border-color: #22262e; }
     .fret-cell.selected { border-color: var(--accent); background: #23324a; }
     .fret-cell.selected::after { background: var(--accent); }
     .fret-cell.correct { border-color: var(--good); background: #20392a; }
-    .fret-cell.correct::after { display: none; }
+    .fret-cell.correct::after, .fret-cell.saved::after, .fret-cell.wrong::after { display: none; }
     .fret-cell.saved { border-color: #596273; background: #242a33; color: #d7dde7; }
-    .fret-cell.saved::after { display: none; }
+    .fret-cell.wrong { border-color: var(--bad); background: #432727; color: #ffe2e2; }
+    .theory-panel {
+      margin-top: 16px;
+      padding: 15px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: #11141a;
+    }
+    .theory-panel h3 { font-size: .98rem; margin-bottom: 8px; }
+    .theory-grid { display: grid; gap: 8px; }
+    .theory-row {
+      display: grid;
+      grid-template-columns: 120px 1fr;
+      gap: 10px;
+      border-top: 1px solid #232933;
+      padding-top: 8px;
+    }
+    .theory-row:first-child { border-top: 0; padding-top: 0; }
+    .theory-key { color: var(--muted); }
+    .context-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    .context-table th, .context-table td { padding: 8px; text-align: left; border-top: 1px solid var(--line); }
+    .context-table th { color: var(--muted); font-size: .82rem; }
     .timer-panel {
       margin-top: 18px;
       padding: 18px;
@@ -142,7 +160,8 @@
       background: var(--panel-2);
       border-radius: 12px;
     }
-    .timer-value { font-size: 2.4rem; font-variant-numeric: tabular-nums; margin-bottom: 12px; }
+    .timer-value { font-size: 2.4rem; font-variant-numeric: tabular-nums; margin-bottom: 2px; }
+    .timer-phase { font-size: 1.2rem; font-weight: 750; margin-bottom: 10px; }
     .reflection-panel { display: grid; gap: 10px; margin-top: 18px; }
     .choice {
       display: flex;
@@ -159,9 +178,10 @@
     .side-panel p { color: var(--muted); font-size: .9rem; }
     .principle { padding-top: 12px; margin-top: 12px; border-top: 1px solid var(--line); }
     .principle strong { color: var(--text); display: block; margin-bottom: 3px; }
+    .lens-placeholder { color: var(--muted); font-size: .9rem; }
     footer { color: var(--muted); margin-top: 22px; font-size: .9rem; }
     [hidden] { display: none !important; }
-    @media (max-width: 820px) {
+    @media (max-width: 860px) {
       .session-shell { grid-template-columns: 1fr; }
       .side-panel { order: -1; }
     }
@@ -169,23 +189,24 @@
       main { padding: 20px 12px 36px; }
       .panel, .side-panel { padding: 14px; }
       .actions button { flex: 1 1 150px; }
+      .theory-row { grid-template-columns: 1fr; gap: 2px; }
     }
   </style>
 </head>
 <body>
   <main>
     <header>
-      <h1>Learning Lab v1 · Relational Transfer</h1>
-      <p class="lede">One serious 10–15 minute practice thread over the existing engine. You will build 1–♭3–5, relocate it, transfer it, and use it musically. The screen is the prompt and verifier. The guitar is the learning surface.</p>
+      <h1>Learning Lab v2 · Theory Immersion</h1>
+      <p class="lede">One guitar-first session that connects note name, interval, scale degree, chord role, sound, fretboard location and phrase use. You will sing before playing, work on one string, contrast minor and major thirds, relabel the same note under changing harmony, then transfer the relationship.</p>
     </header>
 
     <div class="notice">
-      <strong>Rule:</strong> play first, then touch the screen. A tap records what you played; it does not count as the musical action.
+      <strong>Rule:</strong> hear or sing the target before your fingers solve it. The app verifies theory and location; your guitar supplies the sound.
     </div>
 
     <div class="session-shell">
       <section class="panel" aria-live="polite">
-        <div class="progress-row"><span>Session thread</span><span id="progress-text">1 / 11</span></div>
+        <div class="progress-row"><span>Theory-immersion thread</span><span id="progress-text">1 / 13</span></div>
         <div class="progress-track" aria-hidden="true"><div class="progress-fill" id="progress-fill"></div></div>
 
         <div class="stage-kicker" id="stage-kicker"></div>
@@ -197,26 +218,34 @@
         <div class="prompt" id="stage-prompt"></div>
         <p class="instruction" id="stage-instruction"></p>
 
-        <section id="board-section" hidden>
-          <div class="board-wrap">
-            <table class="fretboard" id="fretboard" aria-label="Standard guitar fretboard with an active practice window"></table>
+        <section id="string-section" hidden>
+          <div class="string-wrap">
+            <table class="string-board" id="string-board" aria-label="Single guitar string practice line"></table>
           </div>
-          <p class="instruction">Only the active fret window is selectable. No note labels appear before you commit and check.</p>
+          <p class="instruction" id="string-help">The line stays blank until you commit. Play on the physical guitar before selecting the fret you used.</p>
+        </section>
+
+        <section class="theory-panel" id="theory-panel" hidden>
+          <h3 id="theory-title">Theory lens</h3>
+          <div id="theory-content"></div>
         </section>
 
         <section class="timer-panel" id="timer-panel" hidden>
-          <div class="timer-value" id="timer-value">30s</div>
+          <div class="timer-value" id="timer-value">35s</div>
+          <div class="timer-phase" id="timer-phase">READY</div>
+          <p class="instruction" id="timer-instruction">PLAY phases: use only 1, ♭3 and 5. REST phases: keep the drone going mentally and audiate the next phrase.</p>
           <div class="actions">
-            <button class="primary" type="button" id="timer-start">Start 30 seconds</button>
+            <button class="primary" type="button" id="timer-start">Start 35 seconds</button>
             <button type="button" id="timer-next" hidden>Reflect</button>
           </div>
         </section>
 
         <section class="reflection-panel" id="reflection-panel" hidden>
-          <label class="choice"><input type="radio" name="breakdown" value="notes"> Note names</label>
-          <label class="choice"><input type="radio" name="breakdown" value="intervals"> Interval relationships</label>
-          <label class="choice"><input type="radio" name="breakdown" value="locations"> Fretboard locations</label>
-          <label class="choice"><input type="radio" name="breakdown" value="fingers"> Finger pattern took over</label>
+          <label class="choice"><input type="radio" name="breakdown" value="calculation"> I knew the theory but still had to calculate it</label>
+          <label class="choice"><input type="radio" name="breakdown" value="audiation"> I could calculate it but could not hear/sing it first</label>
+          <label class="choice"><input type="radio" name="breakdown" value="location"> I heard the target but could not locate it quickly</label>
+          <label class="choice"><input type="radio" name="breakdown" value="shape"> My fingers fell back into a familiar shape</label>
+          <label class="choice"><input type="radio" name="breakdown" value="context"> Changing the chord broke my sense of the note's function</label>
           <div class="actions">
             <button class="primary" type="button" id="reflection-submit">Record reflection</button>
             <button type="button" id="reflection-next" hidden>Finish session</button>
@@ -226,8 +255,9 @@
         <div class="feedback" id="feedback">Loading session…</div>
 
         <div class="actions">
-          <button class="primary" type="button" id="check-button" hidden>Check committed location</button>
+          <button class="primary" type="button" id="check-button" hidden>Check committed fret</button>
           <button type="button" id="hint-button" hidden>Hint</button>
+          <button type="button" id="reveal-button" hidden>Reveal theory relationship</button>
           <button class="primary" type="button" id="done-button" hidden>Continue</button>
           <button class="primary" type="button" id="next-button" hidden>Continue</button>
           <button type="button" id="restart-button" hidden>Run session again</button>
@@ -235,24 +265,29 @@
       </section>
 
       <aside class="side-panel">
-        <h2>What this lab is testing</h2>
-        <p>This is intentionally not a general Learning Engine. It is one manually designed practice sequence using theory we already have.</p>
+        <h2>Active theory lens</h2>
+        <div id="lens-content" class="lens-placeholder">The lens stays deliberately sparse until you act. After a correct commitment or reveal, the same sound is relabeled across theory, fretboard and harmony.</div>
+
         <div class="principle">
-          <strong>Retrieve before reveal</strong>
-          <p>Prediction is useful only if you then act, compare and repair.</p>
+          <strong>Sing before play</strong>
+          <p>Vocal quality does not matter. The point is to create an auditory target before the motor pattern takes over.</p>
         </div>
         <div class="principle">
-          <strong>Keep useful shapes</strong>
-          <p>But move the root, string and region so one stored box cannot solve everything.</p>
+          <strong>One string on purpose</strong>
+          <p>Pitch distance and physical distance become one line, reducing your ability to hide inside a 2D box.</p>
         </div>
         <div class="principle">
-          <strong>End in music</strong>
-          <p>The session finishes with constrained phrasing and a later retest, not a score screen.</p>
+          <strong>Contrast one variable</strong>
+          <p>C versus C# over A changes only the third. Listen for the chord-quality difference before naming it.</p>
+        </div>
+        <div class="principle">
+          <strong>Same note, new job</strong>
+          <p>C can be ♭3, 5, 1 or ♭7 depending on context. The pitch stays fixed while its musical role changes.</p>
         </div>
       </aside>
     </div>
 
-    <footer>No persistence, mastery score, AI judge, microphone or new theory was added. If this practice thread is not useful, we change the interaction before adding infrastructure.</footer>
+    <footer>No microphone, audio engine, persistence, mastery score, AI judge or new Phase 2C theory is used here. Lab v2 deepens the existing engine by changing what you do with the theory, not by adding infrastructure.</footer>
   </main>
   <script type="module" src="/app.js"></script>
 </body>
