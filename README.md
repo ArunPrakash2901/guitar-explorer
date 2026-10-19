@@ -10,11 +10,17 @@ The project is currently **engine-first**. The production UI, audio, ear trainin
 
 **Phase 2A — Keys, signatures, relatives and fifths: implemented**
 
+**Phase 2B — Scale catalog and contextual scale analysis: implemented**
+
 The current kernel includes:
 
 - spelling-aware notes and registered pitches
 - intervals, inversion and transposition
 - major and natural-minor scales
+- harmonic minor and ascending melodic minor
+- major/minor pentatonic and minor blues
+- Dorian, Phrygian, Lydian, Mixolydian and Locrian
+- generalized scale-context analysis for omitted and repeated written degrees
 - major, minor, diminished and augmented triads
 - conventional major/minor key signatures through seven sharps or flats
 - interval-derived relative-key and Circle-of-Fifths relationships
@@ -25,8 +31,8 @@ The current kernel includes:
 - strict TypeScript and Vitest coverage
 - regression checks for the preserved behavioural prototype
 
-The current engine deliberately does **not** include the Phase 2B scale catalog,
-CAGED production logic, broader harmony, audio, ear training, learning telemetry
+The current engine deliberately does **not** include Phase 2C chord breadth,
+CAGED production logic, diatonic harmony, audio, ear training, learning telemetry
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
@@ -69,12 +75,13 @@ Key principles:
 - CAGED is a future guitar representation, not the fretboard model itself.
 - Ear training remains instrument-independent; combined tasks such as hear → identify → find are composed by the Learning layer.
 - `musicQueries` is the musical-truth query surface. Learner history will use a separate future learning query surface.
+- Spelled identity and sounding membership stay distinct, including in non-heptatonic scales.
 - A future rhythm/time domain is reserved architecturally but is not implemented yet.
 
 ## Roadmap
 
 1. **Foundation kernel** — implemented
-2. **Theory breadth** — slice 2A implemented; broader scales/chords, diatonic harmony and relationship analysis remain pending
+2. **Theory breadth** — slices 2A and 2B implemented; chord breadth, diatonic harmony and relationship analysis remain pending
 3. **Guitar representations** — maps, triad voicings, inversions, CAGED and position connectivity
 4. **Learning engine extraction** — deterministic exercises, evaluation, assistance and evidence contracts
 5. **Audio and ear training** — playback plans, browser audio and auditory exercise families

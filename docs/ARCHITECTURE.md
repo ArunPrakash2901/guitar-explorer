@@ -1,8 +1,9 @@
 # Music Engine architecture
 
 The user-approved engine architecture supersedes the v0.2 handoff's combined
-`src/music` layout and UI-first kickoff. Phase 1 creates only Core, Guitar and
-musical queries. Future modules below are boundaries, not placeholder code.
+`src/music` layout and UI-first kickoff. The current engine contains only Core,
+Guitar and musical queries; later Audio, Ear and Learning modules remain documented
+boundaries rather than placeholder code.
 
 ## Dependency direction
 
@@ -59,8 +60,8 @@ See API.md for unison, spelling-precedence and numeric/resource conventions.
 ## Implemented key relationships — Phase 2A
 
 Conventional signatures are located on a signed fifths axis from C major. Minor
-keys reach that axis through their relative major. Alterations are then generated
-in conventional order from the fifths count; the engine does not store a table of
+keys reach that axis through their relative major. Alterations are generated in
+conventional order from the fifths count; the engine does not store a table of
 finished signatures for every key.
 
 Relative keys and clockwise/counterclockwise fifths neighbors are constructed by
@@ -68,6 +69,24 @@ spelled interval transposition and retain the relationship interval in their
 results. These relationships remain available outside the conventional signature
 range, while signature and composed-profile requests beyond seven sharps/flats
 return UNSUPPORTED. No key is inferred from unordered notes or a progression.
+
+## Implemented scale breadth and context — Phase 2B
+
+Scale formulas now include harmonic minor, ascending melodic minor, major/minor
+pentatonic, minor blues and the remaining five major-scale modes. Formula identity
+remains structured as `{ degree, alteration }`; minor blues deliberately declares
+both flat-five and perfect-five references for written degree 5.
+
+Selected-scale analysis is generalized independently from key analysis. A queried
+written degree may have exactly one formula reference, no formula reference, or
+multiple formula references. Scale relations therefore expose `referenceStatus`,
+ordered `degreeReferences`, nullable `alterationFromScale`, and pitch-class-based
+`matchingTones`. This preserves the distinction between written identity and
+sounding membership without forcing pentatonic or blues collections into a
+seven-degree assumption.
+
+Key analysis remains major/natural-minor and seven-note by design. Broad harmonic
+interpretation, Roman numerals and functional analysis are later Phase 2 work.
 
 ## Future rhythm/time domain — documentation only
 
@@ -77,8 +96,9 @@ remain distinct from Audio's scheduling seconds and Learning's wall-clock
 timestamps/response times. A tempo-aware adapter will compile beat-based events
 into audio plans. Chord identity itself will not acquire timing state.
 
-Do not implement time types, a tempo map, transport or timing placeholders in v1.
-Existing pitch/chord/context values can be referenced by later timed events.
+Do not implement time types, a tempo map, transport or timing placeholders in the
+current theory slices. Existing pitch/chord/context values can be referenced by
+later timed events.
 
 ## Future Learning Query Interface — documentation only
 
@@ -86,19 +106,19 @@ Keep `musicQueries` the musical-truth surface. A separate future read-only Learn
 Query Interface may expose attempts, assistance, retrieval/transfer evidence and
 history through Learning and persistence. It may reference musical concept IDs or
 compose musical facts at the application layer; learner state never enters Core
-or musical query results. No Learning query code exists in Phase 1.
+or musical query results.
 
 ## Later v1 direction and exclusions
 
-Subsequently authorized slices add the approved broader scale/chord catalogs,
+Subsequently authorized slices add the approved broader chord catalog,
 explicit-context harmony, maps/triad voicings, standard-tuning CAGED, playback and
 all five auditory exercise families. The auditory-to-fretboard composition remains
 owned by Learning. Evidence summaries precede mastery estimation.
 
-Roman labels default key-relative in minor keys. Analytical rules distinguish
-calculated facts from interpretations and do not infer a unique key automatically.
+Roman labels will be explicit-context interpretations rather than inferred unique
+truth. Analytical rules must distinguish calculated facts from interpretations.
 
 Western twelve-tone equal temperament is the foundation. Microphone/transcription,
-DSP-heavy processing, AI, cloud sync, adaptive mastery, general chord-text parsing,
-global voice-leading/fingering optimization and notation engraving remain excluded.
-
+DSP-heavy processing, AI authority, cloud sync, adaptive mastery, general chord-text
+parsing, global voice-leading/fingering optimization and notation engraving remain
+outside the current scope.

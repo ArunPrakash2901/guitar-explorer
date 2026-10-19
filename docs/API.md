@@ -1,4 +1,4 @@
-# Musical API — Phase 1 plus Phase 2A
+# Musical API — Phase 1 through Phase 2B
 
 Import the pure public surface from `src/engine/index.ts`. Source uses ESM syntax
 and .js import specifiers for TypeScript bundlers; the preserved prototype remains
@@ -35,11 +35,8 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 | transposeNote | { note: NoteName, interval: Interval } | Transposed spelled note without register |
 | invertInterval | { interval: Interval } | Simple ascending octave complement |
 
-The six main queries and invertInterval also have named exports. Named
-transposePitchQuery/transposeNoteQuery are envelope variants; named transposePitch
-and transposeNote are low-level helpers. Direct Core/Guitar helpers validate and
-throw MusicError instead of wrapping it. Parsers are helpers, not free-text theory
-interpretation endpoints.
+The query names remain unchanged in Phase 2B. Scale breadth is exposed through the
+existing `getScale` and `analyseNotes` surfaces rather than new per-scale methods.
 
 ```ts
 import {
@@ -58,9 +55,23 @@ if (third.ok) {
   }); // A3
 }
 
-const scale = musicQueries.getScale({ tonic: parseNote("C#"), scaleId: "major" });
-if (scale.ok) scale.data.tones.map(tone => formatNote(tone.note));
-// C# D# E# F# G# A# B#
+const blues = musicQueries.getScale({ tonic: parseNote("C"), scaleId: "minorBlues" });
+if (blues.ok) blues.data.tones.map(tone => formatNote(tone.note));
+// C Eb F Gb G Bb
+
+const omitted = musicQueries.analyseNotes({
+  notes: [parsePitch("F4")],
+  context: { activeScale: { tonic: parseNote("C"), scaleId: "majorPentatonic" } },
+});
+// Scale relation: degree 4, referenceStatus "omitted",
+// degreeReferences [], alterationFromScale null, inScale false.
+
+const bluesFive = musicQueries.analyseNotes({
+  notes: [parsePitch("Gb4"), parsePitch("G4")],
+  context: { activeScale: { tonic: parseNote("C"), scaleId: "minorBlues" } },
+});
+// Both written notes are degree 5 and therefore expose the ordered degree references
+// [b5, 5]. matchingTones identifies the sounding formula tone for each note.
 
 musicQueries.getNoteAtFret({ position: { stringIndex: 0, fret: 0 } }); // E2
 musicQueries.getNoteAtFret({ position: { stringIndex: 5, fret: 0 } }); // E4
@@ -72,21 +83,12 @@ musicQueries.getFretboardLocations({
   context: { key: { tonic: parseNote("A"), mode: "major" } },
 }); // C# locations with major-third root annotation
 
-musicQueries.analyseNotes({
-  notes: [parsePitch("F#4")],
-  context: {
-    key: { tonic: parseNote("A"), mode: "major" },
-    activeScale: { tonic: parseNote("D"), scaleId: "major" },
-    currentChord: { root: parseNote("D"), chordId: "major" },
-  },
-}); // key degree 6; selected-scale degree 3; current-chord M3
-
 const profile = musicQueries.getKeyProfile({ tonic: parseNote("F#"), mode: "major" });
 if (profile.ok) {
   profile.data.signature.fifths; // 6
   profile.data.signature.alterations.map(formatNote); // F# C# G# D# A# E#
-  profile.data.relative.relativeKey; // D# minor, related by an ascending M6
-  profile.data.fifths.clockwise.destinationKey; // C# major, related by P5
+  profile.data.relative.relativeKey; // D# minor
+  profile.data.fifths.clockwise.destinationKey; // C# major
 }
 ```
 
@@ -102,36 +104,34 @@ if (profile.ok) {
 - Interval = { diatonicSteps, semitones }, both signed. P1=(0,0), M3=(2,4),
   P8=(7,12), M9=(8,14). Registered interval direction follows written movement,
   using sound for same-letter movement. C4→Cb4 is descending A1. Note-only
-  intervalBetweenNotes uses an ascending written span, so C→Cb is d1. Both retain
-  identical signed coordinates; use registered pitches when direction matters.
+  intervalBetweenNotes uses an ascending written span, so C→Cb is d1.
 - qualityMultiplicity is 0 for P/M/m, 1 for A/d, 2 for AA/dd.
   Interval inversion is the ascending simple octave complement, not transposition
-  reversal. It rejects compounds, descending intervals and chromatic displacement
-  outside 0..12. negateInterval reverses a transposition.
-- Scale IDs: major, naturalMinor. Chord IDs: major, minor, diminished, augmented.
-  Formula alterations use major/perfect reference intervals, independent of key.
-  Derived formulas/results preserve degrees and spellings; IDs select catalogs.
+  reversal. `negateInterval` reverses a transposition.
+- Scale IDs: `major`, `naturalMinor`, `harmonicMinor`, `melodicMinorAscending`,
+  `majorPentatonic`, `minorPentatonic`, `minorBlues`, `dorian`, `phrygian`,
+  `lydian`, `mixolydian`, `locrian`.
+- Chord IDs remain `major`, `minor`, `diminished`, `augmented` until Phase 2C.
+- Formula alterations use major/perfect reference intervals independently of key.
+  Minor blues intentionally contains both `{ degree: 5, alteration: -1 }` and
+  `{ degree: 5, alteration: 0 }`; formula identity is not collapsed to pitch class.
+- `ScaleRelation.degree` follows the queried written note letter relative to the
+  scale tonic. `degreeReferences` contains every formula tone declared for that
+  written degree, in formula order. `referenceStatus` is `single`, `omitted` or
+  `multiple`. `alterationFromScale` is numeric only for `single`; it is `null` for
+  omitted or multiple references. `matchingTones` is independent sounding-membership
+  evidence and contains every scale tone sharing the queried pitch class.
+- Therefore exact spelling and sounding membership can disagree intentionally. For
+  example F# against C minor blues sounds as the scale's Gb blue note, but it is a
+  differently spelled written degree and `spellingMatches` is false.
+- Key-context degree analysis remains seven-note major/natural-minor analysis and is
+  independent of generalized selected-scale analysis.
 - Conventional key signatures cover signed fifths positions -7..7: Cb..C# major
-  and their Ab..A# relative minors. Signature alterations are generated from the
-  fifths position in conventional order rather than selected from finished per-key
-  tables. Signature/profile requests outside that range return UNSUPPORTED.
-- Relative-key and fifths queries remain valid beyond the conventional signature
-  range. Relative results identify relativeMajor/relativeMinor and include the
-  tonic interval. Fifths results preserve mode and spelling; twelve clockwise
-  moves from C produce B#, which sounds as pitch class C.
+  and their Ab..A# relative minors. Signature/profile requests outside that range
+  return UNSUPPORTED; relative/fifths relationships remain available.
 - HarmonicContext has independent optional key, activeScale and currentChord.
-  A minor key means natural-minor reference in this phase; key signatures and
-  functional/Roman/progression interpretation are later scope.
-- Key/scale relations use the supplied note letter for degree and alteration from
-  that collection. inKey/inScale and isChordTone compare sounding pitch classes;
-  spellingMatches reports exact written membership. Thus E# in C major sounds in
-  the collection but remains an altered third in its supplied spelling.
 - Located pitches start unspelled. Spelling precedence is explicit matching root,
-  current chord, selected scale, key, then sharp/flat display fallback (default
-  sharps). alternativeSpellings retains other contextual matches. Fallback
-  spelling is a display choice, not a claim of unique theoretical meaning.
-- Root annotations report written interval and chromaticDistance separately.
-  Locations and analyseNotes agree when given the same spelled pitch/context.
+  current chord, selected scale, key, then sharp/flat display fallback.
 
 ## Guitar bounds and ordering
 
@@ -146,7 +146,5 @@ an empty array after validation. Ordering is stringIndex ascending, then fret.
 
 Enumeration examines at most 10000 candidate positions after string/range selection,
 before pitch-class filtering. Broader requests return UNSUPPORTED; narrow the range
-or strings. Text accidental parsing/formatting is bounded to 4096 accidental units.
-There are no browser globals, storage, asynchronous work or learner-state fields
-in the public import graph.
-
+or strings. There are no browser globals, storage, asynchronous work or learner-state
+fields in the public import graph.

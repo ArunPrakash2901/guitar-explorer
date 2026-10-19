@@ -284,7 +284,7 @@ describe("untrusted public query requests", () => {
     if (_name !== "getFretboardLocations") failure(operation({} as never));
   });
 
-  it.each(["harmonicMinor", "__proto__", "constructor", "toString"])("rejects unsupported scale ID %s", (scaleId) => {
+  it.each(["wholeTone", "__proto__", "constructor", "toString"])("rejects unsupported scale ID %s", (scaleId) => {
     failure(musicQueries.getScale({ tonic: parseNote("C"), scaleId } as never), "UNSUPPORTED");
   });
 
@@ -364,8 +364,11 @@ describe("untrusted public query requests", () => {
       failure(musicQueries.getFretboardLocations({ pitchClasses: [], ...invalid } as never));
     }
     failure(musicQueries.getFretboardLocations({
-      stringIndices: [], context: { activeScale: { tonic: parseNote("D"), scaleId: "dorian" } },
+      stringIndices: [], context: { activeScale: { tonic: parseNote("D"), scaleId: "wholeTone" } },
     } as never), "UNSUPPORTED");
+    expect(data(musicQueries.getFretboardLocations({
+      stringIndices: [], context: { activeScale: { tonic: parseNote("D"), scaleId: "dorian" } },
+    }))).toEqual([]);
   });
 
   it("rejects sparse, null and otherwise malformed note lists without leaking runtime errors", () => {

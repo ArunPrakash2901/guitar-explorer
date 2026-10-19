@@ -16,7 +16,19 @@ export type IntervalInfo = Interval & Readonly<{
 /** Degree alterations use major/perfect intervals, independently of key mode. */
 export type FormulaTone = Readonly<{ degree: number; alteration: number }>;
 export type Formula = readonly FormulaTone[];
-export type ScaleId = "major" | "naturalMinor";
+export type ScaleId =
+  | "major"
+  | "naturalMinor"
+  | "harmonicMinor"
+  | "melodicMinorAscending"
+  | "majorPentatonic"
+  | "minorPentatonic"
+  | "minorBlues"
+  | "dorian"
+  | "phrygian"
+  | "lydian"
+  | "mixolydian"
+  | "locrian";
 export type ChordId = "major" | "minor" | "diminished" | "augmented";
 export type ScaleSpec = Readonly<{ tonic: NoteName; scaleId: ScaleId }>;
 export type ChordSpec = Readonly<{ root: NoteName; chordId: ChordId }>;

@@ -15,11 +15,16 @@ export type KeyRelation = Readonly<{
   interval: IntervalInfo;
 }>;
 
+export type ScaleReferenceStatus = "single" | "omitted" | "multiple";
+
 export type ScaleRelation = Readonly<{
   tonic: NoteName;
   scaleId: ScaleId;
   degree: number;
-  alterationFromScale: number;
+  referenceStatus: ScaleReferenceStatus;
+  degreeReferences: readonly Tone[];
+  alterationFromScale: number | null;
+  matchingTones: readonly Tone[];
   inScale: boolean;
   spellingMatches: boolean;
   interval: IntervalInfo;
@@ -67,11 +72,13 @@ function copyNote(note: NoteName): NoteName {
   return { letter: note.letter, accidental: note.accidental };
 }
 
-function degreeRelationship(tonic: NoteName, note: NoteName, tones: readonly Tone[]) {
+/** Key analysis intentionally retains the seven-degree major/natural-minor contract. */
+function keyDegreeRelationship(tonic: NoteName, note: NoteName, tones: readonly Tone[]) {
   const interval = intervalBetweenNotes(tonic, note);
   const degree = interval.diatonicSteps + 1;
-  const reference = tones.find((tone) => tone.degree === degree);
-  if (!reference) throw new Error("Seven-note collection is missing a declared degree");
+  const references = tones.filter((tone) => tone.degree === degree);
+  if (references.length !== 1) throw new Error("Key reference collection must declare each degree exactly once");
+  const reference = references[0]!;
   const alteration = note.accidental - reference.note.accidental;
   assertInteger(alteration, "contextual alteration");
   return {
@@ -79,6 +86,34 @@ function degreeRelationship(tonic: NoteName, note: NoteName, tones: readonly Ton
     alteration,
     member: tones.some((tone) => tone.pitchClass === pitchClass(note)),
     spellingMatches: tones.some((tone) => sameSpelling(tone.note, note)),
+    interval,
+  };
+}
+
+/** Selected scales may omit a written degree or declare more than one reference for it. */
+function scaleDegreeRelationship(tonic: NoteName, note: NoteName, tones: readonly Tone[]) {
+  const interval = intervalBetweenNotes(tonic, note);
+  const degree = interval.diatonicSteps + 1;
+  const degreeReferences = Object.freeze(tones.filter((tone) => tone.degree === degree));
+  const matchingTones = Object.freeze(tones.filter((tone) => tone.pitchClass === pitchClass(note)));
+  const referenceStatus: ScaleReferenceStatus = degreeReferences.length === 0
+    ? "omitted"
+    : degreeReferences.length === 1
+      ? "single"
+      : "multiple";
+  let alteration: number | null = null;
+  if (degreeReferences.length === 1) {
+    alteration = note.accidental - degreeReferences[0]!.note.accidental;
+    assertInteger(alteration, "contextual alteration");
+  }
+  return {
+    degree,
+    referenceStatus,
+    degreeReferences,
+    alteration,
+    matchingTones,
+    member: matchingTones.length > 0,
+    spellingMatches: matchingTones.some((tone) => sameSpelling(tone.note, note)),
     interval,
   };
 }
@@ -92,8 +127,8 @@ export function analysePitch(pitch: Pitch, context: HarmonicContext = {}): NoteA
   const keyScale = key && buildScale({ tonic: key.tonic, scaleId: key.mode === "minor" ? "naturalMinor" : "major" });
   const scale = context.activeScale && buildScale(context.activeScale);
   const chord = context.currentChord && buildChord(context.currentChord);
-  const keyDegree = keyScale && degreeRelationship(keyScale.tonic, pitch.note, keyScale.tones);
-  const scaleDegree = scale && degreeRelationship(scale.tonic, pitch.note, scale.tones);
+  const keyDegree = keyScale && keyDegreeRelationship(keyScale.tonic, pitch.note, keyScale.tones);
+  const scaleDegree = scale && scaleDegreeRelationship(scale.tonic, pitch.note, scale.tones);
   const chordMatches = chord?.tones.filter((tone) => tone.pitchClass === pc);
   return {
     pitch: { note: copyNote(pitch.note), octave: pitch.octave },
@@ -107,8 +142,14 @@ export function analysePitch(pitch: Pitch, context: HarmonicContext = {}): NoteA
     } } : {}),
     ...(scale && scaleDegree ? { scaleRelation: {
       tonic: copyNote(scale.tonic), scaleId: scale.scaleId,
-      degree: scaleDegree.degree, alterationFromScale: scaleDegree.alteration,
-      inScale: scaleDegree.member, spellingMatches: scaleDegree.spellingMatches, interval: scaleDegree.interval,
+      degree: scaleDegree.degree,
+      referenceStatus: scaleDegree.referenceStatus,
+      degreeReferences: scaleDegree.degreeReferences,
+      alterationFromScale: scaleDegree.alteration,
+      matchingTones: scaleDegree.matchingTones,
+      inScale: scaleDegree.member,
+      spellingMatches: scaleDegree.spellingMatches,
+      interval: scaleDegree.interval,
     } } : {}),
     ...(chord && chordMatches ? { chordRelation: {
       root: copyNote(chord.root), chordId: chord.chordId,

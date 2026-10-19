@@ -10,6 +10,16 @@ function formula(tones: readonly (readonly [number, number])[]): Formula {
 export const SCALE_FORMULAS: Readonly<Record<ScaleId, Formula>> = Object.freeze({
   major: formula([[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]]),
   naturalMinor: formula([[1, 0], [2, 0], [3, -1], [4, 0], [5, 0], [6, -1], [7, -1]]),
+  harmonicMinor: formula([[1, 0], [2, 0], [3, -1], [4, 0], [5, 0], [6, -1], [7, 0]]),
+  melodicMinorAscending: formula([[1, 0], [2, 0], [3, -1], [4, 0], [5, 0], [6, 0], [7, 0]]),
+  majorPentatonic: formula([[1, 0], [2, 0], [3, 0], [5, 0], [6, 0]]),
+  minorPentatonic: formula([[1, 0], [3, -1], [4, 0], [5, 0], [7, -1]]),
+  minorBlues: formula([[1, 0], [3, -1], [4, 0], [5, -1], [5, 0], [7, -1]]),
+  dorian: formula([[1, 0], [2, 0], [3, -1], [4, 0], [5, 0], [6, 0], [7, -1]]),
+  phrygian: formula([[1, 0], [2, -1], [3, -1], [4, 0], [5, 0], [6, -1], [7, -1]]),
+  lydian: formula([[1, 0], [2, 0], [3, 0], [4, 1], [5, 0], [6, 0], [7, 0]]),
+  mixolydian: formula([[1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, -1]]),
+  locrian: formula([[1, 0], [2, -1], [3, -1], [4, 0], [5, -1], [6, -1], [7, -1]]),
 });
 
 export const CHORD_FORMULAS: Readonly<Record<ChordId, Formula>> = Object.freeze({
