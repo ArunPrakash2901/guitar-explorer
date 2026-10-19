@@ -80,6 +80,10 @@ perfect-five references in minor blues). `ScaleRelation` therefore exposes an
 explicit `referenceStatus`, ordered `degreeReferences`, nullable
 `alterationFromScale`, and independent pitch-class `matchingTones`.
 
+The nullable field is an intentional TypeScript contract change: existing
+major/natural-minor runtime answers remain numeric, while consumers must handle
+`null` when a selected scale has no unique written-degree reference.
+
 Key analysis deliberately retains the existing seven-note major/natural-minor
 contract. Sounding membership never replaces spelled identity. Phase 2C and later
 theory breadth remain separate implementation runs; no bitset, graph, caching or

@@ -115,9 +115,43 @@ describe("Phase 2B contextual scale analysis", () => {
     expect(toneIdentity(fSharp!.scaleRelation!.matchingTones)).toEqual([[5, -1, "Gb"]]);
   });
 
+  it("keeps reference cardinality independent from sounding membership", () => {
+    const [bSharp, gSharp] = data(musicQueries.analyseNotes({
+      notes: [parsePitch("B#3"), parsePitch("G#4")],
+      context: { activeScale: { tonic: parseNote("C"), scaleId: "majorPentatonic" } },
+    }));
+    expect(bSharp?.scaleRelation).toMatchObject({
+      degree: 7,
+      referenceStatus: "omitted",
+      degreeReferences: [],
+      alterationFromScale: null,
+      inScale: true,
+      spellingMatches: false,
+    });
+    expect(toneIdentity(bSharp!.scaleRelation!.matchingTones)).toEqual([[1, 0, "C"]]);
+
+    const [bluesGSharp] = data(musicQueries.analyseNotes({
+      notes: [parsePitch("G#4")],
+      context: { activeScale: { tonic: parseNote("C"), scaleId: "minorBlues" } },
+    }));
+    expect(bluesGSharp?.scaleRelation).toMatchObject({
+      degree: 5,
+      referenceStatus: "multiple",
+      alterationFromScale: null,
+      inScale: false,
+      spellingMatches: false,
+    });
+    expect(toneIdentity(bluesGSharp!.scaleRelation!.degreeReferences)).toEqual([
+      [5, -1, "Gb"],
+      [5, 0, "G"],
+    ]);
+    expect(bluesGSharp!.scaleRelation!.matchingTones).toEqual([]);
+    expect(gSharp?.scaleRelation?.referenceStatus).toBe("single");
+  });
+
   it("preserves major and natural-minor contextual behavior while adding reference evidence", () => {
-    const [e, c] = data(musicQueries.analyseNotes({
-      notes: [parsePitch("E4"), parsePitch("C4")],
+    const [e] = data(musicQueries.analyseNotes({
+      notes: [parsePitch("E4")],
       context: { activeScale: { tonic: parseNote("C"), scaleId: "major" } },
     }));
     expect(e?.scaleRelation).toMatchObject({
@@ -140,6 +174,32 @@ describe("Phase 2B contextual scale analysis", () => {
       inScale: true,
       spellingMatches: true,
     });
-    expect(toneIdentity(c!.scaleRelation!.matchingTones)).toEqual([[1, 0, "C"]]);
+    expect(toneIdentity(minorThird!.scaleRelation!.matchingTones)).toEqual([[3, -1, "C"]]);
+  });
+
+  it("keeps fretboard and direct analysis aligned for generalized scale context", () => {
+    const context = {
+      key: { tonic: parseNote("C"), mode: "major" as const },
+      activeScale: { tonic: parseNote("C"), scaleId: "minorBlues" as const },
+    };
+    const [location] = data(musicQueries.getFretboardLocations({
+      fretRange: { minFret: 2, maxFret: 2 },
+      stringIndices: [0],
+      context,
+    }));
+    expect(location).toBeDefined();
+    expect(location).toMatchObject({ name: "Gb2", spellingSource: "scale" });
+    expect(location!.keyRelation).toMatchObject({ degree: 5, alterationFromKey: -1, inKey: false });
+    expect(location!.scaleRelation).toMatchObject({
+      degree: 5,
+      referenceStatus: "multiple",
+      alterationFromScale: null,
+      inScale: true,
+      spellingMatches: true,
+    });
+
+    const [direct] = data(musicQueries.analyseNotes({ notes: [location!.pitch], context }));
+    expect(direct!.keyRelation).toStrictEqual(location!.keyRelation);
+    expect(direct!.scaleRelation).toStrictEqual(location!.scaleRelation);
   });
 });

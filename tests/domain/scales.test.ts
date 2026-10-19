@@ -19,6 +19,13 @@ describe("Phase 2B scale catalog", () => {
     expect(scale.tones.map((tone) => formatNote(tone.note))).toEqual(notes);
   });
 
+  it("spells a double-accidental tonic without collapsing written identity", () => {
+    const scale = buildScale({ tonic: parseNote("F##"), scaleId: "harmonicMinor" });
+    expect(scale.tones.map((tone) => formatNote(tone.note))).toEqual([
+      "F##", "G##", "A#", "B#", "C##", "D#", "E##",
+    ]);
+  });
+
   it("keeps every catalog formula frozen, ordered and identity-unique", () => {
     expect(Object.isFrozen(SCALE_FORMULAS)).toBe(true);
     for (const scaleId of allScaleIds) {

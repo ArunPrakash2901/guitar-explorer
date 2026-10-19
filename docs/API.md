@@ -37,6 +37,15 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 
 The query names remain unchanged in Phase 2B. Scale breadth is exposed through the
 existing `getScale` and `analyseNotes` surfaces rather than new per-scale methods.
+Named query exports return result envelopes; direct Core/Guitar helpers validate and
+throw `MusicError` domain failures. Parsers and low-level transposition helpers are
+helpers, not free-text theory-interpretation endpoints.
+
+Phase 2B intentionally changes the TypeScript type of
+`ScaleRelation.alterationFromScale` from `number` to `number | null`. Existing
+major/natural-minor runtime results remain numeric. Consumers that compile against
+`ScaleRelation` must handle `null` for omitted or multiply referenced written
+scale degrees.
 
 ```ts
 import {

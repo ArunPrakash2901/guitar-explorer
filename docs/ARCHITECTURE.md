@@ -115,8 +115,10 @@ explicit-context harmony, maps/triad voicings, standard-tuning CAGED, playback a
 all five auditory exercise families. The auditory-to-fretboard composition remains
 owned by Learning. Evidence summaries precede mastery estimation.
 
-Roman labels will be explicit-context interpretations rather than inferred unique
-truth. Analytical rules must distinguish calculated facts from interpretations.
+Roman labels default to key-relative analysis in minor keys when an explicit key
+context is supplied. They remain interpretations of explicit context rather than
+inferred unique truth, and analytical rules must distinguish calculated facts from
+interpretations.
 
 Western twelve-tone equal temperament is the foundation. Microphone/transcription,
 DSP-heavy processing, AI authority, cloud sync, adaptive mastery, general chord-text
