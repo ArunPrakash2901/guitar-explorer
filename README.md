@@ -14,6 +14,8 @@ The project is currently **engine-first**. The production UI, audio, ear trainin
 
 **Phase 2C — Chord catalogue and learner-selectable Chord Lab: implemented**
 
+**Phase 2D — Diatonic triads/sevenths, Roman identity and Harmony Lab proof: implemented**
+
 The current kernel includes:
 
 - spelling-aware notes and registered pitches
@@ -28,6 +30,8 @@ The current kernel includes:
 - an ordered, frozen chord catalogue built from the authoritative chord formulas
 - conventional major/minor key signatures through seven sharps or flats
 - interval-derived relative-key and Circle-of-Fifths relationships
+- diatonic triad/seventh harmonization of explicit major and natural-minor keys
+- structured Roman identities derived from degree and actual chord quality
 - configurable tuning and standard guitar tuning
 - bounded fretboard location queries
 - structured, JSON-compatible musical queries through `musicQueries`
@@ -36,7 +40,8 @@ The current kernel includes:
 - regression checks for the preserved behavioural prototype
 
 The current engine deliberately does **not** include inversions, concrete voicings,
-CAGED production logic, diatonic harmony, audio, ear training, learning telemetry
+CAGED production logic, harmonic-function classification, progression relationships,
+cadences, common/nearest/guide-tone analysis, audio, ear training, learning telemetry
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
@@ -85,6 +90,25 @@ your improvisation was musically good.
 Treat the lab as a disposable learning probe: keep, change or delete interactions
 based on whether they improve real practice.
 
+## Try the Phase 2D Harmony Lab
+
+Run `npm run lab`, then open `http://127.0.0.1:4173/harmony.html`. The existing
+Chord Lab remains available at `/`.
+
+This separate proof connects key, scale degree, chord root, quality and Roman
+identity. Establish C physically, predict a degree's root, play and commit it, then
+reconstruct the chord before inspecting its quality and Roman label. It includes
+a reverse chord-to-degree question, a seventh chord, transfer to G major and a
+short reflection with a no-clear-breakdown option. Every fret constraint comes from
+Guitar queries. The app verifies committed musical data, not the performed voicing
+or the quality of singing/playing. Use any familiar shape or arpeggiate the notes.
+
+`getDiatonicHarmony({ key, chordSize: "triad" | "seventh" })` derives seven ordered
+chords from the spelled scale and matches the authoritative chord formulas. Minor
+means natural minor: A minor's fifth chord is Em/Em7 (`v`/`v7`), without a silently
+raised leading tone. Roman labels identify structure; they do not assert function,
+cadence or resolution. See `docs/API.md` for the exact result contract.
+
 ## Verify the foundation kernel
 
 Requires Node.js 22.17 or newer.
@@ -131,7 +155,7 @@ Key principles:
 ## Roadmap
 
 1. **Foundation kernel** — implemented
-2. **Theory breadth** — slices 2A through 2C implemented; diatonic harmony and relationship analysis remain pending
+2. **Theory breadth** — slices 2A through 2D implemented; Phase 2E relationship/function work remains pending
 3. **Guitar representations** — maps, triad voicings, inversions, CAGED and position connectivity
 4. **Learning engine extraction** — deterministic exercises, evaluation, assistance and evidence contracts
 5. **Audio and ear training** — playback plans, browser audio and auditory exercise families

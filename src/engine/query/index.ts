@@ -2,6 +2,8 @@ import { analysePitch, spellSemitone, validateContext } from "../core/context.js
 import type { NoteAnalysis, SpelledPitch } from "../core/context.js";
 import { buildChord, buildScale } from "../core/collections.js";
 import { buildChordCatalog } from "../core/chords.js";
+import { buildDiatonicHarmony } from "../core/harmony.js";
+import type { DiatonicHarmonyRequest } from "../core/harmony.js";
 import { assertRecord, MusicError } from "../core/errors.js";
 import type { ErrorCode } from "../core/errors.js";
 import { getIntervalBetweenPitches, intervalBetweenNotes, invertSimpleInterval, transposeNote as transposeWrittenNote, transposePitch as transposeRegisteredPitch } from "../core/intervals.js";
@@ -39,6 +41,10 @@ export function getChord(request: ChordSpec) {
 
 export function getChordCatalog(request: Readonly<Record<string, never>>) {
   return query(request, () => buildChordCatalog());
+}
+
+export function getDiatonicHarmony(request: DiatonicHarmonyRequest) {
+  return query(request, () => buildDiatonicHarmony(request));
 }
 
 export function getKeySignature(request: Key) {
@@ -142,7 +148,7 @@ export function invertInterval(request: Readonly<{ interval: Interval }>) {
 
 /** Musical truth only. Playback and learner state never enter this interface. */
 export const musicQueries = Object.freeze({
-  getInterval, getScale, getChord, getChordCatalog, getKeySignature, getRelativeKey, getFifthsNeighbors, getKeyProfile,
+  getInterval, getScale, getChord, getChordCatalog, getDiatonicHarmony, getKeySignature, getRelativeKey, getFifthsNeighbors, getKeyProfile,
   getNoteAtFret, getFretboardLocations, analyseNotes,
   transposePitch: transposePitchQuery,
   transposeNote: transposeNoteQuery,

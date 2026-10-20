@@ -1,4 +1,4 @@
-# Musical API — Phase 1 through Phase 2C
+# Musical API — Phase 1 through Phase 2D
 
 Import the pure public surface from `src/engine/index.ts`. Source uses ESM syntax
 and .js import specifiers for TypeScript bundlers; the preserved prototype remains
@@ -25,6 +25,7 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 | getScale | { tonic: NoteName, scaleId } | Formula and spelled degree/tone metadata |
 | getChord | { root: NoteName, chordId } | Formula and spelled degree/tone metadata |
 | getChordCatalog | {} | Ordered chord families with presentation metadata and authoritative formulas |
+| getDiatonicHarmony | { key: Key, chordSize: "triad" \| "seventh" } | Key, chord size and seven ordered degree/chord/Roman entries |
 | getKeySignature | Key | Conventional signed fifths count and ordered alterations |
 | getRelativeKey | Key | Relative major/minor, relationship kind and tonic interval |
 | getFifthsNeighbors | Key | Clockwise P5 and counterclockwise descending-P5 neighbors |
@@ -39,6 +40,7 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 Scale breadth is exposed through the
 existing `getScale` and `analyseNotes` surfaces rather than new per-scale methods.
 Phase 2C adds only `getChordCatalog`; chord construction continues through `getChord`.
+Phase 2D adds `getDiatonicHarmony` without changing existing query contracts.
 Named query exports return result envelopes; direct Core/Guitar helpers validate and
 throw `MusicError` domain failures. Parsers and low-level transposition helpers are
 helpers, not free-text theory-interpretation endpoints.
@@ -102,6 +104,60 @@ if (profile.ok) {
   profile.data.fifths.clockwise.destinationKey; // C# major
 }
 ```
+
+## Diatonic harmony — Phase 2D
+
+```ts
+const harmony = musicQueries.getDiatonicHarmony({
+  key: { tonic: parseNote("C"), mode: "major" },
+  chordSize: "seventh",
+});
+if (harmony.ok) {
+  harmony.data.degrees[4];
+  // { degree: 5,
+  //   chord: { root: G, chordId: "dominant7", formula: ..., tones: G B D F },
+  //   romanNumeral: { degree: 5, quality: "dominant7", label: "V7" } }
+}
+```
+
+Successful data has this readonly shape:
+
+```ts
+type DiatonicHarmony = {
+  key: Key;
+  chordSize: "triad" | "seventh";
+  degrees: readonly {
+    degree: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+    chord: Chord;
+    romanNumeral: {
+      degree: 1 | 2 | 3 | 4 | 5 | 6 | 7;
+      quality: ChordId;
+      label: string;
+    };
+  }[];
+};
+```
+
+The actual exported types are readonly, and the data, nested objects and collections
+are frozen. Entries are ordered 1 through 7. Root, chord ID, formula and complete
+spelled tones live in the existing `Chord`, rather than duplicate entry fields.
+The Roman record is derived from the degree and canonical chord quality; the label
+is presentation, never parsed truth.
+
+Major keys use the major scale. Minor keys use **natural minor**: A minor yields
+`i ii° III iv v VI VII`, or `i7 iiø7 IIImaj7 iv7 v7 VImaj7 VII7`. In particular,
+degree 5 is E minor/Em7, with G natural. No harmonic-minor convention is inserted.
+
+Construction stacks alternating scale degrees and matches exact written tones
+against `CHORD_FORMULAS`. It does not look up finished key-specific chord tables.
+Valid spelled tonics are accepted independently of the key-signature display range;
+the conventional -7..7 range remains a limit of signature/profile queries only.
+Non-text chord sizes return INVALID_INPUT; unsupported sizes or key modes return
+UNSUPPORTED. Only major/minor `Key` requests are accepted, not arbitrary scale IDs.
+
+Roman labels identify structure under the supplied key. There is no harmonic-function
+classification, resolution claim, cadence/progression interpretation, key inference,
+Roman text parser, inversion or voicing in this query.
 
 ## Values and conventions
 
