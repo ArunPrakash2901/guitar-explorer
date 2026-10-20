@@ -29,7 +29,65 @@ export type ScaleId =
   | "lydian"
   | "mixolydian"
   | "locrian";
-export type ChordId = "major" | "minor" | "diminished" | "augmented";
+export type ChordId =
+  | "major"
+  | "minor"
+  | "diminished"
+  | "augmented"
+  | "sus2"
+  | "sus4"
+  | "power5"
+  | "major6"
+  | "minor6"
+  | "major6Add9"
+  | "minor6Add9"
+  | "major7"
+  | "dominant7"
+  | "minor7"
+  | "minorMajor7"
+  | "halfDiminished7"
+  | "diminished7"
+  | "augmentedMajor7"
+  | "add9"
+  | "minorAdd9"
+  | "add11"
+  | "minorAdd11"
+  | "major9"
+  | "dominant9"
+  | "minor9"
+  | "major11"
+  | "dominant11"
+  | "minor11"
+  | "major13"
+  | "dominant13"
+  | "minor13"
+  | "dominant7Flat5"
+  | "dominant7Sharp5"
+  | "dominant7Flat9"
+  | "dominant7Sharp9";
+export type ChordFamilyId =
+  | "triads"
+  | "suspended"
+  | "powerOpen"
+  | "sixth"
+  | "seventh"
+  | "addedTone"
+  | "ninth"
+  | "eleventh"
+  | "thirteenth"
+  | "alteredDominant";
+export type ChordCatalogMetadata = Readonly<{
+  id: ChordId;
+  family: ChordFamilyId;
+  displayName: string;
+  symbol: string;
+}>;
+export type ChordCatalogEntry = ChordCatalogMetadata & Readonly<{ formula: Formula }>;
+export type ChordFamily = Readonly<{
+  id: ChordFamilyId;
+  displayName: string;
+  chords: readonly ChordCatalogEntry[];
+}>;
 export type ScaleSpec = Readonly<{ tonic: NoteName; scaleId: ScaleId }>;
 export type ChordSpec = Readonly<{ root: NoteName; chordId: ChordId }>;
 export type Tone = FormulaTone & Readonly<{

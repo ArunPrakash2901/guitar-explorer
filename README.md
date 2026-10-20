@@ -12,6 +12,8 @@ The project is currently **engine-first**. The production UI, audio, ear trainin
 
 **Phase 2B — Scale catalog and contextual scale analysis: implemented**
 
+**Phase 2C — Chord catalogue and learner-selectable Chord Lab: implemented**
+
 The current kernel includes:
 
 - spelling-aware notes and registered pitches
@@ -21,7 +23,9 @@ The current kernel includes:
 - major/minor pentatonic and minor blues
 - Dorian, Phrygian, Lydian, Mixolydian and Locrian
 - generalized scale-context analysis for omitted and repeated written degrees
-- major, minor, diminished and augmented triads
+- 35 spelling-aware chord identities across triads, suspended, power/open, sixth,
+  seventh, added-tone, ninth, eleventh, thirteenth and altered-dominant families
+- an ordered, frozen chord catalogue built from the authoritative chord formulas
 - conventional major/minor key signatures through seven sharps or flats
 - interval-derived relative-key and Circle-of-Fifths relationships
 - configurable tuning and standard guitar tuning
@@ -31,12 +35,12 @@ The current kernel includes:
 - strict TypeScript and Vitest coverage
 - regression checks for the preserved behavioural prototype
 
-The current engine deliberately does **not** include Phase 2C chord breadth,
+The current engine deliberately does **not** include inversions, concrete voicings,
 CAGED production logic, diatonic harmony, audio, ear training, learning telemetry
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
-## Try Learning Lab v2 — Theory Immersion
+## Try the Phase 2C Chord Lab
 
 `lab/` is a deliberately thin browser consumer of the existing engine. It is not
 the production app and it does not introduce a general Learning Engine, persistence,
@@ -53,20 +57,24 @@ npm run lab
 
 Then open `http://127.0.0.1:4173`.
 
-Learning Lab v2 keeps the connected session workflow from v1 but replaces broad
-fretboard searching with a deeper theory-immersion thread:
+The Chord Lab renders its families, quality names, symbols and formulas from
+`getChordCatalog`. Choose one family and one or more qualities, then work through a
+frozen plan that asks you to sing or imagine, locate, play, commit, reconstruct and
+transfer chord roles. Select-all and clear-all control the current family; a session
+cannot start without a selected quality.
 
-- use open A and open D as physical tonic drones
-- work on one string at a time so a familiar two-dimensional box cannot solve the task
-- sing or audiate a functional target before playing it
-- commit the fret only after the guitar has produced the sound
-- inspect engine-derived note, interval, degree, chord-role and fretboard labels after success
-- contrast `♭3` with `3` against the same root to hear the minor/major distinction
-- keep C physically fixed while relabeling it as `♭3`, `5`, `1` and `♭7` in changing contexts
-- transfer the same functional hearing from A minor on the G string to D minor on the B string
-- rebuild D minor as `1–♭3–5` by function rather than by copying a shape
-- finish with a 35-second PLAY/REST phrase constraint, using the REST blocks to audiate the next phrase
-- reflect on whether the weak link was calculation, audiation, fretboard location, shape dependence or harmonic re-labeling
+The planner selects a chord and formula role first, asks the engine for valid
+fretboard locations, samples one of those locations, then derives a bounded window
+that contains it. Transfers repeat that process with a different practical root
+while preserving the quality and exact degree/alteration role. Extended chords keep
+their complete abstract formula while the physical reconstruction uses at most four
+structural roles.
+
+Reveals keep three facts distinct: chord role, canonical formula interval and the
+registered interval physically played from the chosen root anchor. For example, an
+A functioning as C13's role 13 retains canonical M13, while C3→A3 is revealed as the
+played M6. Wrong-fret feedback uses the same engine context to identify another
+chord role or an outside tone.
 
 The lab compiles and imports `src/engine/` directly. It does not duplicate a second
 theory implementation in the UI. The physical guitar supplies the sound; the app
@@ -123,7 +131,7 @@ Key principles:
 ## Roadmap
 
 1. **Foundation kernel** — implemented
-2. **Theory breadth** — slices 2A and 2B implemented; chord breadth, diatonic harmony and relationship analysis remain pending
+2. **Theory breadth** — slices 2A through 2C implemented; diatonic harmony and relationship analysis remain pending
 3. **Guitar representations** — maps, triad voicings, inversions, CAGED and position connectivity
 4. **Learning engine extraction** — deterministic exercises, evaluation, assistance and evidence contracts
 5. **Audio and ear training** — playback plans, browser audio and auditory exercise families

@@ -107,12 +107,12 @@ describe("pure public engine boundary", () => {
   it("exports the implemented musical queries without later-slice placeholders", async () => {
     const queries = await import("../../src/engine/query/index.js");
     expect(Object.keys(queries).sort()).toEqual([
-      "analyseNotes", "getChord", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "analyseNotes", "getChord", "getChordCatalog", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "musicQueries", "transposeNoteQuery", "transposePitchQuery",
     ].sort());
     expect(Object.keys(queries.musicQueries).sort()).toEqual([
-      "analyseNotes", "getChord", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "analyseNotes", "getChord", "getChordCatalog", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "transposeNote", "transposePitch",
     ].sort());

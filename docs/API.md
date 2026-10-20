@@ -1,4 +1,4 @@
-# Musical API — Phase 1 through Phase 2B
+# Musical API — Phase 1 through Phase 2C
 
 Import the pure public surface from `src/engine/index.ts`. Source uses ESM syntax
 and .js import specifiers for TypeScript bundlers; the preserved prototype remains
@@ -24,6 +24,7 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 | getInterval | { from: Pitch, to: Pitch } | Signed interval, number, quality, direction, label |
 | getScale | { tonic: NoteName, scaleId } | Formula and spelled degree/tone metadata |
 | getChord | { root: NoteName, chordId } | Formula and spelled degree/tone metadata |
+| getChordCatalog | {} | Ordered chord families with presentation metadata and authoritative formulas |
 | getKeySignature | Key | Conventional signed fifths count and ordered alterations |
 | getRelativeKey | Key | Relative major/minor, relationship kind and tonic interval |
 | getFifthsNeighbors | Key | Clockwise P5 and counterclockwise descending-P5 neighbors |
@@ -35,8 +36,9 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 | transposeNote | { note: NoteName, interval: Interval } | Transposed spelled note without register |
 | invertInterval | { interval: Interval } | Simple ascending octave complement |
 
-The query names remain unchanged in Phase 2B. Scale breadth is exposed through the
+Scale breadth is exposed through the
 existing `getScale` and `analyseNotes` surfaces rather than new per-scale methods.
+Phase 2C adds only `getChordCatalog`; chord construction continues through `getChord`.
 Named query exports return result envelopes; direct Core/Guitar helpers validate and
 throw `MusicError` domain failures. Parsers and low-level transposition helpers are
 helpers, not free-text theory-interpretation endpoints.
@@ -120,7 +122,34 @@ if (profile.ok) {
 - Scale IDs: `major`, `naturalMinor`, `harmonicMinor`, `melodicMinorAscending`,
   `majorPentatonic`, `minorPentatonic`, `minorBlues`, `dorian`, `phrygian`,
   `lydian`, `mixolydian`, `locrian`.
-- Chord IDs remain `major`, `minor`, `diminished`, `augmented` until Phase 2C.
+- Chord IDs cover 35 identities across `triads`, `suspended`, `powerOpen`, `sixth`,
+  `seventh`, `addedTone`, `ninth`, `eleventh`, `thirteenth` and `alteredDominant`.
+  Catalogue order is deterministic. Metadata contains `id`, `family`, `displayName`
+  and `symbol`; each returned entry attaches the exact authoritative
+  `CHORD_FORMULAS[id]` object.
+- Compound chord degrees are preserved. Add9 and sus2 can sound the same pitch class
+  while retaining roles 9/M9 and 2/M2. C13's A is role 13/M13; C6's A is role 6/M6.
+  Diminished seventh uses degree 7 alteration -2. `dominant7Sharp11` and
+  `dominant7Flat13` are excluded because their implied-natural-extension conventions
+  are ambiguous without a broader chord-language policy.
+- Formula intervals describe abstract chord identity. A fretboard consumer must
+  calculate the interval between its actual registered anchor and played pitch;
+  C3→A3 is M6 even when A functions as chordal 13.
+
+The catalogue's stable IDs and display symbols are:
+
+| Family | IDs and symbols |
+|---|---|
+| Triads | `major` (empty suffix), `minor` (`m`), `diminished` (`dim`), `augmented` (`aug`) |
+| Suspended | `sus2` (`sus2`), `sus4` (`sus4`) |
+| Power / Open | `power5` (`5`) |
+| Sixth | `major6` (`6`), `minor6` (`m6`), `major6Add9` (`6/9`), `minor6Add9` (`m6/9`) |
+| Seventh | `major7` (`maj7`), `dominant7` (`7`), `minor7` (`m7`), `minorMajor7` (`m(maj7)`), `halfDiminished7` (`m7♭5`), `diminished7` (`dim7`), `augmentedMajor7` (`aug(maj7)`) |
+| Added Tone | `add9` (`add9`), `minorAdd9` (`m(add9)`), `add11` (`add11`), `minorAdd11` (`m(add11)`) |
+| Ninth | `major9` (`maj9`), `dominant9` (`9`), `minor9` (`m9`) |
+| Eleventh | `major11` (`maj11`), `dominant11` (`11`), `minor11` (`m11`) |
+| Thirteenth | `major13` (`maj13`), `dominant13` (`13`), `minor13` (`m13`) |
+| Altered Dominant | `dominant7Flat5` (`7♭5`), `dominant7Sharp5` (`7♯5`), `dominant7Flat9` (`7♭9`), `dominant7Sharp9` (`7♯9`) |
 - Formula alterations use major/perfect reference intervals independently of key.
   Minor blues intentionally contains both `{ degree: 5, alteration: -1 }` and
   `{ degree: 5, alteration: 0 }`; formula identity is not collapsed to pitch class.

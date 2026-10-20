@@ -8,6 +8,20 @@
 
 The app teaches musical facts. A plausible-looking wrong answer is worse than an obvious UI failure, so domain tests are mandatory.
 
+## Current Phase 2C automated coverage
+
+- all 35 chord formulas across natural, sharp, flat and double-accidental roots
+- formula length, degree/alteration identity, spelling, pitch class and interval number
+- catalogue order, deep freezing, JSON serialization and version-1 query envelopes
+- exact formula object identity between catalogue entries and `CHORD_FORMULAS`
+- add9 versus sus2, 13 versus 6, diminished-seventh and named spelling fixtures
+- canonical M13 versus the registered C3→A3 played M6
+- Lab family/quality selection, select-all, clear-all and empty-selection rejection
+- engine-derived anchors, targets, windows, reconstructions and transfers across the catalogue
+- exact transfer role identity, stable frozen plans and changed consecutive variations
+- complete reconstruction through four tones and bounded compound-role reconstruction above four
+- delayed reveal labels, wrong-fret chord analysis, timer/reset behavior and static answer-leakage checks
+
 ## 1. Note-at-fret tests
 
 Standard tuning examples:
