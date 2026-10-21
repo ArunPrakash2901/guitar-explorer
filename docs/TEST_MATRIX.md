@@ -31,6 +31,7 @@ The app teaches musical facts. A plausible-looking wrong answer is worse than an
 - native button keyboard semantics and explicit selected-state accessibility labels
 - melody target roles, key degrees, same-pitch chord reinterpretation, approach and phrase paths, A-major transfer and withheld answers
 - motif source/adaptation, one-variable changes, intervallic sequence, fragmentation, response, target transfer and ungraded reflections
+- ScenarioV1 contract validation (version, schema, keys, chords, bounds), deterministic musical derivation across 6 catalogue entries, UI switching, surprise selection, state cleanup, and answer withholding
 
 ## 1. Note-at-fret tests
 
