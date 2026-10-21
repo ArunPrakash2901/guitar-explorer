@@ -171,3 +171,13 @@ answers are removed from the DOM when the session resets or navigates back.
 Parsimonious Path, Chord Lab and Practice warm-up can therefore share one
 instrument orientation without making their tasks uniform. The focused Harmony
 listening route has no fret-selection task and keeps its existing interaction.
+
+## D020 — Test melodic targeting and motivic continuity as bounded Lab probes
+
+Melody Over Harmony and Develop the Idea reuse the current musical-truth facade
+and Fretboard UI v2. The former tests note meaning under changing chords and
+deliberate targets; the latter tests whether a tiny identity can survive pitch
+changes required by harmony. Their curated choices and reveal rules remain in
+`lab/`, with temporary evidence and ungraded listening reflections. The
+standalone rhythm/syncopation experiment is intentionally skipped. See
+`LAB_PHRASE_PROBES.md` for the exact flows and physical validation questions.

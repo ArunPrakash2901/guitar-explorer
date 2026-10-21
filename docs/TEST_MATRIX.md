@@ -29,6 +29,8 @@ The app teaches musical facts. A plausible-looking wrong answer is worse than an
 - progressive hint disclosure, assisted-state cleanup and no answer leakage on replay/back
 - physical two-voice deconstruction, A-major transfer, reflection and full restart behavior
 - native button keyboard semantics and explicit selected-state accessibility labels
+- melody target roles, key degrees, same-pitch chord reinterpretation, approach and phrase paths, A-major transfer and withheld answers
+- motif source/adaptation, one-variable changes, intervallic sequence, fragmentation, response, target transfer and ungraded reflections
 
 ## 1. Note-at-fret tests
 
