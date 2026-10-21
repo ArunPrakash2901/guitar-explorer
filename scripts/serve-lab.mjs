@@ -33,14 +33,14 @@ function resolveRequest(pathname) {
   if (pathname === "/session-logic.mjs") {
     return resolve(labRoot, "session-logic.mjs");
   }
-  if (pathname === "/harmony.html" || pathname === "/harmony") {
-    return resolve(labRoot, "harmony.html");
+  if (["/practice.html", "/practice", "/harmony.html", "/harmony"].includes(pathname)) {
+    return resolve(labRoot, "practice.html");
   }
-  if (pathname === "/harmony-app.js") {
-    return resolve(labRoot, "harmony-app.js");
+  if (pathname === "/practice-app.js") {
+    return resolve(labRoot, "practice-app.js");
   }
-  if (pathname === "/harmony-session.mjs") {
-    return resolve(labRoot, "harmony-session.mjs");
+  if (pathname === "/practice-session.mjs") {
+    return resolve(labRoot, "practice-session.mjs");
   }
   if (pathname.startsWith("/engine/")) {
     const candidate = resolve(engineRoot, pathname.slice("/engine/".length));

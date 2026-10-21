@@ -2,7 +2,10 @@
 
 Guitar Explorer is a long-term guitar and musicianship learning system built around one core problem: learning the fretboard and musical relationships without becoming dependent on visual shapes alone.
 
-The project is currently **engine-first**. The production UI, audio, ear training and learning features will be built on top of a tested TypeScript music kernel rather than embedding musical truth inside React components.
+The tested TypeScript music kernel supports small physical-guitar learning probes.
+The current learner-facing experiment is one connected Practice Session, with
+focused Labs available as tools. Production UI, audio and Learning infrastructure
+remain later work.
 
 ## Current status
 
@@ -14,7 +17,7 @@ The project is currently **engine-first**. The production UI, audio, ear trainin
 
 **Phase 2C — Chord catalogue and learner-selectable Chord Lab: implemented**
 
-**Phase 2D — Diatonic triads/sevenths, Roman identity and Harmony Lab proof: implemented**
+**Phase 2D — Diatonic harmony/Roman engine implemented; Practice Session v0 ready for physical review**
 
 The current kernel includes:
 
@@ -90,24 +93,46 @@ your improvisation was musically good.
 Treat the lab as a disposable learning probe: keep, change or delete interactions
 based on whether they improve real practice.
 
-## Try the Phase 2D Harmony Lab
+## Practice Session v0 — Harmonic Gravity
 
-Run `npm run lab`, then open `http://127.0.0.1:4173/harmony.html`. The existing
-Chord Lab remains available at `/`.
+Run `npm run lab`, then open `http://127.0.0.1:4173/practice.html` for the connected
+session. Allow roughly 35–50 minutes of physical playing and listening; estimates
+are guidance, with no timers or enforced pace.
 
-This separate proof connects key, scale degree, chord root, quality and Roman
-identity. Establish C physically, predict a degree's root, play and commit it, then
-reconstruct the chord before inspecting its quality and Roman label. It includes
-a reverse chord-to-degree question, a seventh chord, transfer to G major and a
-short reflection with a no-clear-breakdown option. Every fret constraint comes from
-Guitar queries. The app verifies committed musical data, not the performed voicing
-or the quality of singing/playing. Use any familiar shape or arpeggiate the notes.
+One G-major context connects all six blocks:
+
+1. **Retrieve:** three brief fretboard/chord-role prompts using G and C material.
+2. **Current focus:** sound G as home; compare G–C–G with G–D7–silence; commit an
+   expectation before trying D7–G, then contrast D7–Em. Replay the same G over
+   changing chords and compare it with F# leading into G. Perceptions are unscored.
+3. **Connect:** only after listening, inspect Roman identities and the one
+   engine-validated F#–G relationship that explains a melodic choice.
+4. **Musicalize:** make a tiny phrase with a two-note palette, changing a destination
+   because the harmony changes.
+5. **Transfer:** try A, D, E7 and F#m, predicting and comparing before exposing
+   the corresponding Roman labels.
+6. **Reflect:** identify one source of friction, including fingering or no clear
+   breakdown. Nothing is saved or turned into a mastery score.
+
+`/harmony.html` now opens the focused Harmonic Gravity version of the same page,
+plan and interaction code. It omits the retrieval warm-up rather than duplicating
+the lesson. The old chord-construction Harmony workflow has been replaced.
+The Chord Lab remains available at `/` as a separate focused tool; Practice Session
+does not embed or run that entire Lab.
+
+Use familiar chord shapes or arpeggios. On one guitar, sound a chord and then
+replay the fixed melody note; no simultaneous accompaniment or generated audio is
+required. The app checks only committed fret data and directs self-reported
+listening. It cannot know which chord/voicing was played or assess the musical
+result. Physical review must establish whether this feels like one musical idea.
 
 `getDiatonicHarmony({ key, chordSize: "triad" | "seventh" })` derives seven ordered
 chords from the spelled scale and matches the authoritative chord formulas. Minor
 means natural minor: A minor's fifth chord is Em/Em7 (`v`/`v7`), without a silently
-raised leading tone. Roman labels identify structure; they do not assert function,
-cadence or resolution. See `docs/API.md` for the exact result contract.
+raised leading tone. Core Roman labels identify structure; they do not infer
+function, cadence or resolution. The fixed lesson's conventional home/pressure
+language is pedagogy, not a new engine classification. See `docs/API.md` for the
+unchanged result contract.
 
 ## Verify the foundation kernel
 

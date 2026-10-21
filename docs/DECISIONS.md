@@ -121,3 +121,18 @@ The separate bounded Harmony Lab proves a consumer without changing the Chord La
 or adding a curriculum/exercise framework. Function, progression/cadence analysis,
 common/nearest/guide tones, voice leading, guitar voicings/inversions/CAGED, audio and
 Learning infrastructure remain deferred. Phase 2E requires separate authorization.
+
+## D017 — One musical context, with experience before theory compression
+
+The original construction-based Harmony Lab was rejected in physical use. The
+Phase 2D engine and contracts remain valuable and unchanged. Practice Session v0
+instead uses G/C/D7/Em to connect brief retrieval, expectation, a committed
+prediction, contrasting endings, the same melody pitch under changing harmony,
+and F#–G before naming the Roman identities. A-major transfer preserves the
+curated relationships without reconstructing another whole scale.
+
+The focused Harmony route shares the same frozen lesson plan, page and app, omitting
+the warm-up. Listening responses are unscored; reflection is local and temporary.
+Home/pressure explanations are curated pedagogy, not inferred engine output.
+The proof still needs physical review. No universal curriculum, function/cadence
+engine, CAGED, adaptive scheduling, persistence or Phase 2E work is introduced.

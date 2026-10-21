@@ -56,8 +56,18 @@ most four roles, including a compound extension for ninth/eleventh/thirteenth wo
 Phase 2D stacks thirds from the spelled major/natural-minor scale and matches
 canonical chords through `CHORD_FORMULAS`. Roman identity describes degree plus
 actual chord quality; it does not classify harmonic function or predict resolution.
-The separate Harmony Lab is one bounded physical-guitar proof, not a curriculum or
-general exercise framework. Preserve the existing Chord Lab.
+Practice Session v0 uses one curated G-major musical context, with a short related
+warm-up, Harmonic Gravity, one explanatory relationship, constrained melodic use,
+A-major transfer and reflection. The focused Harmony route shares the same page,
+plan and app; it does not retain the rejected chord-construction workflow. Preserve
+the Chord Lab as a separate focused tool rather than embedding its full session.
+
+Home/pressure/expectation language belongs to this curated lesson, not Core. The
+first harmony response concerns perceived musical consequence; reveal Roman and
+functional labels only after prediction and melodic comparison. Do not score
+perception or infer mastery. No engine/query/contract changes are authorized for
+this learner-facing revision absent a real correctness bug. No generic Practice
+Engine, curriculum framework, progression generator or Phase 2E capability.
 
 Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
 `npm run test:lab`. Stop engine breadth after Phase 2D unless separately authorized.

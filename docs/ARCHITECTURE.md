@@ -124,11 +124,20 @@ frozen Roman identity derived from degree plus actual chord quality. This is
 structural identity, without tonic/predominant/dominant classification, cadence,
 resolution or progression claims. Minor requests never silently raise degree 7.
 
-The separate Harmony Lab consumes this query and existing Guitar queries for one
-bounded orient/predict/play/commit/reconstruct/reveal/transfer/reflection session.
-Physical constraints are frozen from actual returned locations. The original Chord
-Lab is preserved. Neither Lab is a reusable Learning Engine or a performed-voicing
-evaluator; the guitar supplies the sound and the learner reports the location.
+Practice Session v0 consumes this query and existing Guitar queries through one
+frozen, curated G-major lesson plan. Three relevant retrieval prompts precede
+Harmonic Gravity: physical context, perceived consequence, committed prediction,
+contrasting outcomes, and one melodic response before theory compression. One
+explanatory relationship, a two-note phrase, A-major transfer and reflection
+complete the connected session. No full chord-construction drill is embedded.
+
+The focused Harmony route and Practice Session serve the same page and app, using
+the same lesson content. Harmony omits the retrieval warm-up. Physical locations
+and explanatory notes derive from existing queries. The original Chord Lab remains
+a separate tool. Curated home/pressure descriptions are lesson interpretations of
+these chosen examples, not a new musical-truth function/cadence/progression API.
+There is no generic Practice/Learning Engine, persistence, automatic scheduler or
+performed-voicing evaluator. The guitar supplies the sound; the app cannot verify it.
 
 ## Future rhythm/time domain — documentation only
 
