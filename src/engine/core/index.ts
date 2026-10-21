@@ -5,4 +5,5 @@ export * from "./intervals.js";
 export * from "./collections.js";
 export * from "./chords.js";
 export * from "./keys.js";
+export * from "./harmony.js";
 export * from "./context.js";

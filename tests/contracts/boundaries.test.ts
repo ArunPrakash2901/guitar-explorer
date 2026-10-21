@@ -92,6 +92,7 @@ describe("pure public engine boundary", () => {
       const engine = await import("../../src/engine/index.js");
       expect(engine.getScale({ tonic: engine.parseNote("C#"), scaleId: "major" }).ok).toBe(true);
       expect(engine.getKeyProfile({ tonic: engine.parseNote("C#"), mode: "major" }).ok).toBe(true);
+      expect(engine.getDiatonicHarmony({ key: { tonic: engine.parseNote("F#"), mode: "major" }, chordSize: "seventh" }).ok).toBe(true);
       expect(engine.getInterval({ from: engine.parsePitch("C4"), to: engine.parsePitch("F#4") }).ok).toBe(true);
       expect(engine.getNoteAtFret({ position: { stringIndex: 0, fret: 0 } }).ok).toBe(true);
       expect(engine.analyseNotes({ notes: [engine.parsePitch("E4")], context: {} }).ok).toBe(true);
@@ -107,12 +108,12 @@ describe("pure public engine boundary", () => {
   it("exports the implemented musical queries without later-slice placeholders", async () => {
     const queries = await import("../../src/engine/query/index.js");
     expect(Object.keys(queries).sort()).toEqual([
-      "analyseNotes", "getChord", "getChordCatalog", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "analyseNotes", "getChord", "getChordCatalog", "getDiatonicHarmony", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "musicQueries", "transposeNoteQuery", "transposePitchQuery",
     ].sort());
     expect(Object.keys(queries.musicQueries).sort()).toEqual([
-      "analyseNotes", "getChord", "getChordCatalog", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "analyseNotes", "getChord", "getChordCatalog", "getDiatonicHarmony", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "transposeNote", "transposePitch",
     ].sort());

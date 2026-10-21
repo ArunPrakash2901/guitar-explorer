@@ -86,7 +86,7 @@ sounding membership without forcing pentatonic or blues collections into a
 seven-degree assumption.
 
 Key analysis remains major/natural-minor and seven-note by design. Broad harmonic
-interpretation, Roman numerals and functional analysis are later Phase 2 work.
+interpretation and functional analysis remain deferred.
 
 ## Implemented chord catalogue and Lab planning — Phase 2C
 
@@ -110,6 +110,35 @@ Collections of at most four tones are reconstructed completely; longer formulas 
 at most four structural roles while the complete formula remains visible and
 authoritative. No inversion, fingering or voicing model is implied.
 
+## Implemented diatonic harmony — Phase 2D
+
+`buildDiatonicHarmony` is pure Core. An explicit major/minor key selects the major
+or natural-minor scale; stacking its written degrees constructs seven triads or
+sevenths. Matching those exact spellings and stack roles against the authoritative
+chord formulas supplies canonical `Chord` identities. No per-key chord-answer table
+or second formula authority is introduced.
+
+`getDiatonicHarmony` returns the copied key, chord size and ordered degree entries
+through the existing query envelope. Each entry contains a complete chord and a
+frozen Roman identity derived from degree plus actual chord quality. This is
+structural identity, without tonic/predominant/dominant classification, cadence,
+resolution or progression claims. Minor requests never silently raise degree 7.
+
+Practice Session v0 consumes this query and existing Guitar queries through one
+frozen, curated G-major lesson plan. Three relevant retrieval prompts precede
+Harmonic Gravity: physical context, perceived consequence, committed prediction,
+contrasting outcomes, and one melodic response before theory compression. One
+explanatory relationship, a two-note phrase, A-major transfer and reflection
+complete the connected session. No full chord-construction drill is embedded.
+
+The focused Harmony route and Practice Session serve the same page and app, using
+the same lesson content. Harmony omits the retrieval warm-up. Physical locations
+and explanatory notes derive from existing queries. The original Chord Lab remains
+a separate tool. Curated home/pressure descriptions are lesson interpretations of
+these chosen examples, not a new musical-truth function/cadence/progression API.
+There is no generic Practice/Learning Engine, persistence, automatic scheduler or
+performed-voicing evaluator. The guitar supplies the sound; the app cannot verify it.
+
 ## Future rhythm/time domain — documentation only
 
 A future instrument-independent time domain will describe meter, beats, duration,
@@ -132,15 +161,14 @@ or musical query results.
 
 ## Later v1 direction and exclusions
 
-Subsequently authorized slices may add explicit-context harmony, maps/triad
+Subsequently authorized slices may add harmony relationships, maps/triad
 voicings, standard-tuning CAGED, playback and
 all five auditory exercise families. The auditory-to-fretboard composition remains
 owned by Learning. Evidence summaries precede mastery estimation.
 
-Roman labels default to key-relative analysis in minor keys when an explicit key
-context is supplied. They remain interpretations of explicit context rather than
-inferred unique truth, and analytical rules must distinguish calculated facts from
-interpretations.
+Current Roman labels are key-relative structural identities: natural minor has
+III, VI and VII. Future functional rules must distinguish these calculated facts
+from interpretations, and must not infer a unique key automatically.
 
 Western twelve-tone equal temperament is the foundation. Microphone/transcription,
 DSP-heavy processing, AI authority, cloud sync, adaptive mastery, general chord-text

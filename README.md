@@ -2,7 +2,10 @@
 
 Guitar Explorer is a long-term guitar and musicianship learning system built around one core problem: learning the fretboard and musical relationships without becoming dependent on visual shapes alone.
 
-The project is currently **engine-first**. The production UI, audio, ear training and learning features will be built on top of a tested TypeScript music kernel rather than embedding musical truth inside React components.
+The tested TypeScript music kernel supports small physical-guitar learning probes.
+The current learner-facing experiment is one connected Practice Session, with
+focused Labs available as tools. Production UI, audio and Learning infrastructure
+remain later work.
 
 ## Current status
 
@@ -13,6 +16,8 @@ The project is currently **engine-first**. The production UI, audio, ear trainin
 **Phase 2B — Scale catalog and contextual scale analysis: implemented**
 
 **Phase 2C — Chord catalogue and learner-selectable Chord Lab: implemented**
+
+**Phase 2D — Diatonic harmony/Roman engine implemented; Practice Session v0 ready for physical review**
 
 The current kernel includes:
 
@@ -28,6 +33,8 @@ The current kernel includes:
 - an ordered, frozen chord catalogue built from the authoritative chord formulas
 - conventional major/minor key signatures through seven sharps or flats
 - interval-derived relative-key and Circle-of-Fifths relationships
+- diatonic triad/seventh harmonization of explicit major and natural-minor keys
+- structured Roman identities derived from degree and actual chord quality
 - configurable tuning and standard guitar tuning
 - bounded fretboard location queries
 - structured, JSON-compatible musical queries through `musicQueries`
@@ -36,7 +43,8 @@ The current kernel includes:
 - regression checks for the preserved behavioural prototype
 
 The current engine deliberately does **not** include inversions, concrete voicings,
-CAGED production logic, diatonic harmony, audio, ear training, learning telemetry
+CAGED production logic, harmonic-function classification, progression relationships,
+cadences, common/nearest/guide-tone analysis, audio, ear training, learning telemetry
 or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
 GitHub Issue #2 for the incremental Phase 2 roadmap.
 
@@ -85,6 +93,47 @@ your improvisation was musically good.
 Treat the lab as a disposable learning probe: keep, change or delete interactions
 based on whether they improve real practice.
 
+## Practice Session v0 — Harmonic Gravity
+
+Run `npm run lab`, then open `http://127.0.0.1:4173/practice.html` for the connected
+session. Allow roughly 35–50 minutes of physical playing and listening; estimates
+are guidance, with no timers or enforced pace.
+
+One G-major context connects all six blocks:
+
+1. **Retrieve:** three brief fretboard/chord-role prompts using G and C material.
+2. **Current focus:** sound G as home; compare G–C–G with G–D7–silence; commit an
+   expectation before trying D7–G, then contrast D7–Em. Replay the same G over
+   changing chords and compare it with F# leading into G. Perceptions are unscored.
+3. **Connect:** only after listening, inspect Roman identities and the one
+   engine-validated F#–G relationship that explains a melodic choice.
+4. **Musicalize:** make a tiny phrase with a two-note palette, changing a destination
+   because the harmony changes.
+5. **Transfer:** try A, D, E7 and F#m, predicting and comparing before exposing
+   the corresponding Roman labels.
+6. **Reflect:** identify one source of friction, including fingering or no clear
+   breakdown. Nothing is saved or turned into a mastery score.
+
+`/harmony.html` now opens the focused Harmonic Gravity version of the same page,
+plan and interaction code. It omits the retrieval warm-up rather than duplicating
+the lesson. The old chord-construction Harmony workflow has been replaced.
+The Chord Lab remains available at `/` as a separate focused tool; Practice Session
+does not embed or run that entire Lab.
+
+Use familiar chord shapes or arpeggios. On one guitar, sound a chord and then
+replay the fixed melody note; no simultaneous accompaniment or generated audio is
+required. The app checks only committed fret data and directs self-reported
+listening. It cannot know which chord/voicing was played or assess the musical
+result. Physical review must establish whether this feels like one musical idea.
+
+`getDiatonicHarmony({ key, chordSize: "triad" | "seventh" })` derives seven ordered
+chords from the spelled scale and matches the authoritative chord formulas. Minor
+means natural minor: A minor's fifth chord is Em/Em7 (`v`/`v7`), without a silently
+raised leading tone. Core Roman labels identify structure; they do not infer
+function, cadence or resolution. The fixed lesson's conventional home/pressure
+language is pedagogy, not a new engine classification. See `docs/API.md` for the
+unchanged result contract.
+
 ## Verify the foundation kernel
 
 Requires Node.js 22.17 or newer.
@@ -131,7 +180,7 @@ Key principles:
 ## Roadmap
 
 1. **Foundation kernel** — implemented
-2. **Theory breadth** — slices 2A through 2C implemented; diatonic harmony and relationship analysis remain pending
+2. **Theory breadth** — slices 2A through 2D implemented; Phase 2E relationship/function work remains pending
 3. **Guitar representations** — maps, triad voicings, inversions, CAGED and position connectivity
 4. **Learning engine extraction** — deterministic exercises, evaluation, assistance and evidence contracts
 5. **Audio and ear training** — playback plans, browser audio and auditory exercise families

@@ -1,14 +1,15 @@
 # AGENTS.md
 
-## Approved scope override — Music Engine through Phase 2C
+## Approved scope override — Music Engine through Phase 2D
 
 The user-approved Music Engine plan supersedes the historical v0.2 implementation
 order, `src/music` layout, and UI-first kickoff below. Phase 1 plus Issue #2 slices
-2A through 2C implement `src/engine/{core,guitar,query}`: the foundation kernel,
+2A through 2D implement `src/engine/{core,guitar,query}`: the foundation kernel,
 conventional key relationships, broader scale formulas, generalized selected-scale
-contextual analysis and the approved chord catalogue.
+contextual analysis, the approved chord catalogue, and explicit major/natural-minor
+diatonic triad/seventh harmony with structured Roman identity.
 
-Do not begin Issue #2 slice 2D, CAGED, inversions, voicings, progressions, Audio, Ear, Learning,
+Do not begin Issue #2 slice 2E, harmonic-function classification, CAGED, inversions, voicings, progressions, Audio, Ear, Learning,
 storage, React or rhythm implementation without later authorization. Do not add
 future-engine placeholders. Do not introduce bitsets, fretboard graphs, caching or
 adaptive-learning infrastructure without a concrete later requirement.
@@ -52,8 +53,24 @@ Transfer preserves quality plus exact degree/alteration identity. Formulas longe
 than four tones remain complete in Core while a physical reconstruction selects at
 most four roles, including a compound extension for ninth/eleventh/thirteenth work.
 
+Phase 2D stacks thirds from the spelled major/natural-minor scale and matches
+canonical chords through `CHORD_FORMULAS`. Roman identity describes degree plus
+actual chord quality; it does not classify harmonic function or predict resolution.
+Practice Session v0 uses one curated G-major musical context, with a short related
+warm-up, Harmonic Gravity, one explanatory relationship, constrained melodic use,
+A-major transfer and reflection. The focused Harmony route shares the same page,
+plan and app; it does not retain the rejected chord-construction workflow. Preserve
+the Chord Lab as a separate focused tool rather than embedding its full session.
+
+Home/pressure/expectation language belongs to this curated lesson, not Core. The
+first harmony response concerns perceived musical consequence; reveal Roman and
+functional labels only after prediction and melodic comparison. Do not score
+perception or infer mastery. No engine/query/contract changes are authorized for
+this learner-facing revision absent a real correctness bug. No generic Practice
+Engine, curriculum framework, progression generator or Phase 2E capability.
+
 Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
-`npm run test:lab`. Stop engine breadth after Phase 2C unless separately authorized.
+`npm run test:lab`. Stop engine breadth after Phase 2D unless separately authorized.
 The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical v0.2 instructions (subject to the override above)

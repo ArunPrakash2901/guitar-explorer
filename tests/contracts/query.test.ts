@@ -26,7 +26,7 @@ function failure(result: QueryResult<unknown>, code: "INVALID_INPUT" | "UNSUPPOR
 describe("version 1 public music queries", () => {
   it("exposes the complete implemented kernel without future-operation placeholders", () => {
     expect(Object.keys(musicQueries).sort()).toEqual([
-      "analyseNotes", "getChord", "getChordCatalog", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
+      "analyseNotes", "getChord", "getChordCatalog", "getDiatonicHarmony", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "transposeNote", "transposePitch",
     ]);
