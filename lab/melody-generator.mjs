@@ -8,8 +8,18 @@ export class GenerationError extends Error {
     super(message);
     this.name = "GenerationError";
     this.details = details;
+    this.ruleId = details.ruleId;
+    this.difficulty = details.difficulty;
+    this.seed = details.seed;
+    this.attempts = details.attempts ?? details.attemptCount;
+    this.attemptCount = this.attempts;
+    this.bestScore = details.bestScoreReached ?? details.bestScore;
+    this.bestScoreReached = this.bestScore;
+    this.lastFailure = details.lastFailure;
   }
 }
+
+export const MIN_PEDAGOGICAL_SCORE = 5;
 
 // Deterministic Mulberry32 32-bit PRNG
 export function createPrng(seedInput) {
@@ -60,7 +70,42 @@ function scoreCandidate(resolved) {
   return score;
 }
 
-export function generateMelodyScenario({ ruleId, difficulty = "introductory", seed = 1, queries, attemptBudget = 30 } = {}) {
+export function getScenarioFingerprint(input) {
+  if (!input) return "";
+  const scenario = input.scenario || input.spec || input;
+  const resolved = input.resolved || (input.spec ? input : null);
+  const provenance = input.provenance || null;
+
+  const family = provenance?.family || provenance?.ruleId || scenario?.id?.split?.("-")?.[1] || "melody";
+
+  const mainTonic = scenario?.context?.key?.tonic;
+  const keyStr = mainTonic ? `${formatKeyName(mainTonic)} ${scenario.context.key.mode}` : "";
+
+  const chordsStr = resolved?.main?.chords
+    ? resolved.main.chords.map((c) => c.symbol).join(" > ")
+    : (scenario?.context?.degrees ? `${scenario.context.degrees.join("-")}:${scenario.context.chordSize}` : "");
+
+  const tgt = scenario?.targets?.target;
+  const arr = scenario?.targets?.arrival;
+  const motion = resolved?.main?.targetMotion;
+  const motionStr = motion ? `(${motion.diatonicSteps}steps,${motion.semitones}st)` : "";
+  const relStr = (tgt && arr)
+    ? `c${tgt.chordIndex}d${tgt.degree}s${tgt.stringIndex}->c${arr.chordIndex}d${arr.degree}s${arr.stringIndex}${motionStr}`
+    : "";
+
+  const targetPos = resolved?.main?.target?.position;
+  const targetPosStr = targetPos ? `s${targetPos.stringIndex}f${targetPos.fret}` : "";
+
+  const reg = scenario?.fretboard?.main;
+  const regStr = reg ? `s[${reg.strings.join(",")}]f${reg.minFret}-${reg.maxFret}` : "";
+
+  const transTonic = scenario?.transfer?.key?.tonic;
+  const transKeyStr = transTonic ? `${formatKeyName(transTonic)} ${scenario.transfer.key.mode}` : "";
+
+  return `family:${family}|key:${keyStr}|prog:${chordsStr}|rel:${relStr}|targetPos:${targetPosStr}|region:${regStr}|transferKey:${transKeyStr}`;
+}
+
+export function generateMelodyScenario({ ruleId, difficulty = "introductory", seed = 1, queries, attemptBudget = 30, minScore = MIN_PEDAGOGICAL_SCORE } = {}) {
   if (!queries) throw new Error("queries parameter is required for scenario generation");
   const rule = ruleId === "surprise" || !ruleId
     ? getMelodyRules()[Math.floor(createPrng(seed)() * getMelodyRules().length)]
@@ -293,7 +338,12 @@ export function generateMelodyScenario({ ruleId, difficulty = "introductory", se
         bestCandidate = candidate;
         bestResolved = resolved;
       }
-      if (score >= 5) {
+      if (score >= minScore) {
+        const fingerprint = getScenarioFingerprint({
+          scenario: bestCandidate,
+          resolved: bestResolved,
+          provenance: { ruleId: rule.id, family: rule.family, difficulty, seed },
+        });
         return {
           scenario: bestCandidate,
           resolved: bestResolved,
@@ -305,6 +355,7 @@ export function generateMelodyScenario({ ruleId, difficulty = "introductory", se
             seed,
             attempts: attempt,
             score: bestScore,
+            fingerprint,
             generatorVersion: 1,
           },
         };
@@ -314,26 +365,69 @@ export function generateMelodyScenario({ ruleId, difficulty = "introductory", se
     }
   }
 
-  if (bestCandidate && bestResolved) {
-    return {
-      scenario: bestCandidate,
-      resolved: bestResolved,
-      provenance: {
-        source: "generated",
-        ruleId: rule.id,
-        family: rule.family,
+  const lastFailure = failures[failures.length - 1];
+  const lastErrorMsg = lastFailure?.error || (bestCandidate ? `Candidate scored ${bestScore}, below required floor ${minScore}` : "No candidate resolved");
+  throw new GenerationError(
+    `Failed to generate scenario meeting pedagogical score floor (${minScore}) for rule ${rule.id} (seed ${seed}) after ${attemptBudget} attempts. Best score reached: ${bestScore === -Infinity ? "none" : bestScore}. Last failure: ${lastErrorMsg}`,
+    {
+      ruleId: rule.id,
+      difficulty,
+      seed,
+      attempts: attemptBudget,
+      attemptCount: attemptBudget,
+      bestScoreReached: bestScore === -Infinity ? null : bestScore,
+      bestScore: bestScore === -Infinity ? null : bestScore,
+      lastFailure: lastErrorMsg,
+      failures: failures.slice(-3),
+    }
+  );
+}
+
+export function generateDistinctMelodyScenario({
+  ruleId,
+  difficulty = "introductory",
+  currentSeed = 1,
+  currentFingerprint = "",
+  queries,
+  maxRetries = 30,
+  attemptBudget = 30,
+  minScore = MIN_PEDAGOGICAL_SCORE,
+} = {}) {
+  let nextSeed = typeof currentSeed === "number" ? currentSeed : (Number.parseInt(currentSeed, 10) || 1);
+  const failures = [];
+
+  for (let step = 1; step <= maxRetries; step += 1) {
+    nextSeed += 1;
+    try {
+      const candidate = generateMelodyScenario({
+        ruleId,
         difficulty,
-        seed,
-        attempts: attemptBudget,
-        score: bestScore,
-        generatorVersion: 1,
-      },
-    };
+        seed: nextSeed,
+        queries,
+        attemptBudget,
+        minScore,
+      });
+      const fp = candidate.provenance?.fingerprint || getScenarioFingerprint(candidate);
+      if (fp !== currentFingerprint) {
+        return candidate;
+      }
+      failures.push({ seed: nextSeed, reason: "Identical surface fingerprint" });
+    } catch (err) {
+      failures.push({ seed: nextSeed, reason: err.message });
+    }
   }
 
-  const lastFailure = failures[failures.length - 1];
   throw new GenerationError(
-    `Failed to generate valid scenario for rule ${rule.id} (seed ${seed}) after ${attemptBudget} attempts. Last failure: ${lastFailure?.error || "unknown"}`,
-    { ruleId: rule.id, difficulty, seed, attempts: attemptBudget, failures: failures.slice(-3) }
+    `Failed to generate distinct scenario surface after ${maxRetries} seeds from seed ${currentSeed}.`,
+    {
+      ruleId,
+      difficulty,
+      seed: currentSeed,
+      attempts: maxRetries,
+      attemptCount: maxRetries,
+      bestScoreReached: null,
+      lastFailure: failures[failures.length - 1]?.reason || "No distinct surface found",
+      failures: failures.slice(-3),
+    }
   );
 }

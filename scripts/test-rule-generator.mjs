@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import vm from "node:vm";
 import * as engine from "../.lab-dist/engine/index.js";
 import { getMelodyRules, getMelodyRuleById } from "../lab/rule-contract.mjs";
-import { generateMelodyScenario, GenerationError, createPrng } from "../lab/melody-generator.mjs";
+import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint, MIN_PEDAGOGICAL_SCORE, GenerationError, createPrng } from "../lab/melody-generator.mjs";
 import { resolveScenario, ScenarioError } from "../lab/scenario-resolver.mjs";
 import { createMelodyPlan } from "../lab/melody-session.mjs";
 import { chordRole, pathConnections } from "../lab/phrase-material.mjs";
@@ -66,7 +66,9 @@ for (const rule of rules) {
       assert.equal(result.provenance.difficulty, difficulty);
       assert.equal(result.provenance.seed, seed);
       assert.ok(result.provenance.attempts >= 1);
-      assert.ok(result.provenance.score >= 0);
+      assert.ok(result.provenance.score >= MIN_PEDAGOGICAL_SCORE, `Scenario score ${result.provenance.score} must meet floor ${MIN_PEDAGOGICAL_SCORE}`);
+      assert.ok(result.provenance.fingerprint, "Scenario has deterministic fingerprint");
+      assert.equal(result.provenance.fingerprint, getScenarioFingerprint(result), "Fingerprint matches helper calculation");
 
       // ScenarioV1 schema assertions
       const s = result.scenario;
@@ -108,10 +110,33 @@ for (const rule of rules) {
 }
 assert.equal(totalGenerations, SEEDS_PER_COMBINATION * 9);
 
-// 4. Exact reproducibility test
+// 4. Exact reproducibility & surface fingerprint tests
 const genA = generateMelodyScenario({ ruleId: "rule-dominant-third", difficulty: "introductory", seed: 9942, queries });
 const genB = generateMelodyScenario({ ruleId: "rule-dominant-third", difficulty: "introductory", seed: 9942, queries });
 assert.deepEqual(JSON.parse(JSON.stringify(genA)), JSON.parse(JSON.stringify(genB)), "Identical seed produces identical JSON");
+
+const fpA = getScenarioFingerprint(genA);
+const fpB = getScenarioFingerprint(genB);
+assert.equal(fpA, fpB, "Identical scenarios produce identical fingerprints");
+assert.ok(fpA.startsWith("family:dominant-third|key:"), "Fingerprint starts with family and key");
+assert.ok(fpA.includes("|prog:"), "Fingerprint contains progression");
+assert.ok(fpA.includes("|rel:"), "Fingerprint contains target/arrival relationship");
+assert.ok(fpA.includes("|targetPos:"), "Fingerprint contains target fretboard position");
+assert.ok(fpA.includes("|region:"), "Fingerprint contains fretboard region");
+assert.ok(fpA.includes("|transferKey:"), "Fingerprint contains transfer key");
+
+// Generate distinct surface test
+const distinctCandidate = generateDistinctMelodyScenario({
+  ruleId: "rule-dominant-third",
+  difficulty: "introductory",
+  currentSeed: 9942,
+  currentFingerprint: fpA,
+  queries,
+});
+const distinctFp = getScenarioFingerprint(distinctCandidate);
+assert.notEqual(distinctFp, fpA, "Distinct scenario has different surface fingerprint");
+assert.ok(distinctCandidate.provenance.seed > 9942, "Seed advanced to produce distinct surface");
+assert.ok(distinctCandidate.provenance.score >= MIN_PEDAGOGICAL_SCORE, "Distinct scenario meets score floor");
 
 // 5. Diversity tests across 50 seeds
 const keysObserved = new Set();
@@ -150,6 +175,23 @@ assert.throws(() => generateMelodyScenario({ ruleId: "nonexistent-rule", queries
 assert.throws(() => generateMelodyScenario({ ruleId: "rule-dominant-third", difficulty: "impossible", queries }), (err) => err instanceof GenerationError && err.message.includes("Unknown difficulty"));
 assert.throws(() => generateMelodyScenario({ ruleId: "rule-dominant-third" }), (err) => err instanceof Error && err.message.includes("queries parameter is required"));
 
+// Score floor negative test: candidate meeting resolver validation but below floor throws GenerationError
+assert.throws(
+  () => generateMelodyScenario({ ruleId: "rule-dominant-third", difficulty: "introductory", seed: 42, queries, minScore: 99 }),
+  (err) => {
+    assert.ok(err instanceof GenerationError);
+    assert.equal(err.ruleId, "rule-dominant-third");
+    assert.equal(err.difficulty, "introductory");
+    assert.equal(err.seed, 42);
+    assert.equal(err.attemptCount, 30);
+    assert.equal(err.attempts, 30);
+    assert.ok(typeof err.bestScoreReached === "number", "Error records best score reached");
+    assert.ok(err.bestScoreReached < 99, "Best score was below impossible floor");
+    assert.ok(err.lastFailure && typeof err.lastFailure === "string", "Error records last failure");
+    return true;
+  }
+);
+
 // 8. UI Integration tests in Melody Lab
 const appCode = await readFile(new URL("../lab/phrase-app.js", import.meta.url), "utf8");
 const melodyHtml = await readFile(new URL("../lab/melody.html", import.meta.url), "utf8");
@@ -167,6 +209,8 @@ const context = vm.createContext({
   getMelodyRules,
   getMelodyRuleById,
   generateMelodyScenario,
+  generateDistinctMelodyScenario,
+  getScenarioFingerprint,
   createMelodyPlan,
   chordRole,
   pathConnections,
@@ -195,16 +239,20 @@ assert.ok(read("selectedScenario.id").startsWith("gen-"));
 // Check "Generate another"
 const firstId = read("selectedScenario.id");
 const firstSeed = read("currentGeneratedSeed");
+const firstFp = read("currentGeneratedFingerprint");
 $("generate-another").click();
 const secondId = read("selectedScenario.id");
 const secondSeed = read("currentGeneratedSeed");
+const secondFp = read("currentGeneratedFingerprint");
 assert.notEqual(firstId, secondId, "Generate another creates a distinct scenario");
-assert.equal(secondSeed, firstSeed + 1, "Seed increments deterministically");
+assert.notEqual(firstFp, secondFp, "Generate another creates a distinct surface fingerprint");
+assert.ok(secondSeed > firstSeed, "Seed increments deterministically");
 
 // Check "Replay this scenario"
 $("replay-scenario").click();
 assert.equal(read("selectedScenario.id"), secondId, "Replay preserves exact scenario");
 assert.equal(read("currentGeneratedSeed"), secondSeed, "Replay preserves exact seed");
+assert.equal(read("currentGeneratedFingerprint"), secondFp, "Replay preserves exact fingerprint");
 
 // Check "Generate practice" button
 $("generate-scenario").click();

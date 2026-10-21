@@ -79,8 +79,8 @@ The generator employs **constrained generation → deterministic validation → 
 2. Each attempt samples a key, progression template, target role, fretboard region, transfer key, and phrase lead notes.
 3. The candidate is submitted to `resolveScenario(candidate, queries)`.
 4. If validation fails (e.g., target note out of fret window, non-ascending lead, transfer interval mismatch), the failure is logged and the next seed step is tried.
-5. If validation succeeds, the candidate is scored according to pedagogical preferences.
-6. If the attempt budget is exhausted without a valid candidate, a clear `GenerationError` is thrown detailing the rule, difficulty, seed, and last failure reason.
+5. If validation succeeds, the candidate is scored according to pedagogical preferences. Resolver validity is **necessary but not sufficient**: candidates must also meet the documented minimum pedagogical score floor ($S \ge 5$).
+6. If the attempt budget is exhausted without any candidate meeting the score floor, a deterministic `GenerationError` is thrown detailing `ruleId`, `difficulty`, `seed`, `attempts` (attempt count), `bestScoreReached`, and `lastFailure`. Low-quality candidates are never silently accepted.
 
 ---
 
@@ -94,6 +94,7 @@ The generator employs **constrained generation → deterministic validation → 
 - Phrase lead notes are strictly ascending in pitch into the target.
 - Transfer key preserves the directed target-to-arrival interval in both diatonic steps and semitones.
 - Output conforms to `ScenarioV1` schema and freezes completely.
+- **Pedagogical Score Floor ($S \ge 5$)**: The candidate must reach or exceed the minimum score threshold to be accepted.
 
 ### Pedagogical Preferences (Scoring)
 Scoring ranks valid candidates to prioritize high-value educational practice:
@@ -102,9 +103,34 @@ Scoring ranks valid candidates to prioritize high-value educational practice:
 - **Arrival Salience**: Root or 3rd arrival (+2 points).
 - **Neck Comfort**: Fret window span between 6 and 9 frets (+2 points).
 
+Maximum pedagogical score is 10. The acceptance threshold is $S \ge 5$.
+
 ---
 
-## 6. Difficulty Constraints
+## 6. Surface Fingerprints & "Generate Another" Variation
+
+To ensure successive generated exercises present genuine variation rather than identical musical problems under a different seed, each scenario has a deterministic **surface fingerprint** (`getScenarioFingerprint`):
+
+```text
+family:dominant-third|key:C major|prog:Dm7 > G7 > Cmaj7|rel:c1d3s5->c2d1s5(1steps,1st)|targetPos:s5f7|region:s[4,5]f3-10|transferKey:A major
+```
+
+The fingerprint encodes:
+1. **Rule / Family**: e.g. `dominant-third`, `dominant-seventh`, `target-trajectory`.
+2. **Key Context**: Spelled tonic and mode (e.g. `C major`).
+3. **Harmonic Progression**: Chord symbols across the cycle (e.g. `Dm7 > G7 > Cmaj7`).
+4. **Target / Arrival Relationship**: Tone roles, string index, diatonic step change, and semitone distance.
+5. **Target Fretboard Location & Region**: Target string and fret (`s5f7`) and active region (`s[4,5]f3-10`).
+6. **Transfer Key**: Key context for second-cycle consolidation.
+
+### Surface Variation Controls
+- **Generate Another (`generateDistinctMelodyScenario`)**: Increments the seed monotonically within a bounded budget ($N=30$) until a valid, accepted scenario with a *different* surface fingerprint is produced.
+- **Replay Scenario**: Re-generates the exact current seed, strictly reproducing identical musical notes, fretboard locations, and pedagogical stages.
+- No learner history, adaptation, or persistent profiling is introduced.
+
+---
+
+## 7. Difficulty Constraints
 
 Difficulty levels constrain generation without requiring an adaptive student model:
 
@@ -116,7 +142,7 @@ Difficulty levels constrain generation without requiring an adaptive student mod
 
 ---
 
-## 7. Provenance & UI Integration
+## 8. Provenance & UI Integration
 
 Generated scenarios conform 100% to `ScenarioV1`. Implementation metadata is kept in an outer provenance wrapper:
 
@@ -132,6 +158,7 @@ Generated scenarios conform 100% to `ScenarioV1`. Implementation metadata is kep
     seed: 4821,
     attempts: 3,
     score: 10,
+    fingerprint: "family:dominant-third|key:C major|prog:Dm7 > G7 > Cmaj7|rel:c1d3s5->c2d1s5(1steps,1st)|targetPos:s5f7|region:s[4,5]f3-10|transferKey:A major",
     generatorVersion: 1
   }
 }
@@ -143,7 +170,7 @@ The `/melody.html` UI supports switching between:
 
 ---
 
-## 8. What Rule Generator V1 Does NOT Represent
+## 9. What Rule Generator V1 Does NOT Represent
 
 Rule Generator V1 strictly generates bounded tonal melody exercises. It **does NOT** represent:
 - **Genre or Style Packs**: No blues scales, jazz vocabulary, funk patterns, or idiomatic clichés.

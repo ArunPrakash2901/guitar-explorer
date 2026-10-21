@@ -5,7 +5,7 @@ import { getMelodyScenarios, getMotifScenarios } from "/scenario-catalogue.mjs";
 import { resolveScenario } from "/scenario-resolver.mjs";
 import { createMelodyPlan } from "/melody-session.mjs";
 import { createMotifPlan } from "/motif-session.mjs";
-import { generateMelodyScenario } from "/melody-generator.mjs";
+import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "/melody-generator.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) { if (!result.ok) throw new Error(result.error.message); return result.data; }
@@ -54,18 +54,26 @@ $("start-scenario").addEventListener("click", () => startScenario(catalogue.find
 let practiceSource = "catalogue";
 let currentGeneratedSeed = 1001;
 let currentGeneratedConfig = null;
-function loadGenerated(ruleId, difficulty, seed) {
-  const actualRule = ruleId || ($("rule-select") && $("rule-select").value) || "rule-dominant-third";
-  const actualDiff = difficulty || ($("difficulty-select") && $("difficulty-select").value) || "introductory";
-  const result = generateMelodyScenario({ ruleId: actualRule, difficulty: actualDiff, seed, queries });
+let currentGeneratedFingerprint = null;
+
+function applyGeneratedResult(result, config) {
   selectedScenario = result.scenario;
   material = result.resolved;
   plan = createMelodyPlan(material);
-  currentGeneratedConfig = { ruleId, difficulty, seed };
+  currentGeneratedConfig = config;
+  currentGeneratedFingerprint = result.provenance?.fingerprint || getScenarioFingerprint(result);
+  currentGeneratedSeed = config.seed;
   reset();
   $("reflection").value = "";
   $("scenario-info").textContent = `${result.scenario.description} · ${result.scenario.difficulty} · ${formatNote(result.scenario.context.key.tonic)} major`;
   render();
+}
+
+function loadGenerated(ruleId, difficulty, seed) {
+  const actualRule = ruleId || ($("rule-select") && $("rule-select").value) || "rule-dominant-third";
+  const actualDiff = difficulty || ($("difficulty-select") && $("difficulty-select").value) || "introductory";
+  const result = generateMelodyScenario({ ruleId: actualRule, difficulty: actualDiff, seed, queries });
+  applyGeneratedResult(result, { ruleId: actualRule, difficulty: actualDiff, seed });
 }
 if (mode === "melody" && $("source-generated")) {
   $("source-catalogue").addEventListener("click", () => {
@@ -93,8 +101,21 @@ if (mode === "melody" && $("source-generated")) {
     loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
   });
   $("generate-another").addEventListener("click", () => {
-    currentGeneratedSeed += 1;
-    loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
+    const ruleId = ($("rule-select") && $("rule-select").value) || currentGeneratedConfig?.ruleId || "rule-dominant-third";
+    const difficulty = ($("difficulty-select") && $("difficulty-select").value) || currentGeneratedConfig?.difficulty || "introductory";
+    try {
+      const nextResult = generateDistinctMelodyScenario({
+        ruleId,
+        difficulty,
+        currentSeed: currentGeneratedSeed,
+        currentFingerprint: currentGeneratedFingerprint,
+        queries,
+      });
+      applyGeneratedResult(nextResult, { ruleId, difficulty, seed: nextResult.provenance.seed });
+    } catch {
+      currentGeneratedSeed += 1;
+      loadGenerated(ruleId, difficulty, currentGeneratedSeed);
+    }
   });
   $("replay-scenario").addEventListener("click", () => {
     if (currentGeneratedConfig) {
