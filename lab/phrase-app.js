@@ -1,12 +1,14 @@
 import { STANDARD_FRETBOARD, formatNote, musicQueries } from "/engine/index.js";
 import { createFretboard } from "/fretboard-view.mjs";
-import { createPhraseMaterial, chordRole, pathConnections } from "/phrase-material.mjs";
+import { chordRole, pathConnections } from "/phrase-material.mjs";
+import { getMelodyScenarios, getMotifScenarios } from "/scenario-catalogue.mjs";
+import { resolveScenario } from "/scenario-resolver.mjs";
 import { createMelodyPlan } from "/melody-session.mjs";
 import { createMotifPlan } from "/motif-session.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) { if (!result.ok) throw new Error(result.error.message); return result.data; }
-const material = createPhraseMaterial({
+const queries = {
   getHarmony: (request) => unwrap(musicQueries.getDiatonicHarmony(request)),
   getScale: (request) => unwrap(musicQueries.getScale(request)),
   getCatalog: (request) => unwrap(musicQueries.getChordCatalog(request)),
@@ -19,15 +21,39 @@ const material = createPhraseMaterial({
     context: { key, currentChord: { root: chord.root, chordId: chord.chordId } },
   })),
   getInterval: (request) => unwrap(musicQueries.getInterval(request)), formatNote,
-});
+};
 const mode = document.body.dataset.probe;
-const plan = mode === "melody" ? createMelodyPlan(material) : createMotifPlan(material);
+const catalogue = mode === "melody" ? getMelodyScenarios() : getMotifScenarios();
+const resolved = new Map(catalogue.map((spec) => [spec.id, resolveScenario(spec, queries)]));
+let material = resolved.get(catalogue[0].id);
+let plan = mode === "melody" ? createMelodyPlan(material) : createMotifPlan(material);
+let selectedScenario = catalogue[0];
 const state = {};
 function reset() {
   Object.assign(state, { index: 0, selections: [], revealed: false, result: null, feedback: "", feedbackKind: "",
     hints: 0, startedAt: Date.now(), evidence: {}, reflection: null });
 }
 reset();
+for (const spec of catalogue) {
+  const option = document.createElement("option"); option.value = spec.id; option.textContent = spec.title;
+  $("scenario-select").append(option);
+}
+function describeScenario() {
+  $("scenario-select").value = selectedScenario.id;
+  $("scenario-info").textContent = `${selectedScenario.description} · ${selectedScenario.difficulty} · ${formatNote(selectedScenario.context.key.tonic)} major`;
+}
+describeScenario();
+function startScenario(spec) {
+  if (!spec || !resolved.has(spec.id)) throw new Error("Unknown approved scenario");
+  selectedScenario = spec; material = resolved.get(spec.id);
+  plan = mode === "melody" ? createMelodyPlan(material) : createMotifPlan(material);
+  reset(); $("reflection").value = ""; describeScenario(); render();
+}
+$("start-scenario").addEventListener("click", () => startScenario(catalogue.find(({ id }) => id === $("scenario-select").value)));
+$("surprise-scenario").addEventListener("click", () => {
+  const choices = catalogue.filter(({ id }) => id !== selectedScenario.id);
+  startScenario(choices[Math.floor(Math.random() * choices.length)] ?? catalogue[0]);
+});
 const board = createFretboard($("board"), { onSelect(position) {
   if (state.revealed) return;
   const stage = current();
@@ -53,8 +79,8 @@ function addExplanation(lines) {
 }
 function stageLines(stage) {
   if (mode === "melody") return plan.explanation(stage);
-  const g = material.g;
-  const shown = plan.examples.g;
+  const g = material.main;
+  const shown = plan.examples.main;
   if (stage.id === "source" || stage.id === "identity") return [
     `${shown.source.map((note) => formatNote(note.pitch.note)).join(" → ")} · ${plan.sourceInterval.label} up, then return; short–short–long feel.`,
     ...shown.source.map((note, index) => `${index + 1}. ${formatNote(note.pitch.note)} · ${chordRole(g.at(0, note.position.stringIndex, note.position.fret))} of ${g.chords[0].symbol}`),
@@ -76,13 +102,13 @@ function stageLines(stage) {
 }
 function annotatedBoard(stage) {
   const ctx = stage.context;
-  const active = mode === "melody" ? [4, 5] : [2, 3, 4, 5];
-  const range = mode === "melody" ? { minFret: 0, maxFret: 8 } : { minFret: 0, maxFret: 10 };
+  const active = ctx.boardRange.strings;
+  const range = { minFret: ctx.boardRange.minFret, maxFret: ctx.boardRange.maxFret };
   const positions = new Map();
   for (const index of active) for (let fret = range.minFret; fret <= range.maxFret; fret += 1) {
     const selectedSteps = state.selections.flatMap((item, step) => item.stringIndex === index && item.fret === fret ? [step + 1] : []);
     positions.set(`${index}:${fret}`, { stringIndex: index, fret, selectable: isSelect(stage) && !state.revealed &&
-      (mode === "motif" || index === 5), selected: selectedSteps.length > 0,
+      (mode === "motif" || index === material.spec.targets.target.stringIndex), selected: selectedSteps.length > 0,
       states: [], primaryLabel: selectedSteps.length ? selectedSteps.join(",") : "",
       ariaLabel: `${stringLabel(index)}, fret ${fret}${selectedSteps.length ? `, planned step ${selectedSteps.join(" and ")}` : ""}` });
   }
@@ -99,16 +125,16 @@ function annotatedBoard(stage) {
     }
     if (stage.id === "improv") mark(ctx.arrival, formatNote(ctx.arrival.pitch.note), "arrival", ["destination"]);
     if (state.revealed && stage.kind === "select") mark(stage.answer, formatNote(stage.answer.pitch.note),
-      stage.id === "approach" ? "approach" : chordRole(ctx.at(stage.chordIndex, 5, stage.answer.position.fret)), ["correct", "destination"]);
+      stage.id === "approach" ? "approach" : chordRole(ctx.at(stage.chordIndex, material.spec.targets.target.stringIndex, stage.answer.position.fret)), ["correct", "destination"]);
     if (state.revealed && stage.id === "phrase") for (const [index, note] of ctx.phrase.entries()) mark(note,
       `${index + 1} ${formatNote(note.pitch.note)}`, index === 1 ? "approach" : index > 1 ? "target" : "opening", ["current"]);
   } else {
-    const original = plan.examples.g.source;
+    const original = plan.examples.main.source;
     if (["source", "identity", "adapt", "variation-ending", "variation-repeat", "sequence", "fragment", "response", "improv"].includes(stage.id)) {
       const sourceNotes = stage.id === "fragment" ? original.slice(1) : stage.id === "variation-ending" ? original.slice(0, 2) : stage.id === "variation-repeat" ? [original[0], original[2]] : stage.id === "sequence" ? [plan.sequence[0]] : original;
       for (const [index, note] of sourceNotes.entries()) mark(note, formatNote(note.pitch.note), state.revealed && stage.id === "source" ? chordRole(ctx.at(0, note.position.stringIndex, note.position.fret)) : "source", ["source"]);
     }
-    if (state.revealed && stage.id === "variation-contour") for (const [index, note] of plan.examples.g.arrival.entries()) mark(note, `${index + 1} ${formatNote(note.pitch.note)}`, "example", ["current"]);
+    if (state.revealed && stage.id === "variation-contour") for (const [index, note] of plan.examples.main.arrival.entries()) mark(note, `${index + 1} ${formatNote(note.pitch.note)}`, "example", ["current"]);
     if (state.revealed && state.result?.notes) for (const [index, note] of state.result.notes.entries()) mark(note, `${index + 1} ${formatNote(note.pitch.note)}`, chordRole(note), ["destination"]);
     if (state.revealed && state.result?.note) mark(state.result.note, formatNote(state.result.note.pitch.note), chordRole(state.result.note), ["destination"]);
     if (state.revealed && state.result?.selected) for (const [index, note] of state.result.selected.entries()) mark(note, `${index + 1} ${formatNote(note.pitch.note)}`, chordRole(note), ["destination"]);
@@ -116,8 +142,8 @@ function annotatedBoard(stage) {
   const path = mode === "melody" && state.revealed && stage.id === "phrase" ? ctx.phrase
     : mode === "melody" && state.revealed && ["trajectory", "transfer-arrival"].includes(stage.id) ? [ctx.target, ctx.arrival]
       : mode === "motif" && state.revealed && state.result?.notes ? state.result.notes
-        : mode === "motif" && stage.id === "source" ? plan.examples.g.source
-          : mode === "motif" && stage.id === "fragment" ? plan.examples.g.source.slice(1) : [];
+        : mode === "motif" && stage.id === "source" ? plan.examples.main.source
+          : mode === "motif" && stage.id === "fragment" ? plan.examples.main.source.slice(1) : [];
   board.update({ strings: strings(), activeStringIndices: active, fretRange: range,
     positions: [...positions.values()], connections: pathConnections(path),
     label: `${mode === "melody" ? "Melodic target" : "Motif"} fretboard; arrow keys move between available positions` });
@@ -130,7 +156,7 @@ function render() {
   $("stage-title").textContent = stage.title;
   $("prompt").textContent = stage.prompt;
   $("instruction").textContent = stage.instruction;
-  $("context").textContent = `${formatNote(stage.context.key.tonic)} major · ${stage.context.chords.map(({ symbol }) => symbol).join(" → ")}`;
+  $("context").textContent = `${formatNote(stage.context.key.tonic)} ${stage.context.key.mode} · ${stage.context.chords.map(({ symbol }) => symbol).join(" → ")}`;
   $("back").disabled = state.index === 0;
   $("board-panel").hidden = stage.kind === "complete" || mode === "melody" && stage.kind === "play" && stage.id === "harmony";
   if (!$("board-panel").hidden) {
@@ -182,7 +208,7 @@ $("hint").addEventListener("click", () => {
   stageEvidence().hints += 1; state.hints += 1;
   setFeedback(state.hints === 1 ? "Sing the destination against the current chord before counting frets." :
     mode === "melody" ? "Use the chord root as your reference; the high E string contains the target in this bounded region." :
-      "Keep the original rise–return contour. At a chord change, make the high note the current chord's 3rd.", "warn");
+      `Keep the original rise–return contour. At a chord change, make the high note the current chord's ${current().upperDegree === 5 ? "5th" : "3rd"}.`, "warn");
 });
 $("act").addEventListener("click", () => {
   const stage = current();

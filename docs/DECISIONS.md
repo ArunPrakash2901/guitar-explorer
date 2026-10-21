@@ -181,3 +181,23 @@ changes required by harmony. Their curated choices and reveal rules remain in
 `lab/`, with temporary evidence and ungraded listening reflections. The
 standalone rhythm/syncopation experiment is intentionally skipped. See
 `LAB_PHRASE_PROBES.md` for the exact flows and physical validation questions.
+
+## D021 — Separate musical scenario variability from teaching procedures
+
+ScenarioV1 formalizes the boundary between what a Lab session teaches
+(pedagogical flow) and which musical problem it uses (progression, keys, target
+roles, guitar regions). The contract declares musical intent and physical
+constraints only; it never encodes hardcoded note names or frets.
+
+A Lab-local resolver compiles ScenarioV1 specifications against pure Music
+Engine queries, ensuring musical validity, playability within the bounded
+guitar region, and relationship preservation across transfer keys before
+returning immutable frozen contexts. Melody Over Harmony and Develop the Idea
+operate across genuinely distinct musical environments (different keys, triads
+vs sevenths, 3-chord vs 4-chord progressions, alternative motif cells, and
+different guitar registers) without bespoke branching or answer leakage.
+
+This separation is Lab-local and does not authorize engine promotion,
+procedural generation, style packs, curriculum algorithms, adaptive mastery,
+audio, or rhythm models.
+

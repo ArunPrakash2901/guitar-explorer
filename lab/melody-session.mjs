@@ -1,35 +1,39 @@
 import { chordRole, pathConnections } from "./phrase-material.mjs";
 
-// A frozen lesson over ii7–V7–Imaj7, not a general melodic grammar.
+// One teaching procedure over a validated, engine-resolved musical scenario.
 export function createMelodyPlan(material) {
-  const { g, a, formatNote } = material;
+  const { main: g, transfer: a, formatNote } = material;
+  const { target, arrival } = material.spec.targets;
+  const targetRole = target.degree === 3 ? "3rd" : `degree ${target.degree}`;
+  const arrivalRole = arrival.degree === 1 ? "root" : arrival.degree === 3 ? "3rd" : `degree ${arrival.degree}`;
+  const stringName = target.stringIndex === 5 ? "high E string" : `string ${6 - target.stringIndex}`;
   const stages = [
     { id: "harmony", title: "Establish the harmony", kind: "play", context: g,
       prompt: `Play ${g.chords.map(({ symbol }) => symbol).join(" → ")}. Hear each change, then say where the music seems to settle.`,
       instruction: "Use familiar chord shapes or compact voicings. The app cannot hear your guitar." },
-    { id: "target", title: "Land on the 3rd", kind: "select", context: g, chordIndex: 1, answer: g.target,
-      prompt: `When ${g.chords[1].symbol} arrives, predict its 3rd. Sing it, locate it on the high E string, play it, then commit a fret.`,
+    { id: "target", title: `Land on the ${targetRole}`, kind: "select", context: g, chordIndex: target.chordIndex, answer: g.target,
+      prompt: `When ${g.chords[target.chordIndex].symbol} arrives, predict its ${targetRole}. Sing it, locate it on the ${stringName}, play it, then commit a fret.`,
       instruction: "The answer note and fret stay hidden until you check. Try the sound against the chord." },
     { id: "reinterpret", title: "One pitch, changing meaning", kind: "reflect", context: g,
       prompt: "Play the displayed physical pitch after each chord. Does the same note feel identical as the chord changes?",
       instruction: "Choose an impression first. Your listening description is not graded." },
-    { id: "trajectory", title: "Aim for the next arrival", kind: "select", context: g, chordIndex: 2, answer: g.arrival,
-      prompt: `Start from the previous ${g.chords[1].symbol} target. As ${g.chords[2].symbol} arrives, find its root nearby on the high E string.`,
+    { id: "trajectory", title: "Aim for the next arrival", kind: "select", context: g, chordIndex: arrival.chordIndex, answer: g.arrival,
+      prompt: `Start from the previous ${g.chords[target.chordIndex].symbol} target. As ${g.chords[arrival.chordIndex].symbol} arrives, find its ${arrivalRole} nearby on the ${stringName}.`,
       instruction: "Play both notes in order before committing the second fret. This is a melodic destination, not voicing optimization." },
-    { id: "approach", title: "Approach, then arrive", kind: "select", context: g, chordIndex: 1, answer: g.approach,
-      prompt: `Before the ${g.chords[1].symbol} target, choose the key note one diatonic step below it on the high E string.`,
+    { id: "approach", title: "Approach, then arrive", kind: "select", context: g, chordIndex: target.chordIndex, answer: g.approach,
+      prompt: `Before the ${g.chords[target.chordIndex].symbol} target, choose the key note one diatonic step below it on the ${stringName}.`,
       instruction: "An approach creates motion toward a target; it need not itself be the chord's stable landing point." },
     { id: "phrase", title: "Play a four-note thought", kind: "phrase", context: g,
-      prompt: `Make a four-note line across ${g.chords[1].symbol} → ${g.chords[2].symbol}. Hear the final arrival before revealing the example.`,
+      prompt: `Make a four-note line across ${g.chords[target.chordIndex].symbol} → ${g.chords[arrival.chordIndex].symbol}. Hear the final arrival before revealing the example.`,
       instruction: "Play a small phrase ending on the arrival target. Compare your own line with the curated example after committing." },
     { id: "improv", title: "Use the targets in a short pass", kind: "confirm", context: g,
-      prompt: `Over ${g.chords.map(({ symbol }) => symbol).join(" → ")}, play at most three notes per chord. Land on the ${g.chords[1].symbol} 3rd and ${g.chords[2].symbol} root.`,
+      prompt: `Over ${g.chords.map(({ symbol }) => symbol).join(" → ")}, play at most three notes per chord. Land on the ${g.chords[target.chordIndex].symbol} ${targetRole} and ${g.chords[arrival.chordIndex].symbol} ${arrivalRole}.`,
       instruction: "Choose your connecting notes. Repeat several short passes; confirm only that you tried. The app does not judge sound or artistic quality." },
-    { id: "transfer-target", title: "Transfer the 3rd", kind: "select", context: a, chordIndex: 1, answer: a.target,
-      prompt: `New key: ${a.chords.map(({ symbol }) => symbol).join(" → ")}. Derive the 3rd of ${a.chords[1].symbol}, then find and play it on the high E string.`,
+    { id: "transfer-target", title: `Transfer the ${targetRole}`, kind: "select", context: a, chordIndex: target.chordIndex, answer: a.target,
+      prompt: `New key: ${a.chords.map(({ symbol }) => symbol).join(" → ")}. Derive the ${targetRole} of ${a.chords[target.chordIndex].symbol}, then find and play it on the ${stringName}.`,
       instruction: "Use the relationship, not the old fret. The target name and position remain hidden." },
-    { id: "transfer-arrival", title: "Transfer the arrival", kind: "select", context: a, chordIndex: 2, answer: a.arrival,
-      prompt: `From your new dominant 3rd, arrive on the root of ${a.chords[2].symbol}. Sing the movement before selecting the fret.`,
+    { id: "transfer-arrival", title: "Transfer the arrival", kind: "select", context: a, chordIndex: arrival.chordIndex, answer: a.arrival,
+      prompt: `From your new ${targetRole}, arrive on the ${arrivalRole} of ${a.chords[arrival.chordIndex].symbol}. Sing the movement before selecting the fret.`,
       instruction: "Commit the new location before inspecting its identity or the path." },
     { id: "complete", title: "What changed in your playing?", kind: "complete", context: a,
       prompt: "Did you begin hearing chord changes as destinations? Where did you still calculate?",
@@ -38,8 +42,8 @@ export function createMelodyPlan(material) {
 
   function evaluate(stage, fret) {
     if (stage.kind !== "select") throw new Error("Only fret-selection stages have objective answers");
-    if (!Number.isInteger(fret) || fret < 0 || fret > 12) return { correct: false, message: "Choose a fret in the shown region." };
-    const actual = stage.context.at(stage.chordIndex, 5, fret);
+    if (!Number.isInteger(fret) || fret < stage.context.boardRange.minFret || fret > stage.context.boardRange.maxFret) return { correct: false, message: "Choose a fret in the shown region." };
+    const actual = stage.context.at(stage.chordIndex, target.stringIndex, fret);
     const correct = actual.pitch.note.letter === stage.answer.pitch.note.letter
       && actual.pitch.note.accidental === stage.answer.pitch.note.accidental;
     return { correct, actual,
@@ -55,14 +59,14 @@ export function createMelodyPlan(material) {
     if (stage.id === "reinterpret") return ctx.sameRoles.map((analysis, index) =>
       `${formatNote(analysis.pitch.note)} over ${ctx.chords[index].symbol}: ${chordRole(analysis)} · ${analysis.chordRelation.interval.label} from its root · key degree ${analysis.keyRelation.degree}`);
     if (stage.id === "phrase") return ctx.phrase.map((location, index) => {
-      const chordIndex = index === ctx.phrase.length - 1 ? 2 : 1;
+      const chordIndex = index === ctx.phrase.length - 1 ? arrival.chordIndex : target.chordIndex;
       const analysis = ctx.at(chordIndex, location.position.stringIndex, location.position.fret);
       return `${index + 1}. ${formatNote(analysis.pitch.note)} · ${index === 1 ? "approach" : index === 2 || index === 3 ? "target" : "opening"} · ${chordRole(analysis)} over ${ctx.chords[chordIndex].symbol}`;
     });
     if (stage.kind === "select") {
-      const analysis = ctx.at(stage.chordIndex, 5, stage.answer.position.fret);
+      const analysis = ctx.at(stage.chordIndex, target.stringIndex, stage.answer.position.fret);
       return [`${formatNote(analysis.pitch.note)} · ${chordRole(analysis)} of ${ctx.chords[stage.chordIndex].symbol} · key degree ${analysis.keyRelation.degree}`,
-        ...(stage.id === "approach" ? [`This is an approach to ${formatNote(ctx.target.pitch.note)}, the ${chordRole(ctx.at(1, 5, ctx.target.position.fret))} target.`] : []),
+        ...(stage.id === "approach" ? [`This is an approach to ${formatNote(ctx.target.pitch.note)}, the ${chordRole(ctx.at(target.chordIndex, target.stringIndex, ctx.target.position.fret))} target.`] : []),
         ...(stage.id.includes("arrival") || stage.id === "trajectory" ? [`Played target movement: ${ctx.targetMotion.label}.`] : [])];
     }
     return [];
