@@ -1,5 +1,6 @@
 import { STANDARD_FRETBOARD, formatNote, musicQueries } from "/engine/index.js";
 import { createVoiceLeadingPlan } from "/voice-leading-session.mjs";
+import { createFretboard } from "/fretboard-view.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {
@@ -60,12 +61,23 @@ function resetState() {
 }
 resetState();
 
+const fretboard = createFretboard($("board"), {
+  onSelect({ stringIndex, fret }) {
+    state.selections[stringIndex] = fret;
+    state.result = null;
+    state.solved = false;
+    setFeedback();
+    render();
+    fretboard.focusPosition({ stringIndex, fret });
+  },
+});
+
 function stage() { return stages[state.stageIndex]; }
 function context() { return plan.contexts[stage().contextId]; }
 function stripOctave(name) { return name.replace(/-?\d+$/, ""); }
 function stringLabel(stringIndex) {
   const open = formatNote(STANDARD_FRETBOARD.tuning.openStrings[stringIndex].note);
-  return `String ${6 - stringIndex} (${stringIndex === 5 ? "high " : ""}${open})`;
+  return `String ${6 - stringIndex} (${stringIndex === 5 ? "high " : stringIndex === 0 ? "low " : ""}${open})`;
 }
 function clear(element) { element.replaceChildren(); }
 function setFeedback(text = "", kind = "") {
@@ -75,14 +87,19 @@ function setFeedback(text = "", kind = "") {
 function hidePanels() {
   for (const id of ["board-panel", "starting-panel", "movement-panel", "deconstruct-panel", "reflection-panel", "completion-panel", "status-panel", "hint-panel"]) $(id).hidden = true;
   for (const id of ["check", "hint", "continue", "start-played", "full-played", "save-reflection"]) $(id).hidden = true;
+  // Hidden panels must not retain a previous answer after replay or Back.
+  for (const id of ["starting-notes", "movements", "hint-list", "harmony-status", "efficiency-status", "status-detail", "movement-heading", "movement-note", "voice-one-label", "voice-two-label", "degree-prompt", "role-prompt", "evidence"]) clear($(id));
+  if (!["start", "build", "deconstruct"].includes(stage().kind)) {
+    fretboard.update({ strings: boardStrings(), activeStringIndices: [], fretRange: { minFret: 0, maxFret: 0 }, positions: [], connections: [], label: "Guitar fretboard" });
+  }
 }
-function roleText(note, chord) {
+function roleText(note, chord, compact = false) {
   const tone = chord.chord.tones.find(({ pitchClass }) => pitchClass === note.pitchClass);
-  if (!tone) return "non-chord tone";
-  if (tone.degree === 1) return "root (1)";
-  if (tone.degree === 3) return "3rd (3)";
-  if (tone.degree === 5) return "5th (5)";
-  if (tone.degree === 7 && tone.alteration === -1) return "minor 7th (♭7)";
+  if (!tone) return compact ? "outside" : "non-chord tone";
+  if (tone.degree === 1) return compact ? "root" : "root (1)";
+  if (tone.degree === 3) return compact ? "3rd" : "3rd (3)";
+  if (tone.degree === 5) return compact ? "5th" : "5th (5)";
+  if (tone.degree === 7 && tone.alteration === -1) return compact ? "♭7" : "minor 7th (♭7)";
   return `degree ${tone.degree}`;
 }
 function addRow(parent, left, right, className = "") {
@@ -115,41 +132,95 @@ function renderStart() {
   $("instruction").textContent = "Say the note names and roles, play the chord, then commit that you physically played it.";
   $("starting-panel").hidden = false;
   describeVoicing(ctx.start, ctx.home);
+  $("board-panel").hidden = false;
+  $("board-heading").textContent = "Your starting hand position";
+  $("board-context").textContent = `${ctx.home.symbol} · all four notes are shown. Play and name them before continuing.`;
+  renderBoard({ voicing: ctx.start, chord: ctx.home, interactive: false });
   $("start-played").hidden = false;
 }
 
-function boardButton(stringIndex, fret) {
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "fret-choice";
-  button.dataset.stringIndex = String(stringIndex);
-  button.dataset.fret = String(fret);
-  button.textContent = String(fret);
-  button.setAttribute("aria-label", `${stringLabel(stringIndex)}, fret ${fret}`);
-  button.setAttribute("aria-pressed", state.selections[stringIndex] === fret ? "true" : "false");
-  if (state.selections[stringIndex] === fret) button.classList?.add?.("selected");
-  button.addEventListener("click", () => {
-    state.selections[stringIndex] = fret;
-    state.result = null;
-    state.solved = false;
-    setFeedback();
-    render();
-    const selected = [...$("board").children].flatMap((row) => [...row.children]).find((item) => item.dataset?.stringIndex === String(stringIndex) && item.dataset?.fret === String(fret));
-    selected?.focus();
-  });
-  return button;
+function boardStrings() {
+  return STANDARD_FRETBOARD.tuning.openStrings.map((_, index) => ({ index, label: stringLabel(index) })).reverse();
 }
 
-function renderBoard() {
+// The session decides what may be seen. This projection only translates its
+// existing notes, judgments and movements into presentation values.
+function renderBoard({ voicing, chord, interactive = true, path = null } = {}) {
   const ctx = context();
-  clear($("board"));
-  for (const stringIndex of plan.activeStrings) {
-    const row = document.createElement("div"); row.className = "string-row";
-    const label = document.createElement("span"); label.className = "string-label"; label.textContent = stringLabel(stringIndex);
-    row.append(label);
-    for (let fret = ctx.fretRange.minFret; fret <= ctx.fretRange.maxFret; fret += 1) row.append(boardButton(stringIndex, fret));
-    $("board").append(row);
+  const positions = new Map();
+  const activeStrings = path ? plan.activeStrings.slice(0, 2) : plan.activeStrings;
+  for (const { index: stringIndex } of boardStrings()) {
+    for (let fret = ctx.fretRange.minFret; fret <= ctx.fretRange.maxFret; fret += 1) {
+      positions.set(`${stringIndex}:${fret}`, { stringIndex, fret,
+        selectable: interactive && activeStrings.includes(stringIndex),
+        selected: interactive && state.selections[stringIndex] === fret,
+        states: [], ariaLabel: `${stringLabel(stringIndex)}, fret ${fret}` });
+    }
   }
+  const annotate = (note, states, secondaryLabel) => {
+    const position = positions.get(`${note.position.stringIndex}:${note.position.fret}`);
+    if (!position) return;
+    position.states = [...new Set([...position.states, ...states])];
+    position.primaryLabel = stripOctave(note.name);
+    position.secondaryLabel = secondaryLabel;
+    position.ariaLabel = `${stringLabel(note.position.stringIndex)}, fret ${note.position.fret}, note ${stripOctave(note.name)}, ${secondaryLabel}${position.selected ? ", selected" : ""}`;
+  };
+  const connections = [];
+  if (path) {
+    path.forEach((item, stepIndex) => {
+      for (const note of item.notes.filter(({ position }) => activeStrings.includes(position.stringIndex))) {
+        const existing = positions.get(`${note.position.stringIndex}:${note.position.fret}`);
+        const stepLabel = existing?.secondaryLabel ? `${existing.secondaryLabel}·${stepIndex + 1}` : String(stepIndex + 1);
+        annotate(note, ["current"], stepLabel);
+        existing.ariaLabel = `${stringLabel(note.position.stringIndex)}, fret ${note.position.fret}, note ${stripOctave(note.name)}, progression steps ${stepLabel.replaceAll("·", ", ")}`;
+      }
+      if (stepIndex === 0) return;
+      const transition = ctx.transitions[stepIndex - 1];
+      const movements = plan.describeMovement(path[stepIndex - 1], item, transition.fromChord, transition.toChord);
+      for (const movement of movements.filter(({ stringIndex }) => activeStrings.includes(stringIndex))) {
+        connections.push(movementConnection(movement, `${stepIndex}→${stepIndex + 1} · `));
+        if (movement.distance === 0) {
+          const position = positions.get(`${movement.to.position.stringIndex}:${movement.to.position.fret}`);
+          position.states = [...new Set([...position.states, "common"])];
+        }
+      }
+    });
+  } else {
+    const transition = interactive ? ctx.transitions[stage().transitionIndex] : null;
+    const previous = voicing ?? state.paths[ctx.id][stage().transitionIndex];
+    const previousChord = chord ?? transition.fromChord;
+    for (const note of previous.notes) annotate(note, [state.result?.efficient ? "previous" : "current"], roleText(note, previousChord, true));
+    if (interactive && state.result) {
+      const nonChordPositions = new Set((state.result.nonChordNotes ?? []).map(({ position }) => `${position.stringIndex}:${position.fret}`));
+      for (const note of state.result.selected.notes) {
+        const incorrect = nonChordPositions.has(`${note.position.stringIndex}:${note.position.fret}`);
+        annotate(note, [incorrect ? "incorrect" : "correct", "current"], roleText(note, transition.toChord, true));
+      }
+      // Neither a distant chord nor an incomplete chord receives a solution path.
+      // Hint four uses the same efficient result, so its explicit reveal is shown.
+      if (state.result.efficient) {
+        for (const movement of state.result.movements) {
+          annotate(movement.from, ["previous", "source"], movement.fromRole);
+          const resolution = stage().transitionIndex === 2
+            && ((movement.fromScaleDegree === 7 && movement.toScaleDegree === 1)
+              || (movement.fromScaleDegree === 4 && movement.toScaleDegree === 3));
+          annotate(movement.to, ["current", "destination", ...(movement.distance === 0 ? ["common"] : []), ...(resolution ? ["resolution"] : [])],
+            movement.distance === 0 ? `${movement.fromRole} → ${movement.toRole}` : movement.toRole);
+          connections.push(movementConnection(movement));
+        }
+      }
+    }
+  }
+  fretboard.update({ strings: boardStrings(), activeStringIndices: activeStrings,
+    fretRange: ctx.fretRange, positions: [...positions.values()], connections,
+    label: path ? "Two voices through your chosen progression" : "Six-string guitar fretboard; strings 4 to 1 are the active region" });
+}
+
+function movementConnection(movement, prefix = "") {
+  return { from: movement.from.position, to: movement.to.position,
+    kind: movement.direction === "stay" ? "stationary" : movement.direction,
+    label: `${prefix}${stripOctave(movement.from.name)} → ${stripOctave(movement.to.name)}`,
+    emphasis: movement.distance <= 1 };
 }
 
 function renderStatus() {
@@ -223,6 +294,10 @@ function renderBuild() {
     : `Keep your hand in this area. Build ${transition.toChord.symbol} from ${transition.fromChord.symbol} using the closest valid notes; do not jump to a memorized shape.`;
   $("instruction").textContent = "Select one fret on each active string, physically play the result, then check it. Chord identity and movement are assessed separately.";
   $("board-panel").hidden = false;
+  $("board-heading").textContent = "Commit one fret per active string";
+  $("board-context").textContent = state.result?.efficient
+    ? `${transition.fromChord.symbol} → ${transition.toChord.symbol} · outlines mark the previous voicing; arrows trace movement and dotted rings mark common tones.`
+    : `${transition.fromChord.symbol} is your current hand position. Unlabelled positions are choices, not suggested answers.`;
   renderBoard();
   $("check").hidden = state.solved;
   $("hint").hidden = state.solved || state.hintLevel >= 4;
@@ -242,6 +317,10 @@ function renderDeconstruct() {
   $("prompt").textContent = "Ignore the block chords. Play each line alone across G → C → D7 → G, using the exact frets you chose.";
   $("instruction").textContent = "The progression contains several tiny melodies happening simultaneously. Play both displayed lines before continuing.";
   $("deconstruct-panel").hidden = false;
+  $("board-panel").hidden = false;
+  $("board-heading").textContent = "Follow each voice across your chosen frets";
+  $("board-context").textContent = "Numbers mark the four chord steps. Trace one string at a time, then play the two lines below.";
+  renderBoard({ interactive: false, path });
   $("voice-one-label").textContent = `${stringLabel(plan.activeStrings[0])}: ${voiceLine(path, 0)}`;
   $("voice-two-label").textContent = `${stringLabel(plan.activeStrings[1])}: ${voiceLine(path, 1)}`;
   $("continue").hidden = false;
@@ -259,6 +338,8 @@ function renderReflection() {
   $("stage-title").textContent = "What transferred?";
   $("prompt").textContent = "Report what you noticed, then answer two theory questions from the movement you physically played.";
   $("instruction").textContent = "The first two responses are descriptive and are not graded. Theory retrieval is checked against the engine-derived resolution.";
+  $("degree-prompt").textContent = "In G major, what scale-degree movement was F♯ → G?";
+  $("role-prompt").textContent = "What chord role was F♯ over D7 before it resolved?";
   $("reflection-panel").hidden = false;
   $("save-reflection").hidden = false;
 }

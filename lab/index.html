@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Guitar Explorer · Chord Theory Lab</title>
+  <link rel="stylesheet" href="/fretboard.css">
   <style>
     :root {
       color-scheme: dark;
@@ -53,6 +54,7 @@
       background: var(--panel);
     }
     .panel, .side-panel {
+      min-width: 0;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--panel);
@@ -259,7 +261,7 @@
 
         <section id="string-section" hidden>
           <div class="string-wrap">
-            <table class="string-board" id="string-board" aria-label="Planned guitar string and fret window"></table>
+            <div id="string-board" aria-label="Planned guitar string and fret window"></div>
           </div>
           <p class="instruction">The target exists in this engine-derived window. Play on the physical guitar before selecting the fret you used.</p>
         </section>

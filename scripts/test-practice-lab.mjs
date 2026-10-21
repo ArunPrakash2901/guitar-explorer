@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import vm from "node:vm";
+import { createTestDOM, installRenderer } from "./fretboard-test-dom.mjs";
 import * as engine from "../.lab-dist/engine/index.js";
 import * as practice from "../lab/practice-session.mjs";
 
@@ -95,72 +96,13 @@ assert.match(app, /from "\/practice-session\.mjs"/);
 assert.doesNotMatch(app, /localStorage|indexedDB|AudioContext|setInterval|fetch\(/);
 
 function createPage(pathname) {
-  let document;
-  class Element {
-    constructor(tagName = "div") {
-      this.tagName = tagName; this.children = []; this.parentElement = null;
-      this.hidden = false; this.disabled = false; this.value = ""; this.checked = false;
-      this.dataset = {}; this.style = {}; this.attributes = {}; this.handlers = new Map(); this._text = "";
-    }
-    get textContent() { return this._text + this.children.map((child) => child.textContent).join(""); }
-    set textContent(value) { this._text = String(value); this.replaceChildren(); }
-    append(...children) {
-      for (const child of children) {
-        if (typeof child === "string") { const text = new Element("#text"); text._text = child; this.append(text); continue; }
-        child.parentElement = this; this.children.push(child);
-      }
-    }
-    contains(target) { return this === target || this.children.some((child) => child.contains(target)); }
-    replaceChildren(...children) {
-      if (document?.activeElement && this.children.some((child) => child.contains(document.activeElement))) document.activeElement = null;
-      for (const child of this.children) child.parentElement = null;
-      this.children = []; this.append(...children);
-    }
-    setAttribute(name, value) {
-      this.attributes[name] = String(value);
-      if (name.startsWith("data-")) this.dataset[name.slice(5).replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())] = String(value);
-      if (name === "hidden") this.hidden = true;
-      if (name === "disabled") this.disabled = true;
-    }
-    getAttribute(name) { return this.attributes[name] ?? null; }
-    removeAttribute(name) { delete this.attributes[name]; if (name === "hidden") this.hidden = false; if (name === "disabled") this.disabled = false; }
-    addEventListener(name, handler) { this.handlers.set(name, [...(this.handlers.get(name) ?? []), handler]); }
-    focus() { document.activeElement = this; }
-    visible() { return !this.hidden && (!this.parentElement || this.parentElement.visible()); }
-    dispatch(name) { for (const handler of this.handlers.get(name) ?? []) handler({ target: this, currentTarget: this, preventDefault() {} }); }
-    click() { assert.ok(this.visible(), "Cannot click a hidden control"); assert.equal(this.disabled, false, "Cannot click a disabled control"); this.dispatch("click"); }
-  }
-  const elements = new Map();
-  const root = new Element("#document");
-  const stack = [root];
-  const html = pathname.startsWith("/harmony") ? harmonyHtml : practiceHtml;
-  const voidTags = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"]);
-  for (const token of html.matchAll(/<!--[\s\S]*?-->|<\/?[A-Za-z][^>]*>|[^<]+/g)) {
-    const text = token[0];
-    if (text.startsWith("<!--")) continue;
-    const close = /^<\/([\w-]+)/.exec(text);
-    if (close) { if (stack.at(-1).tagName === close[1].toLowerCase()) stack.pop(); continue; }
-    const open = /^<([\w-]+)\b([^>]*)>/.exec(text);
-    if (!open) { const node = new Element("#text"); node._text = text; stack.at(-1).append(node); continue; }
-    const element = new Element(open[1].toLowerCase());
-    for (const match of open[2].matchAll(/([\w-]+)(?:="([^"]*)")?/g)) element.setAttribute(match[1], match[2] ?? "");
-    element.hidden = Object.hasOwn(element.attributes, "hidden");
-    element.disabled = Object.hasOwn(element.attributes, "disabled");
-    element.value = element.attributes.value ?? "";
-    if (element.attributes.id) elements.set(element.attributes.id, element);
-    stack.at(-1).append(element);
-    if (!voidTags.has(element.tagName) && !text.endsWith("/>")) stack.push(element);
-  }
-  document = {
-    activeElement: null,
-    getElementById(id) { assert.ok(elements.has(id), `Unknown DOM id ${id}`); return elements.get(id); },
-    createElement(tagName) { return new Element(tagName); },
-  };
+  const { document, root } = createTestDOM(pathname.startsWith("/harmony") ? harmonyHtml : practiceHtml);
   let planCreations = 0;
   const context = vm.createContext({
     ...engine, ...practice, document, location: { pathname }, console,
     createPracticePlan(...args) { planCreations += 1; return practice.createPracticePlan(...args); },
   });
+  installRenderer(context);
   const executable = app.replace(/^import\s+\{[^}]+\}\s+from\s+"[^"]+";\s*/gm, "");
   vm.runInContext(executable, context, { filename: "practice-app.js" });
   const read = (expression) => vm.runInContext(expression, context);
@@ -182,7 +124,7 @@ function createPage(pathname) {
 
 // App-specific sequence assertions follow the same fixed lesson, including a second run.
 function clickWarmupFret(page, fret) {
-  const button = page.find(page.$("board"), (element) => element.dataset.fret === String(fret));
+  const button = page.find(page.$("board"), (element) => element.tagName === "button" && element.dataset.fret === String(fret));
   assert.ok(button, `Fret ${fret} is in the current retrieval window`);
   button.focus(); button.click();
   assert.equal(button.getAttribute("aria-pressed"), "true");
@@ -250,6 +192,7 @@ finishWarmup(full); full.$("next").click();
 finishWarmup(full); full.$("next").click();
 
 assert.equal(full.read("state.block"), 1);
+assert.equal(full.$("board").children.length, 0, "Leaving the retrieval warm-up removes its revealed answer from hidden DOM");
 assert.equal(full.read("state.gravityIndex"), 0);
 assert.doesNotMatch(full.accessibleText(), /\bV7\b|\bIV\b|dominant pressure/i);
 full.choose("settled");

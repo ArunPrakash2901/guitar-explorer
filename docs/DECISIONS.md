@@ -157,3 +157,17 @@ harmonic-function analysis, Phase 2E, CAGED, persistence or Learning infrastruct
 Attempts, assistance and elapsed time are temporary description only. Promotion of
 any planner concept requires useful physical-guitar evidence and a separately
 reviewed domain contract.
+
+## D019 — Share the guitar surface without sharing pedagogy
+
+Fretboard UI v2 uses one Lab-local renderer for physical string/fret geometry,
+selection, short labels and position-to-position connections. Consumers supply
+the view state after applying their own reveal rules. The renderer never imports
+the Music Engine or a session planner and never calculates musical or learning
+judgments. It uses native buttons over an SVG neck so fret selection remains
+keyboard accessible while movement can be drawn between positions. Earlier
+answers are removed from the DOM when the session resets or navigates back.
+
+Parsimonious Path, Chord Lab and Practice warm-up can therefore share one
+instrument orientation without making their tasks uniform. The focused Harmony
+listening route has no fret-selection task and keeps its existing interaction.

@@ -17,9 +17,11 @@ import {
   timerSnapshot,
   toggleChordSelection,
 } from "/session-logic.mjs";
+import { createFretboard } from "/fretboard-view.mjs";
 
 const $ = (id) => document.getElementById(id);
 const MAX_FRET = 12;
+let chordFretboard;
 
 function unwrap(result) {
   if (!result.ok) throw new Error(result.error.message);
@@ -188,6 +190,10 @@ function setLens(rows) {
 }
 
 function renderSelector() {
+  if (chordFretboard) {
+    chordFretboard.destroy();
+    chordFretboard = null;
+  }
   $("selector-view").hidden = false;
   $("session-view").hidden = true;
   const familyGrid = $("family-grid");
@@ -323,6 +329,10 @@ function renderStage() {
 
   for (const id of ["string-section", "theory-panel", "timer-panel", "reflection-panel"]) $(id).hidden = true;
   for (const id of ["check-button", "hint-button", "reveal-button", "done-button", "next-button", "restart-button", "change-material-button"]) $(id).hidden = true;
+  if (stage.kind !== "target" && stage.kind !== "map" && chordFretboard) {
+    chordFretboard.destroy();
+    chordFretboard = null;
+  }
   clearLens();
 
   if (stage.kind === "orient") renderOrient();
@@ -455,67 +465,50 @@ function positionKey(position) {
 }
 
 function renderStringBoard(task, source) {
-  const board = $("string-board");
-  const thead = document.createElement("thead");
-  const header = document.createElement("tr");
-  const corner = document.createElement("th");
-  corner.textContent = "String";
-  header.append(corner);
+  chordFretboard ??= createFretboard($("string-board"), { onSelect(position) {
+    if (state.checked) return;
+    state.selected = position;
+    state.lastWrong = null;
+    const stage = currentStage();
+    renderStringBoard(currentTask(), stage.kind === "map" ? state.plan.primary : sourceFor(stage));
+    chordFretboard.focusPosition(position);
+    setFeedback(`Committed ${stringName(position.stringIndex)}, fret ${position.fret}. Play it again against the root anchor, then check.`);
+  } });
+  const positions = [];
   for (let fret = task.fretWindow.minFret; fret <= task.fretWindow.maxFret; fret += 1) {
-    const th = document.createElement("th");
-    th.scope = "col";
-    th.textContent = String(fret);
-    header.append(th);
-  }
-  thead.append(header);
-
-  const tbody = document.createElement("tbody");
-  const row = document.createElement("tr");
-  const label = document.createElement("th");
-  label.scope = "row";
-  label.className = "string-name";
-  label.textContent = stringName(task.stringIndex);
-  row.append(label);
-
-  for (let fret = task.fretWindow.minFret; fret <= task.fretWindow.maxFret; fret += 1) {
-    const cell = document.createElement("td");
-    const button = document.createElement("button");
     const position = { stringIndex: task.stringIndex, fret };
     const selected = Boolean(state.selected && positionKey(state.selected) === positionKey(position));
-    button.type = "button";
-    button.className = "fret-cell";
-    button.dataset.stringIndex = String(task.stringIndex);
-    button.dataset.fret = String(fret);
-    button.setAttribute("aria-label", `${stringName(task.stringIndex)}, fret ${fret}`);
-    button.setAttribute("aria-pressed", String(selected));
-    if (selected) button.classList.add("selected");
+    const states = [];
+    let primaryLabel;
+    let secondaryLabel;
     if (state.lastWrong && positionKey(state.lastWrong.position) === positionKey(position)) {
-      button.classList.add("wrong");
-      button.textContent = state.lastWrong.location.name;
+      states.push("incorrect");
+      primaryLabel = state.lastWrong.location.name;
     }
-    for (const saved of state.savedMap) {
+    for (const saved of currentStage().kind === "map" ? state.savedMap : []) {
       if (positionKey(saved.position) === positionKey(position)) {
-        button.classList.add("saved");
-        button.textContent = degreeLabel(saved.task.tone);
+        states.push("current");
+        primaryLabel = degreeLabel(saved.task.tone);
+        secondaryLabel = formatNote(saved.task.tone.note);
       }
     }
     if (state.checked && selected) {
-      button.classList.add("correct");
-      button.textContent = getLocation(position, source).name;
+      states.push("correct");
+      primaryLabel = getLocation(position, source).name;
+      secondaryLabel = degreeLabel(task.tone);
     }
-    button.addEventListener("click", () => {
-      if (state.checked) return;
-      state.selected = position;
-      state.lastWrong = null;
-      renderStringBoard(task, source);
-      board.querySelector(`button[data-string-index="${task.stringIndex}"][data-fret="${fret}"]`)?.focus();
-      setFeedback(`Committed ${stringName(task.stringIndex)}, fret ${fret}. Play it again against the root anchor, then check.`);
+    positions.push({ ...position, selectable: !state.checked, selected, states,
+      ...(primaryLabel ? { primaryLabel } : {}), ...(secondaryLabel ? { secondaryLabel } : {}),
+      ariaLabel: `${stringName(task.stringIndex)}, fret ${fret}${primaryLabel ? `, ${primaryLabel}` : ""}${secondaryLabel ? `, ${secondaryLabel}` : ""}`,
     });
-    cell.append(button);
-    row.append(cell);
   }
-  tbody.append(row);
-  board.replaceChildren(thead, tbody);
+  chordFretboard.update({
+    strings: STANDARD_FRETBOARD.tuning.openStrings.map(({ note }, index) => ({ index,
+      label: `${6 - index} · ${index === 5 ? "high " : index === 0 ? "low " : ""}${formatNote(note)}`,
+    })).reverse(),
+    activeStringIndices: [task.stringIndex], fretRange: task.fretWindow, positions, connections: [],
+    label: `Focus · ${stringName(task.stringIndex)} · frets ${task.fretWindow.minFret}–${task.fretWindow.maxFret}`,
+  });
 }
 
 function wrongFeedback(source, task, location) {

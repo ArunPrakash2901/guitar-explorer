@@ -1,5 +1,9 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import vm from "node:vm";
+import * as engine from "../.lab-dist/engine/index.js";
+import * as session from "../lab/session-logic.mjs";
+import { all, createTestDOM, find, installRenderer } from "./fretboard-test-dom.mjs";
 import {
   STANDARD_FRETBOARD,
   musicQueries,
@@ -214,5 +218,97 @@ assert.doesNotMatch(html, /C versus C#/);
 assert.doesNotMatch(html, /C can be ♭3/);
 assert.match(server, /\["\.mjs", "text\/javascript; charset=utf-8"\]/);
 assert.match(server, /pathname === "\/session-logic\.mjs"/);
+
+// Execute the real Chord Lab callbacks with the shared renderer, rather than
+// checking only source strings or mirroring the renderer implementation.
+const dom = createTestDOM(html);
+const intervals = new Map(); let now = 1000; let timerId = 0;
+const context = vm.createContext({
+  ...engine, ...session, document: dom.document, console,
+  performance: { now: () => now },
+  setInterval(callback) { intervals.set(++timerId, callback); return timerId; },
+  clearInterval(id) { intervals.delete(id); },
+  createSessionPlan(options) { return session.createSessionPlan({ ...options, rng: () => 0 }); },
+});
+installRenderer(context);
+vm.runInContext(app.replace(/^import\s+\{[^}]+\}\s+from\s+"[^"]+";\s*/gm, ""), context, { filename: "app.js" });
+const read = (expression) => vm.runInContext(expression, context);
+const $ = dom.$;
+const boardItems = (className) => all($("string-board"), (item) => item.classList.contains(className));
+function chooseTaskFret(fret) {
+  const task = read("currentTask()");
+  const button = find($("string-board"), (item) => item.tagName === "button"
+    && item.dataset.stringIndex === String(task.stringIndex) && item.dataset.fret === String(fret));
+  assert.ok(button); button.focus(); button.click();
+  assert.equal(dom.document.activeElement, button, "A Chord Lab selection preserves keyboard focus");
+  assert.equal(button.getAttribute("aria-pressed"), "true");
+}
+function solveTask() {
+  chooseTaskFret(read("currentTask().plannedLocation.position.fret"));
+  $("check-button").click();
+}
+const major = find($("quality-list"), (item) => item.tagName === "input" && item.value === "major");
+major.checked = true; major.dispatch("change");
+assert.equal($("start-session").disabled, false);
+$("start-session").click(); $("done-button").click();
+assert.equal(read("currentStage().kind"), "target");
+assert.equal(boardItems("fb-string").length, 6);
+assert.deepEqual(boardItems("fb-string").map((item) => Number(item.dataset.stringIndex)), [5, 4, 3, 2, 1, 0]);
+assert.ok(boardItems("fb-primary-label").every((item) => item.textContent === ""), "The hidden target has no note labels even in its DOM");
+assert.ok(boardItems("fb-position").every((item) => !item.getAttribute("aria-label").includes(", role")));
+const firstTask = read("currentTask()");
+const wrong = firstTask.plannedLocation.position.fret === firstTask.fretWindow.minFret
+  ? firstTask.fretWindow.maxFret : firstTask.fretWindow.minFret;
+chooseTaskFret(wrong); $("check-button").click();
+assert.equal(read("state.checked"), false);
+assert.equal(boardItems("is-incorrect").length, 1);
+assert.equal($("theory-panel").hidden, true);
+$("hint-button").click(); assert.equal(read("state.hintLevel"), 1);
+assert.match($("feedback").textContent, /canonical formula interval/);
+$("hint-button").click(); assert.match($("feedback").textContent, /chord spelling/);
+solveTask();
+assert.equal(read("state.checked"), true);
+assert.equal(boardItems("is-correct").length, 1);
+assert.equal($("theory-panel").hidden, false);
+$("next-button").click();
+assert.equal(read("state.checked"), false);
+assert.equal(read("state.hintLevel"), 0);
+assert.equal(boardItems("is-incorrect").length, 0);
+assert.equal(boardItems("is-correct").length, 0);
+while (read("currentStage().kind") === "target" && read("currentStage().source") === "primary") {
+  solveTask(); $("next-button").click();
+}
+assert.equal(read("currentStage().kind"), "map");
+const mapCount = read("state.plan.primary.reconstruction.length");
+for (let index = 0; index < mapCount; index += 1) solveTask();
+assert.equal(read("state.savedMap.length"), mapCount);
+$("next-button").click();
+assert.equal(read("currentStage().source"), "transfer");
+assert.equal(read("state.checked"), false);
+assert.equal($("theory-panel").hidden, true);
+assert.equal(boardItems("is-correct").length, 0);
+assert.equal(boardItems("is-incorrect").length, 0);
+assert.equal(boardItems("fb-connection").length, 0);
+assert.ok(boardItems("fb-primary-label").every((item) => item.textContent === ""), "A fresh hidden transfer cannot retain mapped role labels from the previous chord");
+solveTask(); $("next-button").click();
+if (read("currentStage().kind") === "contrast") { $("reveal-button").click(); $("next-button").click(); }
+assert.equal(read("currentStage().kind"), "musicalize");
+assert.equal($("string-board").children.length, 0, "A non-fret stage removes revealed fret labels from hidden DOM");
+$("timer-start").click();
+now += 35400; for (const callback of [...intervals.values()]) callback();
+assert.equal(read("state.timerFinished"), true, "A delayed callback still finishes by elapsed time");
+$("timer-next").click();
+assert.equal($("reflection-next").hidden, true);
+const reflection = dom.document.querySelectorAll('input[name="breakdown"]').find((item) => item.value === "none");
+reflection.checked = true; $("reflection-submit").click(); $("reflection-next").click();
+assert.equal(read("currentStage().kind"), "complete");
+$("restart-button").click();
+assert.equal(read("state.stageIndex"), 0);
+assert.equal(read("state.reflection"), null);
+assert.equal(read("state.savedMap.length"), 0);
+$("done-button").click();
+assert.ok(boardItems("fb-primary-label").every((item) => item.textContent === ""), "A new variation removes revealed labels");
+assert.equal(boardItems("is-selected").length, 0);
+assert.equal(boardItems("is-incorrect").length, 0);
 
 console.log(`Chord Lab focused behavior checks passed across ${catalogEntries.length} catalogue entries.`);
