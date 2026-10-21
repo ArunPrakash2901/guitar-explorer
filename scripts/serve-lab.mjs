@@ -42,6 +42,15 @@ function resolveRequest(pathname) {
   if (pathname === "/practice-session.mjs") {
     return resolve(labRoot, "practice-session.mjs");
   }
+  if (["/voice-leading.html", "/voice-leading"].includes(pathname)) {
+    return resolve(labRoot, "voice-leading.html");
+  }
+  if (pathname === "/voice-leading-app.js") {
+    return resolve(labRoot, "voice-leading-app.js");
+  }
+  if (pathname === "/voice-leading-session.mjs") {
+    return resolve(labRoot, "voice-leading-session.mjs");
+  }
   if (pathname.startsWith("/engine/")) {
     const candidate = resolve(engineRoot, pathname.slice("/engine/".length));
     return inside(engineRoot, candidate) ? candidate : null;

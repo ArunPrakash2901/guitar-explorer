@@ -8,7 +8,7 @@
 
 The app teaches musical facts. A plausible-looking wrong answer is worse than an obvious UI failure, so domain tests are mandatory.
 
-## Current Phase 2C automated coverage
+## Current Phase 2D and Lab automated coverage
 
 - all 35 chord formulas across natural, sharp, flat and double-accidental roots
 - formula length, degree/alteration identity, spelling, pitch class and interval number
@@ -21,6 +21,14 @@ The app teaches musical facts. A plausible-looking wrong answer is worse than an
 - exact transfer role identity, stable frozen plans and changed consecutive variations
 - complete reconstruction through four tones and bounded compound-role reconstruction above four
 - delayed reveal labels, wrong-fret chord analysis, timer/reset behavior and static answer-leakage checks
+- engine-derived G–C–D7–G and A–D–E7–A four-string candidates
+- structural-tone completeness and non-chord-tone rejection for every enumerated candidate
+- deterministic nearest-movement scoring, common tones, per-string direction and distance labels
+- separate invalid-chord, valid-distant and valid-nearest outcomes
+- F#–G and C–B resolution roles/degrees plus transferred G#–A
+- progressive hint disclosure, assisted-state cleanup and no answer leakage on replay/back
+- physical two-voice deconstruction, A-major transfer, reflection and full restart behavior
+- native button keyboard semantics and explicit selected-state accessibility labels
 
 ## 1. Note-at-fret tests
 

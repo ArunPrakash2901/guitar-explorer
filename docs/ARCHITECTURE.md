@@ -139,6 +139,24 @@ these chosen examples, not a new musical-truth function/cadence/progression API.
 There is no generic Practice/Learning Engine, persistence, automatic scheduler or
 performed-voicing evaluator. The guitar supplies the sound; the app cannot verify it.
 
+### Lab-local voice-leading probe
+
+`/voice-leading.html` is a second bounded learning probe, separate from Practice
+Session v0. It consumes the existing diatonic-harmony, chord-catalogue, fretboard,
+note-at-fret and interval queries. Its planner enumerates complete four-string chord
+candidates in a small fret range and compares them with the learner's previously
+accepted voicing by same-string fret distance. The tie-break order is deterministic:
+total movement, largest single movement, then fret vector. All candidates tied at
+the minimum total movement satisfy the learning constraint.
+
+This calculation remains under `lab/`. It does not define a general voicing,
+fingering, inversion, progression, harmonic-function or voice-leading model, and it
+does not enter `musicQueries`. The experiment must first show that physically
+following the separate voices improves learning. Its G-major example and A-major
+transfer derive their musical identities and annotations from the engine; the Lab
+owns only the bounded task, physical-distance rule, assistance sequence and local
+session evidence.
+
 ## Future rhythm/time domain — documentation only
 
 A future instrument-independent time domain will describe meter, beats, duration,

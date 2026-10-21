@@ -69,6 +69,14 @@ perception or infer mastery. No engine/query/contract changes are authorized for
 this learner-facing revision absent a real correctness bug. No generic Practice
 Engine, curriculum framework, progression generator or Phase 2E capability.
 
+The separately authorized Parsimonious Path remains a bounded Lab experiment at
+`/voice-leading.html`. Its deterministic candidate enumeration and same-string fret
+distance scoring stay local to `lab/`; they are not a generic Core voicing or
+voice-leading engine. Preserve the separate harmony-versus-efficiency result,
+progressive assistance, physical voice deconstruction, unfamiliar A-major transfer
+and ephemeral evidence. Promotion into an engine module requires later evidence and
+authorization.
+
 Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
 `npm run test:lab`. Stop engine breadth after Phase 2D unless separately authorized.
 The exact original handoff is in `references/approved-v0.2-handoff.zip`.

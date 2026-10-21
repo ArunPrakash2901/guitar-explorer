@@ -126,6 +126,30 @@ required. The app checks only committed fret data and directs self-reported
 listening. It cannot know which chord/voicing was played or assess the musical
 result. Physical review must establish whether this feels like one musical idea.
 
+## Lab experiment — The Parsimonious Path
+
+Open `http://127.0.0.1:4173/voice-leading.html` after `npm run lab`. This separate
+Lab asks the learner to connect G–C–D7–G on strings 4–3–2–1 by moving each voice
+the smallest available same-string fret distance, then transfers the same rule to
+A–D–E7–A from a compact first-inversion A voicing.
+
+Chord identities, spellings, Roman identities, locations and registered intervals
+come from `musicQueries`. A small Lab-local planner enumerates one note per active
+string inside a bounded fret range, rejects candidates missing any structural chord
+tone, and ranks the remaining candidates by total absolute fret movement, maximum
+single-voice movement and fret vector. It accepts every valid candidate tied for
+minimum total movement. This is an experimental physical constraint, not a Core
+voicing or voice-leading API.
+
+The UI reports harmony and movement separately, so a real but distant C chord is
+never called theoretically wrong. Assistance reveals common tones, stationary
+strings, directions and finally one complete nearest voicing. After G major, the
+learner plays two actual chosen voices separately before reassembling the chords.
+The A-major transfer withholds the route until commitment and exposes G#–A only
+after the final solution. Attempts, invalid/distant counts, assistance and elapsed
+seconds are ephemeral descriptive evidence; they are not persisted or interpreted
+as mastery.
+
 `getDiatonicHarmony({ key, chordSize: "triad" | "seventh" })` derives seven ordered
 chords from the spelled scale and matches the authoritative chord formulas. Minor
 means natural minor: A minor's fifth chord is Em/Em7 (`v`/`v7`), without a silently
