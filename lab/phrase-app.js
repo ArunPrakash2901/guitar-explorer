@@ -5,6 +5,7 @@ import { getMelodyScenarios, getMotifScenarios } from "/scenario-catalogue.mjs";
 import { resolveScenario } from "/scenario-resolver.mjs";
 import { createMelodyPlan } from "/melody-session.mjs";
 import { createMotifPlan } from "/motif-session.mjs";
+import { generateMelodyScenario } from "/melody-generator.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) { if (!result.ok) throw new Error(result.error.message); return result.data; }
@@ -50,6 +51,57 @@ function startScenario(spec) {
   reset(); $("reflection").value = ""; describeScenario(); render();
 }
 $("start-scenario").addEventListener("click", () => startScenario(catalogue.find(({ id }) => id === $("scenario-select").value)));
+let practiceSource = "catalogue";
+let currentGeneratedSeed = 1001;
+let currentGeneratedConfig = null;
+function loadGenerated(ruleId, difficulty, seed) {
+  const actualRule = ruleId || ($("rule-select") && $("rule-select").value) || "rule-dominant-third";
+  const actualDiff = difficulty || ($("difficulty-select") && $("difficulty-select").value) || "introductory";
+  const result = generateMelodyScenario({ ruleId: actualRule, difficulty: actualDiff, seed, queries });
+  selectedScenario = result.scenario;
+  material = result.resolved;
+  plan = createMelodyPlan(material);
+  currentGeneratedConfig = { ruleId, difficulty, seed };
+  reset();
+  $("reflection").value = "";
+  $("scenario-info").textContent = `${result.scenario.description} · ${result.scenario.difficulty} · ${formatNote(result.scenario.context.key.tonic)} major`;
+  render();
+}
+if (mode === "melody" && $("source-generated")) {
+  $("source-catalogue").addEventListener("click", () => {
+    practiceSource = "catalogue";
+    $("source-catalogue").classList.add("active");
+    $("source-catalogue").setAttribute("aria-selected", "true");
+    $("source-generated").classList.remove("active");
+    $("source-generated").setAttribute("aria-selected", "false");
+    $("catalogue-controls").hidden = false;
+    $("generated-controls").hidden = true;
+    startScenario(selectedScenario.id.startsWith("gen-") ? catalogue[0] : selectedScenario);
+  });
+  $("source-generated").addEventListener("click", () => {
+    practiceSource = "generated";
+    $("source-generated").classList.add("active");
+    $("source-generated").setAttribute("aria-selected", "true");
+    $("source-catalogue").classList.remove("active");
+    $("source-catalogue").setAttribute("aria-selected", "false");
+    $("catalogue-controls").hidden = true;
+    $("generated-controls").hidden = false;
+    loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
+  });
+  $("generate-scenario").addEventListener("click", () => {
+    currentGeneratedSeed = Math.floor(Math.random() * 100000) + 1;
+    loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
+  });
+  $("generate-another").addEventListener("click", () => {
+    currentGeneratedSeed += 1;
+    loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
+  });
+  $("replay-scenario").addEventListener("click", () => {
+    if (currentGeneratedConfig) {
+      loadGenerated(currentGeneratedConfig.ruleId, currentGeneratedConfig.difficulty, currentGeneratedConfig.seed);
+    }
+  });
+}
 $("surprise-scenario").addEventListener("click", () => {
   const choices = catalogue.filter(({ id }) => id !== selectedScenario.id);
   startScenario(choices[Math.floor(Math.random() * choices.length)] ?? catalogue[0]);

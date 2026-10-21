@@ -201,3 +201,21 @@ This separation is Lab-local and does not authorize engine promotion,
 procedural generation, style packs, curriculum algorithms, adaptive mastery,
 audio, or rhythm models.
 
+## D022 — Deterministic rule generation for practice variation
+
+Rule Generator V1 automates the construction of ScenarioV1 Melody scenarios
+from declarative educational rules. Instead of hardcoded catalogue entries, the
+generator uses seeded PRNG sampling, rejection sampling via resolveScenario,
+and a bounded attempt budget to propose valid, playable practice problems.
+
+The generator does not teach, does not bypass ScenarioV1, and does not alter
+pure Music Engine truth. The Scenario Resolver remains the objective authority
+verifying fret playability, diatonic scale consistency, and transfer interval
+invariance. Scoring prioritizes educational preferences (close voice leading,
+salient chord roles, compact neck regions) without asserting aesthetic or
+stylistic superiority.
+
+This implementation is Lab-local and strictly for Melody practice. It does not
+introduce motif generation, rhythm models, genre packs, audio, adaptive student
+tracking, or LLM runtime calls.
+

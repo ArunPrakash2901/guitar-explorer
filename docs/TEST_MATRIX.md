@@ -32,6 +32,7 @@ The app teaches musical facts. A plausible-looking wrong answer is worse than an
 - melody target roles, key degrees, same-pitch chord reinterpretation, approach and phrase paths, A-major transfer and withheld answers
 - motif source/adaptation, one-variable changes, intervallic sequence, fragmentation, response, target transfer and ungraded reflections
 - ScenarioV1 contract validation (version, schema, keys, chords, bounds), deterministic musical derivation across 6 catalogue entries, UI switching, surprise selection, state cleanup, and answer withholding
+- Rule Generator V1 high-volume seed verification (300+ generations), exact reproducibility, key/fret diversity, quality invariants, negative failure modes, and interactive UI generation controls
 
 ## 1. Note-at-fret tests
 

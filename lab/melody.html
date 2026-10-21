@@ -19,9 +19,31 @@
 <div class="shell">
 <section class="panel" aria-labelledby="stage-title">
 <section class="scenario-picker" aria-label="Choose a musical scenario">
+<div class="picker-tabs" role="tablist" aria-label="Practice source">
+<button id="source-catalogue" type="button" class="tab active" role="tab" aria-selected="true">Approved catalogue</button>
+<button id="source-generated" type="button" class="tab" role="tab" aria-selected="false">Generated practice</button>
+</div>
+<div id="catalogue-controls" class="picker-section">
 <label for="scenario-select">Musical scenario<select id="scenario-select"></select></label>
+<div class="actions"><button id="start-scenario" type="button">Start selected scenario</button><button id="surprise-scenario" type="button">Surprise me</button></div>
+</div>
+<div id="generated-controls" class="picker-section" hidden>
+<div class="generation-inputs">
+<label for="rule-select">Focus<select id="rule-select">
+<option value="rule-dominant-third">Dominant 3rd</option>
+<option value="rule-dominant-seventh">Dominant ♭7</option>
+<option value="rule-target-trajectory">Target trajectory</option>
+<option value="surprise">Surprise me (any focus)</option>
+</select></label>
+<label for="difficulty-select">Difficulty<select id="difficulty-select">
+<option value="introductory">Introductory</option>
+<option value="developing">Developing</option>
+<option value="transfer">Transfer</option>
+</select></label>
+</div>
+<div class="actions"><button id="generate-scenario" type="button">Generate practice</button><button id="generate-another" type="button">Generate another</button><button id="replay-scenario" type="button">Replay this scenario</button></div>
+</div>
 <p id="scenario-info" class="small"></p>
-<div class="actions"><button id="start-scenario" type="button">Start selected / new scenario</button><button id="surprise-scenario" type="button">Surprise me</button></div>
 </section>
 <div class="progress-row">
 <span>Target-tone experiment</span>
