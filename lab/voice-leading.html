@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · The Parsimonious Path</title>
+  <link rel="stylesheet" href="/fretboard.css">
+  <style>
+    :root { color-scheme: dark; --bg:#0d1015; --panel:#171c24; --panel2:#202733; --text:#f3f6f8; --muted:#aab4c2; --line:#364151; --accent:#9fc5ff; --good:#89d8a1; --warn:#f1c36f; --bad:#f28b88; }
+    * { box-sizing:border-box; } body { margin:0; background:var(--bg); color:var(--text); font:16px/1.5 system-ui,sans-serif; }
+    main { max-width:1120px; margin:auto; padding:28px 18px 50px; } a { color:var(--accent); }
+    h1,h2,h3,p { margin-top:0; } h1 { font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:8px; }
+    .lede,.instruction,footer { color:var(--muted); } .shell { display:grid; gap:18px; align-items:start; }
+    .panel,.side { min-width:0; border:1px solid var(--line); background:var(--panel); border-radius:14px; padding:18px; }
+    .progress-row,.actions { display:flex; flex-wrap:wrap; justify-content:space-between; gap:10px; }
+    .progress-track { height:7px; background:#28313e; border-radius:20px; margin:8px 0 20px; overflow:hidden; } .progress-fill { height:100%; background:var(--accent); }
+    .kicker { color:var(--accent); text-transform:uppercase; letter-spacing:.08em; font-weight:750; font-size:.8rem; }
+    .prompt { font-size:1.18rem; margin:14px 0 8px; } button,select { font:inherit; }
+    button { min-height:44px; padding:9px 14px; color:var(--text); border:1px solid var(--line); border-radius:9px; background:var(--panel2); cursor:pointer; }
+    button.primary { background:#28476f; border-color:#527fb8; } button:disabled { opacity:.38; cursor:default; }
+    button:focus-visible,select:focus-visible,input:focus-visible { outline:3px solid #739bd0; outline-offset:2px; }
+    .board-panel,.starting-panel,.movement-panel,.deconstruct-panel,.reflection-panel,.completion-panel,.status-panel,.hint-panel { margin:16px 0; padding:14px; background:#11161d; border:1px solid var(--line); border-radius:11px; }
+    .board-panel { padding:16px 0; overflow:hidden; }
+    .board-panel h3,.board-panel .board-context { margin-left:14px; margin-right:14px; }
+    .board-context { color:var(--muted); font-size:.9rem; margin-bottom:14px; }
+    .data-row { display:grid; grid-template-columns:minmax(130px,.45fr) 1fr; gap:12px; border-top:1px solid #293340; padding:9px 0; }
+    .data-row:first-child { border-top:0; } .data-row.important-motion { border-left:3px solid var(--good); padding-left:10px; }
+    .feedback { min-height:54px; padding:12px 14px; margin:16px 0; background:var(--panel2); border-left:4px solid var(--line); border-radius:8px; }
+    .feedback.good { border-color:var(--good); } .feedback.warn { border-color:var(--warn); } .feedback.bad { border-color:var(--bad); }
+    .status-line { font-weight:750; margin-bottom:5px; } #harmony-status { color:var(--good); } .bad #harmony-status { color:var(--bad); }
+    label { display:grid; gap:5px; margin:12px 0; } select { min-height:44px; padding:8px; border-radius:8px; background:var(--panel2); color:var(--text); border:1px solid var(--line); }
+    .check-line { display:flex; grid-template-columns:none; align-items:center; gap:9px; padding:8px 0; } .check-line input { width:20px; height:20px; }
+    .side { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px; }
+    .side h2 { font-size:1rem; } .side p { font-size:.9rem; color:var(--muted); margin-bottom:0; } .principle { border-left:1px solid var(--line); padding-left:18px; }
+    [hidden] { display:none !important; } footer { margin-top:20px; font-size:.9rem; }
+    @media(max-width:820px){.side{grid-template-columns:1fr 1fr}.principle{border-left:0;padding-left:0}.data-row{grid-template-columns:1fr;gap:2px}}
+    @media(max-width:520px){main{padding:20px 10px 36px}.panel{padding:14px 10px}.side{grid-template-columns:1fr;gap:14px}.principle{border-top:1px solid var(--line);padding-top:12px}}
+  </style>
+</head>
+<body><main>
+  <header>
+    <p><a href="/">Chord Theory Lab</a> · <a href="/practice.html">Connected Practice Session</a> · <a href="/harmony.html">Harmonic Gravity focus</a></p>
+    <h1>The Parsimonious Path</h1>
+    <p class="lede">A bounded physical-guitar experiment: build each next chord as four nearby voices, then trace the small melodies inside the progression.</p>
+  </header>
+  <div class="shell">
+    <section class="panel" aria-labelledby="stage-title">
+      <div class="progress-row"><span>Voice-leading experiment</span><span id="progress-text"></span></div>
+      <div class="progress-track" aria-hidden="true"><div id="progress-fill" class="progress-fill"></div></div>
+      <div id="stage-kicker" class="kicker"></div><h2 id="stage-title"></h2>
+      <p id="prompt" class="prompt"></p><p id="instruction" class="instruction"></p>
+
+      <section id="board-panel" class="board-panel" hidden aria-labelledby="board-heading"><h3 id="board-heading">Guitar fretboard</h3><p id="board-context" class="board-context"></p><div id="board"></div></section>
+      <section id="starting-panel" class="starting-panel" hidden><h3>Engine-derived starting voicing</h3><div id="starting-notes"></div></section>
+      <section id="status-panel" class="status-panel" aria-live="polite" hidden>
+        <div id="harmony-status" class="status-line"></div><div id="efficiency-status" class="status-line"></div><p id="status-detail"></p>
+      </section>
+      <section id="hint-panel" class="hint-panel" aria-live="polite" hidden><h3>Progressive assistance</h3><ol id="hint-list"></ol></section>
+      <section id="movement-panel" class="movement-panel" hidden><h3 id="movement-heading"></h3><div id="movements"></div><p id="movement-note"></p></section>
+      <section id="deconstruct-panel" class="deconstruct-panel" hidden>
+        <label class="check-line"><input type="checkbox" id="voice-one-played"><span id="voice-one-label"></span></label>
+        <label class="check-line"><input type="checkbox" id="voice-two-played"><span id="voice-two-label"></span></label>
+      </section>
+      <section id="reflection-panel" class="reflection-panel" hidden>
+        <label>Did nearby voices make the progression feel more connected?<select id="connection"><option value="">Choose…</option><option>More connected</option><option>About the same</option><option>Less connected</option><option>Not sure</option></select></label>
+        <label>During A-major transfer, what were you mostly doing?<select id="strategy"><option value="">Choose…</option><option>Remembering the G-major physical pattern</option><option>Calculating note names</option><option>Looking for common tones</option><option>Looking for the nearest fret</option><option>Hearing where a voice wanted to move</option><option>A mixture of these</option><option>Not sure</option></select></label>
+        <label><span id="degree-prompt"></span><select id="degree-answer"><option value="">Choose…</option><option value="2-3">2 → 3</option><option value="4-3">4 → 3</option><option value="7-1">7 → 1</option></select></label>
+        <label><span id="role-prompt"></span><select id="role-answer"><option value="">Choose…</option><option value="root">Root</option><option value="3rd">3rd</option><option value="5th">5th</option><option value="♭7">♭7</option></select></label>
+      </section>
+      <section id="completion-panel" class="completion-panel" hidden><div id="evidence"></div></section>
+      <div id="feedback" class="feedback" aria-live="polite"></div>
+      <div class="actions">
+        <button id="start-played" class="primary" type="button" hidden>I played and named this voicing</button>
+        <button id="check" class="primary" type="button" hidden>Check chord and movement</button>
+        <button id="hint" type="button" hidden>Give me one hint</button>
+        <button id="full-played" class="primary" type="button" hidden>I replayed the full progression</button>
+        <button id="save-reflection" class="primary" type="button" hidden>Record reflection</button>
+        <button id="continue" class="primary" type="button" hidden>Continue</button>
+      </div>
+      <div class="actions" style="margin-top:18px"><button id="back" type="button">Back</button><button id="replay" type="button">Replay/reset this step</button><button id="restart" type="button">Restart experiment</button></div>
+    </section>
+    <aside class="side"><div><h2>Constraint</h2><p>Every chord must contain all structural chord tones. Among valid chords, the task asks for the smallest total same-string fret movement from the voicing you actually played.</p></div>
+      <div class="principle"><strong>Two judgments</strong><p>Chord correctness and voice-leading efficiency stay separate. A distant C major remains a real C major.</p></div>
+      <div class="principle"><strong>Your guitar supplies sound</strong><p>The app supplies theory, bounded choices and explanations. It does not generate audio or listen through a microphone.</p></div>
+      <div class="principle"><strong>Session evidence only</strong><p>Attempts, assistance and elapsed seconds stay in memory until restart or page close. They are not a mastery score.</p></div>
+    </aside>
+  </div>
+  <footer>No generic voicing engine, progression interpreter, persistence, audio, CAGED system or Learning Engine is introduced by this experiment.</footer>
+  <script type="module" src="/voice-leading-app.js"></script>
+</main></body></html>

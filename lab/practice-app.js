@@ -1,5 +1,6 @@
 import { STANDARD_FRETBOARD, formatNote, formatPitch, musicQueries } from "/engine/index.js";
 import { createPracticePlan } from "/practice-session.mjs";
+import { createFretboard } from "/fretboard-view.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {
@@ -20,7 +21,7 @@ const plan = createPracticePlan({
 const focused = /^\/harmony(?:\.html)?\/?$/.test(location.pathname);
 const blockNames = ["Retrieve · about 5–8 minutes", "Current focus · about 15–20 minutes", "Connect · about 5 minutes", "Musicalize · about 5 minutes", "Transfer · about 5 minutes", "Reflect · about 2 minutes"];
 const state = {};
-let fretButtons = [];
+let warmupFretboard;
 
 function currentGravity() { return state.block === 1 ? plan.gravitySteps[state.gravityIndex] : null; }
 function currentTransfer() { return state.block === 4 ? plan.transfer.steps[state.transferIndex] : null; }
@@ -88,31 +89,31 @@ function warmupTheory(task) {
   });
 }
 function renderWarmupBoard(task) {
-  fretButtons = [];
-  const header = document.createElement("tr");
-  const row = document.createElement("tr");
-  const corner = document.createElement("th"); corner.textContent = `${stringName(task.stringIndex)} · string ${6 - task.stringIndex}`; row.append(corner);
-  const spacer = document.createElement("th"); spacer.textContent = "Fret"; header.append(spacer);
+  warmupFretboard ??= createFretboard($("board"), { onSelect(position) {
+    if (state.block !== 0 || state.warmupRevealed) return;
+    state.selection = position;
+    renderWarmupBoard(plan.warmups[state.warmupIndex]);
+    warmupFretboard.focusPosition(position);
+    feedback(`Committed ${stringName(position.stringIndex)} string, fret ${position.fret}. Check the location after playing it on your guitar.`);
+  } });
+  const positions = [];
   for (let fret = task.fretWindow.minFret; fret <= task.fretWindow.maxFret; fret += 1) {
-    const th = document.createElement("th"); th.scope = "col"; th.textContent = String(fret); header.append(th);
-    const td = document.createElement("td");
-    const button = document.createElement("button"); button.type = "button"; button.className = "fret"; button.dataset.fret = String(fret);
     const target = state.warmupRevealed && fret === task.plannedLocation.position.fret;
-    button.textContent = target ? formatNote(task.tone.note) : "·";
-    button.setAttribute("aria-label", `${stringName(task.stringIndex)} string, fret ${fret}${target ? `, ${formatPitch(task.plannedLocation.pitch)}` : ""}`);
-    button.setAttribute("aria-pressed", String(state.selection?.fret === fret));
-    button.disabled = state.warmupRevealed;
-    button.addEventListener("click", () => {
-      if (state.block !== 0 || state.warmupRevealed) return;
-      state.selection = { stringIndex: task.stringIndex, fret };
-      for (const other of fretButtons) other.setAttribute("aria-pressed", String(other === button));
-      feedback(`Committed ${stringName(task.stringIndex)} string, fret ${fret}. Check the location after playing it on your guitar.`);
+    positions.push({ stringIndex: task.stringIndex, fret, selectable: !state.warmupRevealed,
+      selected: state.selection?.fret === fret,
+      states: target ? ["correct"] : [],
+      ...(target ? { primaryLabel: formatNote(task.tone.note), secondaryLabel: roleLabel(task.tone) } : {}),
+      ariaLabel: `${stringName(task.stringIndex)} string, fret ${fret}${target ? `, ${formatPitch(task.plannedLocation.pitch)}, role ${roleLabel(task.tone)}` : ""}`,
     });
-    fretButtons.push(button); td.append(button); row.append(td);
   }
-  const thead = document.createElement("thead"); thead.append(header);
-  const tbody = document.createElement("tbody"); tbody.append(row);
-  $("board").replaceChildren(thead, tbody); $("board-panel").hidden = false;
+  warmupFretboard.update({
+    strings: STANDARD_FRETBOARD.tuning.openStrings.map(({ note }, index) => ({ index,
+      label: `${6 - index} · ${index === 5 ? "high " : index === 0 ? "low " : ""}${formatNote(note)}`,
+    })).reverse(),
+    activeStringIndices: [task.stringIndex], fretRange: task.fretWindow, positions, connections: [],
+    label: `Focus · ${stringName(task.stringIndex)} string · frets ${task.fretWindow.minFret}–${task.fretWindow.maxFret}`,
+  });
+  $("board-panel").hidden = false;
 }
 
 function chooseResponse(value) {
@@ -171,6 +172,10 @@ function renderListening(step) {
 
 function render() {
   for (const id of ["board-panel", "choices-panel", "theory-panel", "reflection-panel", "check-warmup", "reveal-warmup", "commit-prediction", "confirm-listened", "show-transfer-theory", "record-reflection", "next"]) $(id).hidden = true;
+  if (state.block !== 0 && warmupFretboard) {
+    warmupFretboard.destroy();
+    warmupFretboard = null;
+  }
   $("theory").replaceChildren(); $("theory-heading").textContent = "";
   $("choices").replaceChildren(); $("sequence").replaceChildren();
   $("next").disabled = false; $("next").textContent = "Continue";

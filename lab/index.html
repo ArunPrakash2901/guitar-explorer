@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Guitar Explorer · Chord Theory Lab</title>
+  <link rel="stylesheet" href="/fretboard.css">
   <style>
     :root {
       color-scheme: dark;
@@ -53,6 +54,7 @@
       background: var(--panel);
     }
     .panel, .side-panel {
+      min-width: 0;
       border: 1px solid var(--line);
       border-radius: 14px;
       background: var(--panel);
@@ -219,7 +221,7 @@
 <body>
   <main>
     <header>
-      <p><a href="/practice.html">Connected Practice Session</a> · <a href="/harmony.html">Harmonic Gravity focus</a></p>
+      <p><a href="/practice.html">Connected Practice Session</a> · <a href="/harmony.html">Harmonic Gravity focus</a> · <a href="/voice-leading.html">The Parsimonious Path</a></p>
       <h1>Guitar Explorer · Chord Theory Lab</h1>
       <p class="lede">Choose the chord vocabulary. The Lab keeps the theory-immersion workflow: hear the role, search the fretboard, play it on a physical guitar, commit a location, inspect the engine-derived relationship, reconstruct, transfer and use it musically.</p>
     </header>
@@ -259,7 +261,7 @@
 
         <section id="string-section" hidden>
           <div class="string-wrap">
-            <table class="string-board" id="string-board" aria-label="Planned guitar string and fret window"></table>
+            <div id="string-board" aria-label="Planned guitar string and fret window"></div>
           </div>
           <p class="instruction">The target exists in this engine-derived window. Play on the physical guitar before selecting the fret you used.</p>
         </section>

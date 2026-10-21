@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Guitar Explorer · Practice Session</title>
+  <link rel="stylesheet" href="/fretboard.css">
   <style>
     :root { color-scheme:dark; --bg:#101216; --panel:#191d24; --line:#343c49; --text:#edf0f5; --muted:#abb5c5; --accent:#9ebcf0; }
     * { box-sizing:border-box; }
@@ -53,7 +54,7 @@
 <body>
   <main>
     <header>
-      <p><a href="/">Chord Lab</a> · <a href="/practice.html">Connected practice</a> · <a href="/harmony.html">Focused listening</a></p>
+      <p><a href="/">Chord Lab</a> · <a href="/practice.html">Connected practice</a> · <a href="/harmony.html">Focused listening</a> · <a href="/voice-leading.html">The Parsimonious Path</a></p>
       <h1 id="page-title">One musical idea, several connected angles</h1>
       <p class="muted" id="session-duration">About 35–50 minutes with your guitar. Estimates guide attention; there is no timer.</p>
     </header>
@@ -65,7 +66,7 @@
       <div id="sequence"></div>
       <p class="muted" id="instruction"></p>
       <section id="board-panel" hidden>
-        <div class="board-wrap"><table id="board" aria-label="Physical guitar commitment"></table></div>
+        <div class="board-wrap"><div id="board" aria-label="Physical guitar commitment"></div></div>
         <p class="muted">Play first, then select the fret you used. Only your screen commitment is checked.</p>
       </section>
       <section id="choices-panel" hidden aria-label="Your listening response">

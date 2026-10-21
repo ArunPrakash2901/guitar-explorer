@@ -139,6 +139,45 @@ these chosen examples, not a new musical-truth function/cadence/progression API.
 There is no generic Practice/Learning Engine, persistence, automatic scheduler or
 performed-voicing evaluator. The guitar supplies the sound; the app cannot verify it.
 
+### Lab-local voice-leading probe
+
+`/voice-leading.html` is a second bounded learning probe, separate from Practice
+Session v0. It consumes the existing diatonic-harmony, chord-catalogue, fretboard,
+note-at-fret and interval queries. Its planner enumerates complete four-string chord
+candidates in a small fret range and compares them with the learner's previously
+accepted voicing by same-string fret distance. The tie-break order is deterministic:
+total movement, largest single movement, then fret vector. All candidates tied at
+the minimum total movement satisfy the learning constraint.
+
+This calculation remains under `lab/`. It does not define a general voicing,
+fingering, inversion, progression, harmonic-function or voice-leading model, and it
+does not enter `musicQueries`. The experiment must first show that physically
+following the separate voices improves learning. Its G-major example and A-major
+transfer derive their musical identities and annotations from the engine; the Lab
+owns only the bounded task, physical-distance rule, assistance sequence and local
+session evidence.
+
+### Fretboard UI v2 presentation boundary
+
+The Lab shares `lab/fretboard-view.mjs` and `lab/fretboard.css` across Parsimonious
+Path, Chord Lab, and the Practice Session retrieval warm-up. The renderer receives
+an explicit view model: display-ordered strings, active strings, a fret range,
+positions with selectable/selected states and short labels, and optional directed
+connections. It draws six physical string lanes, frets, open positions, markers,
+position controls and movement paths. Native buttons provide focus, selection and
+keyboard navigation. A stationary connection receives a distinct ring rather than
+a zero-length arrow. The focused Harmony route uses the Practice Session's shared
+page but skips this warm-up, so its listening interactions are unchanged.
+
+The consumer projects engine-derived musical facts and session decisions into
+that view model. It decides which positions and labels exist before commitment,
+which are revealed after checking or assistance, and what counts as correct. The
+renderer does not infer pitches, chord roles, scale degrees, hints, candidate
+voicings, movement efficiency or learner evidence. Parsimonious Path's bounded
+enumeration and ranking remain in `lab/voice-leading-session.mjs`; Music Core and
+`musicQueries` retain musical truth. The connection shape can display later
+position relationships without encoding a chord or melody lesson now.
+
 ## Future rhythm/time domain — documentation only
 
 A future instrument-independent time domain will describe meter, beats, duration,
