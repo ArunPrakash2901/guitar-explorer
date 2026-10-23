@@ -1,0 +1,260 @@
+[
+  {
+    "request": {
+      "ruleId": "rule-dominant-third",
+      "difficulty": "introductory",
+      "seed": 9942
+    },
+    "generatorVersion": 2,
+    "scenario": {
+      "version": 1,
+      "type": "melody",
+      "id": "gen-dominant-third-introductory-9942",
+      "title": "Dominant 3rd Targeting (C major)",
+      "description": "Generated · Dominant 3rd Targeting · introductory · seed 9942",
+      "difficulty": "introductory",
+      "context": {
+        "key": {
+          "tonic": {
+            "letter": "C",
+            "accidental": 0
+          },
+          "mode": "major"
+        },
+        "degrees": [
+          2,
+          5,
+          1
+        ],
+        "chordSize": "seventh"
+      },
+      "transfer": {
+        "key": {
+          "tonic": {
+            "letter": "D",
+            "accidental": 0
+          },
+          "mode": "major"
+        }
+      },
+      "fretboard": {
+        "main": {
+          "strings": [
+            4,
+            5
+          ],
+          "minFret": 3,
+          "maxFret": 10
+        },
+        "transfer": {
+          "strings": [
+            4,
+            5
+          ],
+          "minFret": 5,
+          "maxFret": 12
+        }
+      },
+      "targets": {
+        "target": {
+          "chordIndex": 1,
+          "degree": 3,
+          "stringIndex": 5
+        },
+        "arrival": {
+          "chordIndex": 2,
+          "degree": 1,
+          "stringIndex": 5
+        }
+      },
+      "melody": {
+        "approachScaleDegree": 6,
+        "phraseLead": [
+          {
+            "scaleDegree": 5,
+            "stringIndex": 4
+          },
+          {
+            "scaleDegree": 6,
+            "stringIndex": 5
+          }
+        ]
+      }
+    },
+    "fingerprint": "family:dominant-third|key:C major|prog:Dm7 > G7 > Cmaj7|rel:c1d3s5->c2d1s5(1steps,1st)|targetPos:s5f7|region:s[4,5]f3-10|transferKey:D major",
+    "attempts": 1,
+    "score": 10
+  },
+  {
+    "request": {
+      "ruleId": "rule-dominant-seventh",
+      "difficulty": "developing",
+      "seed": 4821
+    },
+    "generatorVersion": 2,
+    "scenario": {
+      "version": 1,
+      "type": "melody",
+      "id": "gen-dominant-seventh-developing-4821",
+      "title": "Dominant ♭7 Targeting (G major)",
+      "description": "Generated · Dominant ♭7 Targeting · developing · seed 4821",
+      "difficulty": "developing",
+      "context": {
+        "key": {
+          "tonic": {
+            "letter": "G",
+            "accidental": 0
+          },
+          "mode": "major"
+        },
+        "degrees": [
+          2,
+          5,
+          1
+        ],
+        "chordSize": "seventh"
+      },
+      "transfer": {
+        "key": {
+          "tonic": {
+            "letter": "B",
+            "accidental": -1
+          },
+          "mode": "major"
+        }
+      },
+      "fretboard": {
+        "main": {
+          "strings": [
+            4,
+            5
+          ],
+          "minFret": 4,
+          "maxFret": 11
+        },
+        "transfer": {
+          "strings": [
+            4,
+            5
+          ],
+          "minFret": 7,
+          "maxFret": 14
+        }
+      },
+      "targets": {
+        "target": {
+          "chordIndex": 1,
+          "degree": 7,
+          "stringIndex": 5
+        },
+        "arrival": {
+          "chordIndex": 2,
+          "degree": 3,
+          "stringIndex": 5
+        }
+      },
+      "melody": {
+        "approachScaleDegree": 3,
+        "phraseLead": [
+          {
+            "scaleDegree": 2,
+            "stringIndex": 4
+          },
+          {
+            "scaleDegree": 3,
+            "stringIndex": 5
+          }
+        ]
+      }
+    },
+    "fingerprint": "family:dominant-seventh|key:G major|prog:Am7 > D7 > Gmaj7|rel:c1d7s5->c2d3s5(-1steps,-1st)|targetPos:s5f8|region:s[4,5]f4-11|transferKey:B♭ major",
+    "attempts": 1,
+    "score": 10
+  },
+  {
+    "request": {
+      "ruleId": "rule-target-trajectory",
+      "difficulty": "transfer",
+      "seed": "replay-flat"
+    },
+    "generatorVersion": 2,
+    "scenario": {
+      "version": 1,
+      "type": "melody",
+      "id": "gen-target-trajectory-transfer-replay-flat",
+      "title": "Chord-Change Target Trajectory (D major)",
+      "description": "Generated · Chord-Change Target Trajectory · transfer · seed replay-flat",
+      "difficulty": "transfer",
+      "context": {
+        "key": {
+          "tonic": {
+            "letter": "D",
+            "accidental": 0
+          },
+          "mode": "major"
+        },
+        "degrees": [
+          4,
+          5,
+          1
+        ],
+        "chordSize": "seventh"
+      },
+      "transfer": {
+        "key": {
+          "tonic": {
+            "letter": "B",
+            "accidental": 0
+          },
+          "mode": "major"
+        }
+      },
+      "fretboard": {
+        "main": {
+          "strings": [
+            4,
+            5
+          ],
+          "minFret": 5,
+          "maxFret": 12
+        },
+        "transfer": {
+          "strings": [
+            4,
+            5
+          ],
+          "minFret": 2,
+          "maxFret": 9
+        }
+      },
+      "targets": {
+        "target": {
+          "chordIndex": 1,
+          "degree": 3,
+          "stringIndex": 5
+        },
+        "arrival": {
+          "chordIndex": 2,
+          "degree": 1,
+          "stringIndex": 5
+        }
+      },
+      "melody": {
+        "approachScaleDegree": 6,
+        "phraseLead": [
+          {
+            "scaleDegree": 5,
+            "stringIndex": 4
+          },
+          {
+            "scaleDegree": 6,
+            "stringIndex": 5
+          }
+        ]
+      }
+    },
+    "fingerprint": "family:target-trajectory|key:D major|prog:Gmaj7 > A7 > Dmaj7|rel:c1d3s5->c2d1s5(1steps,1st)|targetPos:s5f9|region:s[4,5]f5-12|transferKey:B major",
+    "attempts": 1,
+    "score": 10
+  }
+]

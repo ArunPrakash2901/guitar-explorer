@@ -63,6 +63,8 @@ function applyGeneratedResult(result, config) {
   currentGeneratedConfig = config;
   currentGeneratedFingerprint = result.provenance?.fingerprint || getScenarioFingerprint(result);
   currentGeneratedSeed = config.seed;
+  $("generation-feedback").textContent = "";
+  $("generation-feedback").hidden = true;
   reset();
   $("reflection").value = "";
   $("scenario-info").textContent = `${result.scenario.description} · ${result.scenario.difficulty} · ${formatNote(result.scenario.context.key.tonic)} major`;
@@ -113,8 +115,8 @@ if (mode === "melody" && $("source-generated")) {
       });
       applyGeneratedResult(nextResult, { ruleId, difficulty, seed: nextResult.provenance.seed });
     } catch {
-      currentGeneratedSeed += 1;
-      loadGenerated(ruleId, difficulty, currentGeneratedSeed);
+      $("generation-feedback").textContent = "No different scenario was found within the search limit. Your current scenario is unchanged. Retry Generate another, or change focus or difficulty.";
+      $("generation-feedback").hidden = false;
     }
   });
   $("replay-scenario").addEventListener("click", () => {

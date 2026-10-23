@@ -25,7 +25,7 @@ Fretboard UI v2 (`createFretboard`)
 ### Essential Division of Responsibilities
 
 - **Generation Rule (`lab/rule-contract.mjs`)**: Declares *what kind of musical relationship* should be practiced (e.g. target the 3rd of V7, or move between chord tones across changes).
-- **Candidate Generator (`lab/melody-generator.mjs`)**: Samples musical parameters (keys, progression templates, guitar regions) deterministically from a pseudo-random seed.
+- **Candidate Generator (`lab/melody-generator.mjs`)**: Samples keys, progression templates, and tone roles deterministically from a pseudo-random seed, then derives regions using the fixed guitar policy below.
 - **Scenario Resolver (`lab/scenario-resolver.mjs`)**: The objective gatekeeper. Validates that the candidate strictly obeys `ScenarioV1` rules, that notes exist in the fret region, and that intervals survive transfer.
 - **Session Pedagogy (`lab/melody-session.mjs`)**: Guides the learner through prediction, commitment, comparison, line construction, improvisation, and transfer.
 - **Human Learner**: The sole judge of musical feel and educational usefulness on a physical instrument.
@@ -59,9 +59,13 @@ Three initial task families are implemented:
 
 ## 3. Seeded Reproducibility & PRNG
 
-Generation is strictly deterministic. A Mulberry32 32-bit PRNG turns numeric or string seeds into repeatable floating-point streams in $[0, 1)$.
+The current implementation reports `generatorVersion: 2`; the rule and scenario contracts remain `MelodyGenerationRuleV1` and `ScenarioV1`. A Mulberry32 32-bit PRNG turns numeric or string seeds into repeatable floating-point streams in $[0, 1)$.
 
-Given the same `(ruleId, difficulty, seed)`, `generateMelodyScenario` produces the **exact same** candidate and resolved scenario every time.
+Seed normalization is unchanged: numeric seeds use unsigned 32-bit conversion with zero replaced by 1; string seeds accumulate UTF-16 code units with `seed = (Math.imul(31, seed) + codeUnit) >>> 0`, again replacing zero by 1. Other inputs use 1.
+
+Transfer-key candidates retain the declared key-pool order before a seeded Fisher–Yates shuffle. Starting with `i = length - 1` and descending through `i = 1`, the generator draws `j = Math.floor(random() * (i + 1))` and swaps entries `i` and `j`. It does not use a random sort comparator. Rule, template, and target-pair arrays also retain their declared input order.
+
+Given the same `(ruleId, difficulty, seed, generatorVersion)` and unchanged engine/query facts and ordering, generation produces the same candidate and resolved musical material. Pinned fixtures protect version-2 replay from accidental sampling-order changes. Version 2 changes seeded selection; it does not promise to reproduce version-1 output from an old seed.
 
 This guarantees:
 - Automated tests run repeatably without flaky random failures.
@@ -76,9 +80,9 @@ This guarantees:
 The generator employs **constrained generation → deterministic validation → rejection → retry**.
 
 1. Up to $N = 30$ attempts are permitted.
-2. Each attempt samples a key, progression template, target role, fretboard region, transfer key, and phrase lead notes.
+2. Each attempt samples a key, progression template, and target role; derives the target, region, and phrase lead using the fixed guitar policy; and searches a seeded ordering of transfer keys.
 3. The candidate is submitted to `resolveScenario(candidate, queries)`.
-4. If validation fails (e.g., target note out of fret window, non-ascending lead, transfer interval mismatch), the failure is logged and the next seed step is tried.
+4. If validation fails (e.g., target note out of fret window, non-ascending lead, transfer interval mismatch), the failure is logged and the next attempt advances the same seed's PRNG stream. Only distinct-scenario search advances the seed itself.
 5. If validation succeeds, the candidate is scored according to pedagogical preferences. Resolver validity is **necessary but not sufficient**: candidates must also meet the documented minimum pedagogical score floor ($S \ge 5$).
 6. If the attempt budget is exhausted without any candidate meeting the score floor, a deterministic `GenerationError` is thrown detailing `ruleId`, `difficulty`, `seed`, `attempts` (attempt count), `bestScoreReached`, and `lastFailure`. Low-quality candidates are never silently accepted.
 
@@ -90,6 +94,7 @@ The generator employs **constrained generation → deterministic validation → 
 - Major key in the approved difficulty pool.
 - Supported progression template and diatonic chords.
 - Target tone exists in the chord and on the specified guitar string within the fret window.
+- Main and transfer material both obey the fixed string/window policy in section 7.
 - Approach scale degree is exactly one upward diatonic step below the target.
 - Phrase lead notes are strictly ascending in pitch into the target.
 - Transfer key preserves the directed target-to-arrival interval in both diatonic steps and semitones.
@@ -125,20 +130,30 @@ The fingerprint encodes:
 
 ### Surface Variation Controls
 - **Generate Another (`generateDistinctMelodyScenario`)**: Increments the seed monotonically within a bounded budget ($N=30$) until a valid, accepted scenario with a *different* surface fingerprint is produced.
-- **Replay Scenario**: Re-generates the exact current seed, strictly reproducing identical musical notes, fretboard locations, and pedagogical stages.
+- **Replay Scenario**: Re-generates the current seed under the current generator version, reproducing the musical material and restarting the existing pedagogical stages.
+- **Distinct search exhaustion**: Throws a `GenerationError`. The UI preserves the current accepted material and session, including its selections and evidence, and shows a recoverable message inviting retry or a change of focus/difficulty. It never falls back to unrestricted generation after failing to find a different fingerprint.
 - No learner history, adaptation, or persistent profiling is introduced.
 
 ---
 
 ## 7. Difficulty Constraints
 
-Difficulty levels constrain generation without requiring an adaptive student model:
+Difficulty changes the approved key pool without requiring an adaptive student model:
 
-| Level | Key Pool | Fretboard Regions | Strings |
-|---|---|---|---|
-| **Introductory** | C, G, D, A, F | Frets 0–8, 2–9 (comfortable low neck, target $\le$ fret 9) | [4, 5] |
-| **Developing** | C, G, D, A, E, F, B♭ | Frets 0–8, 4–11, 5–12, 7–14 | [4, 5], [3, 4, 5] |
-| **Transfer** | C, G, D, A, E, B, F, B♭, E♭ | Frets 4–11, 5–12, 7–14, 2–10 | [4, 5], [3, 4, 5], [2, 3, 4] |
+| Level | Ordered Key Pool |
+|---|---|
+| **Introductory** | C, G, D, A, F |
+| **Developing** | C, G, D, A, E, F, B♭ |
+| **Transfer** | C, G, D, A, E, B, F, B♭, E♭ |
+
+All difficulties share this bounded guitar policy:
+
+- String indices are zero-based: B is 4 and high E is 5. Target and arrival use high E (index 5); the approach and second phrase-lead note also use index 5.
+- Search target locations on index 5 over frets 0–14, retain exact spelled-note matches, and choose the first engine-returned match. For both main and transfer material, derive the window independently from its selected target fret: `minFret = Math.max(0, targetFret - 4)` and `maxFret = Math.min(15, minFret + 7)`.
+- Search the first phrase-lead note on B (index 4), then high E (index 5), requiring a location below the approach pitch within the main window. Active strings are `[4, 5]` when that note uses B, otherwise `[5]`; the same active strings apply to transfer. The resolver verifies the complete phrase in both regions before acceptance.
+- Introductory does not impose a separate maximum target fret of 9. Difficulty does not select a region pool or enable broader string/neck control. The unused `regionPools` declaration has been removed rather than presented as a supported rule constraint.
+
+The candidate is rejected if these fixed choices cannot resolve. Arbitrary string selection and caller-supplied regions are outside this generator's supported envelope, even though ScenarioV1 can represent other curated regions.
 
 ---
 
@@ -159,7 +174,7 @@ Generated scenarios conform 100% to `ScenarioV1`. Implementation metadata is kep
     attempts: 3,
     score: 10,
     fingerprint: "family:dominant-third|key:C major|prog:Dm7 > G7 > Cmaj7|rel:c1d3s5->c2d1s5(1steps,1st)|targetPos:s5f7|region:s[4,5]f3-10|transferKey:A major",
-    generatorVersion: 1
+    generatorVersion: 2
   }
 }
 ```
@@ -183,22 +198,6 @@ Rule Generator V1 strictly generates bounded tonal melody exercises. It **does N
 
 ---
 
-## 9. Preparation for Future Style Packs
+## 10. Future Scope
 
-Rule Generator V1 is designed so future style packs can simply configure rule weights and constraints:
-
-```text
-Style Pack (e.g. Folk / Pop / Classical)
-      ↓
-Rule Selection & Weights
-      ↓
-Rule Generator V1
-      ↓
-ScenarioV1
-      ↓
-Scenario Resolver
-      ↓
-Melody Session
-```
-
-No session or UI code will need modification when style packs or rule weights are introduced.
+Style packs, broader region controls, and other generation families require separate authorization and contracts appropriate to their material. The existing rule boundary does not guarantee that those capabilities can be added without changes to sessions or UI.

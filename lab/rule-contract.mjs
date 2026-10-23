@@ -22,24 +22,9 @@ const KEY_POOLS = {
   transfer: [key("C"), key("G"), key("D"), key("A"), key("E"), key("B"), key("F"), key("B", -1), key("E", -1)],
 };
 
-const REGION_POOLS = {
-  introductory: [
-    { strings: [4, 5], minFret: 0, maxFret: 8 },
-    { strings: [4, 5], minFret: 2, maxFret: 9 },
-  ],
-  developing: [
-    { strings: [4, 5], minFret: 0, maxFret: 8 },
-    { strings: [4, 5], minFret: 4, maxFret: 11 },
-    { strings: [3, 4, 5], minFret: 5, maxFret: 12 },
-    { strings: [4, 5], minFret: 7, maxFret: 14 },
-  ],
-  transfer: [
-    { strings: [4, 5], minFret: 4, maxFret: 11 },
-    { strings: [3, 4, 5], minFret: 5, maxFret: 12 },
-    { strings: [4, 5], minFret: 7, maxFret: 14 },
-    { strings: [2, 3, 4], minFret: 2, maxFret: 10 },
-  ],
-};
+// V1 varies keys by difficulty, not physical string sets or caller-selected regions.
+// The generator uses high-E targets/arrivals and target-derived windows; the
+// first phrase lead may use B or high E. No configurable region pools are offered.
 
 const rules = [
   {
@@ -54,7 +39,6 @@ const rules = [
     ],
     targetRole: { targetDegree: 3, arrivalDegree: 1 },
     keyPools: KEY_POOLS,
-    regionPools: REGION_POOLS,
   },
   {
     version: 1,
@@ -68,7 +52,6 @@ const rules = [
     ],
     targetRole: { targetDegree: 7, arrivalDegree: 3 },
     keyPools: KEY_POOLS,
-    regionPools: REGION_POOLS,
   },
   {
     version: 1,
@@ -88,7 +71,6 @@ const rules = [
       { targetDegree: 5, arrivalDegree: 1 },
     ],
     keyPools: KEY_POOLS,
-    regionPools: REGION_POOLS,
   },
 ];
 

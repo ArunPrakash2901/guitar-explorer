@@ -215,6 +215,22 @@ invariance. Scoring prioritizes educational preferences (close voice leading,
 salient chord roles, compact neck regions) without asserting aesthetic or
 stylistic superiority.
 
+The supported guitar envelope is deliberately narrow: target and arrival use
+high E (zero-based string index 5), with the first phrase-lead note on B (4) or
+high E (5). Main and transfer windows are derived independently from the first
+matching target location over frets 0–14: `minFret = max(0, targetFret - 4)` and
+`maxFret = min(15, minFret + 7)`. Difficulty changes the approved key pool, not
+string/region policy; unused `regionPools` declarations are removed. ScenarioV1's
+broader representation does not imply broader generator support.
+
+Generator provenance is version 2, while Rule/Scenario contracts remain V1.
+Seeded Fisher–Yates over fixed-order transfer candidates replaces random sorting;
+replay requires the same rule, difficulty, seed, generator version, and unchanged
+engine/query facts. Version-1 seeded outputs are not promised by version 2.
+Exhausted distinct-generation search preserves the current accepted material and
+session and reports a recoverable UI failure; it never weakens the distinctness
+requirement through an unrestricted fallback.
+
 This implementation is Lab-local and strictly for Melody practice. It does not
 introduce motif generation, rhythm models, genre packs, audio, adaptive student
 tracking, or LLM runtime calls.

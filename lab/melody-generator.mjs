@@ -20,6 +20,9 @@ export class GenerationError extends Error {
 }
 
 export const MIN_PEDAGOGICAL_SCORE = 5;
+// Version 2 replaces random-comparator sorting. Version-1 seeds may resolve
+// differently; Rule V1 and ScenarioV1 themselves retain their existing versions.
+export const GENERATOR_VERSION = 2;
 
 // Deterministic Mulberry32 32-bit PRNG
 export function createPrng(seedInput) {
@@ -41,6 +44,18 @@ export function createPrng(seedInput) {
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
+}
+
+// Descending Fisher-Yates: exactly one PRNG draw for each i = n-1 through 1.
+// Keep the declared input order and swap with floor(draw * (i + 1)); never use
+// a random sort comparator, whose draw schedule varies between JS engines.
+function shuffled(values, random) {
+  const result = [...values];
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
 }
 
 const formatKeyName = (k) => `${k.letter}${k.accidental === 1 ? "#" : k.accidental === -1 ? "♭" : ""}`;
@@ -254,7 +269,7 @@ export function generateMelodyScenario({ ruleId, difficulty = "introductory", se
     }
 
     const altKeys = keyPool.filter((k) => k.letter !== mainTonic.letter);
-    const candidateAltKeys = [...altKeys].sort(() => random() - 0.5);
+    const candidateAltKeys = shuffled(altKeys, random);
     let transTonic = null;
     let transMinFret = 0;
     let transMaxFret = 8;
@@ -356,7 +371,7 @@ export function generateMelodyScenario({ ruleId, difficulty = "introductory", se
             attempts: attempt,
             score: bestScore,
             fingerprint,
-            generatorVersion: 1,
+            generatorVersion: GENERATOR_VERSION,
           },
         };
       }
