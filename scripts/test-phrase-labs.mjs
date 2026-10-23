@@ -8,6 +8,7 @@ import { getMelodyScenarios, getMotifScenarios, getScenarioById } from "../lab/s
 import { resolveScenario, ScenarioError } from "../lab/scenario-resolver.mjs";
 import { createMelodyPlan } from "../lab/melody-session.mjs";
 import { createMotifPlan } from "../lab/motif-session.mjs";
+import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "../lab/melody-experience.mjs";
 
 function unwrap(result) { assert.equal(result.ok, true, result.ok ? undefined : result.error.message); return result.data; }
 const queries = {
@@ -161,7 +162,7 @@ function createPage(which) {
   const { document, root } = createTestDOM(pages[which]); document.body = root.querySelector("body");
   const random = Object.create(Math); random.random = () => 0;
   const context = vm.createContext({ ...engine, getMelodyScenarios, getMotifScenarios, resolveScenario,
-    createMelodyPlan, createMotifPlan, chordRole, pathConnections, document, console, Math: random });
+    createMelodyPlan, createMotifPlan, chordRole, pathConnections, document, console, Math: random, prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries });
   installRenderer(context);
   vm.runInContext(app.replace(/^import .*;\s*/gm, ""), context, { filename: "phrase-app.js" });
   const $ = (id) => document.getElementById(id);
