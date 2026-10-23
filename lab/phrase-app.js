@@ -5,6 +5,7 @@ import { getMelodyScenarios, getMotifScenarios } from "/scenario-catalogue.mjs";
 import { resolveScenario } from "/scenario-resolver.mjs";
 import { createMelodyPlan } from "/melody-session.mjs";
 import { createMotifPlan } from "/motif-session.mjs";
+import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "/melody-generator.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) { if (!result.ok) throw new Error(result.error.message); return result.data; }
@@ -50,6 +51,80 @@ function startScenario(spec) {
   reset(); $("reflection").value = ""; describeScenario(); render();
 }
 $("start-scenario").addEventListener("click", () => startScenario(catalogue.find(({ id }) => id === $("scenario-select").value)));
+let practiceSource = "catalogue";
+let currentGeneratedSeed = 1001;
+let currentGeneratedConfig = null;
+let currentGeneratedFingerprint = null;
+
+function applyGeneratedResult(result, config) {
+  selectedScenario = result.scenario;
+  material = result.resolved;
+  plan = createMelodyPlan(material);
+  currentGeneratedConfig = config;
+  currentGeneratedFingerprint = result.provenance?.fingerprint || getScenarioFingerprint(result);
+  currentGeneratedSeed = config.seed;
+  $("generation-feedback").textContent = "";
+  $("generation-feedback").hidden = true;
+  reset();
+  $("reflection").value = "";
+  $("scenario-info").textContent = `${result.scenario.description} · ${result.scenario.difficulty} · ${formatNote(result.scenario.context.key.tonic)} major`;
+  render();
+}
+
+function loadGenerated(ruleId, difficulty, seed) {
+  const actualRule = ruleId || ($("rule-select") && $("rule-select").value) || "rule-dominant-third";
+  const actualDiff = difficulty || ($("difficulty-select") && $("difficulty-select").value) || "introductory";
+  const result = generateMelodyScenario({ ruleId: actualRule, difficulty: actualDiff, seed, queries });
+  applyGeneratedResult(result, { ruleId: actualRule, difficulty: actualDiff, seed });
+}
+if (mode === "melody" && $("source-generated")) {
+  $("source-catalogue").addEventListener("click", () => {
+    practiceSource = "catalogue";
+    $("source-catalogue").classList.add("active");
+    $("source-catalogue").setAttribute("aria-selected", "true");
+    $("source-generated").classList.remove("active");
+    $("source-generated").setAttribute("aria-selected", "false");
+    $("catalogue-controls").hidden = false;
+    $("generated-controls").hidden = true;
+    startScenario(selectedScenario.id.startsWith("gen-") ? catalogue[0] : selectedScenario);
+  });
+  $("source-generated").addEventListener("click", () => {
+    practiceSource = "generated";
+    $("source-generated").classList.add("active");
+    $("source-generated").setAttribute("aria-selected", "true");
+    $("source-catalogue").classList.remove("active");
+    $("source-catalogue").setAttribute("aria-selected", "false");
+    $("catalogue-controls").hidden = true;
+    $("generated-controls").hidden = false;
+    loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
+  });
+  $("generate-scenario").addEventListener("click", () => {
+    currentGeneratedSeed = Math.floor(Math.random() * 100000) + 1;
+    loadGenerated($("rule-select").value, $("difficulty-select").value, currentGeneratedSeed);
+  });
+  $("generate-another").addEventListener("click", () => {
+    const ruleId = ($("rule-select") && $("rule-select").value) || currentGeneratedConfig?.ruleId || "rule-dominant-third";
+    const difficulty = ($("difficulty-select") && $("difficulty-select").value) || currentGeneratedConfig?.difficulty || "introductory";
+    try {
+      const nextResult = generateDistinctMelodyScenario({
+        ruleId,
+        difficulty,
+        currentSeed: currentGeneratedSeed,
+        currentFingerprint: currentGeneratedFingerprint,
+        queries,
+      });
+      applyGeneratedResult(nextResult, { ruleId, difficulty, seed: nextResult.provenance.seed });
+    } catch {
+      $("generation-feedback").textContent = "No different scenario was found within the search limit. Your current scenario is unchanged. Retry Generate another, or change focus or difficulty.";
+      $("generation-feedback").hidden = false;
+    }
+  });
+  $("replay-scenario").addEventListener("click", () => {
+    if (currentGeneratedConfig) {
+      loadGenerated(currentGeneratedConfig.ruleId, currentGeneratedConfig.difficulty, currentGeneratedConfig.seed);
+    }
+  });
+}
 $("surprise-scenario").addEventListener("click", () => {
   const choices = catalogue.filter(({ id }) => id !== selectedScenario.id);
   startScenario(choices[Math.floor(Math.random() * choices.length)] ?? catalogue[0]);
