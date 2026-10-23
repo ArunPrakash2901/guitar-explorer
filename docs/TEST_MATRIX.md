@@ -1,15 +1,39 @@
 # Test Matrix
 
-> Historical v0.2 product matrix. Current Phase 1 acceptance is defined in
-> `ENGINE_PHASE1.md` and automated under `tests/domain` and `tests/contracts`.
-> Applicable musical fixtures are ported now; CAGED, progressions, UI, telemetry
-> and browser tests await later authorization. Baseline prototype test success
-> does not establish correctness of the legacy UI.
+> **Current status:** automated coverage includes Music Engine Phase 1 through
+> Phase 2D, the existing Lab activities, ScenarioV1, and Rule Generator V1 using
+> generator algorithm/provenance version 2. The current Product Spine architecture
+> is defined in [ARCHITECTURE.md](ARCHITECTURE.md); its consolidation is
+> documentation only. Historical v0.2 acceptance examples are preserved separately
+> below and do not imply implemented CAGED, telemetry, PWA, or Playwright features.
 
 The app teaches musical facts. A plausible-looking wrong answer is worse than an obvious UI failure, so domain tests are mandatory.
 
-## Current Phase 2D and Lab automated coverage
+## Current automated verification
 
+Run the established suite from the repository root:
+
+```text
+npm run typecheck
+npm test
+npm run test:prototype
+npm run test:lab
+```
+
+`typecheck` checks engine/TypeScript contracts; `test` runs the domain and contract
+tests under `tests/domain` and `tests/contracts`. `test:prototype` preserves the
+standalone reference checks. `test:lab` builds the engine consumer, checks Lab
+JavaScript syntax, and runs the shared-fretboard, Chord, Practice, Parsimonious
+Path, phrase, and generator suites. Lab behavior checks use custom DOM/VM
+harnesses; they are not Playwright or real-browser layout tests. Software checks
+do not establish physical playability or pedagogical effectiveness.
+
+### Current engine, Lab, and generator coverage
+
+- foundational note spelling, registered pitches, intervals, transposition, tuning, note-at-fret, and bounded fretboard enumeration
+- conventional key signatures, relative keys, and fifths relationships with explicit display limits
+- broader scale formulas and selected-scale analysis separating written-degree references from sounding membership
+- explicit major/natural-minor diatonic triads and sevenths, structural Roman identities, and engine/query dependency boundaries
 - all 35 chord formulas across natural, sharp, flat and double-accidental roots
 - formula length, degree/alteration identity, spelling, pitch class and interval number
 - catalogue order, deep freezing, JSON serialization and version-1 query envelopes
@@ -37,7 +61,38 @@ The app teaches musical facts. A plausible-looking wrong answer is worse than an
 - generator-version-2 pinned seeded fixtures, fixed-order Fisher–Yates selection, unchanged seed normalization, and exact reproducibility under unchanged engine/query facts
 - exhausted distinct-generation UI search preserves accepted material, session progress, selections, and evidence; a recoverable message appears without an unrestricted fallback or answer leakage
 
-## 1. Note-at-fret tests
+## Product Spine documentation acceptance — manual checks only
+
+The consolidation adds no runtime behavior or application architecture code and
+introduces no new test framework. Its acceptance review must confirm:
+
+- `git diff` contains documentation changes only; existing runtime, tests, and musical capabilities remain intact.
+- The canonical architecture distinguishes current implementation from future direction, with explicit Explore/Practice/Apply responsibilities, Experience Router ownership/non-ownership, and context-preserving handoffs.
+- Practice Policy governs only explicit Practice; Explore and Apply have no curriculum gates. ScenarioV1 is bounded rather than universal.
+- Feature migration, the deferred capability list, and historical-document precedence agree across current guidance.
+- The four existing verification commands remain green on the documentation branch.
+
+These are documentation/manual acceptance checks, not newly implemented automated
+Product Spine tests. No router, shared workspace state, or new three-intention UI
+is claimed to exist.
+
+When later runtime slices are separately authorized, add targeted checks for
+supported context/region/focus handoffs, unsupported requests, invalid material,
+generation failure recovery, and answer disclosure before/after commitment and
+assistance. Reuse existing regression coverage; these future checks are described
+here as requirements, not reported as passing tests today.
+
+## Historical v0.2 acceptance examples — reference only
+
+The following examples preserve the original product matrix. Sections 1–4 overlap
+current engine facts, but this historical list is not the inventory of executable
+tests. CAGED, generic progression handling, the original Explore/Navigate/Harmony
+UI, persistent telemetry, PWA/offline behavior, and critical Playwright flows were
+historical targets. Bounded current Lab activities and diatonic harmony do not
+establish those broader features. Prototype success does not establish legacy UI
+correctness or authorize production implementation.
+
+### 1. Note-at-fret tests
 
 Standard tuning examples:
 
@@ -51,7 +106,7 @@ Standard tuning examples:
 
 Also verify octave repetition at fret 12 for every string.
 
-## 2. Interval tests
+### 2. Interval tests
 
 At minimum:
 
@@ -64,7 +119,7 @@ At minimum:
 
 Test all 12 semitone distances programmatically.
 
-## 3. Major-scale spelling
+### 3. Major-scale spelling
 
 Required examples:
 
@@ -77,7 +132,7 @@ Required examples:
 
 The spelling layer must not silently replace E# with F or B# with C in diatonic contexts.
 
-## 4. Major triads
+### 4. Major triads
 
 Required examples:
 
@@ -88,7 +143,7 @@ Required examples:
 - F# = F# A# C#
 - C# = C# E# G#
 
-## 5. CAGED voicings
+### 5. CAGED voicings
 
 For every supported root × CAGED shape:
 
@@ -102,7 +157,7 @@ Specific regression examples:
 - C major C shape = `[null,3,2,0,1,0]`
 - E major E shape = `[0,2,2,1,0,0]`
 
-## 6. Progressions
+### 6. Progressions
 
 - A major I–IV–V–I roots = A D E A
 - Bb major = Bb Eb F Bb
@@ -110,7 +165,7 @@ Specific regression examples:
 
 Each chord must contain scale degrees 1/3/5 relative to its chord root while retaining correct key spelling.
 
-## 7. Explore behaviour
+### 7. Explore behaviour
 
 - Full exposes note + interval
 - Intervals does not expose note names by default
@@ -120,21 +175,21 @@ Each chord must contain scale degrees 1/3/5 relative to its chord root while ret
 - correct build passes
 - missing/extra positions fail without revealing exact answer automatically
 
-## 8. Navigate behaviour
+### 8. Navigate behaviour
 
 - generated exercises always have at least one valid answer
 - clicking an invalid note cannot be marked correct merely because it has the same screen geometry
 - wrong interval feedback reports the actual interval from the relevant root
 - solved exercise does not keep generating duplicate attempt events from random clicks
 
-## 9. Harmony behaviour
+### 9. Harmony behaviour
 
 - scale layer remains stable while progression chord changes
 - active chord tones update on I/IV/V/I
 - practice mode hides the chord-tone answer
 - current-chord R/3/5 answers are evaluated by pitch class
 
-## 10. Telemetry
+### 10. Telemetry
 
 - append event
 - reload persistence
@@ -143,7 +198,7 @@ Each chord must contain scale degrees 1/3/5 relative to its chord root while ret
 - response time non-negative
 - no personally sensitive data is required for an attempt event
 
-## 11. Critical Playwright flows
+### 11. Critical Playwright flows
 
 1. Open A major G shape → switch Full → Roots → Build → construct correct voicing → success.
 2. Navigate Find Note → wrong click → informative feedback → correct click → success.

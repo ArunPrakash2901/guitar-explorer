@@ -1,10 +1,11 @@
-# Codex Kickoff Task
+# Historical Codex kickoff
 
-> SUPERSEDED: The user-approved Music Engine Phase 1 in `docs/ENGINE_PHASE1.md`
-> replaces the kickoff below. Read the current `AGENTS.md` and architecture.
-> Implement/maintain only Core, generic Guitar geometry, musical queries and tests.
-> Do not create a React shell or add CAGED/progressions in this run. The original
-> handoff is retained as historical context and archived byte-for-byte.
+> SUPERSEDED, non-operative historical instructions. Current authorization is in
+> [AGENTS.md](AGENTS.md); the current product and architecture source of truth is
+> [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md). The foundation was implemented under
+> the later engine plan, and Product Spine consolidation is documentation only.
+> The old React/CAGED/phase instructions below do not authorize runtime work.
+> The original handoff remains archived byte-for-byte.
 
 Use the following as the first instruction to Codex after this package is committed to its own repository.
 

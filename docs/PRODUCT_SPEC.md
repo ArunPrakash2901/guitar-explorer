@@ -1,8 +1,10 @@
 # Product Specification — v0.2
 
-> Historical product direction. Current implementation is limited to the approved
-> Music Engine Phase 1 in `ENGINE_PHASE1.md`; the UI completion criteria below do
-> not expand that scope. See the current `ARCHITECTURE.md` for engine boundaries.
+> Historical v0.2 product reference, not current scope or acceptance criteria.
+> [ARCHITECTURE.md](ARCHITECTURE.md) defines the current Product Spine direction
+> and implemented boundaries; [TEST_MATRIX.md](TEST_MATRIX.md) identifies current
+> coverage. Explore / Navigate / Harmony below are historical mode names.
+> The CAGED, telemetry, PWA and UI requirements here do not authorize implementation.
 
 ## Product definition
 

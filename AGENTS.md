@@ -1,6 +1,31 @@
 # AGENTS.md
 
-## Approved scope override — Music Engine through Phase 2D
+## Current scope — Product Spine documentation consolidation
+
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the current product and architecture
+source of truth. It distinguishes implemented capabilities from the target shared
+workspace with Explore, Practice and Apply intentions. Read it alongside
+`docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the current part of
+`docs/TEST_MATRIX.md` before proposing changes.
+
+The current authorized slice changes documentation only. Do not implement the
+Experience Router or Practice Policy, reorganize runtime modules, redesign UI,
+delete capabilities or introduce future-engine placeholders. Existing Lab routes
+and musical/session behavior remain intact. Later runtime work requires separate
+authorization; documenting a target does not authorize implementing it.
+
+No new capability receives a learner-facing destination by default. It must fit
+Explore, Practice, Apply or a shared service. Practice Policy applies only to an
+explicit Practice experience; Explore and Apply have no curriculum gates.
+ScenarioV1 remains bounded Melody/Motif material, not a universal workspace schema.
+Preserve deterministic engine truth, current generator provenance, answer
+withholding and the distinction between musical validity, exercise compliance and
+subjective musical judgment. See the architecture for deferred capabilities.
+
+## Existing foundation and Lab boundaries — implemented through Phase 2D
+
+The following records the foundation and experimental consumer boundaries. It
+does not override the documentation-only scope above or authorize feature growth.
 
 The user-approved Music Engine plan supersedes the historical v0.2 implementation
 order, `src/music` layout, and UI-first kickoff below. Phase 1 plus Issue #2 slices
@@ -81,9 +106,11 @@ Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
 `npm run test:lab`. Stop engine breadth after Phase 2D unless separately authorized.
 The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
-## Historical v0.2 instructions (subject to the override above)
+## Historical v0.2 instructions — non-operative reference
 
-These instructions are binding for coding agents working in this repository.
+The following preserves the original UI-first instructions for historical context.
+Its phase order, mode names, directory layout and imperative wording are not
+current authorization. The current scope and architecture above take precedence.
 
 ## Read first
 
