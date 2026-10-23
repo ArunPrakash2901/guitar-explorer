@@ -1,5 +1,10 @@
 # Phase 1 — approved foundation kernel
 
+> Completed Phase 1 scope and acceptance record. Later implemented engine slices
+> and current product boundaries are described in [ARCHITECTURE.md](ARCHITECTURE.md).
+> The stop conditions below apply to this original slice, not a claim that current
+> master stops at Phase 1. This record does not authorize new implementation.
+
 This scope supersedes the old v0.2 Phase 0/1 kickoff. Preserve the original handoff
 as reference; implement one pure TypeScript package before production UI work.
 

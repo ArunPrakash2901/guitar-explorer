@@ -1,11 +1,18 @@
 # Guitar Explorer
 
-Guitar Explorer is a long-term guitar and musicianship learning system built around one core problem: learning the fretboard and musical relationships without becoming dependent on visual shapes alone.
+Guitar Explorer is a fretboard-first musical reasoning environment: it should help
+the guitarist see musical relationships they currently cannot see, hear them,
+physically locate them, manipulate them and reuse them in real music. It is not
+primarily a course app.
 
-The tested TypeScript music kernel supports small physical-guitar learning probes.
-The current learner-facing experiment is one connected Practice Session, with
-focused Labs available as tools. Production UI, audio and Learning infrastructure
-remain later work.
+The implemented product is a tested TypeScript music kernel with browser Lab
+consumers. The target is one shared musical workspace with **Explore**, **Practice**
+and **Apply** intentions. That workspace and its Experience Router are documented,
+not implemented. Existing pages and sessions remain unchanged.
+
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the current source of truth for
+ownership, migration direction, deferred work and the distinction between current
+capabilities and the target. This consolidation slice changes documentation only.
 
 ## Current status
 
@@ -18,6 +25,13 @@ remain later work.
 **Phase 2C — Chord catalogue and learner-selectable Chord Lab: implemented**
 
 **Phase 2D — Diatonic harmony/Roman engine implemented; Practice Session v0 ready for physical review**
+
+The shared fretboard, Parsimonious Path, Melody Over Harmony, Develop the Idea,
+ScenarioV1/resolver and six-entry catalogue are implemented Lab capabilities.
+Rule Generator V1 is integrated for Melody only; its stabilized algorithm reports
+`generatorVersion: 2`. See [the generator contract](docs/RULE_GENERATOR_V1.md) for
+its fixed guitar envelope, replay guarantee and recoverable distinct-search failure.
+These software capabilities do not establish learning effectiveness.
 
 The current kernel includes:
 
@@ -42,11 +56,12 @@ The current kernel includes:
 - strict TypeScript and Vitest coverage
 - regression checks for the preserved behavioural prototype
 
-The current engine deliberately does **not** include inversions, concrete voicings,
+The current engine deliberately does **not** include chord inversions, concrete voicings,
 CAGED production logic, harmonic-function classification, progression relationships,
 cadences, common/nearest/guide-tone analysis, audio, ear training, learning telemetry
-or React integration. See `docs/ENGINE_PHASE1.md` for the foundation boundary and
-GitHub Issue #2 for the incremental Phase 2 roadmap.
+or React integration. [ENGINE_PHASE1.md](docs/ENGINE_PHASE1.md) records the original
+foundation acceptance; Issue #2 records the engine roadmap. Neither authorizes
+capability expansion during Product Spine consolidation.
 
 ## Try the Phase 2C Chord Lab
 
@@ -158,7 +173,19 @@ function, cadence or resolution. The fixed lesson's conventional home/pressure
 language is pedagogy, not a new engine classification. See `docs/API.md` for the
 unchanged result contract.
 
-## Verify the foundation kernel
+## Melody and motif Labs
+
+After `npm run lab`, `/melody.html` runs Melody Over Harmony from the approved
+catalogue or bounded Generated Practice. `/motif.html` runs Develop the Idea from
+the catalogue only. Both consume ScenarioV1 material through the resolver and the
+existing teaching plans; neither is a general song analyzer or a motif generator.
+Attempts and reflections remain temporary, and the physical guitar supplies sound.
+
+All standalone Lab URLs remain available during the planned migration. Their
+target destinations are documented in the architecture; no navigation change has
+been made in this slice.
+
+## Verify the kernel and Lab consumers
 
 Requires Node.js 22.17 or newer.
 
@@ -181,14 +208,14 @@ Import `src/engine/index.ts` from a TypeScript consumer. See:
 The engine keeps musical truth separate from presentation and learner state.
 
 ```text
-Application / future React
+Current Lab consumers
         |
         +--> Musical Query Interface --> Music Core
         |                           \--> Guitar Engine --> Music Core
         |
-        +--> future Learning Engine --> Core / Guitar / Ear
-        |
-        +--> future Browser Audio --> pure Audio plans
+        +--> bounded material preparation --> existing teaching plans
+                                             |
+                                             +--> fretboard view model
 ```
 
 Key principles:
@@ -201,16 +228,23 @@ Key principles:
 - Spelled identity and sounding membership stay distinct, including in non-heptatonic scales.
 - A future rhythm/time domain is reserved architecturally but is not implemented yet.
 
+The target Experience Router selects compatible capabilities and preserves context;
+it does not replace these domain or activity boundaries. Future visual and audio
+presentation consume prepared material in parallel. Practice Policy constrains
+explicit Practice only. Style knowledge is not a separate product mode.
+
 ## Roadmap
 
-1. **Foundation kernel** — implemented
-2. **Theory breadth** — slices 2A through 2D implemented; Phase 2E relationship/function work remains pending
-3. **Guitar representations** — maps, triad voicings, inversions, CAGED and position connectivity
-4. **Learning engine extraction** — deterministic exercises, evaluation, assistance and evidence contracts
-5. **Audio and ear training** — playback plans, browser audio and auditory exercise families
-6. **Production integration and stabilization** — React/PWA consumers, persistence and end-to-end verification
+1. **Stable baseline** — engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody generation are integrated.
+2. **Product Spine documentation** — current slice; record one workspace, three intentions and explicit boundaries without runtime changes.
+3. **One material-preparation seam** — a separately authorized future slice may connect existing Melody launch paths while preserving behavior.
+4. **Context and surface consolidation** — later prove Explore / Practice / Apply handoffs with existing capabilities and retained legacy routes.
+5. **Selective expansion** — resume only after the spine is proven and a capability has an explicit owner, consuming flow and validation criteria.
 
-The roadmap is intentionally incremental. Each phase should pass its own tests and acceptance criteria before later phases begin. The Learning Lab may be used between slices to validate that existing capabilities earn their place before more engine breadth is added.
+Style Packs, Motif Generator, full audio, learner modelling, adaptation, general
+song/progression or Ultimate Guitar-style import, external AI ideas, new standalone
+Labs, ScenarioV2, broad voice-leading promotion and UI framework migration remain
+deferred. This roadmap is direction, not authorization to begin those features.
 
 ## Prototype and historical references
 
@@ -218,10 +252,15 @@ The dependency-free prototype remains in `prototype/` as a behavioural reference
 
 The exact original package is preserved in `references/approved-v0.2-handoff.zip`.
 
-The former v0.2 UI-first handoff has been moved to `docs/history/V0_2_HANDOFF.md`. It provides historical product context only and no longer defines the implementation order.
+The former v0.2 UI-first handoff is in `docs/history/V0_2_HANDOFF.md`.
+`docs/PRODUCT_SPEC.md`, `docs/V0_2_PLAN.md` and `CODEX_KICKOFF.md` also preserve
+historical product/implementation directions. Their old modes, completion targets
+and instructions do not override the current architecture or authorize work.
 
 ## Product principle
 
-Anything the learner can currently see should eventually become something they have to retrieve, reconstruct, transfer or use in musical context.
+Anything shown can become material for a deliberately chosen Practice experience:
+retrieve, reconstruct, manipulate, transfer and use it in context. Explore remains
+permissive; access does not depend on completing that practice sequence.
 
-That principle will guide future fretboard, harmony, ear-training and improvisation features built on top of the engine.
+The goal is broader functional fretboard vision and independent musical use.

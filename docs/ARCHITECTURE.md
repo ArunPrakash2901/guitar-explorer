@@ -1,46 +1,171 @@
-# Music Engine architecture
+# Guitar Explorer architecture
 
-The user-approved engine architecture supersedes the v0.2 handoff's combined
-`src/music` layout and UI-first kickoff. The current engine contains only Core,
-Guitar and musical queries; later Audio, Ear and Learning modules remain documented
-boundaries rather than placeholder code.
+This is the current source of truth for product architecture and engine boundaries.
+It distinguishes implemented capabilities from the agreed Product Spine direction.
+The Product Spine is documented, not implemented: there is no shared application
+workspace, Experience Router or extracted Practice Policy module yet. This
+consolidation authorizes no runtime restructuring or new musical capability.
 
-## Dependency direction
+The approved engine architecture supersedes the v0.2 handoff's combined `src/music`
+layout and UI-first kickoff. `PRODUCT_SPEC.md` and `V0_2_PLAN.md` preserve historical
+product requirements and implementation order; they do not authorize their old
+Explore/Navigate/Harmony modes, telemetry, CAGED or React migration. `DECISIONS.md`
+records the decision history, `LEARNING_MODEL.md` describes practice principles,
+and `TEST_MATRIX.md` distinguishes current verification from historical targets.
+
+## Product Spine — agreed direction, not yet implemented
+
+Guitar Explorer is a **fretboard-first musical reasoning environment that helps
+the guitarist see musical relationships they currently cannot see, hear those
+relationships, physically locate them, manipulate them, and reuse them in real
+music**. It is not primarily a course app.
+
+One shared musical workspace has three primary user intentions:
+
+| Intention | Organizing question | Responsibility |
+|---|---|---|
+| **Explore** | What relationships are here? | Broad, permissive inspection: reveal, compare and manipulate notes, chords, roles and regions. Open fretboard vision has no curriculum lock. |
+| **Practice** | Can I retrieve and use this relationship independently? | Deliberate constraints, answer withholding, repetition, support, remediation and transfer. Practice Policy applies here. |
+| **Apply** | What can I understand and do with this musical material? | Begin with selected material, such as a progression, chord or fragment; expose useful relationships, chord-tone connections and target-note paths. Later style knowledge and audio can support this work. |
+
+These intentions belong to one application. A handoff should preserve the musical
+question rather than restart an unrelated Lab. Apply describes an intention; it
+does not mean arbitrary song/progression entry, import or generated licks already
+exist. There is no arbitrary AI lick-generation direction.
+
+The initial shared context should preserve selected material, explicit key,
+selected scale and current chord where relevant, region, focus and active intent.
+Key, selected scale and chord remain independent existing engine concepts. The
+workspace need not contain every activity's internal state or a learner model.
+
+### Experience Router — planned application responsibility
+
+Use a small **Experience Router** to preserve selected musical context, understand
+Explore/Practice/Apply intent, select compatible existing capabilities, prepare
+material through the appropriate service, and preserve explicit handoff context.
+Unsupported combinations and preparation/generation failures must be clear
+outcomes. Practice launches apply the activity's Practice Policy.
+
+The router must not own musical truth, chord/scale derivation, generator grammar,
+activity state machines, style taste, learner mastery, fretboard geometry, playback
+scheduling or subjective musical grading. Existing activity plans may retain their
+own shapes; a universal workflow engine or generic stage schema is unnecessary.
+
+### Practice Policy — planned boundary around explicit Practice
+
+The previously discussed Pedagogical Governor becomes **Practice Policy inside
+explicit Practice experiences**. It may specify the target relationship, variables
+held constant, allowed variation, support, answer visibility, objective checks,
+repetition, remediation and transfer. Existing sessions currently distribute these
+decisions across their planners and page handlers; no policy framework is implied.
+
+Explore and Apply remain accessible without XP, levels, unlock trees or mandatory
+global prerequisite gates. Apply may offer a deliberate Practice handoff around
+the selected relationship. Exploration need not adopt an assessment reveal sequence.
+
+Universal musical validity, exercise compliance and musical judgment are separate.
+A real chord can miss a minimum-movement constraint while remaining harmonically
+correct. Assistance must remain visible in evidence; a screen selection does not
+establish that a note was heard, sung or played correctly. Subjective musical
+responses and reflections remain ungraded.
+
+## Implemented system and dependency direction
+
+| Capability | Current status |
+|---|---|
+| Music Core, Guitar and `musicQueries` | Implemented deterministic foundation through Phase 2D. |
+| Chord, Practice/Harmony, Parsimonious Path, Melody and Motif Labs | Implemented browser consumers with separate page/session state and ephemeral evidence. |
+| Fretboard UI v2 | Implemented shared rendering surface; consumers own theory adaptation and disclosure. |
+| ScenarioV1, catalogue and resolver | Implemented bounded Melody/Motif material preparation. |
+| Rule Generator V1 | Implemented Melody-only material source; current generator provenance is version 2. |
+| Shared workspace, three-intention navigation, Experience Router, extracted Practice Policy | Agreed architecture only; not implemented. |
+| Audio, Ear, learner model, persistent learning history, style knowledge | Future boundaries; no placeholder implementation. |
 
 ```mermaid
 flowchart TD
-  App[Application / future React] --> Query[Musical Query Interface]
-  App --> Learning[Future Learning]
-  App --> Runtime[Future Browser Audio]
+  Pages[Existing Lab pages and activity state] --> Query[musicQueries]
   Query --> Core[Music Core]
-  Query --> Guitar[Guitar Engine]
+  Query --> Guitar[Guitar geometry]
   Guitar --> Core
-  Learning --> Core
-  Learning --> Ear[Future Ear Training]
-  Learning --> Guitar
-  Ear --> Core
-  Ear --> Plans[Future pure Audio contracts]
-  Runtime --> Plans
-  Plans --> Core
+  Pages --> Planner[Existing activity planners]
+  Planner --> Query
+  Pages --> Generator[Melody generator v2]
+  Generator --> Resolver[ScenarioV1 resolver]
+  Catalogue[Scenario catalogue] --> Resolver
+  Resolver --> Query
+  Resolver --> Material[Frozen runtime material]
+  Material --> Planner
+  Pages --> View[Shared fretboard renderer]
 ```
+
+Arrows show consumption/preparation dependencies. The engine imports no consumer.
+The simplified diagram omits the page-level adapters that unwrap query results.
+Not every activity uses ScenarioV1.
 
 - **Core:** written notes, sounding pitches, intervals, formulas, collections and
   context. Pure and instrument-independent; no browser, storage or learner state.
 - **Guitar:** tuning, physical string order and bounded geometry over Core.
   CAGED, 3NPS and other later views sit above this geometry.
-- **Audio, future:** pure plans of resolved pitches and relative seconds, plus a
-  separately imported browser adapter. No theory inference in the adapter.
-- **Ear, future:** instrument-independent auditory generation/evaluation using
-  Core and pure Audio contracts. It must never import Guitar.
-- **Learning, future:** sessions, assistance, attempts and evidence. Hear → identify
-  → find composes an Ear task with Guitar locations here, preserving the target
-  across stages. Recognition, retrieval and transfer remain distinct evidence.
 - **Musical Query Interface:** validated JSON-compatible facts from Core + Guitar.
   No playback commands, exercise sessions, mastery, history or persistence.
+- **Lab services and activities:** bounded material preparation and teaching
+  procedures consuming existing queries. These are not a production Learning Engine.
+- **Presentation:** consumers supply prepared positions, labels, selection and
+  connections to the shared fretboard; rendering derives no musical truth.
 
-One TypeScript package is sufficient. Future React + Vite consumers will use public
-engine exports rather than duplicate musical truth. There is no service split,
-plugin system, dependency-injection container or theory DSL.
+One TypeScript package and ordinary module boundaries remain sufficient. No backend,
+service split, plugin system, dependency-injection container or theory DSL is needed.
+UI framework migration is deferred; choosing React/Vite is not the next task.
+
+## Material preparation and ScenarioV1
+
+Material representation and teaching procedure remain separate. Ordinary Explore
+inspection may use `musicQueries` directly; it does not require a scenario or
+session. Apply may later use other material representations appropriate to the
+selected music. ScenarioV1 is not Guitar Explorer's universal data model.
+
+`ScenarioV1` remains a Lab-local contract for compatible Melody/Motif exercises:
+
+- Spelled major keys for main and transfer contexts; three or four diatonic chord
+  degrees, with triads or sevenths. Core's wider scale/key support does not expand it.
+- Explicit main/transfer regions using string indices 0–5 and frets 0–15; declared
+  chord-role targets and a later arrival must resolve within both chosen regions.
+- Melody has an upward diatonic-step approach and two phrase-lead notes ascending
+  into the target. Motif has rise-return cells plus an interval-preserving sequence.
+- The resolver derives facts through queries and checks supported chord roles,
+  exact spelled locations, registered motion and transfer invariance. Existence in
+  a bounded region is not a general fingering or physical-playability assessment.
+- Descriptive difficulty is not adaptation. No rhythm, articulation, style grammar,
+  song analysis, aesthetic grading, learner state or playback is represented.
+
+The plain scenario specification is serializable. Its resolved, frozen runtime
+bundle includes query closures such as `at`, `tone` and `locate`; it is not a
+persistable workspace document. A resolved scenario must also be compatible with
+its activity: the current Melody interaction selects/evaluates on the target
+string, so broader target/arrival string combinations represented by the schema
+are not a promise of UI support. Preserve supported catalogue/generated choices.
+See `SCENARIO_V1.md` for the detailed contract.
+
+### Implemented Melody generation
+
+Rule Generator V1 proposes ScenarioV1 Melody material, validates it through the
+resolver, applies bounded material preferences and returns the accepted scenario,
+resolved bundle and provenance to the existing Melody session. It generates no
+Motif material and does not teach or evaluate a learner. Material scores do not
+measure mastery or aesthetic quality.
+
+The generator's supported region policy is narrower than ScenarioV1: target and
+arrival use high E (index 5); the first phrase-lead note uses B (4) or high E (5).
+Main/transfer windows derive independently from their target locations. Difficulty
+changes approved key pools, not arbitrary strings or caller-selected regions.
+
+Current provenance reports `generatorVersion: 2`; the Rule and Scenario contracts
+remain V1. Fixed-order seeded Fisher–Yates selection and pinned fixtures protect
+replay with the same rule, difficulty, seed, generator version and unchanged
+engine/query facts and ordering. Version-1 seeded outputs are not preserved.
+Distinct-generation exhaustion preserves accepted material and the active session,
+shows a recoverable failure, and never falls back to unrestricted generation.
+See `RULE_GENERATOR_V1.md` for the exact policy, budgets and replay contract.
 
 ## Musical values and context
 
@@ -160,7 +285,8 @@ session evidence.
 ### Fretboard UI v2 presentation boundary
 
 The Lab shares `lab/fretboard-view.mjs` and `lab/fretboard.css` across Parsimonious
-Path, Chord Lab, and the Practice Session retrieval warm-up. The renderer receives
+Path, Chord Lab, the Practice Session retrieval warm-up, Melody Over Harmony and
+Develop the Idea / Motif. The renderer receives
 an explicit view model: display-ordered strings, active strings, a fret range,
 positions with selectable/selected states and short labels, and optional directed
 connections. It draws six physical string lanes, frets, open positions, markers,
@@ -175,8 +301,37 @@ which are revealed after checking or assistance, and what counts as correct. The
 renderer does not infer pitches, chord roles, scale degrees, hints, candidate
 voicings, movement efficiency or learner evidence. Parsimonious Path's bounded
 enumeration and ranking remain in `lab/voice-leading-session.mjs`; Music Core and
-`musicQueries` retain musical truth. The connection shape can display later
-position relationships without encoding a chord or melody lesson now.
+`musicQueries` retain musical truth. The same connection shape supports the
+existing movement, melody and motif paths without owning their teaching procedure.
+
+## Future audio, style and learning boundaries — documentation only
+
+Visual fretboard presentation and audio presentation should be sibling consumers
+of prepared musical material. Audio is a shared presentation/service capability,
+not a final stage downstream of a fretboard lesson. A future adapter may compile
+prepared pitches and timed events into pure playback plans; a separately imported
+browser adapter schedules them without deriving theory or deciding disclosure.
+
+```mermaid
+flowchart TD
+  Prepared[Prepared musical material] --> Visual[Visual presentation adapter]
+  Visual --> Board[Shared fretboard renderer]
+  Prepared --> Audio[Future audio plan preparation]
+  Audio --> Runtime[Future browser playback]
+```
+
+This is a future boundary, not an implemented pipeline. Pure Audio contracts can
+depend on Core; browser playback depends on those contracts. Future Ear tasks are
+instrument-independent and depend on Core plus pure Audio contracts, never Guitar.
+Future Learning composes Ear and Guitar for hear → identify → find, preserving the
+target while distinguishing recognition, retrieval and transfer evidence.
+
+Future **Style Packs are knowledge/preferences**, not product modes or automatic
+standalone pages. They may influence target choices, phrase vocabulary,
+articulation, rhythmic language, harmonic treatment and generated-idea preferences.
+They cannot redefine engine facts or turn stylistic taste into objective validity.
+ScenarioV1 does not represent most of this information; the existing rule boundary
+does not promise style support without new contracts and later authorization.
 
 ## Future rhythm/time domain — documentation only
 
@@ -198,18 +353,113 @@ history through Learning and persistence. It may reference musical concept IDs o
 compose musical facts at the application layer; learner state never enters Core
 or musical query results.
 
-## Later v1 direction and exclusions
+## Existing feature migration direction — not a runtime change
 
-Subsequently authorized slices may add harmony relationships, maps/triad
-voicings, standard-tuning CAGED, playback and
-all five auditory exercise families. The auditory-to-fretboard composition remains
-owned by Learning. Evidence summaries precede mastery estimation.
+| Existing capability | Intended home and reuse |
+|---|---|
+| Chord Lab | Inspection portions move into Explore; retrieval, reconstruction and transfer become a Practice activity. Preserve both behaviors. |
+| Practice Session / Harmonic Gravity | Practice, with the existing full-session and focused Harmony entry sharing one plan. |
+| Parsimonious Path | Practice. Its bounded movement comparison may later support Explore/Apply after demonstrated reuse. |
+| Melody Over Harmony | Practice. Contextual note analysis is reusable elsewhere. |
+| Develop the Idea / Motif | Practice. Supported motif transformations may later support Apply. |
+| Generated Melody Practice | A material source inside compatible Practice activities; no independent product destination. |
+| Existing standalone Lab URLs | Retain during migration. Deprecate independent learner-facing destinations only after replacement is proven; keep useful regression/dev surfaces. |
+| Preserved prototype and references | Historical and diagnostic evidence; no second production music engine. |
 
-Current Roman labels are key-relative structural identities: natural minor has
-III, VI and VII. Future functional rules must distinguish these calculated facts
-from interpretations, and must not infer a unique key automatically.
+Share material services, context and the fretboard without forcing every activity
+into one teaching sequence. Do not delete earlier useful work or rename existing
+pages as if the three intentions were already implemented.
 
-Western twelve-tone equal temperament is the foundation. Microphone/transcription,
-DSP-heavy processing, AI authority, cloud sync, adaptive mastery, general chord-text
+## Deferred until the Product Spine is proven
+
+The following capabilities remain deferred and are not started by this architecture
+decision. Each needs a concrete consuming flow and separate later authorization.
+
+1. Style Pack V1.
+2. Motif Generator.
+3. Full audio layer.
+4. Learner model.
+5. Adaptive scheduling.
+6. Arbitrary song/progression import.
+7. Ultimate Guitar-style input.
+8. External AI idea generation.
+9. New standalone Labs.
+10. ScenarioV2.
+11. Broad voice-leading engine promotion.
+12. UI framework migration.
+
+The full audio layer's scope need not determine the scope of a later small audition
+experiment, but no audio implementation is authorized now. Likewise, selecting
+approved material for an eventual bounded Apply proof does not imply general
+progression entry or song import.
+
+Previously described harmony relationships, maps/triad voicings, standard-tuning
+CAGED and auditory exercise families also remain unimplemented unless separately
+authorized. Current Roman labels are key-relative structural identities: natural
+minor has III, VI and VII. Future functional rules must distinguish calculated
+facts from interpretations and must not infer a unique key automatically.
+
+Western twelve-tone equal temperament remains the foundation. Microphone and
+transcription, DSP-heavy processing, AI authority, cloud sync, general chord-text
 parsing, global voice-leading/fingering optimization and notation engraving remain
-outside the current scope.
+outside current scope. Documentation of an extension point is not a request for
+placeholder types, APIs or infrastructure.
+
+## Architecture rules
+
+1. **No automatic destinations.** A new capability must serve Explore, Practice,
+   Apply or a shared service before gaining a learner-facing destination.
+2. **One authority for musical facts.** The deterministic engine owns derivation;
+   presentation, teaching, interpretation and style consume it.
+3. **Preserve context across intentions.** Carry material, region and focus
+   explicitly through supported Explore/Practice/Apply handoffs.
+4. **Practice Policy applies only to explicit Practice.** Explore and Apply have no
+   curriculum prerequisite gates.
+5. **Separate material from teaching procedure.** Reusing musical material does not
+   require a universal activity state machine.
+6. **Keep ScenarioV1 bounded.** It serves compatible Melody/Motif exercises; direct
+   queries and other later material representations remain valid alternatives.
+7. **Separate validity, compliance and judgment.** A valid musical answer may miss
+   an exercise constraint; musical taste is not objective correctness.
+8. **Present prepared information.** Renderers and playback adapters do not infer
+   theory, select pedagogy or decide assessment disclosure.
+9. **Honor generation constraints and provenance.** Preserve explicit limits,
+   version and replay information. Handle exhaustion without weakening guarantees.
+10. **Describe observed evidence precisely.** Objective screen correctness,
+    assistance, self-reported playing/hearing and future performed/audio evidence
+    are distinct. Elapsed time alone is not mastery.
+11. **Promote experiments after evidence.** Generalize an algorithm only after
+    demonstrated reuse and physical value, with an explicitly reviewed contract.
+
+## Interpreting learning research
+
+The Musicianship System Design Plan informs experiments; it does not override
+implemented musical contracts or grant implementation scope. Singing is useful
+within practice, not an application-wide prerequisite. Exact latency thresholds
+such as 800 ms require stronger evidence before becoming product rules; present
+elapsed time includes thinking, guitar action and interface use.
+
+Tonal stability is contextual interpretation knowledge rather than basic
+pitch/interval truth. Minimum movement is an exercise constraint rather than a
+universal measure of musical quality. Prose research examples never override
+engine-verified facts. Claims that motif work is missing are historical: Develop
+the Idea already exists, while a Motif Generator remains deferred.
+
+## Next implementation boundary
+
+The current work records decisions and reconciles documentation only. No
+Experience Router implementation, shared-workspace state, UI redesign or new
+feature begins here.
+
+A separately authorized next runtime slice can extract one small DOM-free Melody
+preparation seam joining catalogue/generated material to the existing Melody plan.
+It should preserve the current activity, supported combinations, provenance,
+failure recovery and answer withholding. It should not change engine contracts,
+renderer geometry, teaching sequences, motif grammar or navigation, and should not
+introduce a universal scenario schema. Broader workspace handoffs follow only after
+that boundary is demonstrated and separately authorized.
+
+Retain `npm run typecheck`, `npm test`, `npm run test:prototype` and
+`npm run test:lab` as baseline checks. Add meaningful boundary coverage when runtime
+changes are authorized. Current automated checks do not establish browser layout,
+physical performance or pedagogical effectiveness; those need direct review.

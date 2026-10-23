@@ -1,8 +1,9 @@
 # v0.2 Implementation Plan
 
-> Archived implementation order. Superseded by `ENGINE_PHASE1.md` and the current
-> `ARCHITECTURE.md`. The old UI, CAGED and progression requirements do not expand
-> the approved foundation-kernel run.
+> Archived v0.2 implementation order. The imperative instructions below are
+> non-operative history. [ARCHITECTURE.md](ARCHITECTURE.md) is the current source
+> of truth; [ENGINE_PHASE1.md](ENGINE_PHASE1.md) records the completed foundation
+> slice. This plan does not authorize UI, CAGED, storage or framework work.
 
 Codex should execute these phases in order. Do not combine all phases into one giant rewrite.
 

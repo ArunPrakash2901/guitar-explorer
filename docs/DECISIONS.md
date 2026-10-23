@@ -1,5 +1,12 @@
 # Architecture and Product Decisions
 
+> **Current guidance:** [ARCHITECTURE.md](ARCHITECTURE.md) is the canonical
+> Product Spine architecture and distinguishes implemented capabilities from
+> future direction. D023–D028 record the current consolidation decisions and take
+> precedence where earlier entries conflict. Earlier entries preserve the reasons
+> and scope of their original decisions; they do not authorize deferred work.
+> This consolidation changes documentation only, not runtime behavior.
+
 ## D001 — Build a web/PWA, not a native mobile app
 
 Reason: one codebase works on phone, desktop and tablet; the learning interactions are well suited to browser SVG/touch; offline installation can be added without native-store overhead.
@@ -7,6 +14,9 @@ Reason: one codebase works on phone, desktop and tablet; the learning interactio
 ## D002 — React + TypeScript + Vite for production
 
 Reason: enough structure for a long-lived interactive learning product while remaining lightweight. TypeScript is especially valuable for separating pitch, spelling, interval, exercise and UI concepts.
+
+Status: historical long-term UI direction, not approval to migrate the current
+Lab. UI framework migration remains deferred under D028.
 
 ## D003 — SVG fretboard
 
@@ -35,8 +45,11 @@ Reason: `prototype/` proves interaction ideas quickly. Production code should no
 ## D009 — Foundation kernel supersedes the legacy UI-first kickoff
 
 The user approved one TypeScript package under src/engine/{core,guitar,query}.
-React/Vite remains the eventual UI direction; CAGED and progressions are later work.
-Current scope and stop conditions are in ENGINE_PHASE1.md and GitHub Issue #2.
+React/Vite was retained as a long-term UI direction, not implementation approval;
+UI framework migration remains deferred under D028. CAGED and general progression
+capabilities remain later work; subsequent decisions record bounded Lab consumers.
+That foundation slice's scope and stop conditions are preserved in ENGINE_PHASE1.md
+and GitHub Issue #2; current product scope is defined in ARCHITECTURE.md.
 
 ## D010 — Ear is instrument-independent
 
@@ -234,4 +247,97 @@ requirement through an unrestricted fallback.
 This implementation is Lab-local and strictly for Melody practice. It does not
 introduce motif generation, rhythm models, genre packs, audio, adaptive student
 tracking, or LLM runtime calls.
+
+## D023 — One fretboard-first workspace, three user intentions
+
+Guitar Explorer is a fretboard-first musical reasoning environment, not primarily
+a course app. One shared musical workspace will support **Explore** ("What
+relationships are here?"), **Practice** ("Can I retrieve and use this relationship
+independently?"), and **Apply** ("What can I understand and do with this musical
+material?"). Explore permits inspection and comparison; Practice constrains and
+supports deliberate retrieval; Apply starts from selected musical material.
+
+These are intentions within one application, not separate apps. No capability
+gets a learner-facing destination by default. The migration map and current versus
+future capability status live in [ARCHITECTURE.md](ARCHITECTURE.md). Existing Lab
+URLs remain available during migration and as regression/development surfaces
+until replacement behavior is proven. No existing musical capability is deleted.
+
+## D024 — A small Experience Router connects existing capabilities
+
+The future Experience Router preserves selected musical context, interprets the
+current intention, selects compatible existing capabilities, prepares material
+through the appropriate service, preserves explicit handoff context, and returns
+clear unsupported/failure states.
+
+It does not own musical truth or chord/scale derivation, generator grammar,
+activity state machines, style taste, learner mastery, fretboard geometry,
+playback scheduling, or subjective musical grading. The deterministic engine
+remains the musical-fact authority. This is an ownership decision only; no router
+implementation is authorized by the documentation consolidation.
+
+## D025 — Practice Policy governs explicit Practice only
+
+Practice Policy replaces the application-wide Pedagogical Governor proposal. It
+may select the target relationship, held-constant variables, permitted variation,
+support, answer visibility, objective checks, repetition, remediation, and transfer
+inside explicit Practice activities. Explore and Apply remain accessible without
+XP, levels, unlock trees, or mandatory global prerequisite gates.
+
+Evidence must distinguish objective screen correctness, assistance, self-report,
+and any future performed/audio evidence. Existing temporary attempts and elapsed
+time do not establish mastery or performed-note correctness. Research cautions
+and their implications are recorded in [LEARNING_MODEL.md](LEARNING_MODEL.md).
+
+## D026 — Keep material, teaching procedure, and musical judgment separate
+
+ScenarioV1 remains a bounded contract for compatible Melody/Motif exercise
+material, not Guitar Explorer's universal data model. Ordinary Explore tasks may
+consume `musicQueries` directly; Apply may use other material representations
+later. Do not force every capability through ScenarioV1 or expand it through
+future-engine placeholders.
+
+The resolver validates its bounded musical/region constraints; it does not prove
+general fingering, performance, or pedagogical effectiveness. Musical validity,
+exercise compliance, and musical judgment remain separate: minimum movement is
+one exercise constraint, not universal musical quality. Generation must honor
+explicit supported constraints and preserve provenance; exhausted search must
+not silently weaken those constraints. See D021–D022 for the implemented bounds.
+
+## D027 — Shared presentation consumes prepared material; style supplies knowledge
+
+Future visual and audio presentation both consume prepared musical material.
+Audio is a shared presentation/service capability, not a final stage downstream
+of a fretboard lesson. Renderer and playback adapters display or sound prepared
+information without inferring theory or owning disclosure/assessment policy.
+
+Future Style Packs are knowledge/preferences that may influence target choices,
+phrase vocabulary, articulation, rhythmic language, harmonic treatment, and
+generated-idea preferences. They are not product modes and do not automatically
+become pages. Neither audio nor Style Packs is implemented in this consolidation.
+
+## D028 — Prove the Product Spine before expanding capabilities
+
+The following remain deferred until the Product Spine is proven and later work
+is separately authorized:
+
+- Style Pack V1
+- Motif Generator
+- full audio layer
+- learner model
+- adaptive scheduling
+- arbitrary song/progression import
+- Ultimate Guitar-style input
+- external AI idea generation
+- new standalone Labs
+- ScenarioV2
+- broad voice-leading engine promotion
+- UI framework migration
+
+Experimental algorithms require demonstrated reuse and physical value before
+promotion. The current step records architecture and migration direction only:
+no Experience Router code, Explore/Practice/Apply UI redesign, new musical
+capabilities, or runtime restructuring. Preserve the existing engine, activities,
+generation, shared fretboard, and regression coverage while later slices prove
+the workspace handoffs described in [ARCHITECTURE.md](ARCHITECTURE.md).
 
