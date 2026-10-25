@@ -9,13 +9,15 @@ For same-repository pull requests, `.github/workflows/pr-preview.yml`:
 
 1. installs dependencies
 2. runs `npm run preview:build`
-3. writes only generated static Lab output to the dedicated `gh-pages` branch under
-   `pr-preview/pr-<number>/`
+3. writes only generated browser-preview output to the dedicated `gh-pages` branch
+   under `pr-preview/pr-<number>/`
 4. comments the preview URL on the pull request
 5. removes that preview when the pull request closes
 
-The repository source tree is not copied to Pages. The static build contains the Lab
-files and compiled engine files required by the browser.
+The preview output contains the browser Lab files and compiled engine files required
+by the app. Repository docs, tests, references and unrelated source files are not
+published. Browser JavaScript used by the Lab is necessarily visible to anyone who
+can access the Pages site, and source maps are intentionally omitted.
 
 ## One-time repository setup
 
@@ -35,15 +37,19 @@ write permissions requested in the workflow file.
 
 ## Privacy note
 
-GitHub Pages sites are web-published content. Do not put secrets, private learner
-records or exported session-evidence JSON into the preview build. The evidence
-recorder itself stays local in the browser and exports a file only when the learner
-chooses to do so.
+GitHub Pages sites are web-published content, including when the source repository is
+private on plans that allow private-repository Pages. Enabling Pages is therefore an
+explicit publication decision. Do not put secrets, private learner records or
+exported session-evidence JSON into the preview build.
+
+The evidence recorder itself stays local in the browser and exports a file only when
+the learner chooses to do so. The preview workflow does not upload that exported
+JSON.
 
 For private repositories, Pages availability depends on the GitHub plan/account
-configuration. If Pages is unavailable, `npm run preview:build` still produces the
-same static output locally; a different preview host can be added later only with
-explicit authorization.
+configuration. If Pages is unavailable or public preview publication is not desired,
+`npm run preview:build` still produces the same static output locally; a different
+preview host can be added later only with explicit authorization.
 
 ## Static build contract
 
@@ -62,7 +68,10 @@ The build:
 - creates a real `harmony.html` alias for the local-server route
 - rewrites only local root-absolute `src`, `href` and ES-module import references so
   the site works below a PR-specific subpath
-- injects build revision / PR metadata for evidence exports when provided by CI
+- adjusts the generated Harmony route check for the PR-specific path prefix without
+  changing the source Lab behaviour
+- injects the local-only session-evidence recorder plus build revision / PR metadata
+- omits source maps from published preview output
 - fails if required entry files are missing or root-absolute local references remain
 
-It does not rewrite musical data or application logic.
+It does not rewrite musical data or exercise logic.
