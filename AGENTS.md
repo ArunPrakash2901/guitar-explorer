@@ -10,12 +10,16 @@ without asking and where explicit approval is required. Then read
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-Issue #18 / PR #19 is complete. PR-preview plumbing, local-only session-evidence
-export and the autonomy contract are now baseline development/validation support,
-not authorization for additional infrastructure or musical capability.
+Issue #21 is the current authorized developer-leverage slice. It may introduce one
+authoritative verification command, a bounded stable ScenarioV1 identity contract
+and a versioned physical-validation protocol/evidence metadata without changing
+musical truth, exercise answers, learner scoring, persistence or product direction.
+Scenario identity remains Lab/validation metadata, not a universal workspace schema
+or Learning Engine.
 
-No new Product Spine capability slice is active by default. Issue #15 is the current
-physical-evidence task and Issue #16 remains the next capability decision gate.
+Issue #15 remains the physical-evidence task and Issue #16 remains the next capability
+decision gate. Arun has enabled the existing GitHub Pages PR-preview publication path;
+do not switch hosts, treat previews as production, or publish private evidence.
 
 PR #13 remains the previously authorized bounded Product Spine runtime slice: one
 DOM-free Melody preparation seam for existing catalogue/generated material, with no
@@ -68,14 +72,19 @@ useful in practice, simplify or remove it rather than building infrastructure ar
 it.
 
 The merged Session Evidence recorder from Issue #18 is a standing bounded validation
-tool. It may keep ephemeral in-page interaction evidence and export a user-triggered
-JSON file. It must not send evidence over the network, persist learner history, score
-performance, infer mastery or change exercise correctness.
+tool. Issue #21 may version that export and attach stable ScenarioV1 identity plus the
+physical-validation protocol version. It must not send evidence over the network,
+persist learner history, score performance, infer mastery or change exercise
+correctness.
 
-PR-preview infrastructure is likewise bounded development tooling. Do not enable a
-web-public Pages site, introduce another external host, publish private evidence or
-turn previews into production deployment without Arun's explicit approval. See
-`docs/PR_PREVIEWS.md`.
+Use [`docs/PHYSICAL_VALIDATION_PROTOCOL.md`](docs/PHYSICAL_VALIDATION_PROTOCOL.md)
+for real-guitar trials. Automated correctness cannot substitute for the protocol's
+unaided attempt, assistance-if-needed, physical-use, transfer and reflection stages.
+
+PR-preview infrastructure is likewise bounded development tooling. Arun has approved
+and enabled the existing GitHub Pages publication path for PR previews. Do not
+introduce another external host, publish private evidence or turn previews into
+production deployment without further explicit approval. See `docs/PR_PREVIEWS.md`.
 
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
 Learning composes Ear + Guitar for auditory-to-fretboard tasks. Musical queries
@@ -125,9 +134,9 @@ progressive assistance, physical voice deconstruction, unfamiliar A-major transf
 and ephemeral evidence. Promotion into an engine module requires later evidence and
 authorization.
 
-Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`,
-`npm run test:lab`, and for preview-sensitive changes `npm run preview:build`. Stop
-engine breadth after Phase 2D unless separately authorized. The exact original
+Use `npm run verify` as the authoritative full-repository verification gate. Narrower
+scripts may be used for focused diagnosis, but they do not replace the full gate.
+Stop engine breadth after Phase 2D unless separately authorized. The exact original
 handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical instructions
