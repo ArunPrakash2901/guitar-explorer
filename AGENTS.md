@@ -10,10 +10,12 @@ without asking and where explicit approval is required. Then read
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-Issue #18 is the current authorized developer-leverage slice. It may add PR-preview
-infrastructure, local-only session-evidence export and the explicit autonomy contract
-without changing musical truth, learner scoring, persistence or product direction.
-The evidence recorder is development/validation tooling, not a Learning Engine.
+Issue #18 / PR #19 is complete. PR-preview plumbing, local-only session-evidence
+export and the autonomy contract are now baseline development/validation support,
+not authorization for additional infrastructure or musical capability.
+
+No new Product Spine capability slice is active by default. Issue #15 is the current
+physical-evidence task and Issue #16 remains the next capability decision gate.
 
 PR #13 remains the previously authorized bounded Product Spine runtime slice: one
 DOM-free Melody preparation seam for existing catalogue/generated material, with no
@@ -65,10 +67,15 @@ reconstruction, scale-degree understanding or transfer. If an interaction is not
 useful in practice, simplify or remove it rather than building infrastructure around
 it.
 
-Issue #18's evidence recorder is an explicit exception only to the extent needed for
-manual validation: it may keep ephemeral in-page interaction evidence and export a
-user-triggered JSON file. It must not send evidence over the network, persist learner
-history, score performance, infer mastery or change exercise correctness.
+The merged Session Evidence recorder from Issue #18 is a standing bounded validation
+tool. It may keep ephemeral in-page interaction evidence and export a user-triggered
+JSON file. It must not send evidence over the network, persist learner history, score
+performance, infer mastery or change exercise correctness.
+
+PR-preview infrastructure is likewise bounded development tooling. Do not enable a
+web-public Pages site, introduce another external host, publish private evidence or
+turn previews into production deployment without Arun's explicit approval. See
+`docs/PR_PREVIEWS.md`.
 
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
 Learning composes Ear + Guitar for auditory-to-fretboard tasks. Musical queries

@@ -13,27 +13,26 @@ The product should develop independent musical use rather than shape memorisatio
 
 ## Current stage
 
-**Product Spine consolidation with development-loop hardening.**
+**Product Spine consolidation with a hardened development/validation loop.**
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
-generation already exist. The current objective is to make the existing system
-easier to test physically and easier for future agent sessions to operate safely,
-without expanding musical capability.
+generation already exist. Issue #18 / PR #19 completed the first developer-leverage
+slice: PR-preview plumbing, local-only session-evidence export and an explicit agent
+autonomy contract are now baseline support infrastructure.
+
+No new musical capability is authorized merely because that tooling exists.
 
 ## Active work
 
-**Issue #18 — developer leverage: PR previews, session-evidence export and autonomy contract**
+**Validation and reconciliation, not a new capability slice.**
 
-This is the active support/tooling slice. It may improve previewability, evidence
-capture and agent execution boundaries, but it must not change musical truth,
-learner scoring, persistence or product direction.
-
-### Runtime work held alongside it
-
-**PR #13 — Melody preparation seam** remains the previously authorized bounded
-Product Spine runtime slice. After later `master` changes it must be reconciled with
-current `master` before merge. Do not force-merge it or treat its open state as
-authorization for broader runtime work.
+- **Issue #15 — Physical validation — current Lab cohort** is the current learner-
+  evidence task.
+- **PR #13 — Melody preparation seam** remains the previously authorized bounded
+  Product Spine runtime slice. It must be reconciled with current `master` before any
+  merge attempt; do not force-merge it or broaden its scope.
+- **Issue #16 — Decision gate — choose next Product Spine slice** remains blocked on
+  enough physical evidence and a clear disposition of PR #13.
 
 ## Current gate
 
@@ -43,15 +42,21 @@ Before promoting more experimental behaviour into permanent engine/product
 architecture, gather physical-guitar evidence from the existing learning probes and
 use that evidence to decide whether to keep, change, remove or promote them.
 
-Tracking:
-
-- **Issue #15 — Physical validation — current Lab cohort**
-- **Issue #16 — Decision gate — choose next Product Spine slice**
-- **Issue #18 — Developer leverage — current support/tooling slice**
-
 ## Waiting on Arun
 
-Issue #15 tracks physical-guitar review of the current Lab cohort:
+### One-time preview publication choice
+
+The `gh-pages` preview branch and automation now exist. To make future PR preview
+URLs web-accessible, Arun may choose to configure GitHub Pages to deploy from
+`gh-pages` / root as documented in `docs/PR_PREVIEWS.md`.
+
+That is intentionally a manual choice because GitHub Pages publishes browser content
+to the web. Do not enable or substitute another public/external preview host without
+explicit approval.
+
+### Physical-guitar evidence
+
+Issue #15 tracks review of:
 
 - Harmonic Gravity / Practice Session
 - Parsimonious Path
@@ -60,20 +65,19 @@ Issue #15 tracks physical-guitar review of the current Lab cohort:
 
 For each experience, capture what became easier without looking at answers, where
 calculation or hesitation remained, whether assistance/reveal timing helped, and
-whether transfer worked away from the initial material.
-
-After Issue #18 creates the `gh-pages` preview branch, one repository setting may be
-needed once: configure GitHub Pages to deploy from `gh-pages` / root. That setting is
-only for non-production PR previews and is documented in `docs/PR_PREVIEWS.md`.
+whether transfer worked away from the initial material. The merged Session Evidence
+panel can export a versioned local JSON snapshot when useful; nothing is uploaded
+automatically.
 
 ## Authorized next work
 
-- complete Issue #18 without changing musical capability
 - collect structured physical-guitar evidence in Issue #15
-- reconcile PR #13 with current `master` before any merge attempt
-- fix correctness, usability or pedagogy problems revealed by evidence
+- reconcile PR #13 with current `master` without broadening its bounded seam
+- fix correctness, usability or pedagogy problems directly supported by evidence
 - use Issue #16 to choose and bound the next Product Spine slice only after its
   blocking evidence is available
+- maintain the merged preview/evidence/autonomy tooling when a concrete defect is
+  found, without treating maintenance as authorization for new infrastructure
 
 ## Not currently authorized
 
@@ -87,14 +91,14 @@ only for non-production PR previews and is documented in `docs/PR_PREVIEWS.md`.
 - AI tutor behaviour
 - React/framework migration
 - broad song/progression import
-- production deployment or paid external preview infrastructure
+- production deployment or paid/external preview infrastructure
 
 These may be reconsidered later; their presence in historical plans is not current
 authorization.
 
 ## Decision queue
 
-1. Does Issue #18 give us a reliable preview/evidence loop without becoming analytics infrastructure?
+1. Enable GitHub Pages only if Arun accepts the web-publication boundary for PR previews.
 2. What do the existing Labs actually improve during physical playing? (Issue #15)
 3. Does PR #13 still represent the right bounded runtime seam after reconciliation?
 4. Which Lab behaviours deserve simplification, removal or promotion?
