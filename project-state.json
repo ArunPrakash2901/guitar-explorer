@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 32,
-    "pullRequest": null,
+    "pullRequest": 33,
     "kind": "developer-leverage",
     "summary": "Machine-readable context, deployment channels, and longitudinal evidence"
   },
