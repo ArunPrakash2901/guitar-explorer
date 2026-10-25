@@ -18,42 +18,39 @@ The product should develop independent musical use rather than shape memorisatio
 **Product Spine consolidation with a hardened development/validation loop.**
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
-generation already exist. Standing support/runtime infrastructure includes:
+generation already exist. Standing support/runtime infrastructure now includes:
 
 - Issue #18 / PR #19: PR previews, local-only evidence export and explicit agent autonomy
 - Issue #21 / PR #22: authoritative `npm run verify`, stable ScenarioV1 identity,
   evidence schema v2 and Physical Validation Protocol v1
 - Issue #29 / PR #30: the bounded DOM-free Melody preparation seam, reconciled onto
   current `master`; stale PR #13 is closed as superseded
+- Issue #32 / PR #33: machine-readable project context, explicit stable/preview/
+  experimental build-channel provenance, Session Evidence schema v3, and local
+  longitudinal evidence timeline tooling
 
 Arun has enabled GitHub Pages for the `gh-pages` preview branch. GitHub's Pages build
 and deployment workflow has successfully published PR previews. This remains
 non-production preview infrastructure and must not publish private learner evidence.
+Stable publication remains reserved for a separate explicit decision; experimental
+builds are opt-in and non-production.
 
 ## Active work
 
-**Issue #32 / PR #33 — Developer leverage batch 3.**
+**Issue #15 — Physical validation — current Lab cohort.**
 
-This bounded infrastructure slice implements the remaining roadmap upgrades 7–9:
-
-1. versioned machine-readable project context plus `npm run context`
-2. explicit stable / preview / experimental build-channel identities
-3. Session Evidence schema v3 plus a local longitudinal evidence timeline tied to
-   revisions, deployment channels and scenarios
-
-This is infrastructure/traceability only. It does not authorize new musical
-capability, a Learning Engine, telemetry, scoring or production deployment.
-
-### Learner-evidence task remains active
-
-**Issue #15 — Physical validation — current Lab cohort** remains the source of
-learner evidence. Use `docs/PHYSICAL_VALIDATION_PROTOCOL.md` and the Session Evidence
-panel to evaluate:
+The next useful evidence now comes from real-guitar trials. Use
+`docs/PHYSICAL_VALIDATION_PROTOCOL.md` and the Session Evidence panel to evaluate:
 
 - Harmonic Gravity / Practice Session
 - Parsimonious Path
 - Melody Over Harmony
 - Develop the Idea
+
+Evidence schema v3 records protocol, scenario and exact build/deployment provenance.
+`npm run evidence:timeline` can reconcile repeated exports of the same `trialId` and
+build a local descriptive history under the gitignored `.evidence-local/` path.
+Nothing is uploaded automatically and the timeline must not infer mastery.
 
 ### Decision held behind it
 
@@ -68,14 +65,11 @@ Before promoting more experimental behaviour into permanent engine/product
 architecture, gather physical-guitar evidence from the existing learning probes and
 use that evidence to decide whether to keep, change, remove or promote them.
 
-The merged Melody preparation seam and Issue #32 developer tooling are
-infrastructure/consolidation only. They do not authorize a general Experience Router,
-Practice Policy, new theory breadth or a Learning Engine.
+The Melody preparation seam and all three developer-leverage batches are standing
+infrastructure only. They do not authorize a general Experience Router, Practice
+Policy, new theory breadth or a Learning Engine.
 
 ## Waiting on Arun
-
-Issue #32 does not require a new product/pedagogy decision. Its stable channel remains
-reserved and unpublished; production publication still requires explicit approval.
 
 Issue #15 requires at least one focused Protocol v1 trial for each current experience.
 For each trial:
@@ -86,18 +80,16 @@ For each trial:
 4. try the transfer
 5. record reflection and a provisional disposition
 
-Reset the Session Evidence panel after choosing the material/scenario. Evidence
-schema v3 records protocol, scenario and build/deployment provenance while remaining
-local-only. Nothing is uploaded automatically. Local timeline output is stored under
-the gitignored `.evidence-local/` path by default.
+Reset the Session Evidence panel after choosing the material/scenario. Export JSON
+when useful; the local timeline can combine those exports later without turning them
+into scores or inferred mastery.
 
 ## Authorized next work
 
-- complete Issue #32 / PR #33 inside its infrastructure-only acceptance criteria
 - collect structured physical-guitar evidence in Issue #15
 - fix correctness, usability or pedagogy problems directly supported by evidence
-- maintain the existing preview/verify/evidence/Melody-preparation infrastructure
-  when needed for correctness or reliability
+- maintain the existing context/preview/verify/evidence/Melody-preparation
+  infrastructure when needed for correctness or reliability
 - use Issue #16 to choose and bound the next Product Spine slice only after its
   physical-evidence blocker is satisfied
 
@@ -120,10 +112,9 @@ authorization.
 
 ## Decision queue
 
-1. Finish the bounded developer-leverage batch without changing musical behaviour. (Issue #32)
-2. What do the existing Labs actually improve during physical playing? (Issue #15)
-3. Which Lab behaviours deserve simplification, removal or promotion?
-4. Given that evidence, what is the smallest next Product Spine slice? (Issue #16)
+1. What do the existing Labs actually improve during physical playing? (Issue #15)
+2. Which Lab behaviours deserve simplification, removal or promotion?
+3. Given that evidence, what is the smallest next Product Spine slice? (Issue #16)
 
 ## Control-plane rules
 
