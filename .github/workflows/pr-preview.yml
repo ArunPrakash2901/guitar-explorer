@@ -49,4 +49,4 @@ jobs:
           action: auto
           comment: true
           qr-code: false
-          wait-for-pages-deployment: false
+          wait-for-pages-deployment: true
