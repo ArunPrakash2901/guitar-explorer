@@ -6,7 +6,9 @@ Protocol version: **1**
 
 This protocol is the default method for deciding whether a learner-facing Guitar
 Explorer experiment is useful on a real guitar. It complements automated correctness
-checks; it does not replace them and it does not create a mastery model.
+checks; it does not replace them and it does not create a mastery model. Run
+`npm run verify` for the software gate; use this protocol for the physical-learning
+gate when a real-guitar review is required.
 
 ## Purpose
 
