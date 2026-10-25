@@ -6,10 +6,11 @@ can recover the project state without depending on chat history.
 ## Read order
 
 1. `PROJECT_STATE.md` — what matters now, the active slice and decision gate
-2. `AGENTS.md` — agent constraints and authorization rules
-3. `docs/ARCHITECTURE.md` — current product and architecture boundaries
-4. the active GitHub issue or pull request — exact scope for this slice
-5. relevant decisions/tests only as needed
+2. `AGENTS.md` — current repository constraints and authorization rules
+3. `docs/AUTONOMY_CONTRACT.md` — what an agent may do independently and where it must stop
+4. `docs/ARCHITECTURE.md` — current product and architecture boundaries
+5. the active GitHub issue or pull request — exact scope for this slice
+6. relevant decisions/tests only as needed
 
 ## Work item model
 
@@ -34,6 +35,10 @@ Important evidence includes:
 - whether assistance timing helped or simply revealed the answer
 - whether the idea transferred to another key, position or context
 
+The Lab's session-evidence recorder may be used to export a versioned JSON snapshot
+for a trial. That export is local-only until Arun deliberately shares it. It is
+supporting evidence, not a mastery score or automatic promotion decision.
+
 A physical-validation issue may recommend keep/change/remove/promotion, but it does
 not itself authorize new capability breadth.
 
@@ -42,6 +47,10 @@ not itself authorize new capability breadth.
 Every non-trivial PR should link a work item, state behaviour impact, verification,
 physical-review requirements and whether `PROJECT_STATE.md` remains accurate.
 Small maintenance PRs may explain why no issue is needed.
+
+For learner-facing/browser work, use the PR preview when available so physical review
+is performed against the exact revision under discussion. Preview setup is documented
+in `docs/PR_PREVIEWS.md`.
 
 ## Updating project state
 
