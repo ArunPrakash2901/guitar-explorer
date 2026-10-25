@@ -17,6 +17,8 @@ let session = createEvidenceSession({
   page: "/melody.html",
   revision: "abc123",
   previewPr: "19",
+  deploymentChannel: "preview",
+  deploymentLabel: "pr-19",
   scenarioId: "melody-g-ii-v-i",
   scenarioSource: "catalogue",
   scenarioContractVersion: 1,
@@ -25,15 +27,18 @@ let session = createEvidenceSession({
 
 assert.equal(session.schema, EVIDENCE_SCHEMA);
 assert.equal(session.schemaVersion, EVIDENCE_SCHEMA_VERSION);
-assert.equal(session.schemaVersion, 2);
+assert.equal(session.schemaVersion, 3);
 assert.deepEqual(session.protocol, {
   id: PHYSICAL_VALIDATION_PROTOCOL,
   version: PHYSICAL_VALIDATION_PROTOCOL_VERSION,
 });
 assert.equal(session.protocol.id, "guitar-explorer/physical-validation");
 assert.equal(session.protocol.version, 1);
+assert.match(session.trialId, /^trial-[0-9a-f]{8}$/);
 assert.equal(session.previewPr, 19);
 assert.equal(session.revision, "abc123");
+assert.equal(session.deploymentChannel, "preview");
+assert.equal(session.deploymentLabel, "pr-19");
 assert.equal(session.scenarioId, "melody-g-ii-v-i");
 assert.equal(session.scenarioSource, "catalogue");
 assert.equal(session.scenarioContractVersion, 1);
@@ -92,8 +97,22 @@ assert.equal(completed.reflection.interpretation, "change");
 assert.equal(completed.reflection.calculationOrHesitation, "I still calculated the third.");
 assert.match(
   evidenceFilename(completed),
-  /^guitar-explorer-evidence-melody-over-harmony-gen-dominant-third-introductory-1001-2026-10-25-07-00-00\.json$/,
+  /^guitar-explorer-evidence-melody-over-harmony-gen-dominant-third-introductory-1001-abc123-2026-10-25-07-00-00\.json$/,
 );
+
+const replay = createEvidenceSession({
+  experience: "melody-over-harmony",
+  page: "/melody.html",
+  revision: "abc123",
+  previewPr: 19,
+  deploymentChannel: "preview",
+  deploymentLabel: "pr-19",
+  scenarioId: "melody-g-ii-v-i",
+  scenarioSource: "catalogue",
+  scenarioContractVersion: 1,
+  startedAt,
+});
+assert.equal(replay.trialId, session.trialId);
 
 const badInterpretation = finalizeEvidenceSession(session, {
   endedAt: "2026-10-25T07:00:13.000Z",
@@ -105,6 +124,16 @@ const noScenario = createEvidenceSession({ experience: "harmonic-gravity-practic
 assert.equal(noScenario.scenarioId, null);
 assert.equal(noScenario.scenarioSource, null);
 assert.equal(noScenario.scenarioContractVersion, null);
+assert.equal(noScenario.deploymentChannel, "local");
+assert.equal(noScenario.deploymentLabel, null);
+
+const unknownChannel = createEvidenceSession({
+  experience: "harmonic-gravity-practice",
+  page: "/practice.html",
+  deploymentChannel: "production-ish",
+  startedAt,
+});
+assert.equal(unknownChannel.deploymentChannel, "local");
 
 assert.throws(
   () => createEvidenceSession({ experience: "", page: "/" }),
@@ -115,4 +144,4 @@ assert.throws(
   /interaction kind is required/,
 );
 
-console.log("session evidence protocol and scenario checks passed");
+console.log("session evidence protocol, scenario, and deployment checks passed");
