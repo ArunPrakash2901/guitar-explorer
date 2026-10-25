@@ -1,18 +1,20 @@
 # AGENTS.md
 
-## Current scope — Product Spine documentation consolidation
+## Current scope — Product Spine consolidation
 
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the current product and architecture
-source of truth. It distinguishes implemented capabilities from the target shared
-workspace with Explore, Practice and Apply intentions. Read it alongside
-`docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the current part of
-`docs/TEST_MATRIX.md` before proposing changes.
+Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
+active work, waiting-on-Arun state and decision gate. Then read
+[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) as the current product/architecture
+source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
+current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-The current authorized slice changes documentation only. Do not implement the
-Experience Router or Practice Policy, reorganize runtime modules, redesign UI,
-delete capabilities or introduce future-engine placeholders. Existing Lab routes
-and musical/session behavior remain intact. Later runtime work requires separate
-authorization; documenting a target does not authorize implementing it.
+The current runtime authorization is deliberately narrow. At present, PR #13 is the
+active Product Spine implementation slice: one DOM-free Melody preparation seam for
+existing catalogue/generated material, with no intended learner-facing behaviour
+change and no new musical capability. Do not generalize that seam into a complete
+Experience Router, Practice Policy, generic Learning Engine, runtime reorganization
+or UI redesign. A later implementation slice requires its own explicit issue/scope
+and must be consistent with the current gate in `PROJECT_STATE.md`.
 
 No new capability receives a learner-facing destination by default. It must fit
 Explore, Practice, Apply or a shared service. Practice Policy applies only to an
@@ -25,7 +27,7 @@ subjective musical judgment. See the architecture for deferred capabilities.
 ## Existing foundation and Lab boundaries — implemented through Phase 2D
 
 The following records the foundation and experimental consumer boundaries. It
-does not override the documentation-only scope above or authorize feature growth.
+does not override the current control-plane gate or authorize feature growth.
 
 The user-approved Music Engine plan supersedes the historical v0.2 implementation
 order, `src/music` layout, and UI-first kickoff. Phase 1 plus Issue #2 slices
