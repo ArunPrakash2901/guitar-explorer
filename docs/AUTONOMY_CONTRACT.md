@@ -14,6 +14,20 @@ verification or reversible maintenance work that is already inside scope.
 If scope, product intent or learner impact is materially ambiguous, stop expansion
 and surface the decision instead of guessing.
 
+## Preview-first review rule
+
+Implementation work should reach Arun through the existing GitHub Pages PR-preview
+path rather than requiring local terminal/folder review. Before merging an
+implementation PR, the exact-head PR preview must have been published successfully
+and be live in GitHub Pages.
+
+When the change is learner-facing, begins a new implementation phase, materially
+changes an experience, or the active issue otherwise requires Arun's manual review,
+stop at the live preview boundary, give Arun the preview link, and wait for his
+explicit go-ahead before merging. Routine non-learner-facing maintenance may still be
+merged autonomously when the merge conditions below are satisfied and no manual
+review requirement applies.
+
 ## May act without asking
 
 When the work is inside the active authorized issue, an agent may:
@@ -35,7 +49,10 @@ When the work is inside the active authorized issue, an agent may:
   - the issue explicitly authorizes the work
   - acceptance criteria are satisfied
   - required CI is green
+  - the exact-head PR preview has completed publication successfully
   - there are no unresolved review concerns
+  - no learner-facing/new-phase/manual-validation rule requires Arun's preview review
+    and explicit go-ahead
   - the PR does not change musical truth, product direction or learner-facing
     pedagogy
   - rollback is straightforward
@@ -53,6 +70,9 @@ has explicitly authorized it in the current work item or conversation:
 - materially change learner-facing pedagogy, sequencing, answer withholding or the
   meaning of an exercise
 - change public music/query contracts unless the active issue explicitly requires it
+- merge an implementation PR before its exact-head GitHub Pages preview is live
+- merge a learner-facing, new-phase or otherwise manually validated change before
+  Arun has been given the live preview and explicitly approved the merge
 - merge a learner-facing behavioural change that still requires physical-guitar
   validation
 - delete or rewrite historical decisions, prior evidence or user-authored learning
