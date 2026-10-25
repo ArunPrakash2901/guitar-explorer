@@ -37,13 +37,22 @@ function rewriteRootReferences(source) {
     .replace(/\bimport\s+(['"])\/(?!\/)/g, "import $1./");
 }
 
-function injectBuildMetadata(source) {
-  if (!source.includes("</head>")) return source;
-  const metadata = [
-    `  <meta name="guitar-explorer-revision" content="${htmlEscape(revision)}">`,
-    `  <meta name="guitar-explorer-preview-pr" content="${htmlEscape(previewPr)}">`,
-  ].join("\n");
-  return source.replace("</head>", `${metadata}\n</head>`);
+function injectPreviewShell(source) {
+  let transformed = source;
+  if (transformed.includes("</head>")) {
+    const metadata = [
+      `  <meta name="guitar-explorer-revision" content="${htmlEscape(revision)}">`,
+      `  <meta name="guitar-explorer-preview-pr" content="${htmlEscape(previewPr)}">`,
+    ].join("\n");
+    transformed = transformed.replace("</head>", `${metadata}\n</head>`);
+  }
+  if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs")) {
+    transformed = transformed.replace(
+      "</body>",
+      '  <script type="module" src="./session-evidence.mjs"></script>\n</body>',
+    );
+  }
+  return transformed;
 }
 
 async function walk(directory) {
@@ -83,8 +92,9 @@ await writeFile(join(outputRoot, ".nojekyll"), "");
 for (const file of await walk(outputRoot)) {
   if (!textExtensions.has(extname(file))) continue;
   const original = await readFile(file, "utf8");
-  let transformed = rewriteRootReferences(original);
-  if (extname(file) === ".html") transformed = injectBuildMetadata(transformed);
+  let transformed = original;
+  if (extname(file) === ".html") transformed = injectPreviewShell(transformed);
+  transformed = rewriteRootReferences(transformed);
   assertSubpathSafe(relative(outputRoot, file), transformed);
   if (transformed !== original) await writeFile(file, transformed, "utf8");
 }
