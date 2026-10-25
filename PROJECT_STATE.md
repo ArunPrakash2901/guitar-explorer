@@ -16,11 +16,13 @@ The product should develop independent musical use rather than shape memorisatio
 **Product Spine consolidation with a hardened development/validation loop.**
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
-generation already exist. Two developer-leverage batches are now baseline support:
+generation already exist. Standing support/runtime infrastructure now includes:
 
 - Issue #18 / PR #19: PR previews, local-only evidence export and explicit agent autonomy
 - Issue #21 / PR #22: authoritative `npm run verify`, stable ScenarioV1 identity,
   evidence schema v2 and Physical Validation Protocol v1
+- Issue #29 / PR #30: the bounded DOM-free Melody preparation seam, reconciled onto
+  current `master`; stale PR #13 is closed as superseded
 
 Arun has enabled GitHub Pages for the `gh-pages` preview branch. GitHub's Pages build
 and deployment workflow has successfully published PR previews. This remains
@@ -39,13 +41,11 @@ the Session Evidence panel to evaluate:
 - Melody Over Harmony
 - Develop the Idea
 
-### Work held alongside it
+### Decision held behind it
 
-- **PR #13 — Melody preparation seam** remains the previously authorized bounded
-  Product Spine runtime slice. It must be reconciled with current `master` before any
-  merge attempt; do not force-merge it or broaden its scope.
-- **Issue #16 — Decision gate — choose next Product Spine slice** remains blocked on
-  enough physical evidence and a clear disposition of PR #13.
+- **Issue #16 — Decision gate — choose next Product Spine slice** now has its
+  architecture-side blocker satisfied by the merged Melody seam. It remains blocked
+  on enough Issue #15 physical evidence to support a bounded next decision.
 
 ## Current gate
 
@@ -54,6 +54,10 @@ New capability breadth is not the default next move.
 Before promoting more experimental behaviour into permanent engine/product
 architecture, gather physical-guitar evidence from the existing learning probes and
 use that evidence to decide whether to keep, change, remove or promote them.
+
+The merged Melody preparation seam is infrastructure/consolidation only. It does not
+authorize a general Experience Router, Practice Policy, new theory breadth or a
+Learning Engine.
 
 ## Waiting on Arun
 
@@ -74,12 +78,11 @@ is uploaded automatically.
 ## Authorized next work
 
 - collect structured physical-guitar evidence in Issue #15
-- reconcile PR #13 with current `master` without broadening its bounded seam
 - fix correctness, usability or pedagogy problems directly supported by evidence
-- maintain the existing preview/verify/evidence infrastructure when needed for
-  correctness or reliability
+- maintain the existing preview/verify/evidence/Melody-preparation infrastructure
+  when needed for correctness or reliability
 - use Issue #16 to choose and bound the next Product Spine slice only after its
-  blocking evidence is available
+  remaining physical-evidence blocker is satisfied
 
 ## Not currently authorized
 
@@ -87,7 +90,7 @@ is uploaded automatically.
 - CAGED production logic
 - generic voicing or voice-leading engine promotion
 - new standalone Labs by default
-- general Practice/Learning Engine infrastructure
+- general Experience Router or Practice/Learning Engine infrastructure
 - learner mastery/adaptation/telemetry systems
 - microphone grading or audio recognition
 - AI tutor behaviour
@@ -101,9 +104,8 @@ authorization.
 ## Decision queue
 
 1. What do the existing Labs actually improve during physical playing? (Issue #15)
-2. Does PR #13 still represent the right bounded runtime seam after reconciliation?
-3. Which Lab behaviours deserve simplification, removal or promotion?
-4. Only then: what is the smallest next Product Spine slice? (Issue #16)
+2. Which Lab behaviours deserve simplification, removal or promotion?
+3. Given that evidence, what is the smallest next Product Spine slice? (Issue #16)
 
 ## Control-plane rules
 
