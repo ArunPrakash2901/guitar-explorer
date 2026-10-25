@@ -19,6 +19,8 @@ const requiredPaths = [
   "motif.html",
   "session-evidence.mjs",
   "session-evidence-core.mjs",
+  "scenario-identity.mjs",
+  "scenario-context.mjs",
   "engine/index.js",
 ];
 
