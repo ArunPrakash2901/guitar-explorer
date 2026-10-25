@@ -1,0 +1,48 @@
+name: PR preview
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize, closed]
+
+concurrency:
+  group: pr-preview-${{ github.event.number }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  preview:
+    if: github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        if: github.event.action != 'closed'
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+        if: github.event.action != 'closed'
+
+      - name: Build static Lab preview
+        if: github.event.action != 'closed'
+        run: npm run preview:build
+        env:
+          GE_REVISION: ${{ github.event.pull_request.head.sha }}
+          GE_PREVIEW_PR: ${{ github.event.number }}
+
+      - name: Deploy or remove PR preview
+        uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1
+        with:
+          source-dir: .preview-dist
+          preview-branch: gh-pages
+          umbrella-dir: pr-preview
+          action: auto
+          comment: true
+          qr-code: false
+          wait-for-pages-deployment: false
