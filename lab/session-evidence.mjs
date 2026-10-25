@@ -3,7 +3,9 @@ import {
   evidenceFilename,
   finalizeEvidenceSession,
   recordEvidenceInteraction,
+  withEvidenceScenario,
 } from "/session-evidence-core.mjs";
+import { readScenarioContext } from "/scenario-context.mjs";
 
 const FIELD_IDS = {
   easierWithoutAnswers: "ge-evidence-easier",
@@ -40,6 +42,14 @@ function currentReflection() {
   );
 }
 
+function currentScenario() {
+  try {
+    return readScenarioContext(document) ?? {};
+  } catch {
+    return {};
+  }
+}
+
 function downloadJson(value, filename) {
   const blob = new Blob([`${JSON.stringify(value, null, 2)}\n`], { type: "application/json" });
   const url = URL.createObjectURL(blob);
@@ -60,6 +70,8 @@ function recorderMarkup() {
       <summary><span>Session evidence</span><span id="ge-evidence-count" class="ge-evidence-count">0 events</span></summary>
       <div class="ge-evidence-body">
         <p class="ge-evidence-note"><strong>Local only.</strong> Nothing here is sent or saved automatically. Export the JSON only when you want to share the trial.</p>
+        <p class="ge-evidence-note"><strong>Protocol v1:</strong> unaided attempt → smallest assistance only if needed → transfer → reflection. Reset evidence after choosing your scenario.</p>
+        <p id="ge-evidence-context" class="ge-evidence-note"></p>
 
         <label>What became easier without looking at answers?
           <textarea id="${FIELD_IDS.easierWithoutAnswers}" rows="2"></textarea>
@@ -166,7 +178,19 @@ const baseOptions = {
   revision: metaContent("guitar-explorer-revision"),
   previewPr: metaContent("guitar-explorer-preview-pr"),
 };
-let session = createEvidenceSession(baseOptions);
+let session = createEvidenceSession({ ...baseOptions, ...currentScenario() });
+
+function refreshScenarioContext() {
+  const scenario = currentScenario();
+  session = withEvidenceScenario(session, scenario);
+  const context = document.getElementById("ge-evidence-context");
+  if (context) {
+    context.textContent = session.scenarioId
+      ? `Scenario: ${session.scenarioId} · ${session.scenarioSource}`
+      : "Scenario: not applicable on this page";
+  }
+  return scenario;
+}
 
 function updateCount() {
   const count = document.getElementById("ge-evidence-count");
@@ -174,9 +198,11 @@ function updateCount() {
 }
 
 function record(kind, details = {}) {
+  const scenario = refreshScenarioContext();
   session = recordEvidenceInteraction(session, {
     elapsedMs: performance.now() - startedMonotonic,
     kind,
+    ...scenario,
     ...details,
   });
   updateCount();
@@ -207,18 +233,22 @@ function captureChange(event) {
 
 function resetRecorder() {
   startedMonotonic = performance.now();
-  session = createEvidenceSession(baseOptions);
+  session = createEvidenceSession({ ...baseOptions, ...currentScenario() });
   for (const id of Object.values(FIELD_IDS)) {
     const field = document.getElementById(id);
     if (field) field.value = "";
   }
   updateCount();
+  refreshScenarioContext();
   const status = document.getElementById("ge-evidence-status");
-  if (status) status.textContent = "Evidence reset for a fresh trial.";
+  if (status) status.textContent = "Evidence reset for a fresh protocol trial.";
 }
 
 function exportRecorder() {
-  const completed = finalizeEvidenceSession(session, { reflection: currentReflection() });
+  const completed = finalizeEvidenceSession(session, {
+    reflection: currentReflection(),
+    scenario: currentScenario(),
+  });
   downloadJson(completed, evidenceFilename(completed));
   const status = document.getElementById("ge-evidence-status");
   if (status) status.textContent = "JSON exported. Nothing was uploaded automatically.";
@@ -232,6 +262,7 @@ function mountRecorder() {
   document.addEventListener("click", captureClick, true);
   document.addEventListener("change", captureChange, true);
   updateCount();
+  refreshScenarioContext();
 }
 
 window.guitarExplorerEvidence = Object.freeze({
@@ -239,7 +270,10 @@ window.guitarExplorerEvidence = Object.freeze({
     record(kind, details);
   },
   snapshot() {
-    return finalizeEvidenceSession(session, { reflection: currentReflection() });
+    return finalizeEvidenceSession(session, {
+      reflection: currentReflection(),
+      scenario: currentScenario(),
+    });
   },
 });
 
