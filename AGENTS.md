@@ -10,16 +10,22 @@ without asking and where explicit approval is required. Then read
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-Issue #21 is the current authorized developer-leverage slice. It may introduce one
-authoritative verification command, a bounded stable ScenarioV1 identity contract
-and a versioned physical-validation protocol/evidence metadata without changing
-musical truth, exercise answers, learner scoring, persistence or product direction.
-Scenario identity remains Lab/validation metadata, not a universal workspace schema
-or Learning Engine.
+The two completed developer-leverage slices are standing support infrastructure:
 
-Issue #15 remains the physical-evidence task and Issue #16 remains the next capability
-decision gate. Arun has enabled the existing GitHub Pages PR-preview publication path;
-do not switch hosts, treat previews as production, or publish private evidence.
+- Issue #18 / PR #19: PR previews, local-only Session Evidence export and the agent
+  autonomy contract
+- Issue #21 / PR #22: authoritative `npm run verify`, stable ScenarioV1 identity,
+  evidence schema v2 and Physical Validation Protocol v1
+
+Those merged capabilities may be maintained for correctness and reliability, but
+they do not authorize a Learning Engine, analytics, persistence, scoring or new
+musical capability. Scenario identity remains Lab/validation metadata, not a
+universal workspace schema.
+
+Issue #15 is now the active learner-evidence task and Issue #16 remains the next
+capability decision gate. Arun has enabled the existing GitHub Pages PR-preview
+publication path; do not switch hosts, treat previews as production, or publish
+private evidence.
 
 PR #13 remains the previously authorized bounded Product Spine runtime slice: one
 DOM-free Melody preparation seam for existing catalogue/generated material, with no
@@ -71,15 +77,17 @@ reconstruction, scale-degree understanding or transfer. If an interaction is not
 useful in practice, simplify or remove it rather than building infrastructure around
 it.
 
-The merged Session Evidence recorder from Issue #18 is a standing bounded validation
-tool. Issue #21 may version that export and attach stable ScenarioV1 identity plus the
-physical-validation protocol version. It must not send evidence over the network,
-persist learner history, score performance, infer mastery or change exercise
-correctness.
+The Session Evidence recorder, stable ScenarioV1 identity and evidence schema v2 are
+bounded validation tools. They may keep ephemeral in-page interaction evidence and
+export a user-triggered JSON file with exact revision/scenario/protocol metadata.
+They must not send evidence over the network, persist learner history, score
+performance, infer mastery or change exercise correctness.
 
 Use [`docs/PHYSICAL_VALIDATION_PROTOCOL.md`](docs/PHYSICAL_VALIDATION_PROTOCOL.md)
 for real-guitar trials. Automated correctness cannot substitute for the protocol's
 unaided attempt, assistance-if-needed, physical-use, transfer and reflection stages.
+A physical-validation result may support keep/change/remove/promotion-candidate/
+inconclusive, but promotion still requires the separate architecture/capability gate.
 
 PR-preview infrastructure is likewise bounded development tooling. Arun has approved
 and enabled the existing GitHub Pages publication path for PR previews. Do not
@@ -136,8 +144,8 @@ authorization.
 
 Use `npm run verify` as the authoritative full-repository verification gate. Narrower
 scripts may be used for focused diagnosis, but they do not replace the full gate.
-Stop engine breadth after Phase 2D unless separately authorized. The exact original
-handoff is in `references/approved-v0.2-handoff.zip`.
+See `docs/VERIFY.md`. Stop engine breadth after Phase 2D unless separately authorized.
+The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical instructions
 
