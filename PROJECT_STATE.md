@@ -13,21 +13,27 @@ The product should develop independent musical use rather than shape memorisatio
 
 ## Current stage
 
-**Product Spine consolidation — first runtime seam.**
+**Product Spine consolidation with development-loop hardening.**
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
-generation already exist. The current objective is to connect those capabilities
-through a clearer product spine without expanding theory breadth or silently
-building a generic learning framework.
+generation already exist. The current objective is to make the existing system
+easier to test physically and easier for future agent sessions to operate safely,
+without expanding musical capability.
 
 ## Active work
 
-**PR #13 — Melody preparation seam**
+**Issue #18 — developer leverage: PR previews, session-evidence export and autonomy contract**
 
-The active runtime slice introduces one DOM-free preparation boundary for existing
-Melody catalogue and generated material while preserving learner-facing behaviour.
-It is the current implementation focus and should be reviewed/merged before a new
-runtime slice is started.
+This is the active support/tooling slice. It may improve previewability, evidence
+capture and agent execution boundaries, but it must not change musical truth,
+learner scoring, persistence or product direction.
+
+### Runtime work held alongside it
+
+**PR #13 — Melody preparation seam** remains the previously authorized bounded
+Product Spine runtime slice. After later `master` changes it must be reconciled with
+current `master` before merge. Do not force-merge it or treat its open state as
+authorization for broader runtime work.
 
 ## Current gate
 
@@ -41,6 +47,7 @@ Tracking:
 
 - **Issue #15 — Physical validation — current Lab cohort**
 - **Issue #16 — Decision gate — choose next Product Spine slice**
+- **Issue #18 — Developer leverage — current support/tooling slice**
 
 ## Waiting on Arun
 
@@ -55,12 +62,16 @@ For each experience, capture what became easier without looking at answers, wher
 calculation or hesitation remained, whether assistance/reveal timing helped, and
 whether transfer worked away from the initial material.
 
+After Issue #18 creates the `gh-pages` preview branch, one repository setting may be
+needed once: configure GitHub Pages to deploy from `gh-pages` / root. That setting is
+only for non-production PR previews and is documented in `docs/PR_PREVIEWS.md`.
+
 ## Authorized next work
 
-- review and merge PR #13 if its behaviour-preservation and verification claims hold
+- complete Issue #18 without changing musical capability
 - collect structured physical-guitar evidence in Issue #15
-- fix correctness, usability or pedagogy problems revealed by that evidence
-- improve existing Product Spine seams without introducing new musical capability
+- reconcile PR #13 with current `master` before any merge attempt
+- fix correctness, usability or pedagogy problems revealed by evidence
 - use Issue #16 to choose and bound the next Product Spine slice only after its
   blocking evidence is available
 
@@ -76,22 +87,26 @@ whether transfer worked away from the initial material.
 - AI tutor behaviour
 - React/framework migration
 - broad song/progression import
+- production deployment or paid external preview infrastructure
 
 These may be reconsidered later; their presence in historical plans is not current
 authorization.
 
 ## Decision queue
 
-1. Does PR #13 prove a useful preparation seam without changing the learning flow?
+1. Does Issue #18 give us a reliable preview/evidence loop without becoming analytics infrastructure?
 2. What do the existing Labs actually improve during physical playing? (Issue #15)
-3. Which Lab behaviours deserve simplification, removal or promotion?
-4. Only then: what is the smallest next Product Spine slice? (Issue #16)
+3. Does PR #13 still represent the right bounded runtime seam after reconciliation?
+4. Which Lab behaviours deserve simplification, removal or promotion?
+5. Only then: what is the smallest next Product Spine slice? (Issue #16)
 
 ## Control-plane rules
 
-- `AGENTS.md` defines agent constraints and authorization rules.
-- `docs/ARCHITECTURE.md` defines current product/architecture boundaries.
 - `PROJECT_STATE.md` defines the current operational focus and gates.
+- `AGENTS.md` defines repository constraints and current authorization rules.
+- `docs/AUTONOMY_CONTRACT.md` defines what an agent may do independently and where it
+  must stop for Arun.
+- `docs/ARCHITECTURE.md` defines current product/architecture boundaries.
 - A GitHub issue defines the scope and acceptance criteria for one authorized work
   slice.
 - A pull request should link its issue (or explain why no issue is needed), state

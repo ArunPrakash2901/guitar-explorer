@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .lab-dist/
+.preview-dist/
 coverage/
 *.tsbuildinfo
 

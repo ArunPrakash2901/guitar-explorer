@@ -25,7 +25,7 @@ function inside(base, candidate) {
 }
 
 function resolveRequest(pathname) {
-  if (pathname === "/fretboard-view.mjs" || pathname === "/fretboard.css") {
+  if (["/fretboard-view.mjs", "/fretboard.css", "/session-evidence.mjs", "/session-evidence-core.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (pathname === "/" || pathname === "/index.html") {
@@ -67,6 +67,14 @@ function resolveRequest(pathname) {
   return null;
 }
 
+function injectEvidenceRecorder(html) {
+  if (html.includes("session-evidence.mjs") || !html.includes("</body>")) return html;
+  return html.replace(
+    "</body>",
+    '  <script type="module" src="/session-evidence.mjs"></script>\n</body>',
+  );
+}
+
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
@@ -83,9 +91,14 @@ const server = createServer(async (request, response) => {
       return;
     }
 
-    const body = await readFile(filename);
+    const extension = extname(filename);
+    let body = await readFile(filename);
+    if (extension === ".html") {
+      body = Buffer.from(injectEvidenceRecorder(body.toString("utf8")), "utf8");
+    }
+
     response.writeHead(200, {
-      "content-type": contentTypes.get(extname(filename)) ?? "application/octet-stream",
+      "content-type": contentTypes.get(extension) ?? "application/octet-stream",
       "cache-control": "no-store",
     });
     response.end(body);
