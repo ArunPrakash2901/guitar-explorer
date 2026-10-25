@@ -15,8 +15,4 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm test
-      - run: npm run test:prototype
-      - run: npm run test:lab
-      - run: npm run preview:build
+      - run: npm run verify
