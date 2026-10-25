@@ -98,13 +98,22 @@ await cp(join(outputRoot, "practice.html"), join(outputRoot, "harmony.html"));
 await writeFile(join(outputRoot, ".nojekyll"), "");
 
 for (const file of await walk(outputRoot)) {
-  if (!textExtensions.has(extname(file))) continue;
+  const extension = extname(file);
+  if (extension === ".map") {
+    await rm(file);
+    continue;
+  }
+  if (!textExtensions.has(extension)) continue;
+
   const original = await readFile(file, "utf8");
   const filename = relative(outputRoot, file).replaceAll("\\", "/");
   let transformed = original;
-  if (extname(file) === ".html") transformed = injectPreviewShell(transformed);
+  if (extension === ".html") transformed = injectPreviewShell(transformed);
   transformed = rewriteRootReferences(transformed);
   transformed = applyPreviewCompatibility(filename, transformed);
+  if (extension === ".js" || extension === ".mjs") {
+    transformed = transformed.replace(/\n?\/\/# sourceMappingURL=.*$/gm, "");
+  }
   assertSubpathSafe(filename, transformed);
   if (transformed !== original) await writeFile(file, transformed, "utf8");
 }
