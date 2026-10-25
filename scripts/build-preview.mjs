@@ -8,8 +8,9 @@ const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
 const outputRoot = resolve(projectRoot, ".preview-dist");
 const revision = process.env.GE_REVISION || process.env.GITHUB_SHA || "local";
 const previewPr = process.env.GE_PREVIEW_PR || "";
+const channelFlagIndex = process.argv.indexOf("--channel");
 const requestedChannel = process.argv.find((arg) => arg.startsWith("--channel="))?.split("=", 2)[1]
-  || process.argv[process.argv.indexOf("--channel") + 1]
+  || (channelFlagIndex >= 0 ? process.argv[channelFlagIndex + 1] : null)
   || process.env.GE_DEPLOYMENT_CHANNEL
   || "preview";
 const deploymentChannels = new Set(["stable", "preview", "experimental"]);
