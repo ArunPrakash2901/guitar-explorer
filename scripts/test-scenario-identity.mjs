@@ -36,7 +36,9 @@ const queries = {
   formatNote: engine.formatNote,
 };
 
-const catalogue = [...getMelodyScenarios(), ...getMotifScenarios()];
+const melodyCatalogue = getMelodyScenarios();
+const motifCatalogue = getMotifScenarios();
+const catalogue = [...melodyCatalogue, ...motifCatalogue];
 assertUniqueScenarioIds(catalogue);
 assert.deepEqual(
   catalogue.map(({ id }) => id),
@@ -91,6 +93,10 @@ assert.equal(
   "Generator output follows the stable generated-ID contract",
 );
 
+function activeInfo(scenario) {
+  return `${scenario.description} · ${scenario.difficulty} · active key`;
+}
+
 function fakeDocument({ probe, values = {}, text = {}, attributes = {} }) {
   const elements = new Map();
   const ids = new Set([...Object.keys(values), ...Object.keys(text), ...Object.keys(attributes)]);
@@ -107,13 +113,34 @@ function fakeDocument({ probe, values = {}, text = {}, attributes = {} }) {
   };
 }
 
+const activeMelody = melodyCatalogue[0];
+const pendingMelody = melodyCatalogue[1];
 const catalogueContext = readScenarioContext(fakeDocument({
   probe: "melody",
-  values: { "scenario-select": "melody-c-ii-v-i" },
+  values: { "scenario-select": pendingMelody.id },
+  text: { "scenario-info": activeInfo(activeMelody) },
   attributes: { "source-generated": { "aria-selected": "false" } },
 }));
 assert.deepEqual(catalogueContext, {
-  scenarioId: "melody-c-ii-v-i",
+  scenarioId: activeMelody.id,
+  scenarioSource: "catalogue",
+  scenarioContractVersion: 1,
+});
+assert.notEqual(
+  catalogueContext.scenarioId,
+  pendingMelody.id,
+  "Changing the picker without starting it must not change evidence identity",
+);
+
+const activeMotif = motifCatalogue[2];
+const pendingMotif = motifCatalogue[0];
+const motifContext = readScenarioContext(fakeDocument({
+  probe: "motif",
+  values: { "scenario-select": pendingMotif.id },
+  text: { "scenario-info": activeInfo(activeMotif) },
+}));
+assert.deepEqual(motifContext, {
+  scenarioId: activeMotif.id,
   scenarioSource: "catalogue",
   scenarioContractVersion: 1,
 });
