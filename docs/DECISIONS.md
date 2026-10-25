@@ -341,3 +341,15 @@ capabilities, or runtime restructuring. Preserve the existing engine, activities
 generation, shared fretboard, and regression coverage while later slices prove
 the workspace handoffs described in [ARCHITECTURE.md](ARCHITECTURE.md).
 
+## D029 — Extract Melody material preparation into a DOM-free seam
+
+The senior audit identified that `phrase-app.js` accumulated material-source
+selection, query adaptation, scenario preparation, plan creation, and DOM rendering.
+`prepareMelodyExperience` in `lab/melody-experience.mjs` extracts the material preparation
+pipeline into a DOM-free seam, proving the future Experience Router preparation boundary
+for Melody practice without changing learner-facing behavior, fretboard interaction, or
+scoring. Catalogue and generated material converge into an identical prepared shape.
+Errors (invalid request, unknown catalogue scenario, unknown rule/difficulty, resolution
+failure, generation failure) are explicit and never silently switch material authorities.
+This implements one narrow preparation seam; the general Experience Router, shared workspace,
+Explore/Apply modes, Practice Policy engine, and other activity migrations remain deferred.

@@ -6,29 +6,30 @@ import { resolveScenario } from "/scenario-resolver.mjs";
 import { createMelodyPlan } from "/melody-session.mjs";
 import { createMotifPlan } from "/motif-session.mjs";
 import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "/melody-generator.mjs";
+import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "/melody-experience.mjs";
 
 const $ = (id) => document.getElementById(id);
-function unwrap(result) { if (!result.ok) throw new Error(result.error.message); return result.data; }
-const queries = {
-  getHarmony: (request) => unwrap(musicQueries.getDiatonicHarmony(request)),
-  getScale: (request) => unwrap(musicQueries.getScale(request)),
-  getCatalog: (request) => unwrap(musicQueries.getChordCatalog(request)),
-  findLocations: ({ key, chord, stringIndices, fretRange, pitchClasses }) => unwrap(musicQueries.getFretboardLocations({
-    board: STANDARD_FRETBOARD, stringIndices, fretRange, pitchClasses,
-    context: { key, currentChord: { root: chord.root, chordId: chord.chordId } },
-  })),
-  getNoteAtFret: ({ key, chord, stringIndex, fret }) => unwrap(musicQueries.getNoteAtFret({
-    board: STANDARD_FRETBOARD, position: { stringIndex, fret },
-    context: { key, currentChord: { root: chord.root, chordId: chord.chordId } },
-  })),
-  getInterval: (request) => unwrap(musicQueries.getInterval(request)), formatNote,
-};
+const queries = createPhraseQueries({ musicQueries, STANDARD_FRETBOARD, formatNote });
 const mode = document.body.dataset.probe;
 const catalogue = mode === "melody" ? getMelodyScenarios() : getMotifScenarios();
-const resolved = new Map(catalogue.map((spec) => [spec.id, resolveScenario(spec, queries)]));
-let material = resolved.get(catalogue[0].id);
-let plan = mode === "melody" ? createMelodyPlan(material) : createMotifPlan(material);
+const resolved = mode === "motif" ? new Map(catalogue.map((spec) => [spec.id, resolveScenario(spec, queries)])) : null;
 let selectedScenario = catalogue[0];
+let material;
+let plan;
+let practiceSource = "catalogue";
+let currentGeneratedSeed = 1001;
+let currentGeneratedConfig = null;
+let currentGeneratedFingerprint = null;
+
+if (mode === "melody") {
+  const initial = prepareMelodyExperience({ source: "catalogue", scenarioId: catalogue[0].id }, { queries });
+  selectedScenario = initial.scenario;
+  material = initial.resolved;
+  plan = initial.plan;
+} else {
+  material = resolved.get(catalogue[0].id);
+  plan = createMotifPlan(material);
+}
 const state = {};
 function reset() {
   Object.assign(state, { index: 0, selections: [], revealed: false, result: null, feedback: "", feedbackKind: "",
@@ -40,42 +41,56 @@ for (const spec of catalogue) {
   $("scenario-select").append(option);
 }
 function describeScenario() {
-  $("scenario-select").value = selectedScenario.id;
+  if (practiceSource === "catalogue") {
+    $("scenario-select").value = selectedScenario.id;
+  }
   $("scenario-info").textContent = `${selectedScenario.description} · ${selectedScenario.difficulty} · ${formatNote(selectedScenario.context.key.tonic)} major`;
 }
 describeScenario();
-function startScenario(spec) {
-  if (!spec || !resolved.has(spec.id)) throw new Error("Unknown approved scenario");
-  selectedScenario = spec; material = resolved.get(spec.id);
-  plan = mode === "melody" ? createMelodyPlan(material) : createMotifPlan(material);
-  reset(); $("reflection").value = ""; describeScenario(); render();
-}
-$("start-scenario").addEventListener("click", () => startScenario(catalogue.find(({ id }) => id === $("scenario-select").value)));
-let practiceSource = "catalogue";
-let currentGeneratedSeed = 1001;
-let currentGeneratedConfig = null;
-let currentGeneratedFingerprint = null;
-
-function applyGeneratedResult(result, config) {
-  selectedScenario = result.scenario;
-  material = result.resolved;
-  plan = createMelodyPlan(material);
-  currentGeneratedConfig = config;
-  currentGeneratedFingerprint = result.provenance?.fingerprint || getScenarioFingerprint(result);
-  currentGeneratedSeed = config.seed;
-  $("generation-feedback").textContent = "";
-  $("generation-feedback").hidden = true;
+function applyPreparedExperience(prepared) {
+  selectedScenario = prepared.scenario;
+  material = prepared.resolved;
+  plan = prepared.plan;
+  if (prepared.source === "generated") {
+    currentGeneratedConfig = {
+      ruleId: prepared.provenance.ruleId,
+      difficulty: prepared.provenance.difficulty,
+      seed: prepared.provenance.seed,
+    };
+    currentGeneratedFingerprint = prepared.provenance?.fingerprint || prepared.fingerprint;
+    currentGeneratedSeed = prepared.provenance.seed;
+    $("generation-feedback").textContent = "";
+    $("generation-feedback").hidden = true;
+  }
   reset();
   $("reflection").value = "";
-  $("scenario-info").textContent = `${result.scenario.description} · ${result.scenario.difficulty} · ${formatNote(result.scenario.context.key.tonic)} major`;
+  describeScenario();
   render();
 }
+function startScenario(spec) {
+  if (!spec) throw new Error("Unknown approved scenario");
+  if (mode === "melody") {
+    const prepared = prepareMelodyExperience({ source: "catalogue", scenarioId: spec.id }, { queries });
+    applyPreparedExperience(prepared);
+  } else {
+    if (!resolved.has(spec.id)) throw new Error("Unknown approved scenario");
+    selectedScenario = spec; material = resolved.get(spec.id);
+    plan = createMotifPlan(material);
+    reset(); $("reflection").value = ""; describeScenario(); render();
+  }
+}
+$("start-scenario").addEventListener("click", () => startScenario(catalogue.find(({ id }) => id === $("scenario-select").value)));
 
 function loadGenerated(ruleId, difficulty, seed) {
   const actualRule = ruleId || ($("rule-select") && $("rule-select").value) || "rule-dominant-third";
   const actualDiff = difficulty || ($("difficulty-select") && $("difficulty-select").value) || "introductory";
-  const result = generateMelodyScenario({ ruleId: actualRule, difficulty: actualDiff, seed, queries });
-  applyGeneratedResult(result, { ruleId: actualRule, difficulty: actualDiff, seed });
+  const prepared = prepareMelodyExperience({
+    source: "generated",
+    ruleId: actualRule,
+    difficulty: actualDiff,
+    seed,
+  }, { queries, generateMelodyScenario });
+  applyPreparedExperience(prepared);
 }
 if (mode === "melody" && $("source-generated")) {
   $("source-catalogue").addEventListener("click", () => {
@@ -106,14 +121,13 @@ if (mode === "melody" && $("source-generated")) {
     const ruleId = ($("rule-select") && $("rule-select").value) || currentGeneratedConfig?.ruleId || "rule-dominant-third";
     const difficulty = ($("difficulty-select") && $("difficulty-select").value) || currentGeneratedConfig?.difficulty || "introductory";
     try {
-      const nextResult = generateDistinctMelodyScenario({
+      const prepared = prepareDistinctMelodyExperience({
         ruleId,
         difficulty,
         currentSeed: currentGeneratedSeed,
         currentFingerprint: currentGeneratedFingerprint,
-        queries,
-      });
-      applyGeneratedResult(nextResult, { ruleId, difficulty, seed: nextResult.provenance.seed });
+      }, { queries, generateDistinctMelodyScenario });
+      applyPreparedExperience(prepared);
     } catch {
       $("generation-feedback").textContent = "No different scenario was found within the search limit. Your current scenario is unchanged. Retry Generate another, or change focus or difficulty.";
       $("generation-feedback").hidden = false;

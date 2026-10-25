@@ -64,7 +64,7 @@ function resolveRequest(pathname) {
   }
   if (["/melody.html", "/melody"].includes(pathname)) return resolve(labRoot, "melody.html");
   if (["/motif.html", "/motif"].includes(pathname)) return resolve(labRoot, "motif.html");
-  if (["/phrase.css", "/phrase-app.js", "/phrase-material.mjs", "/melody-session.mjs", "/motif-session.mjs", "/scenario-catalogue.mjs", "/scenario-resolver.mjs", "/rule-contract.mjs", "/melody-generator.mjs"].includes(pathname)) {
+  if (["/phrase.css", "/phrase-app.js", "/phrase-material.mjs", "/melody-session.mjs", "/motif-session.mjs", "/scenario-catalogue.mjs", "/scenario-resolver.mjs", "/rule-contract.mjs", "/melody-generator.mjs", "/melody-experience.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (pathname.startsWith("/engine/")) {

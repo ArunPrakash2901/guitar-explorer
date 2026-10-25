@@ -78,7 +78,8 @@ responses and reflections remain ungraded.
 | Fretboard UI v2 | Implemented shared rendering surface; consumers own theory adaptation and disclosure. |
 | ScenarioV1, catalogue and resolver | Implemented bounded Melody/Motif material preparation. |
 | Rule Generator V1 | Implemented Melody-only material source; current generator provenance is version 2. |
-| Shared workspace, three-intention navigation, Experience Router, extracted Practice Policy | Agreed architecture only; not implemented. |
+| Melody preparation seam (`prepareMelodyExperience`) | Implemented DOM-free seam proving material preparation and source convergence before page control. |
+| Shared workspace, three-intention navigation, general Experience Router, extracted Practice Policy | Agreed architecture only; not implemented. |
 | Audio, Ear, learner model, persistent learning history, style knowledge | Future boundaries; no placeholder implementation. |
 
 ```mermaid
@@ -451,13 +452,16 @@ The current work records decisions and reconciles documentation only. No
 Experience Router implementation, shared-workspace state, UI redesign or new
 feature begins here.
 
-A separately authorized next runtime slice can extract one small DOM-free Melody
-preparation seam joining catalogue/generated material to the existing Melody plan.
-It should preserve the current activity, supported combinations, provenance,
-failure recovery and answer withholding. It should not change engine contracts,
-renderer geometry, teaching sequences, motif grammar or navigation, and should not
-introduce a universal scenario schema. Broader workspace handoffs follow only after
-that boundary is demonstrated and separately authorized.
+One Melody-specific DOM-free preparation seam is implemented (`lab/melody-experience.mjs`)
+as the first runtime proof of the documented boundary: it extracts the
+material-source request → validated/resolved Melody material → existing Melody plan
+pipeline from `phrase-app.js`, supporting both approved catalogue scenarios and Rule
+Generator V1 without browser dependencies or silent fallbacks.
+
+The general Experience Router, shared workspace, Explore/Apply surfaces, Practice
+Policy framework, and broader activity migrations remain planned future work.
+Broader workspace handoffs follow only after these preparation boundaries are proven
+and separately authorized.
 
 Retain `npm run typecheck`, `npm test`, `npm run test:prototype` and
 `npm run test:lab` as baseline checks. Add meaningful boundary coverage when runtime
