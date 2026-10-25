@@ -25,7 +25,14 @@ function inside(base, candidate) {
 }
 
 function resolveRequest(pathname) {
-  if (["/fretboard-view.mjs", "/fretboard.css", "/session-evidence.mjs", "/session-evidence-core.mjs"].includes(pathname)) {
+  if ([
+    "/fretboard-view.mjs",
+    "/fretboard.css",
+    "/session-evidence.mjs",
+    "/session-evidence-core.mjs",
+    "/scenario-identity.mjs",
+    "/scenario-context.mjs",
+  ].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (pathname === "/" || pathname === "/index.html") {
