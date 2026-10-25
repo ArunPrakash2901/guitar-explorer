@@ -21,13 +21,9 @@ infrastructure:
   evidence schema v2 and Physical Validation Protocol v1
 - Issue #29 / PR #30: one DOM-free Melody preparation seam for existing
   catalogue/generated material, superseding stale PR #13
-
-Issue #32 / PR #33 is the current bounded developer-leverage slice. It may add only
-machine-readable project context, explicit deployment-channel provenance and local
-longitudinal evidence tooling. It must not change musical truth, exercise behavior,
-pedagogy, capability breadth, or the Issue #15 / #16 decision gate. Stable publication
-remains a separate explicit decision; experimental builds are opt-in and non-production.
-See `docs/DEPLOYMENT_CHANNELS.md`.
+- Issue #32 / PR #33: machine-readable project context, explicit stable/preview/
+  experimental build-channel provenance, Session Evidence schema v3 and local
+  longitudinal evidence timeline tooling
 
 Those capabilities may be maintained for correctness and reliability, but they do
 not authorize a Learning Engine, analytics backend, persistence, scoring, a general
@@ -37,11 +33,12 @@ Melody-specific; do not generalize it into a complete Experience Router, Practic
 Policy, generic Learning Engine, runtime reorganization or UI redesign without a new
 explicit issue/scope.
 
-Issue #15 remains the active learner-evidence task. Issue #16 is the next capability
-decision gate and is blocked on physical evidence rather than developer tooling.
-Arun has enabled the existing GitHub Pages PR-preview publication path; do not switch
-hosts, treat previews as production, publish stable/experimental channels, or publish
-private evidence without separate explicit approval.
+Issue #15 is the active learner-evidence task. Issue #16 is the next capability
+decision gate and is blocked on physical evidence. Arun has enabled the existing
+GitHub Pages PR-preview publication path; do not switch hosts, treat previews as
+production, publish stable/experimental channels, or publish private evidence without
+separate explicit approval. Stable publication remains a separate release decision;
+experimental builds are opt-in and non-production. See `docs/DEPLOYMENT_CHANNELS.md`.
 
 No new capability receives a learner-facing destination by default. It must fit
 Explore, Practice, Apply or a shared service. Practice Policy applies only to an
@@ -88,10 +85,11 @@ The Session Evidence recorder, stable ScenarioV1 identity, evidence schema v3 an
 local evidence-timeline tooling are bounded validation tools. They may keep ephemeral
 in-page interaction evidence and export a user-triggered JSON file with exact
 revision/scenario/protocol/deployment metadata. Timeline generation may read those
-exports locally and group them descriptively by revision/channel/scenario. These
-tools must not send evidence over the network, persist learner history in a backend,
-score performance, infer mastery or change exercise correctness. `.evidence-local/`
-is gitignored and is the default timeline storage location.
+exports locally, reconcile repeated snapshots sharing one `trialId`, and group them
+descriptively by revision/channel/scenario. These tools must not send evidence over
+the network, persist learner history in a backend, score performance, infer mastery
+or change exercise correctness. `.evidence-local/` is gitignored and is the default
+timeline storage location.
 
 Use [`docs/PHYSICAL_VALIDATION_PROTOCOL.md`](docs/PHYSICAL_VALIDATION_PROTOCOL.md)
 for real-guitar trials. Automated correctness cannot substitute for the protocol's
