@@ -16,31 +16,31 @@ The product should develop independent musical use rather than shape memorisatio
 **Product Spine consolidation with a hardened development/validation loop.**
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
-generation already exist. Issue #18 / PR #19 completed the first developer-leverage
-slice: PR previews, local-only evidence export and explicit agent autonomy are now
-baseline support infrastructure.
+generation already exist. Two developer-leverage batches are now baseline support:
 
-Arun has enabled GitHub Pages for the `gh-pages` preview branch, so new PR previews
-can now be tested as web-accessible browser builds. This remains non-production
-preview infrastructure and must not publish private learner evidence.
+- Issue #18 / PR #19: PR previews, local-only evidence export and explicit agent autonomy
+- Issue #21 / PR #22: authoritative `npm run verify`, stable ScenarioV1 identity,
+  evidence schema v2 and Physical Validation Protocol v1
+
+Arun has enabled GitHub Pages for the `gh-pages` preview branch. GitHub's Pages build
+and deployment workflow has successfully published PR previews. This remains
+non-production preview infrastructure and must not publish private learner evidence.
 
 ## Active work
 
-**Issue #21 — developer leverage batch 2.**
+**Issue #15 — Physical validation — current Lab cohort.**
 
-This bounded support/validation slice adds:
+The next useful evidence now comes from real-guitar trials, not another developer-
+leverage or musical-capability slice. Use `docs/PHYSICAL_VALIDATION_PROTOCOL.md` and
+the Session Evidence panel to evaluate:
 
-- one authoritative `npm run verify` repository gate
-- an explicit stable ScenarioV1 identity contract carried into evidence
-- Physical Validation Protocol v1 for real-guitar trials
-
-It must not change musical truth, exercise answers, learner scoring, persistence or
-product direction.
+- Harmonic Gravity / Practice Session
+- Parsimonious Path
+- Melody Over Harmony
+- Develop the Idea
 
 ### Work held alongside it
 
-- **Issue #15 — Physical validation — current Lab cohort** remains the learner-
-  evidence task; after Issue #21 it should use Protocol v1 and evidence schema v2.
 - **PR #13 — Melody preparation seam** remains the previously authorized bounded
   Product Spine runtime slice. It must be reconciled with current `master` before any
   merge attempt; do not force-merge it or broaden its scope.
@@ -57,26 +57,27 @@ use that evidence to decide whether to keep, change, remove or promote them.
 
 ## Waiting on Arun
 
-No repository-setting change is currently required for previews; Pages publication
-has been enabled.
+Issue #15 requires at least one focused Protocol v1 trial for each current experience.
+For each trial:
 
-Issue #15 still requires Arun's real-guitar trials of:
+1. make an unaided attempt
+2. use the smallest assistance only if needed
+3. play the idea in context
+4. try the transfer
+5. record reflection and a provisional disposition
 
-- Harmonic Gravity / Practice Session
-- Parsimonious Path
-- Melody Over Harmony
-- Develop the Idea
-
-Use `docs/PHYSICAL_VALIDATION_PROTOCOL.md`: unaided attempt first, assistance only if
-needed, physical use, transfer, then reflection/disposition. The Session Evidence
-panel may export a local JSON snapshot; nothing is uploaded automatically.
+Reset the Session Evidence panel after choosing the material/scenario. Evidence
+schema v2 records the protocol version and, for Melody/Motif ScenarioV1 material,
+the active stable scenario ID/source plus exact PR/revision when available. Nothing
+is uploaded automatically.
 
 ## Authorized next work
 
-- complete Issue #21 without expanding musical capability
 - collect structured physical-guitar evidence in Issue #15
 - reconcile PR #13 with current `master` without broadening its bounded seam
 - fix correctness, usability or pedagogy problems directly supported by evidence
+- maintain the existing preview/verify/evidence infrastructure when needed for
+  correctness or reliability
 - use Issue #16 to choose and bound the next Product Spine slice only after its
   blocking evidence is available
 
@@ -99,11 +100,10 @@ authorization.
 
 ## Decision queue
 
-1. Does Issue #21 improve verification/traceability without creating learning analytics infrastructure?
-2. What do the existing Labs actually improve during physical playing? (Issue #15)
-3. Does PR #13 still represent the right bounded runtime seam after reconciliation?
-4. Which Lab behaviours deserve simplification, removal or promotion?
-5. Only then: what is the smallest next Product Spine slice? (Issue #16)
+1. What do the existing Labs actually improve during physical playing? (Issue #15)
+2. Does PR #13 still represent the right bounded runtime seam after reconciliation?
+3. Which Lab behaviours deserve simplification, removal or promotion?
+4. Only then: what is the smallest next Product Spine slice? (Issue #16)
 
 ## Control-plane rules
 
@@ -112,6 +112,7 @@ authorization.
 - `docs/AUTONOMY_CONTRACT.md` defines what an agent may do independently and where it
   must stop for Arun.
 - `docs/ARCHITECTURE.md` defines current product/architecture boundaries.
+- `docs/VERIFY.md` defines the authoritative software verification gate.
 - `docs/PHYSICAL_VALIDATION_PROTOCOL.md` defines the current real-guitar validation method.
 - A GitHub issue defines the scope and acceptance criteria for one authorized work
   slice.
