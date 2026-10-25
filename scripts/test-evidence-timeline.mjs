@@ -36,12 +36,20 @@ const current = {
   reflection: { interpretation: "keep", calculationOrHesitation: "" },
 };
 
+const currentUpdatedExport = {
+  ...current,
+  endedAt: "2026-10-25T09:06:00.000Z",
+  interactions: [{ kind: "button-click" }],
+  reflection: { interpretation: "change", calculationOrHesitation: "still calculating the third" },
+};
+
 assert.match(fallbackTrialId(legacy), /^legacy-[0-9a-f]{8}$/);
 assert.equal(normalizeEvidenceTrial(current).deploymentChannel, "preview");
 
 const timeline = buildEvidenceTimeline([
   { evidence: current, sourceFile: ".evidence-local/exports/current.json" },
   { evidence: legacy, sourceFile: ".evidence-local/exports/legacy.json" },
+  { evidence: currentUpdatedExport, sourceFile: ".evidence-local/exports/current-2.json" },
 ], { generatedAt: "2026-10-25T10:00:00.000Z" });
 
 assert.equal(timeline.schema, "guitar-explorer/evidence-timeline");
@@ -51,10 +59,16 @@ assert.equal(timeline.trials[0].revision, "aaa111");
 assert.equal(timeline.trials[0].deploymentChannel, "unknown");
 assert.match(timeline.trials[0].trialId, /^legacy-/);
 assert.equal(timeline.trials[1].trialId, "trial-1234");
+assert.equal(timeline.trials[1].sourceFile, ".evidence-local/exports/current-2.json");
+assert.equal(timeline.trials[1].interpretation, "change");
+assert.equal(timeline.trials[1].interactionCount, 1);
 assert.equal(timeline.byRevision.aaa111.trialCount, 1);
+assert.equal(timeline.byRevision.bbb222.trialCount, 1);
 assert.equal(timeline.byRevision.bbb222.experiences["melody-over-harmony"], 1);
-assert.equal(timeline.byRevision.bbb222.interpretations.keep, 1);
+assert.equal(timeline.byRevision.bbb222.interpretations.change, 1);
+assert.equal(timeline.byRevision.bbb222.interpretations.keep, undefined);
 assert.equal(timeline.byRevision.bbb222.channels.preview, 1);
+assert.match(timeline.note, /Repeated exports of one trial are reconciled/);
 assert.match(timeline.note, /Do not infer learner mastery/);
 
 assert.throws(() => normalizeEvidenceTrial({ schema: "wrong", schemaVersion: 3 }), /unsupported evidence schema/);
