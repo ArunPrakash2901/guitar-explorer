@@ -70,9 +70,27 @@ function groupKey(trial) {
   return trial.revision || "unknown-revision";
 }
 
+function snapshotTime(trial) {
+  const value = trial.endedAt || trial.startedAt;
+  const parsed = Date.parse(value);
+  return Number.isNaN(parsed) ? 0 : parsed;
+}
+
+function deduplicateTrials(trials) {
+  const byTrialId = new Map();
+  for (const trial of trials) {
+    const previous = byTrialId.get(trial.trialId);
+    if (!previous || snapshotTime(trial) >= snapshotTime(previous)) {
+      byTrialId.set(trial.trialId, trial);
+    }
+  }
+  return [...byTrialId.values()];
+}
+
 export function buildEvidenceTimeline(trials, { generatedAt = new Date().toISOString() } = {}) {
-  const normalized = trials.map((trial) => normalizeEvidenceTrial(trial.evidence ?? trial, trial.sourceFile ?? null))
-    .sort((a, b) => a.startedAt.localeCompare(b.startedAt));
+  const normalized = deduplicateTrials(
+    trials.map((trial) => normalizeEvidenceTrial(trial.evidence ?? trial, trial.sourceFile ?? null)),
+  ).sort((a, b) => a.startedAt.localeCompare(b.startedAt));
 
   const byRevision = {};
   for (const trial of normalized) {
@@ -95,7 +113,7 @@ export function buildEvidenceTimeline(trials, { generatedAt = new Date().toISOSt
     schema: TIMELINE_SCHEMA,
     schemaVersion: TIMELINE_SCHEMA_VERSION,
     generatedAt,
-    note: "Descriptive physical-validation evidence only. Do not infer learner mastery from timing, hints, counts, or dispositions.",
+    note: "Descriptive physical-validation evidence only. Repeated exports of one trial are reconciled by trialId using the latest snapshot. Do not infer learner mastery from timing, hints, counts, or dispositions.",
     trialCount: normalized.length,
     trials: normalized,
     byRevision,
