@@ -37,6 +37,14 @@ function rewriteRootReferences(source) {
     .replace(/\bimport\s+(['"])\/(?!\/)/g, "import $1./");
 }
 
+function applyPreviewCompatibility(filename, source) {
+  if (filename !== "practice-app.js") return source;
+  return source.replace(
+    "const focused = /^\\/harmony(?:\\.html)?\\/?$/.test(location.pathname);",
+    "const focused = /(?:^|\\/)harmony(?:\\.html)?\\/?$/.test(location.pathname);",
+  );
+}
+
 function injectPreviewShell(source) {
   let transformed = source;
   if (transformed.includes("</head>")) {
@@ -92,10 +100,12 @@ await writeFile(join(outputRoot, ".nojekyll"), "");
 for (const file of await walk(outputRoot)) {
   if (!textExtensions.has(extname(file))) continue;
   const original = await readFile(file, "utf8");
+  const filename = relative(outputRoot, file).replaceAll("\\", "/");
   let transformed = original;
   if (extname(file) === ".html") transformed = injectPreviewShell(transformed);
   transformed = rewriteRootReferences(transformed);
-  assertSubpathSafe(relative(outputRoot, file), transformed);
+  transformed = applyPreviewCompatibility(filename, transformed);
+  assertSubpathSafe(filename, transformed);
   if (transformed !== original) await writeFile(file, transformed, "utf8");
 }
 
