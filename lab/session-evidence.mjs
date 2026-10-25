@@ -47,6 +47,7 @@ function downloadJson(value, filename) {
   link.href = url;
   link.download = filename;
   link.hidden = true;
+  link.dataset.geEvidenceIgnore = "true";
   document.body.append(link);
   link.click();
   link.remove();
@@ -158,7 +159,7 @@ function injectStyles() {
   document.head.append(style);
 }
 
-const startedMonotonic = performance.now();
+let startedMonotonic = performance.now();
 const baseOptions = {
   experience: experienceFromPath(window.location.pathname),
   page: window.location.pathname,
@@ -192,7 +193,7 @@ function targetDetails(target) {
 
 function captureClick(event) {
   const target = event.target.closest?.("button, a");
-  if (!target || target.closest("#ge-evidence-recorder")) return;
+  if (!target || target.closest("#ge-evidence-recorder") || target.dataset.geEvidenceIgnore === "true") return;
   record(target.tagName === "A" ? "link-click" : "button-click", targetDetails(target));
 }
 
@@ -205,6 +206,7 @@ function captureChange(event) {
 }
 
 function resetRecorder() {
+  startedMonotonic = performance.now();
   session = createEvidenceSession(baseOptions);
   for (const id of Object.values(FIELD_IDS)) {
     const field = document.getElementById(id);
