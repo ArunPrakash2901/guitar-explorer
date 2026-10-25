@@ -9,6 +9,7 @@ import { createMelodyPlan } from "../lab/melody-session.mjs";
 import { chordRole, pathConnections } from "../lab/phrase-material.mjs";
 import { getMelodyScenarios, getMotifScenarios } from "../lab/scenario-catalogue.mjs";
 import { createTestDOM, installRenderer, accessibleText, all } from "./fretboard-test-dom.mjs";
+import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "../lab/melody-experience.mjs";
 
 function unwrap(result) {
   if (!result.ok) throw new Error(result.error.message);
@@ -318,6 +319,9 @@ const context = vm.createContext({
   document,
   console,
   Math: randomMock,
+  prepareMelodyExperience,
+  prepareDistinctMelodyExperience,
+  createPhraseQueries,
 });
 installRenderer(context);
 vm.runInContext(appCode.replace(/^import .*;\s*/gm, ""), context, { filename: "phrase-app.js" });

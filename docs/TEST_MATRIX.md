@@ -60,6 +60,7 @@ do not establish physical playability or pedagogical effectiveness.
 - fixed generator string/window policy for every main and transfer region across all difficulties, independently derived target windows, and absence of unsupported region-pool declarations
 - generator-version-2 pinned seeded fixtures, fixed-order Fisher–Yates selection, unchanged seed normalization, and exact reproducibility under unchanged engine/query facts
 - exhausted distinct-generation UI search preserves accepted material, session progress, selections, and evidence; a recoverable message appears without an unrestricted fallback or answer leakage
+- Melody preparation seam verification (`scripts/test-melody-experience.mjs`): DOM-free execution without browser/DOM globals, catalogue preparation across all 3 approved entries, generated scenario preparation determinism and version-2 replay, distinct generation, source convergence to identical PreparedMelodyExperience shape, explicit error semantics (INVALID_REQUEST, UNKNOWN_CATALOGUE_SCENARIO, UNKNOWN_RULE, UNKNOWN_DIFFICULTY, RESOLUTION_FAILURE, GENERATION_FAILURE), no silent fallback between material authorities, and shared query adapter (`createPhraseQueries`) verification
 
 ## Product Spine documentation acceptance — manual checks only
 
