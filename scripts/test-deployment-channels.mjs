@@ -30,6 +30,35 @@ for (const channel of ["stable", "experimental", "preview"]) {
   assert.match(html, new RegExp(`name="guitar-explorer-revision" content="${channel}-revision"`));
 }
 
+const envFallback = spawnSync(process.execPath, ["scripts/build-preview.mjs"], {
+  cwd: projectRoot,
+  env: {
+    ...process.env,
+    GE_REVISION: "env-revision",
+    GE_DEPLOYMENT_CHANNEL: "experimental",
+    GE_DEPLOYMENT_LABEL: "env-experimental",
+  },
+  encoding: "utf8",
+});
+assert.equal(envFallback.status, 0, `environment fallback build failed:\n${envFallback.stderr || envFallback.stdout}`);
+let html = await readFile(indexPath, "utf8");
+assert.match(html, /name="guitar-explorer-deployment-channel" content="experimental"/);
+assert.match(html, /name="guitar-explorer-deployment-label" content="env-experimental"/);
+
+const defaultFallback = spawnSync(process.execPath, ["scripts/build-preview.mjs"], {
+  cwd: projectRoot,
+  env: {
+    ...process.env,
+    GE_REVISION: "default-revision",
+    GE_DEPLOYMENT_CHANNEL: "",
+    GE_DEPLOYMENT_LABEL: "",
+  },
+  encoding: "utf8",
+});
+assert.equal(defaultFallback.status, 0, `default fallback build failed:\n${defaultFallback.stderr || defaultFallback.stdout}`);
+html = await readFile(indexPath, "utf8");
+assert.match(html, /name="guitar-explorer-deployment-channel" content="preview"/);
+
 const bad = spawnSync(process.execPath, ["scripts/build-preview.mjs", "--channel", "production-ish"], {
   cwd: projectRoot,
   encoding: "utf8",
