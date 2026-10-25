@@ -2,10 +2,13 @@ import assert from "node:assert/strict";
 import {
   EVIDENCE_SCHEMA,
   EVIDENCE_SCHEMA_VERSION,
+  PHYSICAL_VALIDATION_PROTOCOL,
+  PHYSICAL_VALIDATION_PROTOCOL_VERSION,
   createEvidenceSession,
   evidenceFilename,
   finalizeEvidenceSession,
   recordEvidenceInteraction,
+  withEvidenceScenario,
 } from "../lab/session-evidence-core.mjs";
 
 const startedAt = "2026-10-25T07:00:00.000Z";
@@ -14,13 +17,26 @@ let session = createEvidenceSession({
   page: "/melody.html",
   revision: "abc123",
   previewPr: "19",
+  scenarioId: "melody-g-ii-v-i",
+  scenarioSource: "catalogue",
+  scenarioContractVersion: 1,
   startedAt,
 });
 
 assert.equal(session.schema, EVIDENCE_SCHEMA);
 assert.equal(session.schemaVersion, EVIDENCE_SCHEMA_VERSION);
+assert.equal(session.schemaVersion, 2);
+assert.deepEqual(session.protocol, {
+  id: PHYSICAL_VALIDATION_PROTOCOL,
+  version: PHYSICAL_VALIDATION_PROTOCOL_VERSION,
+});
+assert.equal(session.protocol.id, "guitar-explorer/physical-validation");
+assert.equal(session.protocol.version, 1);
 assert.equal(session.previewPr, 19);
 assert.equal(session.revision, "abc123");
+assert.equal(session.scenarioId, "melody-g-ii-v-i");
+assert.equal(session.scenarioSource, "catalogue");
+assert.equal(session.scenarioContractVersion, 1);
 assert.deepEqual(session.interactions, []);
 
 session = recordEvidenceInteraction(session, {
@@ -38,7 +54,25 @@ assert.deepEqual(session.interactions[0], {
   name: null,
   value: null,
   label: "Hint",
+  scenarioId: "melody-g-ii-v-i",
+  scenarioSource: "catalogue",
+  scenarioContractVersion: 1,
 });
+
+session = withEvidenceScenario(session, {
+  scenarioId: "gen-dominant-third-introductory-1001",
+  scenarioSource: "generated",
+  scenarioContractVersion: 1,
+});
+assert.equal(session.scenarioSource, "generated");
+
+session = recordEvidenceInteraction(session, {
+  elapsedMs: 5000,
+  kind: "scenario-change",
+  label: "Generated scenario",
+});
+assert.equal(session.interactions[1].scenarioId, "gen-dominant-third-introductory-1001");
+assert.equal(session.interactions[1].scenarioSource, "generated");
 
 const completed = finalizeEvidenceSession(session, {
   endedAt: "2026-10-25T07:00:12.345Z",
@@ -56,13 +90,21 @@ const completed = finalizeEvidenceSession(session, {
 assert.equal(completed.durationSeconds, 12.3);
 assert.equal(completed.reflection.interpretation, "change");
 assert.equal(completed.reflection.calculationOrHesitation, "I still calculated the third.");
-assert.match(evidenceFilename(completed), /^guitar-explorer-evidence-melody-over-harmony-2026-10-25-07-00-00\.json$/);
+assert.match(
+  evidenceFilename(completed),
+  /^guitar-explorer-evidence-melody-over-harmony-gen-dominant-third-introductory-1001-2026-10-25-07-00-00\.json$/,
+);
 
 const badInterpretation = finalizeEvidenceSession(session, {
   endedAt: "2026-10-25T07:00:13.000Z",
   reflection: { interpretation: "mastered" },
 });
 assert.equal(badInterpretation.reflection.interpretation, "");
+
+const noScenario = createEvidenceSession({ experience: "harmonic-gravity-practice", page: "/practice.html", startedAt });
+assert.equal(noScenario.scenarioId, null);
+assert.equal(noScenario.scenarioSource, null);
+assert.equal(noScenario.scenarioContractVersion, null);
 
 assert.throws(
   () => createEvidenceSession({ experience: "", page: "/" }),
@@ -73,4 +115,4 @@ assert.throws(
   /interaction kind is required/,
 );
 
-console.log("session evidence core checks passed");
+console.log("session evidence protocol and scenario checks passed");

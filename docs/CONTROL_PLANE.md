@@ -21,11 +21,26 @@ verification and any physical-guitar gate.
 Do not use an open issue merely as a long-term wishlist. Deferred work belongs in
 architecture/decisions until it is explicitly promoted into the current queue.
 
+## Repository verification
+
+`npm run verify` is the authoritative full-repository verification command. CI should
+call that command rather than re-declaring its subcommands. Narrower scripts such as
+`npm test`, `npm run test:lab`, `npm run test:identity` and `npm run preview:build`
+remain useful for focused diagnosis, but they do not replace the full gate.
+
 ## Physical evidence
 
-Learning experiences cannot be validated by unit tests alone. Use the physical
-validation template to record real-guitar evidence before promoting experimental
-Lab behaviour into permanent architecture.
+Learning experiences cannot be validated by unit tests alone. Use
+`docs/PHYSICAL_VALIDATION_PROTOCOL.md` as the current versioned real-guitar method
+before promoting experimental Lab behaviour into permanent architecture.
+
+Protocol v1 requires this order:
+
+1. unaided attempt
+2. smallest assistance only if needed
+3. physical use in context
+4. transfer
+5. reflection and provisional disposition
 
 Important evidence includes:
 
@@ -36,8 +51,10 @@ Important evidence includes:
 - whether the idea transferred to another key, position or context
 
 The Lab's session-evidence recorder may be used to export a versioned JSON snapshot
-for a trial. That export is local-only until Arun deliberately shares it. It is
-supporting evidence, not a mastery score or automatic promotion decision.
+for a trial. That export is local-only until Arun deliberately shares it. Evidence
+schema v2 records the physical-validation protocol version and, for ScenarioV1
+Melody/Motif material, the active stable scenario ID/source. It is supporting
+evidence, not a mastery score or automatic promotion decision.
 
 A physical-validation issue may recommend keep/change/remove/promotion, but it does
 not itself authorize new capability breadth.

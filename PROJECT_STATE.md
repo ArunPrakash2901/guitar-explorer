@@ -17,17 +17,30 @@ The product should develop independent musical use rather than shape memorisatio
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
 generation already exist. Issue #18 / PR #19 completed the first developer-leverage
-slice: PR-preview plumbing, local-only session-evidence export and an explicit agent
-autonomy contract are now baseline support infrastructure.
+slice: PR previews, local-only evidence export and explicit agent autonomy are now
+baseline support infrastructure.
 
-No new musical capability is authorized merely because that tooling exists.
+Arun has enabled GitHub Pages for the `gh-pages` preview branch, so new PR previews
+can now be tested as web-accessible browser builds. This remains non-production
+preview infrastructure and must not publish private learner evidence.
 
 ## Active work
 
-**Validation and reconciliation, not a new capability slice.**
+**Issue #21 — developer leverage batch 2.**
 
-- **Issue #15 — Physical validation — current Lab cohort** is the current learner-
-  evidence task.
+This bounded support/validation slice adds:
+
+- one authoritative `npm run verify` repository gate
+- an explicit stable ScenarioV1 identity contract carried into evidence
+- Physical Validation Protocol v1 for real-guitar trials
+
+It must not change musical truth, exercise answers, learner scoring, persistence or
+product direction.
+
+### Work held alongside it
+
+- **Issue #15 — Physical validation — current Lab cohort** remains the learner-
+  evidence task; after Issue #21 it should use Protocol v1 and evidence schema v2.
 - **PR #13 — Melody preparation seam** remains the previously authorized bounded
   Product Spine runtime slice. It must be reconciled with current `master` before any
   merge attempt; do not force-merge it or broaden its scope.
@@ -44,40 +57,28 @@ use that evidence to decide whether to keep, change, remove or promote them.
 
 ## Waiting on Arun
 
-### One-time preview publication choice
+No repository-setting change is currently required for previews; Pages publication
+has been enabled.
 
-The `gh-pages` preview branch and automation now exist. To make future PR preview
-URLs web-accessible, Arun may choose to configure GitHub Pages to deploy from
-`gh-pages` / root as documented in `docs/PR_PREVIEWS.md`.
-
-That is intentionally a manual choice because GitHub Pages publishes browser content
-to the web. Do not enable or substitute another public/external preview host without
-explicit approval.
-
-### Physical-guitar evidence
-
-Issue #15 tracks review of:
+Issue #15 still requires Arun's real-guitar trials of:
 
 - Harmonic Gravity / Practice Session
 - Parsimonious Path
 - Melody Over Harmony
 - Develop the Idea
 
-For each experience, capture what became easier without looking at answers, where
-calculation or hesitation remained, whether assistance/reveal timing helped, and
-whether transfer worked away from the initial material. The merged Session Evidence
-panel can export a versioned local JSON snapshot when useful; nothing is uploaded
-automatically.
+Use `docs/PHYSICAL_VALIDATION_PROTOCOL.md`: unaided attempt first, assistance only if
+needed, physical use, transfer, then reflection/disposition. The Session Evidence
+panel may export a local JSON snapshot; nothing is uploaded automatically.
 
 ## Authorized next work
 
+- complete Issue #21 without expanding musical capability
 - collect structured physical-guitar evidence in Issue #15
 - reconcile PR #13 with current `master` without broadening its bounded seam
 - fix correctness, usability or pedagogy problems directly supported by evidence
 - use Issue #16 to choose and bound the next Product Spine slice only after its
   blocking evidence is available
-- maintain the merged preview/evidence/autonomy tooling when a concrete defect is
-  found, without treating maintenance as authorization for new infrastructure
 
 ## Not currently authorized
 
@@ -98,7 +99,7 @@ authorization.
 
 ## Decision queue
 
-1. Enable GitHub Pages only if Arun accepts the web-publication boundary for PR previews.
+1. Does Issue #21 improve verification/traceability without creating learning analytics infrastructure?
 2. What do the existing Labs actually improve during physical playing? (Issue #15)
 3. Does PR #13 still represent the right bounded runtime seam after reconciliation?
 4. Which Lab behaviours deserve simplification, removal or promotion?
@@ -111,6 +112,7 @@ authorization.
 - `docs/AUTONOMY_CONTRACT.md` defines what an agent may do independently and where it
   must stop for Arun.
 - `docs/ARCHITECTURE.md` defines current product/architecture boundaries.
+- `docs/PHYSICAL_VALIDATION_PROTOCOL.md` defines the current real-guitar validation method.
 - A GitHub issue defines the scope and acceptance criteria for one authorized work
   slice.
 - A pull request should link its issue (or explain why no issue is needed), state
