@@ -9,10 +9,10 @@
     "learningValidation": "physical validation of current Lab cohort"
   },
   "activeWork": {
-    "issue": 32,
-    "pullRequest": 33,
-    "kind": "developer-leverage",
-    "summary": "Machine-readable context, deployment channels, and longitudinal evidence"
+    "issue": 15,
+    "pullRequest": null,
+    "kind": "physical-validation",
+    "summary": "Protocol v1 physical-guitar validation of the current Lab cohort"
   },
   "evidence": {
     "issue": 15,
