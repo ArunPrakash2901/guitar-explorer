@@ -37,9 +37,14 @@ Before promoting more experimental behaviour into permanent engine/product
 architecture, gather physical-guitar evidence from the existing learning probes and
 use that evidence to decide whether to keep, change, remove or promote them.
 
+Tracking:
+
+- **Issue #15 — Physical validation — current Lab cohort**
+- **Issue #16 — Decision gate — choose next Product Spine slice**
+
 ## Waiting on Arun
 
-Physical-guitar review of the current Lab cohort:
+Issue #15 tracks physical-guitar review of the current Lab cohort:
 
 - Harmonic Gravity / Practice Session
 - Parsimonious Path
@@ -53,10 +58,11 @@ whether transfer worked away from the initial material.
 ## Authorized next work
 
 - review and merge PR #13 if its behaviour-preservation and verification claims hold
-- collect structured physical-guitar evidence from the existing Lab cohort
+- collect structured physical-guitar evidence in Issue #15
 - fix correctness, usability or pedagogy problems revealed by that evidence
 - improve existing Product Spine seams without introducing new musical capability
-- make the next Product Spine decision only after the evidence/decision gate is met
+- use Issue #16 to choose and bound the next Product Spine slice only after its
+  blocking evidence is available
 
 ## Not currently authorized
 
@@ -77,9 +83,9 @@ authorization.
 ## Decision queue
 
 1. Does PR #13 prove a useful preparation seam without changing the learning flow?
-2. What do the existing Labs actually improve during physical playing?
+2. What do the existing Labs actually improve during physical playing? (Issue #15)
 3. Which Lab behaviours deserve simplification, removal or promotion?
-4. Only then: what is the smallest next Product Spine slice?
+4. Only then: what is the smallest next Product Spine slice? (Issue #16)
 
 ## Control-plane rules
 
