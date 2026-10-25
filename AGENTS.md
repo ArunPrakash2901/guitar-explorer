@@ -3,18 +3,26 @@
 ## Current scope — Product Spine consolidation
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
-active work, waiting-on-Arun state and decision gate. Then read
+active work, waiting-on-Arun state and decision gate. Read
+[`docs/AUTONOMY_CONTRACT.md`](docs/AUTONOMY_CONTRACT.md) for what an agent may do
+without asking and where explicit approval is required. Then read
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) as the current product/architecture
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-The current runtime authorization is deliberately narrow. At present, PR #13 is the
-active Product Spine implementation slice: one DOM-free Melody preparation seam for
-existing catalogue/generated material, with no intended learner-facing behaviour
-change and no new musical capability. Do not generalize that seam into a complete
-Experience Router, Practice Policy, generic Learning Engine, runtime reorganization
-or UI redesign. A later implementation slice requires its own explicit issue/scope
-and must be consistent with the current gate in `PROJECT_STATE.md`.
+Issue #18 is the current authorized developer-leverage slice. It may add PR-preview
+infrastructure, local-only session-evidence export and the explicit autonomy contract
+without changing musical truth, learner scoring, persistence or product direction.
+The evidence recorder is development/validation tooling, not a Learning Engine.
+
+PR #13 remains the previously authorized bounded Product Spine runtime slice: one
+DOM-free Melody preparation seam for existing catalogue/generated material, with no
+intended learner-facing behaviour change and no new musical capability. It must be
+reconciled with current `master` before merge; do not force it or generalize that seam
+into a complete Experience Router, Practice Policy, generic Learning Engine, runtime
+reorganization or UI redesign. A later Product Spine implementation slice requires
+its own explicit issue/scope and must be consistent with the current gate in
+`PROJECT_STATE.md`.
 
 No new capability receives a learner-facing destination by default. It must fit
 Explore, Practice, Apply or a shared service. Practice Policy applies only to an
@@ -36,11 +44,12 @@ conventional key relationships, broader scale formulas, generalized selected-sca
 contextual analysis, the approved chord catalogue, and explicit major/natural-minor
 diatonic triad/seventh harmony with structured Roman identity.
 
-Do not begin Issue #2 slice 2E, harmonic-function classification, CAGED, inversions, voicings, progressions, Audio, Ear, Learning,
-storage, React or rhythm implementation without later authorization. Do not add
-future-engine placeholders. Do not introduce bitsets, fretboard graphs, caching or
-adaptive-learning infrastructure without a concrete later requirement.
-The preserved prototype remains a reference, not the production implementation.
+Do not begin Issue #2 slice 2E, harmonic-function classification, CAGED, inversions,
+voicings, progressions, Audio, Ear, Learning, storage, React or rhythm implementation
+without later authorization. Do not add future-engine placeholders. Do not introduce
+bitsets, fretboard graphs, caching or adaptive-learning infrastructure without a
+concrete later requirement. The preserved prototype remains a reference, not the
+production implementation.
 
 ### Approved learning-harness experiment
 
@@ -50,11 +59,16 @@ added. It may call existing Core/Guitar/query exports, but it must not create a
 second source of musical truth or silently begin the future Learning Engine.
 
 Keep the lab intentionally thin: no persistence, learner history, mastery scores,
-adaptive scheduling, analytics, accounts, AI, audio or React. New
-lab interactions should earn their place by improving interval understanding,
-fretboard reconstruction, scale-degree understanding or transfer. If an interaction
-is not useful in practice, simplify or remove it rather than building infrastructure
-around it.
+adaptive scheduling, analytics, accounts, AI, audio or React. New lab interactions
+should earn their place by improving interval understanding, fretboard
+reconstruction, scale-degree understanding or transfer. If an interaction is not
+useful in practice, simplify or remove it rather than building infrastructure around
+it.
+
+Issue #18's evidence recorder is an explicit exception only to the extent needed for
+manual validation: it may keep ephemeral in-page interaction evidence and export a
+user-triggered JSON file. It must not send evidence over the network, persist learner
+history, score performance, infer mastery or change exercise correctness.
 
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
 Learning composes Ear + Guitar for auditory-to-fretboard tasks. Musical queries
@@ -104,9 +118,10 @@ progressive assistance, physical voice deconstruction, unfamiliar A-major transf
 and ephemeral evidence. Promotion into an engine module requires later evidence and
 authorization.
 
-Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`, and
-`npm run test:lab`. Stop engine breadth after Phase 2D unless separately authorized.
-The exact original handoff is in `references/approved-v0.2-handoff.zip`.
+Verify with `npm run typecheck`, `npm test`, `npm run test:prototype`,
+`npm run test:lab`, and for preview-sensitive changes `npm run preview:build`. Stop
+engine breadth after Phase 2D unless separately authorized. The exact original
+handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical instructions
 
