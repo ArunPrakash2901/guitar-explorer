@@ -10,31 +10,28 @@ without asking and where explicit approval is required. Then read
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-The two completed developer-leverage slices are standing support infrastructure:
+The completed developer-leverage and bounded Product Spine slices are standing
+infrastructure:
 
 - Issue #18 / PR #19: PR previews, local-only Session Evidence export and the agent
   autonomy contract
 - Issue #21 / PR #22: authoritative `npm run verify`, stable ScenarioV1 identity,
   evidence schema v2 and Physical Validation Protocol v1
+- Issue #29 / PR #30: one DOM-free Melody preparation seam for existing
+  catalogue/generated material, superseding stale PR #13
 
 Those merged capabilities may be maintained for correctness and reliability, but
-they do not authorize a Learning Engine, analytics, persistence, scoring or new
-musical capability. Scenario identity remains Lab/validation metadata, not a
-universal workspace schema.
+they do not authorize a Learning Engine, analytics, persistence, scoring, a general
+Experience Router or new musical capability. Scenario identity remains
+Lab/validation metadata, not a universal workspace schema. The Melody preparation
+seam remains Melody-specific; do not generalize it into a complete Experience Router,
+Practice Policy, generic Learning Engine, runtime reorganization or UI redesign
+without a new explicit issue/scope.
 
-Issue #15 is now the active learner-evidence task and Issue #16 remains the next
-capability decision gate. Arun has enabled the existing GitHub Pages PR-preview
-publication path; do not switch hosts, treat previews as production, or publish
-private evidence.
-
-PR #13 remains the previously authorized bounded Product Spine runtime slice: one
-DOM-free Melody preparation seam for existing catalogue/generated material, with no
-intended learner-facing behaviour change and no new musical capability. It must be
-reconciled with current `master` before merge; do not force it or generalize that seam
-into a complete Experience Router, Practice Policy, generic Learning Engine, runtime
-reorganization or UI redesign. A later Product Spine implementation slice requires
-its own explicit issue/scope and must be consistent with the current gate in
-`PROJECT_STATE.md`.
+Issue #15 is the active learner-evidence task. Issue #16 is the next capability
+decision gate and is now blocked on physical evidence rather than Melody-seam
+reconciliation. Arun has enabled the existing GitHub Pages PR-preview publication
+path; do not switch hosts, treat previews as production, or publish private evidence.
 
 No new capability receives a learner-facing destination by default. It must fit
 Explore, Practice, Apply or a shared service. Practice Policy applies only to an
