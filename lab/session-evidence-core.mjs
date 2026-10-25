@@ -1,5 +1,5 @@
 export const EVIDENCE_SCHEMA = "guitar-explorer/session-evidence";
-export const EVIDENCE_SCHEMA_VERSION = 2;
+export const EVIDENCE_SCHEMA_VERSION = 3;
 export const PHYSICAL_VALIDATION_PROTOCOL = "guitar-explorer/physical-validation";
 export const PHYSICAL_VALIDATION_PROTOCOL_VERSION = 1;
 
@@ -13,6 +13,7 @@ const INTERPRETATIONS = new Set([
 ]);
 
 const SCENARIO_SOURCES = new Set(["catalogue", "generated"]);
+const DEPLOYMENT_CHANNELS = new Set(["local", "stable", "preview", "experimental"]);
 
 const REFLECTION_FIELDS = [
   "easierWithoutAnswers",
@@ -34,6 +35,15 @@ function validIso(value, fieldName) {
     throw new TypeError(`${fieldName} must be a valid ISO date-time string`);
   }
   return text;
+}
+
+function hash32(text) {
+  let hash = 2166136261;
+  for (const char of text) {
+    hash ^= char.charCodeAt(0);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, "0");
 }
 
 function normalizeReflection(reflection = {}) {
@@ -61,11 +71,29 @@ function normalizeScenario({ scenarioId = null, scenarioSource = null, scenarioC
   };
 }
 
+function normalizeDeployment({ deploymentChannel = null, deploymentLabel = null } = {}) {
+  const channel = cleanText(deploymentChannel, 80) || "local";
+  return {
+    deploymentChannel: DEPLOYMENT_CHANNELS.has(channel) ? channel : "local",
+    deploymentLabel: cleanText(deploymentLabel, 160) || null,
+  };
+}
+
+function createTrialId({ startedAt, experience, page, revision, previewPr, scenarioId }) {
+  const seed = [startedAt, experience, page, revision, previewPr, scenarioId]
+    .map((value) => cleanText(value, 240))
+    .join("|");
+  return `trial-${hash32(seed)}`;
+}
+
 export function createEvidenceSession({
   experience,
   page,
   revision = null,
   previewPr = null,
+  deploymentChannel = null,
+  deploymentLabel = null,
+  trialId = null,
   scenarioId = null,
   scenarioSource = null,
   scenarioContractVersion = null,
@@ -76,8 +104,20 @@ export function createEvidenceSession({
   if (!normalizedExperience) throw new TypeError("experience is required");
   if (!normalizedPage) throw new TypeError("page is required");
 
+  const normalizedStartedAt = validIso(startedAt, "startedAt");
+  const normalizedRevision = cleanText(revision, 120) || null;
   const numericPr = previewPr === null || previewPr === "" ? null : Number(previewPr);
+  const normalizedPreviewPr = Number.isInteger(numericPr) && numericPr > 0 ? numericPr : null;
   const scenario = normalizeScenario({ scenarioId, scenarioSource, scenarioContractVersion });
+  const deployment = normalizeDeployment({ deploymentChannel, deploymentLabel });
+  const normalizedTrialId = cleanText(trialId, 160) || createTrialId({
+    startedAt: normalizedStartedAt,
+    experience: normalizedExperience,
+    page: normalizedPage,
+    revision: normalizedRevision,
+    previewPr: normalizedPreviewPr,
+    scenarioId: scenario.scenarioId,
+  });
 
   return {
     schema: EVIDENCE_SCHEMA,
@@ -86,12 +126,14 @@ export function createEvidenceSession({
       id: PHYSICAL_VALIDATION_PROTOCOL,
       version: PHYSICAL_VALIDATION_PROTOCOL_VERSION,
     },
+    trialId: normalizedTrialId,
     experience: normalizedExperience,
     page: normalizedPage,
-    revision: cleanText(revision, 120) || null,
-    previewPr: Number.isInteger(numericPr) && numericPr > 0 ? numericPr : null,
+    revision: normalizedRevision,
+    previewPr: normalizedPreviewPr,
+    ...deployment,
     ...scenario,
-    startedAt: validIso(startedAt, "startedAt"),
+    startedAt: normalizedStartedAt,
     interactions: [],
     reflection: normalizeReflection(),
   };
@@ -171,6 +213,10 @@ export function evidenceFilename(session) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
+  const revision = cleanText(session?.revision, 40)
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-|-$/g, "");
   const date = cleanText(session?.startedAt, 80).slice(0, 19).replace(/[:T]/g, "-") || "unknown-time";
-  return `guitar-explorer-evidence-${experience}${scenario ? `-${scenario}` : ""}-${date}.json`;
+  return `guitar-explorer-evidence-${experience}${scenario ? `-${scenario}` : ""}${revision ? `-${revision.slice(0, 12)}` : ""}-${date}.json`;
 }

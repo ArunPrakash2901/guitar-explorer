@@ -8,6 +8,18 @@ const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
 const outputRoot = resolve(projectRoot, ".preview-dist");
 const revision = process.env.GE_REVISION || process.env.GITHUB_SHA || "local";
 const previewPr = process.env.GE_PREVIEW_PR || "";
+const channelFlagIndex = process.argv.indexOf("--channel");
+const requestedChannel = process.argv.find((arg) => arg.startsWith("--channel="))?.split("=", 2)[1]
+  || (channelFlagIndex >= 0 ? process.argv[channelFlagIndex + 1] : null)
+  || process.env.GE_DEPLOYMENT_CHANNEL
+  || "preview";
+const deploymentChannels = new Set(["stable", "preview", "experimental"]);
+if (!deploymentChannels.has(requestedChannel)) {
+  throw new Error(`Unknown deployment channel: ${requestedChannel}`);
+}
+const deploymentChannel = requestedChannel;
+const deploymentLabel = process.env.GE_DEPLOYMENT_LABEL
+  || (deploymentChannel === "preview" && previewPr ? `pr-${previewPr}` : `local-${deploymentChannel}`);
 
 const textExtensions = new Set([".html", ".js", ".mjs", ".css"]);
 const requiredPaths = [
@@ -53,6 +65,8 @@ function injectPreviewShell(source) {
     const metadata = [
       `  <meta name="guitar-explorer-revision" content="${htmlEscape(revision)}">`,
       `  <meta name="guitar-explorer-preview-pr" content="${htmlEscape(previewPr)}">`,
+      `  <meta name="guitar-explorer-deployment-channel" content="${htmlEscape(deploymentChannel)}">`,
+      `  <meta name="guitar-explorer-deployment-label" content="${htmlEscape(deploymentLabel)}">`,
     ].join("\n");
     transformed = transformed.replace("</head>", `${metadata}\n</head>`);
   }
@@ -94,7 +108,7 @@ await mkdir(outputRoot, { recursive: true });
 await cp(labRoot, outputRoot, { recursive: true });
 await cp(engineRoot, join(outputRoot, "engine"), { recursive: true });
 
-// The local server aliases /harmony.html to practice.html. Static previews need an
+// The local server aliases /harmony.html to practice.html. Static channel builds need an
 // actual file while preserving the pathname distinction used by the practice app.
 await cp(join(outputRoot, "practice.html"), join(outputRoot, "harmony.html"));
 await writeFile(join(outputRoot, ".nojekyll"), "");
@@ -127,6 +141,8 @@ for (const requiredPath of requiredPaths) {
   }
 }
 
-console.log(`Preview build ready: ${relative(projectRoot, outputRoot)}`);
+console.log(`Static Lab build ready: ${relative(projectRoot, outputRoot)}`);
+console.log(`Channel: ${deploymentChannel}`);
+console.log(`Label: ${deploymentLabel}`);
 console.log(`Revision: ${revision}`);
 if (previewPr) console.log(`PR: ${previewPr}`);

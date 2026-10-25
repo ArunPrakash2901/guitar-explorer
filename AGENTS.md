@@ -3,7 +3,9 @@
 ## Current scope — Product Spine consolidation
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
-active work, waiting-on-Arun state and decision gate. Read
+active work, waiting-on-Arun state and decision gate. For machine-readable recovery,
+read [`project-state.json`](project-state.json) or run `npm run context`; the snapshot
+is validated by the authoritative repository gate. Read
 [`docs/AUTONOMY_CONTRACT.md`](docs/AUTONOMY_CONTRACT.md) for what an agent may do
 without asking and where explicit approval is required. Then read
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) as the current product/architecture
@@ -20,18 +22,26 @@ infrastructure:
 - Issue #29 / PR #30: one DOM-free Melody preparation seam for existing
   catalogue/generated material, superseding stale PR #13
 
-Those merged capabilities may be maintained for correctness and reliability, but
-they do not authorize a Learning Engine, analytics, persistence, scoring, a general
-Experience Router or new musical capability. Scenario identity remains
-Lab/validation metadata, not a universal workspace schema. The Melody preparation
-seam remains Melody-specific; do not generalize it into a complete Experience Router,
-Practice Policy, generic Learning Engine, runtime reorganization or UI redesign
-without a new explicit issue/scope.
+Issue #32 / PR #33 is the current bounded developer-leverage slice. It may add only
+machine-readable project context, explicit deployment-channel provenance and local
+longitudinal evidence tooling. It must not change musical truth, exercise behavior,
+pedagogy, capability breadth, or the Issue #15 / #16 decision gate. Stable publication
+remains a separate explicit decision; experimental builds are opt-in and non-production.
+See `docs/DEPLOYMENT_CHANNELS.md`.
 
-Issue #15 is the active learner-evidence task. Issue #16 is the next capability
-decision gate and is now blocked on physical evidence rather than Melody-seam
-reconciliation. Arun has enabled the existing GitHub Pages PR-preview publication
-path; do not switch hosts, treat previews as production, or publish private evidence.
+Those capabilities may be maintained for correctness and reliability, but they do
+not authorize a Learning Engine, analytics backend, persistence, scoring, a general
+Experience Router or new musical capability. Scenario identity remains Lab/validation
+metadata, not a universal workspace schema. The Melody preparation seam remains
+Melody-specific; do not generalize it into a complete Experience Router, Practice
+Policy, generic Learning Engine, runtime reorganization or UI redesign without a new
+explicit issue/scope.
+
+Issue #15 remains the active learner-evidence task. Issue #16 is the next capability
+decision gate and is blocked on physical evidence rather than developer tooling.
+Arun has enabled the existing GitHub Pages PR-preview publication path; do not switch
+hosts, treat previews as production, publish stable/experimental channels, or publish
+private evidence without separate explicit approval.
 
 No new capability receives a learner-facing destination by default. It must fit
 Explore, Practice, Apply or a shared service. Practice Policy applies only to an
@@ -74,11 +84,14 @@ reconstruction, scale-degree understanding or transfer. If an interaction is not
 useful in practice, simplify or remove it rather than building infrastructure around
 it.
 
-The Session Evidence recorder, stable ScenarioV1 identity and evidence schema v2 are
-bounded validation tools. They may keep ephemeral in-page interaction evidence and
-export a user-triggered JSON file with exact revision/scenario/protocol metadata.
-They must not send evidence over the network, persist learner history, score
-performance, infer mastery or change exercise correctness.
+The Session Evidence recorder, stable ScenarioV1 identity, evidence schema v3 and
+local evidence-timeline tooling are bounded validation tools. They may keep ephemeral
+in-page interaction evidence and export a user-triggered JSON file with exact
+revision/scenario/protocol/deployment metadata. Timeline generation may read those
+exports locally and group them descriptively by revision/channel/scenario. These
+tools must not send evidence over the network, persist learner history in a backend,
+score performance, infer mastery or change exercise correctness. `.evidence-local/`
+is gitignored and is the default timeline storage location.
 
 Use [`docs/PHYSICAL_VALIDATION_PROTOCOL.md`](docs/PHYSICAL_VALIDATION_PROTOCOL.md)
 for real-guitar trials. Automated correctness cannot substitute for the protocol's
@@ -89,7 +102,9 @@ inconclusive, but promotion still requires the separate architecture/capability 
 PR-preview infrastructure is likewise bounded development tooling. Arun has approved
 and enabled the existing GitHub Pages publication path for PR previews. Do not
 introduce another external host, publish private evidence or turn previews into
-production deployment without further explicit approval. See `docs/PR_PREVIEWS.md`.
+production deployment without further explicit approval. Stable, preview and
+experimental identities and publication boundaries are defined in
+`docs/DEPLOYMENT_CHANNELS.md`; `preview` is the only automatically published channel.
 
 Permanent boundaries: Ear is instrument-independent (Core + pure Audio contracts).
 Learning composes Ear + Guitar for auditory-to-fretboard tasks. Musical queries

@@ -1,18 +1,26 @@
 # Pull-request previews
 
 Guitar Explorer can build a self-contained static Lab and deploy one preview per pull
-request under GitHub Pages.
+request under GitHub Pages. This is the `preview` deployment channel; the full
+stable/preview/experimental contract is documented in
+[`DEPLOYMENT_CHANNELS.md`](DEPLOYMENT_CHANNELS.md).
 
 ## What the workflow does
 
 For same-repository pull requests, `.github/workflows/pr-preview.yml`:
 
-1. installs dependencies
-2. runs `npm run preview:build`
-3. writes only generated browser-preview output to the dedicated `gh-pages` branch
+1. checks out the exact pull-request head SHA rather than a synthetic merge commit
+2. installs dependencies
+3. runs `npm run preview:build`
+4. writes only generated browser-preview output to the dedicated `gh-pages` branch
    under `pr-preview/pr-<number>/`
-4. comments the preview URL on the pull request
-5. removes that preview when the pull request closes
+5. comments the preview URL on the pull request
+6. removes that preview when the pull request closes
+
+The workflow sets the build channel to `preview`, the deployment label to
+`pr-<number>`, the PR number, and the exact tested head revision. Those values are
+embedded in the static HTML and become Session Evidence provenance when the recorder
+is used.
 
 The preview output contains the browser Lab files and compiled engine files required
 by the app. Repository docs, tests, references and unrelated source files are not
@@ -35,16 +43,20 @@ If repository policy prevents the workflow token from writing, also check
 **Settings → Actions → General → Workflow permissions** and allow the workflow the
 write permissions requested in the workflow file.
 
+Arun enabled this Pages publication path on 2026-10-25. That approval applies to the
+existing PR-preview channel only; it is not permission to publish a stable release,
+an experimental channel, or private learner evidence.
+
 ## Privacy note
 
 GitHub Pages sites are web-published content, including when the source repository is
-private on plans that allow private-repository Pages. Enabling Pages is therefore an
-explicit publication decision. Do not put secrets, private learner records or
-exported session-evidence JSON into the preview build.
+private on plans that allow private-repository Pages. Do not put secrets, private
+learner records or exported session-evidence JSON into the preview build.
 
 The evidence recorder itself stays local in the browser and exports a file only when
 the learner chooses to do so. The preview workflow does not upload that exported
-JSON.
+JSON. Longitudinal timeline files live under the gitignored `.evidence-local/`
+directory by default and are likewise never published by this workflow.
 
 For private repositories, Pages availability depends on the GitHub plan/account
 configuration. If Pages is unavailable or public preview publication is not desired,
@@ -70,7 +82,8 @@ The build:
   the site works below a PR-specific subpath
 - adjusts the generated Harmony route check for the PR-specific path prefix without
   changing the source Lab behaviour
-- injects the local-only session-evidence recorder plus build revision / PR metadata
+- injects revision, PR, deployment-channel and deployment-label metadata plus the
+  local-only Session Evidence recorder
 - omits source maps from published preview output
 - fails if required entry files are missing or root-absolute local references remain
 

@@ -37,6 +37,8 @@ jobs:
         env:
           GE_REVISION: ${{ github.event.pull_request.head.sha }}
           GE_PREVIEW_PR: ${{ github.event.number }}
+          GE_DEPLOYMENT_CHANNEL: preview
+          GE_DEPLOYMENT_LABEL: pr-${{ github.event.number }}
 
       - name: Deploy or remove PR preview
         uses: rossjrw/pr-preview-action@ffa7509e91a3ec8dfc2e5536c4d5c1acdf7a6de9 # v1

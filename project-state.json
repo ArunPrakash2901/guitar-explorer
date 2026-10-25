@@ -1,0 +1,76 @@
+{
+  "$schema": "guitar-explorer/project-state",
+  "schemaVersion": 1,
+  "updatedAt": "2026-10-25",
+  "stage": "Product Spine consolidation with a hardened development/validation loop",
+  "phase": {
+    "engine": "through Phase 2D",
+    "runtime": "bounded Melody preparation seam reconciled",
+    "learningValidation": "physical validation of current Lab cohort"
+  },
+  "activeWork": {
+    "issue": 32,
+    "pullRequest": 33,
+    "kind": "developer-leverage",
+    "summary": "Machine-readable context, deployment channels, and longitudinal evidence"
+  },
+  "evidence": {
+    "issue": 15,
+    "schema": "guitar-explorer/session-evidence",
+    "schemaVersion": 3,
+    "protocol": {
+      "id": "guitar-explorer/physical-validation",
+      "version": 1
+    },
+    "storageDefault": "local-only",
+    "requiredExperiences": [
+      "harmonic-gravity-practice",
+      "parsimonious-path",
+      "melody-over-harmony",
+      "develop-the-idea"
+    ]
+  },
+  "gate": {
+    "issue": 16,
+    "status": "blocked-on-physical-evidence",
+    "statement": "Choose the next Product Spine slice only after enough Issue #15 physical evidence exists."
+  },
+  "verification": {
+    "command": "npm run verify",
+    "ciWorkflow": ".github/workflows/ci.yml",
+    "status": "authoritative"
+  },
+  "deployments": {
+    "stable": {
+      "status": "reserved-not-published",
+      "source": "master",
+      "publication": "explicit-manual-approval",
+      "pathPattern": "stable/"
+    },
+    "preview": {
+      "status": "active",
+      "source": "exact-pull-request-head",
+      "publication": "automatic-on-pull-request",
+      "pathPattern": "pr-preview/pr-<number>/"
+    },
+    "experimental": {
+      "status": "opt-in-build-only",
+      "source": "explicit-ref",
+      "publication": "not-automatic",
+      "pathPattern": "experimental/<name>/"
+    }
+  },
+  "deferred": [
+    "Phase 2E progression/cadence/function breadth",
+    "CAGED production logic",
+    "generic voicing or voice-leading engine promotion",
+    "new standalone Labs by default",
+    "general Experience Router or Practice/Learning Engine infrastructure",
+    "learner mastery/adaptation/telemetry systems",
+    "microphone grading or audio recognition",
+    "AI tutor behaviour",
+    "React/framework migration",
+    "broad song/progression import",
+    "production deployment or paid/external preview infrastructure"
+  ]
+}

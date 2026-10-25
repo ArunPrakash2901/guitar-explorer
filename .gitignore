@@ -2,6 +2,7 @@ node_modules/
 dist/
 .lab-dist/
 .preview-dist/
+.evidence-local/
 coverage/
 *.tsbuildinfo
 

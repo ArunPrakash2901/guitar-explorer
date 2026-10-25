@@ -71,6 +71,7 @@ function recorderMarkup() {
       <div class="ge-evidence-body">
         <p class="ge-evidence-note"><strong>Local only.</strong> Nothing here is sent or saved automatically. Export the JSON only when you want to share the trial.</p>
         <p class="ge-evidence-note"><strong>Protocol v1:</strong> unaided attempt → smallest assistance only if needed → transfer → reflection. Reset evidence after choosing your scenario.</p>
+        <p id="ge-evidence-build" class="ge-evidence-note"></p>
         <p id="ge-evidence-context" class="ge-evidence-note"></p>
 
         <label>What became easier without looking at answers?
@@ -177,6 +178,8 @@ const baseOptions = {
   page: window.location.pathname,
   revision: metaContent("guitar-explorer-revision"),
   previewPr: metaContent("guitar-explorer-preview-pr"),
+  deploymentChannel: metaContent("guitar-explorer-deployment-channel") || "local",
+  deploymentLabel: metaContent("guitar-explorer-deployment-label"),
 };
 let session = createEvidenceSession({ ...baseOptions, ...currentScenario() });
 
@@ -190,6 +193,14 @@ function refreshScenarioContext() {
       : "Scenario: not applicable on this page";
   }
   return scenario;
+}
+
+function refreshBuildContext() {
+  const build = document.getElementById("ge-evidence-build");
+  if (!build) return;
+  const revision = session.revision ? session.revision.slice(0, 12) : "unversioned";
+  const label = session.deploymentLabel ? ` · ${session.deploymentLabel}` : "";
+  build.textContent = `Build: ${session.deploymentChannel}${label} · ${revision}`;
 }
 
 function updateCount() {
@@ -239,6 +250,7 @@ function resetRecorder() {
     if (field) field.value = "";
   }
   updateCount();
+  refreshBuildContext();
   refreshScenarioContext();
   const status = document.getElementById("ge-evidence-status");
   if (status) status.textContent = "Evidence reset for a fresh protocol trial.";
@@ -262,6 +274,7 @@ function mountRecorder() {
   document.addEventListener("click", captureClick, true);
   document.addEventListener("change", captureChange, true);
   updateCount();
+  refreshBuildContext();
   refreshScenarioContext();
 }
 
