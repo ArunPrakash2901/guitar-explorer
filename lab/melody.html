@@ -98,6 +98,15 @@
 <button id="replay" type="button">Replay/reset this step</button>
 <button id="restart" type="button">Restart experiment</button>
 </div>
+<details class="assistant-exchange">
+<summary>Assistant exchange · local experiment</summary>
+<p class="small">Copy only the current context into your signed-in Codex or Gemini CLI. Paste its JSON proposal below. The app checks it before using the existing hint; nothing is sent automatically.</p>
+<button id="assistant-prepare" type="button">Prepare current context</button>
+<label for="assistant-context">Context to copy<textarea id="assistant-context" rows="8" readonly></textarea></label>
+<label for="assistant-proposal">Proposal JSON<textarea id="assistant-proposal" rows="6"></textarea></label>
+<button id="assistant-apply" type="button">Check and apply hint</button>
+<p id="assistant-status" role="status" aria-live="polite"></p>
+</details>
 </section>
 <aside class="side">
 <strong>Your guitar supplies sound</strong>

@@ -32,6 +32,7 @@ function resolveRequest(pathname) {
     "/session-evidence-core.mjs",
     "/scenario-identity.mjs",
     "/scenario-context.mjs",
+    "/melody-assistant-exchange.mjs",
   ].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }

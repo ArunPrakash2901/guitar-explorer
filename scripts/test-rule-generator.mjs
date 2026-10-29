@@ -12,6 +12,7 @@ import { createTestDOM, installRenderer, accessibleText, all } from "./fretboard
 import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "../lab/melody-experience.mjs";
 import { readScenarioContext, setScenarioContext } from "../lab/scenario-context.mjs";
 import { makeGeneratedScenarioId } from "../lab/scenario-identity.mjs";
+import { createMelodyAssistantContext, validateMelodyAssistantProposal } from "../lab/melody-assistant-exchange.mjs";
 
 function unwrap(result) {
   if (!result.ok) throw new Error(result.error.message);
@@ -325,6 +326,8 @@ const context = vm.createContext({
   prepareDistinctMelodyExperience,
   createPhraseQueries,
   setScenarioContext,
+  createMelodyAssistantContext,
+  validateMelodyAssistantProposal,
 });
 installRenderer(context);
 vm.runInContext(appCode.replace(/^import .*;\s*/gm, ""), context, { filename: "phrase-app.js" });
@@ -386,6 +389,7 @@ const lessonDom = () => JSON.stringify({
 });
 const acceptedDom = lessonDom();
 const acceptedIdentity = readScenarioContext(document);
+const acceptedAssistantRevision = read("assistantRevision");
 const callsBeforeFailure = ordinaryUiCalls;
 exhaustDistinctSearch = true;
 $("generate-another").click();
@@ -402,6 +406,7 @@ assert.equal(read("currentGeneratedFingerprint"), accepted.fingerprint, "Failure
 assert.equal(read("JSON.stringify(state)"), accepted.stateJson, "Progress, selections, reveal, result, timing and evidence remain unchanged");
 assert.equal(lessonDom(), acceptedDom, "Lesson display and feedback remain unchanged");
 assert.deepEqual(readScenarioContext(document), acceptedIdentity, "Failed generation preserves exported identity");
+assert.equal(read("assistantRevision"), acceptedAssistantRevision, "Failed generation leaves assistant context current");
 assert.equal($("generation-feedback").hidden, false);
 assert.equal($("generation-feedback").getAttribute("role"), "status");
 assert.equal($("generation-feedback").getAttribute("aria-live"), "polite");

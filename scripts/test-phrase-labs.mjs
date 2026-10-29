@@ -10,6 +10,7 @@ import { createMelodyPlan } from "../lab/melody-session.mjs";
 import { createMotifPlan } from "../lab/motif-session.mjs";
 import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "../lab/melody-experience.mjs";
 import { readScenarioContext, setScenarioContext } from "../lab/scenario-context.mjs";
+import { createMelodyAssistantContext, validateMelodyAssistantProposal } from "../lab/melody-assistant-exchange.mjs";
 
 function unwrap(result) { assert.equal(result.ok, true, result.ok ? undefined : result.error.message); return result.data; }
 const queries = {
@@ -182,7 +183,8 @@ function createPage(which) {
   const { document, root } = createTestDOM(pages[which]); document.body = root.querySelector("body");
   const random = Object.create(Math); random.random = () => 0;
   const context = vm.createContext({ ...engine, getMelodyScenarios, getMotifScenarios, resolveScenario,
-    createMelodyPlan, createMotifPlan, chordRole, pathConnections, document, console, Math: random, prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries, setScenarioContext });
+    createMelodyPlan, createMotifPlan, chordRole, pathConnections, document, console, Math: random, prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries, setScenarioContext,
+    createMelodyAssistantContext, validateMelodyAssistantProposal });
   installRenderer(context);
   vm.runInContext(app.replace(/^import .*;\s*/gm, ""), context, { filename: "phrase-app.js" });
   const $ = (id) => document.getElementById(id);
@@ -257,6 +259,46 @@ for (const position of [motifRegression.transfer.target.position, arrivalPositio
 }
 transferUi.$("check").click();
 assert.equal(transferUi.read("state.revealed"), true, "Required transfer positions remain accepted");
+
+const assistantPage = createPage("melody");
+assistantPage.$("assistant-prepare").click();
+assert.deepEqual(JSON.parse(assistantPage.$("assistant-context").value).allowedActions, []);
+assistantPage.$("act").click(); assistantPage.$("next").click();
+assistantPage.$("assistant-prepare").click();
+const activeContext = JSON.parse(assistantPage.$("assistant-context").value);
+assert.equal(activeContext.scenario.scenarioId, melodies[0].id);
+assert.equal(activeContext.stage.id, "target");
+assert.deepEqual(activeContext.allowedActions, ["request-hint"]);
+assert.doesNotMatch(assistantPage.$("assistant-context").value, /F#|"answer"/);
+const proposal = (ctx, actionId) => JSON.stringify({ schema: "guitar-explorer/melody-assistant-proposal", version: 1,
+  sessionId: ctx.sessionId, stateRevision: ctx.stateRevision, actionId, kind: "request-hint" });
+assistantPage.$("assistant-proposal").value = proposal(activeContext, "hint-one");
+assistantPage.$("assistant-apply").click();
+assert.equal(assistantPage.read("state.hints"), 1);
+assert.equal(assistantPage.read("state.index"), 1);
+assert.equal(assistantPage.read("state.revealed"), false);
+assert.match(assistantPage.$("feedback").textContent, /Sing the destination/);
+assistantPage.$("assistant-apply").click();
+assert.equal(assistantPage.read("state.hints"), 1, "Replaying one action cannot consume another hint");
+assert.match(assistantPage.$("assistant-status").textContent, /DUPLICATE_ACTION/);
+assistantPage.$("assistant-proposal").value = proposal(activeContext, "stale-hint");
+assistantPage.$("assistant-apply").click();
+assert.equal(assistantPage.read("state.hints"), 1);
+assert.match(assistantPage.$("assistant-status").textContent, /STALE_CONTEXT/);
+assistantPage.$("assistant-prepare").click();
+const refreshed = JSON.parse(assistantPage.$("assistant-context").value);
+assistantPage.button(5, 1).click();
+assistantPage.$("assistant-proposal").value = proposal(refreshed, "after-selection");
+assistantPage.$("assistant-apply").click();
+assert.equal(assistantPage.read("state.hints"), 1);
+assert.match(assistantPage.$("assistant-status").textContent, /STALE_CONTEXT/);
+assistantPage.$("assistant-prepare").click();
+const beforeScenarioSwitch = JSON.parse(assistantPage.$("assistant-context").value);
+assistantPage.$("scenario-select").value = melodies[1].id; assistantPage.$("start-scenario").click();
+assistantPage.$("assistant-proposal").value = proposal(beforeScenarioSwitch, "other-scenario");
+assistantPage.$("assistant-apply").click();
+assert.equal(assistantPage.read("state.hints"), 0);
+assert.match(assistantPage.$("assistant-status").textContent, /STALE_CONTEXT/);
 
 const server = await readFile(new URL("./serve-lab.mjs", import.meta.url), "utf8");
 assert.match(server, /scenario-resolver\.mjs/);

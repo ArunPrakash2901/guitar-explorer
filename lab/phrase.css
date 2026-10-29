@@ -108,6 +108,26 @@ h1{
 .explanation li{
   margin:7px 0
 }
+.assistant-exchange{
+  margin-top:18px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:11px
+}
+.assistant-exchange summary{cursor:pointer;font-weight:700}
+.assistant-exchange label{display:block;margin-top:12px}
+.assistant-exchange textarea{
+  display:block;
+  width:100%;
+  margin-top:6px;
+  padding:8px;
+  color:var(--text);
+  background:#11161d;
+  border:1px solid var(--line);
+  border-radius:8px;
+  font:0.82rem/1.4 ui-monospace,monospace
+}
+.assistant-exchange p{margin:10px 0}
 .feedback{
   min-height:54px;
   padding:12px 14px;

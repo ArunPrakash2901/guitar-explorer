@@ -33,6 +33,7 @@ const requiredPaths = [
   "session-evidence-core.mjs",
   "scenario-identity.mjs",
   "scenario-context.mjs",
+  "melody-assistant-exchange.mjs",
   "engine/index.js",
 ];
 

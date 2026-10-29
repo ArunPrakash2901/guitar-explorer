@@ -1,0 +1,3 @@
+# Guitar Explorer
+
+@./AGENTS.md

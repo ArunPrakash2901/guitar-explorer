@@ -8,6 +8,7 @@ import { createMotifPlan } from "/motif-session.mjs";
 import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "/melody-generator.mjs";
 import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "/melody-experience.mjs";
 import { setScenarioContext } from "/scenario-context.mjs";
+import { createMelodyAssistantContext, validateMelodyAssistantProposal } from "/melody-assistant-exchange.mjs";
 
 const $ = (id) => document.getElementById(id);
 const queries = createPhraseQueries({ musicQueries, STANDARD_FRETBOARD, formatNote });
@@ -21,10 +22,15 @@ let practiceSource = "catalogue";
 let currentGeneratedSeed = 1001;
 let currentGeneratedConfig = null;
 let currentGeneratedFingerprint = null;
+let selectedProvenance = null;
+const assistantSessionId = globalThis.crypto?.randomUUID?.() ?? `local-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+let assistantRevision = 0;
+const appliedAssistantActions = new Set();
 
 if (mode === "melody") {
   const initial = prepareMelodyExperience({ source: "catalogue", scenarioId: catalogue[0].id }, { queries });
   selectedScenario = initial.scenario;
+  selectedProvenance = initial.provenance;
   material = initial.resolved;
   plan = initial.plan;
 } else {
@@ -51,6 +57,7 @@ function describeScenario() {
 describeScenario();
 function applyPreparedExperience(prepared) {
   selectedScenario = prepared.scenario;
+  selectedProvenance = prepared.provenance;
   material = prepared.resolved;
   plan = prepared.plan;
   if (prepared.source === "generated") {
@@ -240,6 +247,7 @@ function annotatedBoard(stage) {
     label: `${mode === "melody" ? "Melodic target" : "Motif"} fretboard; arrow keys move between available positions` });
 }
 function render() {
+  assistantRevision += 1;
   const stage = current();
   $("progress-text").textContent = `${state.index + 1} of ${plan.stages.length}`;
   $("progress-fill").style.width = `${(state.index + 1) * 100 / plan.stages.length}%`;
@@ -297,6 +305,7 @@ $("check").addEventListener("click", () => {
 });
 $("hint").addEventListener("click", () => {
   stageEvidence().hints += 1; state.hints += 1;
+  assistantRevision += 1;
   setFeedback(state.hints === 1 ? "Sing the destination against the current chord before counting frets." :
     mode === "melody" ? "Use the chord root as your reference; the high E string contains the target in this bounded region." :
       `Keep the original rise–return contour. At a chord change, make the high note the current chord's ${current().upperDegree === 5 ? "5th" : "3rd"}.`, "warn");
@@ -324,4 +333,38 @@ $("next").addEventListener("click", () => {
 $("back").addEventListener("click", () => { if (state.index > 0) { state.index -= 1; resetStep(); } });
 $("replay").addEventListener("click", resetStep);
 $("restart").addEventListener("click", () => { reset(); $("reflection").value = ""; render(); });
+if (mode === "melody") {
+  const buildField = (name) => document.querySelector(`meta[name="guitar-explorer-${name}"]`)?.getAttribute("content") || null;
+  const currentAssistantContext = () => createMelodyAssistantContext({
+    sessionId: assistantSessionId, stateRevision: assistantRevision,
+    build: { revision: buildField("revision") ?? "local", channel: buildField("deployment-channel") ?? "local",
+      previewPr: buildField("preview-pr") ? Number(buildField("preview-pr")) : null },
+    scenario: selectedScenario, provenance: selectedProvenance, stage: current(),
+    selections: state.selections, hintsUsed: state.hints, revealed: state.revealed,
+  });
+  $("assistant-prepare").addEventListener("click", () => {
+    try {
+      $("assistant-context").value = JSON.stringify(currentAssistantContext(), null, 2);
+      $("assistant-status").textContent = "Current context ready to copy. It contains no hidden answer.";
+    } catch {
+      $("assistant-context").value = "";
+      $("assistant-status").textContent = "Context unavailable for this stage. Your exercise is unchanged.";
+    }
+  });
+  $("assistant-apply").addEventListener("click", () => {
+    let currentContext;
+    try { currentContext = currentAssistantContext(); } catch {
+      $("assistant-status").textContent = "Context unavailable. No hint was applied.";
+      return;
+    }
+    const result = validateMelodyAssistantProposal($("assistant-proposal").value, currentContext, appliedAssistantActions);
+    if (!result.ok) {
+      $("assistant-status").textContent = `No hint applied: ${result.code}. Prepare new context if the stage changed.`;
+      return;
+    }
+    appliedAssistantActions.add(result.action.id);
+    $("hint").click();
+    $("assistant-status").textContent = "The current hint was applied. Prepare fresh context for another request.";
+  });
+}
 render();
