@@ -71,6 +71,27 @@ assert.equal(timeline.byRevision.bbb222.channels.preview, 1);
 assert.match(timeline.note, /Repeated exports of one trial are reconciled/);
 assert.match(timeline.note, /Do not infer learner mastery/);
 
+const objectPrototypeBefore = Object.getOwnPropertyDescriptors(Object.prototype);
+for (const reserved of ["constructor", "__proto__", "toString", "hasOwnProperty"]) {
+  const withReservedKeys = buildEvidenceTimeline([1, 2].map((number) => ({
+    ...current,
+    trialId: `reserved-${reserved}-${number}`,
+    revision: reserved,
+    experience: reserved,
+    deploymentChannel: reserved,
+    reflection: { interpretation: reserved },
+  })));
+  const group = withReservedKeys.byRevision[reserved];
+  assert.equal(Object.hasOwn(withReservedKeys.byRevision, reserved), true, `Revision ${reserved} is its own group`);
+  assert.equal(group.trialCount, 2);
+  for (const field of ["experiences", "interpretations", "channels"]) {
+    assert.equal(Object.hasOwn(group[field], reserved), true, `${field}.${reserved} is an own count`);
+    assert.equal(group[field][reserved], 2);
+    assert.equal(JSON.parse(JSON.stringify(withReservedKeys)).byRevision[reserved][field][reserved], 2);
+  }
+}
+assert.deepEqual(Object.getOwnPropertyDescriptors(Object.prototype), objectPrototypeBefore);
+
 assert.throws(() => normalizeEvidenceTrial({ schema: "wrong", schemaVersion: 3 }), /unsupported evidence schema/);
 
 console.log("longitudinal evidence timeline checks passed");

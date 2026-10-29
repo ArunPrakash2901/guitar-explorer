@@ -92,15 +92,15 @@ export function buildEvidenceTimeline(trials, { generatedAt = new Date().toISOSt
     trials.map((trial) => normalizeEvidenceTrial(trial.evidence ?? trial, trial.sourceFile ?? null)),
   ).sort((a, b) => a.startedAt.localeCompare(b.startedAt));
 
-  const byRevision = {};
+  const byRevision = Object.create(null);
   for (const trial of normalized) {
     const key = groupKey(trial);
     const group = byRevision[key] ??= {
       revision: trial.revision,
       trialCount: 0,
-      experiences: {},
-      interpretations: {},
-      channels: {},
+      experiences: Object.create(null),
+      interpretations: Object.create(null),
+      channels: Object.create(null),
     };
     group.trialCount += 1;
     group.experiences[trial.experience] = (group.experiences[trial.experience] ?? 0) + 1;

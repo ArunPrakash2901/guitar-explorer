@@ -1,52 +1,25 @@
-import { makeGeneratedScenarioId, scenarioIdentity } from "./scenario-identity.mjs";
-import { getMelodyScenarios, getMotifScenarios } from "./scenario-catalogue.mjs";
-import { getMelodyRules } from "./rule-contract.mjs";
+import { scenarioIdentity } from "./scenario-identity.mjs";
 
-function byId(documentRef, id) {
-  return documentRef?.getElementById?.(id) ?? null;
-}
-
-function scenarioInfo(documentRef) {
-  return byId(documentRef, "scenario-info")?.textContent?.trim() ?? "";
-}
-
-function parseGeneratedScenario(documentRef) {
-  const info = scenarioInfo(documentRef);
-  const match = info.match(/^Generated · (.+?) · (introductory|developing|transfer) · seed (.+?)(?: ·|$)/);
-  if (!match) return null;
-
-  const [, title, difficulty, seedText] = match;
-  const rule = getMelodyRules().find((item) => item.title === title);
-  if (!rule) return null;
-
-  const numericSeed = Number(seedText);
-  const seed = Number.isFinite(numericSeed) && String(numericSeed) === seedText.trim()
-    ? numericSeed
-    : seedText.trim();
-
-  return Object.freeze({
-    scenarioId: makeGeneratedScenarioId({ family: rule.family, difficulty, seed }),
-    scenarioSource: "generated",
-    scenarioContractVersion: 1,
-  });
-}
-
-function parseCatalogueScenario(documentRef, probe) {
-  const info = scenarioInfo(documentRef);
-  if (!info) return null;
-  const catalogue = probe === "melody" ? getMelodyScenarios() : getMotifScenarios();
-  const active = catalogue.find((scenario) => info.startsWith(`${scenario.description} · ${scenario.difficulty} · `));
-  return active ? scenarioIdentity(active, "catalogue") : null;
+// The active scenario is set only after preparation succeeds. Picker values and
+// display prose are not reliable evidence of the accepted teaching material.
+export function setScenarioContext(documentRef, scenario) {
+  const identity = scenarioIdentity(scenario);
+  const dataset = documentRef.body.dataset;
+  dataset.scenarioId = identity.scenarioId;
+  dataset.scenarioSource = identity.scenarioSource;
+  dataset.scenarioContractVersion = String(identity.scenarioContractVersion);
+  return identity;
 }
 
 export function readScenarioContext(documentRef = globalThis.document) {
-  const probe = documentRef?.body?.dataset?.probe;
-  if (probe !== "melody" && probe !== "motif") return null;
-
-  const generatedSelected = probe === "melody"
-    && byId(documentRef, "source-generated")?.getAttribute?.("aria-selected") === "true";
-
-  return generatedSelected
-    ? parseGeneratedScenario(documentRef)
-    : parseCatalogueScenario(documentRef, probe);
+  const dataset = documentRef?.body?.dataset;
+  if (dataset?.probe !== "melody" && dataset?.probe !== "motif") return null;
+  if (!dataset.scenarioId || !dataset.scenarioSource) return null;
+  const version = Number(dataset.scenarioContractVersion);
+  if (!Number.isInteger(version) || version < 1) return null;
+  try {
+    return scenarioIdentity({ id: dataset.scenarioId, version }, dataset.scenarioSource);
+  } catch {
+    return null;
+  }
 }
