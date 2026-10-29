@@ -7,6 +7,10 @@ export function createMotifPlan(material) {
   const { target, arrival } = material.spec.targets;
   const cells = material.spec.motif;
   const roleName = (degree) => degree === 1 ? "root" : degree === 3 ? "3rd" : degree === 5 ? "5th" : `degree ${degree}`;
+  const stringName = (index) => index === 5 ? "the high E string (string 1)" : `string ${6 - index}`;
+  const transferStrings = target.stringIndex === arrival.stringIndex
+    ? `both targets on ${stringName(target.stringIndex)}`
+    : `the first target on ${stringName(target.stringIndex)} and the arrival on ${stringName(arrival.stringIndex)}`;
   const stages = [
     { id: "source", kind: "play", title: "Play one small idea", context: g,
       prompt: `Over ${g.chords[0].symbol}, play the three-note motif shown. Hear its rise and return.`,
@@ -40,7 +44,7 @@ export function createMotifPlan(material) {
       instruction: "Keep recognizable contour and fixed short–short–long feel. Change pitches to suit each chord; the app cannot hear or grade your playing." },
     { id: "transfer", kind: "transfer", title: "Transfer the idea", context: a,
       prompt: `New key: ${a.chords.map(({ symbol }) => symbol).join(" → ")}. Rebuild the ${g.chords[target.chordIndex].symbol} ${roleName(target.degree)} relationship and ${roleName(arrival.degree)} arrival as two planned targets; then adapt your motif around them.`,
-      instruction: "Select each target in order on the specified string. No transposed fret pattern is supplied." },
+      instruction: `Select ${transferStrings} in order. No transposed fret pattern is supplied.` },
     { id: "transfer-adapt", kind: "adapt", title: "Rebuild the motif in the new key", context: a, chordIndex: cells.adaptation.chordIndex, upperDegree: cells.adaptation.upperDegree,
       prompt: `Over ${a.chords[cells.adaptation.chordIndex].symbol}, choose a new three-note rise–return motif: a chord-tone start, the chord's ${roleName(cells.adaptation.upperDegree)} above it, and that same starting pitch again.`,
       instruction: "Keep the original short–short–long feel. Find the starting position yourself, physically play the adaptation, then check its harmonic fit." },
@@ -80,14 +84,21 @@ export function createMotifPlan(material) {
       : `${formatNote(note.pitch.note)} is ${chordRole(note)} here. Keep the stated single change and try another position.` };
   }
   function evaluateTransfer(positions) {
-    if (positions.length !== 2) return { correct: false, message: "Commit both new-key arrivals." };
+    if (!Array.isArray(positions) || positions.length !== 2) return { correct: false, message: "Commit both new-key arrivals." };
+    if (positions.some((position) => !position || !Number.isInteger(position.stringIndex)
+      || !Number.isInteger(position.fret) || !a.boardRange.strings.includes(position.stringIndex)
+      || position.fret < a.boardRange.minFret || position.fret > a.boardRange.maxFret)) {
+      return { correct: false, message: "Select positions on the active strings within the displayed fret range." };
+    }
     const selected = [a.at(target.chordIndex, positions[0].stringIndex, positions[0].fret), a.at(arrival.chordIndex, positions[1].stringIndex, positions[1].fret)];
     const sameNote = (left, right) => left.pitch.note.letter === right.pitch.note.letter
       && left.pitch.note.accidental === right.pitch.note.accidental;
-    const correct = sameNote(selected[0], a.target) && sameNote(selected[1], a.arrival);
+    const onRequiredStrings = positions[0].stringIndex === target.stringIndex && positions[1].stringIndex === arrival.stringIndex;
+    const correct = onRequiredStrings && sameNote(selected[0], a.target) && sameNote(selected[1], a.arrival);
     return { correct, selected, message: correct
       ? `${formatNote(selected[0].pitch.note)} (${chordRole(selected[0])}) → ${formatNote(selected[1].pitch.note)} (${chordRole(selected[1])}) in the new key.`
-      : `Your planned notes are ${selected.map((note) => formatNote(note.pitch.note)).join(" → ")}. Re-derive the ${roleName(target.degree)}, then the ${roleName(arrival.degree)}.` };
+      : !onRequiredStrings ? `The planned notes must also use ${transferStrings}. Try again in the displayed fret range.`
+        : `Your planned notes are ${selected.map((note) => formatNote(note.pitch.note)).join(" → ")}. Re-derive the ${roleName(target.degree)}, then the ${roleName(arrival.degree)}.` };
   }
   return { stages, examples, sequence, sourceInterval, sequenceInterval, evaluateAdaptation, evaluateSingle, evaluateTransfer,
     pathConnections };

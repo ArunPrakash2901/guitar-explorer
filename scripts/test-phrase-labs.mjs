@@ -9,6 +9,7 @@ import { resolveScenario, ScenarioError } from "../lab/scenario-resolver.mjs";
 import { createMelodyPlan } from "../lab/melody-session.mjs";
 import { createMotifPlan } from "../lab/motif-session.mjs";
 import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "../lab/melody-experience.mjs";
+import { readScenarioContext, setScenarioContext } from "../lab/scenario-context.mjs";
 
 function unwrap(result) { assert.equal(result.ok, true, result.ok ? undefined : result.error.message); return result.data; }
 const queries = {
@@ -148,6 +149,25 @@ for (const spec of motifs) {
   }
   assert.equal(plan.evaluateTransfer([material.transfer.target.position, material.transfer.arrival.position]).correct, true);
   assert.equal(plan.evaluateTransfer([material.main.target.position, material.main.arrival.position]).correct, false);
+  const wrongStringFor = (kind) => {
+    const expected = material.transfer[kind];
+    const chordIndex = spec.targets[kind].chordIndex;
+    for (const stringIndex of material.transfer.boardRange.strings) {
+      if (stringIndex === spec.targets[kind].stringIndex) continue;
+      for (let fret = material.transfer.boardRange.minFret; fret <= material.transfer.boardRange.maxFret; fret += 1) {
+        const candidate = material.transfer.at(chordIndex, stringIndex, fret);
+        if (candidate.pitch.note.letter === expected.pitch.note.letter
+          && candidate.pitch.note.accidental === expected.pitch.note.accidental) return { stringIndex, fret };
+      }
+    }
+    throw new Error(`${spec.id}: expected a same-spelling position on another active string`);
+  };
+  assert.equal(plan.evaluateTransfer([wrongStringFor("target"), material.transfer.arrival.position]).correct, false,
+    `${spec.id}: correct spelling on the wrong target string must not pass`);
+  assert.equal(plan.evaluateTransfer([material.transfer.target.position, wrongStringFor("arrival")]).correct, false,
+    `${spec.id}: correct spelling on the wrong arrival string must not pass`);
+  assert.equal(plan.evaluateTransfer([{ stringIndex: spec.targets.target.stringIndex, fret: material.transfer.boardRange.maxFret + 1 },
+    material.transfer.arrival.position]).correct, false, `${spec.id}: positions outside the transfer region must not pass`);
   assert.deepEqual(plan.examples.main.source.slice(1).map(name), plan.examples.main.source.slice(1).map(name));
 }
 assert.deepEqual(resolved.get("motif-third-fifth").examples.main.source.map(name), ["C", "E", "C"]);
@@ -162,7 +182,7 @@ function createPage(which) {
   const { document, root } = createTestDOM(pages[which]); document.body = root.querySelector("body");
   const random = Object.create(Math); random.random = () => 0;
   const context = vm.createContext({ ...engine, getMelodyScenarios, getMotifScenarios, resolveScenario,
-    createMelodyPlan, createMotifPlan, chordRole, pathConnections, document, console, Math: random, prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries });
+    createMelodyPlan, createMotifPlan, chordRole, pathConnections, document, console, Math: random, prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries, setScenarioContext });
   installRenderer(context);
   vm.runInContext(app.replace(/^import .*;\s*/gm, ""), context, { filename: "phrase-app.js" });
   const $ = (id) => document.getElementById(id);
@@ -174,6 +194,7 @@ function createPage(which) {
   return { $, root, read, button, accessible: () => accessibleText(root) };
 }
 const m = createPage("melody");
+assert.equal(readScenarioContext({ body: m.root.querySelector("body") }).scenarioId, melodies[0].id);
 assert.equal(m.$("scenario-select").children.length, 3);
 m.$("act").click(); m.$("next").click();
 assert.equal(m.read("current().id"), "target");
@@ -187,6 +208,7 @@ assert.equal(m.read("state.evidence.target.correct"), true);
 assert.match(m.accessible(), /F#.*3rd of D7/);
 m.$("scenario-select").value = melodies[1].id; m.$("start-scenario").click();
 assert.equal(m.read("selectedScenario.id"), melodies[1].id);
+assert.equal(readScenarioContext({ body: m.root.querySelector("body") }).scenarioId, melodies[1].id);
 assert.equal(m.read("current().id"), "harmony"); assert.equal(m.read("Object.keys(state.evidence).length"), 0);
 assert.doesNotMatch(m.accessible(), /F#.*3rd of D7/);
 m.$("act").click(); m.$("next").click(); assert.doesNotMatch(m.accessible(), /B.*3rd of G7/);
@@ -213,12 +235,28 @@ t.$("check").click(); assert.equal(t.read("state.revealed"), true);
 assert.match(t.accessible(), /F#.*3rd/);
 t.$("scenario-select").value = motifs[1].id; t.$("start-scenario").click();
 assert.equal(t.read("selectedScenario.id"), motifs[1].id);
+assert.equal(readScenarioContext({ body: t.root.querySelector("body") }).scenarioId, motifs[1].id);
 assert.equal(t.read("Object.keys(state.evidence).length"), 0);
 assert.doesNotMatch(t.accessible(), /F#.*3rd of D7/);
 t.$("surprise-scenario").click(); assert.equal(t.read("selectedScenario.id"), motifs[0].id);
 t.$("scenario-select").value = motifs[2].id; t.$("start-scenario").click();
 assert.match(t.$("context").textContent, /Fmaj7 → G7 → Cmaj7/);
 t.$("restart").click(); assert.equal(t.read("selectedScenario.id"), motifs[2].id);
+
+const transferUi = createPage("motif");
+transferUi.read("state.index = plan.stages.findIndex((stage) => stage.kind === 'transfer'); render()");
+transferUi.button(2, 6).click(); // Same G# spelling as the required target, on the D string.
+const arrivalPosition = motifRegression.transfer.arrival.position;
+transferUi.button(arrivalPosition.stringIndex, arrivalPosition.fret).click();
+transferUi.$("check").click();
+assert.equal(transferUi.read("state.revealed"), false, "Wrong-string transfer keeps the answer withheld");
+assert.equal(transferUi.$("next").hidden, true);
+transferUi.$("replay").click();
+for (const position of [motifRegression.transfer.target.position, arrivalPosition]) {
+  transferUi.button(position.stringIndex, position.fret).click();
+}
+transferUi.$("check").click();
+assert.equal(transferUi.read("state.revealed"), true, "Required transfer positions remain accepted");
 
 const server = await readFile(new URL("./serve-lab.mjs", import.meta.url), "utf8");
 assert.match(server, /scenario-resolver\.mjs/);

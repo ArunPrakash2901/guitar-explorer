@@ -9,7 +9,8 @@ import {
   scenarioIdentity,
   scenarioSourceForId,
 } from "../lab/scenario-identity.mjs";
-import { readScenarioContext } from "../lab/scenario-context.mjs";
+import { readScenarioContext, setScenarioContext } from "../lab/scenario-context.mjs";
+import { createEvidenceSession, finalizeEvidenceSession } from "../lab/session-evidence-core.mjs";
 
 function unwrap(result) {
   assert.equal(result.ok, true, result.ok ? undefined : result.error.message);
@@ -83,6 +84,14 @@ const generated = generateMelodyScenario({
   queries,
 });
 assert.equal(generated.scenario.id, stableGeneratedId);
+for (const unusualSeed of ["arun phrase", "arun · phrase", -5, 1.5]) {
+  const unusual = generateMelodyScenario({
+    ruleId: "rule-dominant-third", difficulty: "introductory", seed: unusualSeed, queries,
+  });
+  assert.equal(unusual.scenario.id, makeGeneratedScenarioId({
+    family: unusual.provenance.family, difficulty: unusual.provenance.difficulty, seed: unusualSeed,
+  }), "The accepted scenario uses the same canonical ID as exported evidence");
+}
 assert.equal(
   generated.scenario.id,
   makeGeneratedScenarioId({
@@ -97,7 +106,7 @@ function activeInfo(scenario) {
   return `${scenario.description} · ${scenario.difficulty} · active key`;
 }
 
-function fakeDocument({ probe, values = {}, text = {}, attributes = {} }) {
+function fakeDocument({ probe, accepted, values = {}, text = {}, attributes = {} }) {
   const elements = new Map();
   const ids = new Set([...Object.keys(values), ...Object.keys(text), ...Object.keys(attributes)]);
   for (const id of ids) {
@@ -107,16 +116,19 @@ function fakeDocument({ probe, values = {}, text = {}, attributes = {} }) {
       getAttribute(name) { return attributes[id]?.[name] ?? null; },
     });
   }
-  return {
+  const documentRef = {
     body: { dataset: { probe } },
     getElementById(id) { return elements.get(id) ?? null; },
   };
+  if (accepted) setScenarioContext(documentRef, accepted);
+  return documentRef;
 }
 
 const activeMelody = melodyCatalogue[0];
 const pendingMelody = melodyCatalogue[1];
 const catalogueContext = readScenarioContext(fakeDocument({
   probe: "melody",
+  accepted: activeMelody,
   values: { "scenario-select": pendingMelody.id },
   text: { "scenario-info": activeInfo(activeMelody) },
   attributes: { "source-generated": { "aria-selected": "false" } },
@@ -136,6 +148,7 @@ const activeMotif = motifCatalogue[2];
 const pendingMotif = motifCatalogue[0];
 const motifContext = readScenarioContext(fakeDocument({
   probe: "motif",
+  accepted: activeMotif,
   values: { "scenario-select": pendingMotif.id },
   text: { "scenario-info": activeInfo(activeMotif) },
 }));
@@ -145,16 +158,33 @@ assert.deepEqual(motifContext, {
   scenarioContractVersion: 1,
 });
 
-const generatedContext = readScenarioContext(fakeDocument({
+const generatedDocument = fakeDocument({
   probe: "melody",
-  text: { "scenario-info": generated.scenario.description },
-  attributes: { "source-generated": { "aria-selected": "true" } },
-}));
+  accepted: generated.scenario,
+  text: { "scenario-info": "The displayed description is editable and not an identity" },
+  attributes: { "source-generated": { "aria-selected": "false" } },
+});
+const generatedContext = readScenarioContext(generatedDocument);
 assert.deepEqual(generatedContext, {
   scenarioId: generated.scenario.id,
   scenarioSource: "generated",
   scenarioContractVersion: 1,
 });
+
+const delimited = generateMelodyScenario({
+  ruleId: "rule-dominant-third", difficulty: "introductory", seed: "arun · phrase", queries,
+});
+const delimitedDocument = fakeDocument({ probe: "melody", accepted: delimited.scenario,
+  text: { "scenario-info": delimited.scenario.description },
+  attributes: { "source-generated": { "aria-selected": "true" } },
+});
+const exported = finalizeEvidenceSession(createEvidenceSession({
+  experience: "melody-over-harmony", page: "/melody.html", startedAt: "2026-10-29T10:00:00.000Z",
+}), { endedAt: "2026-10-29T10:01:00.000Z", scenario: readScenarioContext(delimitedDocument) });
+assert.equal(exported.scenarioId, delimited.scenario.id, "Export uses accepted ID even when the seed contains display delimiters");
+assert.equal(exported.scenarioSource, "generated");
+assert.equal(exported.scenarioContractVersion, 1);
+assert.equal(readScenarioContext(fakeDocument({ probe: "melody" })), null);
 
 assert.equal(readScenarioContext(fakeDocument({ probe: undefined })), null);
 

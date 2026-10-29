@@ -7,6 +7,7 @@ import { createMelodyPlan } from "/melody-session.mjs";
 import { createMotifPlan } from "/motif-session.mjs";
 import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "/melody-generator.mjs";
 import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "/melody-experience.mjs";
+import { setScenarioContext } from "/scenario-context.mjs";
 
 const $ = (id) => document.getElementById(id);
 const queries = createPhraseQueries({ musicQueries, STANDARD_FRETBOARD, formatNote });
@@ -45,6 +46,7 @@ function describeScenario() {
     $("scenario-select").value = selectedScenario.id;
   }
   $("scenario-info").textContent = `${selectedScenario.description} · ${selectedScenario.difficulty} · ${formatNote(selectedScenario.context.key.tonic)} major`;
+  setScenarioContext(document, selectedScenario);
 }
 describeScenario();
 function applyPreparedExperience(prepared) {
