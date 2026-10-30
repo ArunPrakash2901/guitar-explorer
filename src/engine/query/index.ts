@@ -9,6 +9,12 @@ import type { ErrorCode } from "../core/errors.js";
 import { getIntervalBetweenPitches, intervalBetweenNotes, invertSimpleInterval, transposeNote as transposeWrittenNote, transposePitch as transposeRegisteredPitch } from "../core/intervals.js";
 import { buildKeyProfile, buildKeySignature, getFifthsRelationships, getRelativeKeyRelationship } from "../core/keys.js";
 import { mod12, validateNote } from "../core/pitch.js";
+import {
+  buildPhrase, extractPhraseFragment, phraseContour, phraseIntervals,
+  samePhraseContour, samePhraseIntervals, samePhraseRhythm, transposePhrase,
+} from "../core/phrase.js";
+import type { Phrase } from "../core/phrase.js";
+import type { MusicalTimeSpan } from "../core/time.js";
 import type { ChordSpec, HarmonicContext, Interval, IntervalInfo, Key, NoteName, Pitch, PitchClass, ScaleSpec, SpellingPreference } from "../core/types.js";
 import { findLocations, getNoteAt, STANDARD_FRETBOARD } from "../guitar/fretboard.js";
 import type { Fretboard, FretPosition, FretRange, LocatedPitch } from "../guitar/types.js";
@@ -146,6 +152,70 @@ export function invertInterval(request: Readonly<{ interval: Interval }>) {
   return query(request, () => invertSimpleInterval(request.interval));
 }
 
+/** Strict request records apply only to the additive Phrase surface. */
+function phraseRequest(request: object, fields: readonly string[]): void {
+  const record = request as Record<string, unknown>;
+  for (const field of fields) assertRecord(record[field], `request.${field}`);
+  for (const key of Reflect.ownKeys(request)) {
+    if (typeof key !== "string" || !fields.includes(key)) {
+      throw new MusicError("UNSUPPORTED", `request.${String(key)} is not supported`);
+    }
+  }
+}
+
+export function getPhrase(request: Phrase) {
+  return query(request, () => buildPhrase(request));
+}
+
+export function getPhraseIntervals(request: Readonly<{ phrase: Phrase }>) {
+  return query(request, () => {
+    phraseRequest(request, ["phrase"]);
+    return phraseIntervals(request.phrase);
+  });
+}
+
+export function getPhraseContour(request: Readonly<{ phrase: Phrase }>) {
+  return query(request, () => {
+    phraseRequest(request, ["phrase"]);
+    return phraseContour(request.phrase);
+  });
+}
+
+export function transposePhraseQuery(request: Readonly<{ phrase: Phrase; interval: Interval }>) {
+  return query(request, () => {
+    phraseRequest(request, ["phrase", "interval"]);
+    return transposePhrase(request.phrase, request.interval);
+  });
+}
+
+export function extractPhraseFragmentQuery(request: Readonly<{ phrase: Phrase; range: MusicalTimeSpan }>) {
+  return query(request, () => {
+    phraseRequest(request, ["phrase", "range"]);
+    return extractPhraseFragment(request.phrase, request.range);
+  });
+}
+
+export function comparePhraseIntervals(request: Readonly<{ left: Phrase; right: Phrase }>) {
+  return query(request, () => {
+    phraseRequest(request, ["left", "right"]);
+    return samePhraseIntervals(request.left, request.right);
+  });
+}
+
+export function comparePhraseContour(request: Readonly<{ left: Phrase; right: Phrase }>) {
+  return query(request, () => {
+    phraseRequest(request, ["left", "right"]);
+    return samePhraseContour(request.left, request.right);
+  });
+}
+
+export function comparePhraseRhythm(request: Readonly<{ left: Phrase; right: Phrase }>) {
+  return query(request, () => {
+    phraseRequest(request, ["left", "right"]);
+    return samePhraseRhythm(request.left, request.right);
+  });
+}
+
 /** Musical truth only. Playback and learner state never enter this interface. */
 export const musicQueries = Object.freeze({
   getInterval, getScale, getChord, getChordCatalog, getDiatonicHarmony, getKeySignature, getRelativeKey, getFifthsNeighbors, getKeyProfile,
@@ -153,4 +223,12 @@ export const musicQueries = Object.freeze({
   transposePitch: transposePitchQuery,
   transposeNote: transposeNoteQuery,
   invertInterval,
+  getPhrase,
+  getPhraseIntervals,
+  getPhraseContour,
+  transposePhrase: transposePhraseQuery,
+  extractPhraseFragment: extractPhraseFragmentQuery,
+  comparePhraseIntervals,
+  comparePhraseContour,
+  comparePhraseRhythm,
 });

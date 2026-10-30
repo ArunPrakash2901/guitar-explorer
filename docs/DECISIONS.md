@@ -5,7 +5,8 @@
 > future direction. D023–D028 record the current consolidation decisions and take
 > precedence where earlier entries conflict. Earlier entries preserve the reasons
 > and scope of their original decisions; they do not authorize deferred work.
-> This consolidation changes documentation only, not runtime behavior.
+> The later explicitly approved D030 adds the bounded Phrase Foundation. It does
+> not authorize Product Spine runtime/UI work or other deferred capabilities.
 
 ## D001 — Build a web/PWA, not a native mobile app
 
@@ -353,3 +354,30 @@ Errors (invalid request, unknown catalogue scenario, unknown rule/difficulty, re
 failure, generation failure) are explicit and never silently switch material authorities.
 This implements one narrow preparation seam; the general Experience Router, shared workspace,
 Explore/Apply modes, Practice Policy engine, and other activity migrations remain deferred.
+
+## D030 — Exact temporal phrases, separate from harmony and physical realization
+
+On 2026-10-30 Arun approved the Phrase Foundation v1 design handoff and authorized
+Foundation PR 1 via Issue #40. Add mandatory onset/duration and total span from the
+first Phrase contract, using canonical safe-integer rational quarter lengths and
+BigInt intermediate arithmetic. Time is independent of meter, tempo, audio seconds
+and learner wall-clock time. A 10,000-event budget bounds computation.
+
+Phrase is a pure monophonic registered-pitch value with owned frozen output,
+preserved spelling/repetition/silence, strict new records and existing nested
+Pitch semantics. Adjacent intervals, sounding contour, exact transposition,
+interval/contour/rhythm comparisons and clipped/rebased temporal fragments reuse
+the existing pitch/interval authority. Fragment source indices/clipping flags
+retain boundary information without introducing notation/attack semantics.
+
+Harmony and guitar placement are separate. Dependent Foundation PR 2 will finish
+v1 with supplied harmonic timelines and overlap analysis; PR 1 publishes no stubs.
+No existing Lab migrates or acquires invented timing. This approval does not start
+Product Spine UI, techniques, polyphony, import, generation, voicings, audio or a
+learner model. Normative semantics: [PHRASE_FOUNDATION_V1.md](PHRASE_FOUNDATION_V1.md).
+
+Issue #15 is complete by Arun's confirmation of all four existing Labs, including
+PR #37's transfer regression. Preserve that physical approval without rerunning old
+trials. The exact-head automated proof is the review evidence for this pure Core
+slice; its unchanged Lab preview makes no new educational/physical claim. Wait for
+Arun's review before merge or the next implementation slice.

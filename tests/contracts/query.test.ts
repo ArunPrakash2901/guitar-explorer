@@ -4,6 +4,7 @@ import type { HarmonicContext } from "../../src/engine/core/types.js";
 import { STANDARD_FRETBOARD } from "../../src/engine/guitar/index.js";
 import { musicQueries } from "../../src/engine/query/index.js";
 import type { LocationsRequest, QueryResult } from "../../src/engine/query/index.js";
+import { PROOF_CROP, PROOF_PHRASE } from "../fixtures/phrases.js";
 
 function data<T>(result: QueryResult<T>): T {
   expect(result.ok).toBe(true);
@@ -29,7 +30,9 @@ describe("version 1 public music queries", () => {
       "analyseNotes", "getChord", "getChordCatalog", "getDiatonicHarmony", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "transposeNote", "transposePitch",
-    ]);
+      "getPhrase", "getPhraseIntervals", "getPhraseContour", "transposePhrase", "extractPhraseFragment",
+      "comparePhraseIntervals", "comparePhraseContour", "comparePhraseRhythm",
+    ].sort());
     expect(Object.isFrozen(musicQueries)).toBe(true);
   });
 
@@ -92,6 +95,14 @@ describe("version 1 public music queries", () => {
       musicQueries.transposeNote({ note: parseNote("C"), interval: { diatonicSteps: 2, semitones: 4 } }),
       musicQueries.transposePitch({ pitch: parsePitch("C4"), interval: { diatonicSteps: 2, semitones: 4 } }),
       musicQueries.invertInterval({ interval: { diatonicSteps: 4, semitones: 7 } }),
+      musicQueries.getPhrase(PROOF_PHRASE),
+      musicQueries.getPhraseIntervals({ phrase: PROOF_PHRASE }),
+      musicQueries.getPhraseContour({ phrase: PROOF_PHRASE }),
+      musicQueries.transposePhrase({ phrase: PROOF_PHRASE, interval: { diatonicSteps: 1, semitones: 2 } }),
+      musicQueries.extractPhraseFragment({ phrase: PROOF_PHRASE, range: PROOF_CROP }),
+      musicQueries.comparePhraseIntervals({ left: PROOF_PHRASE, right: PROOF_PHRASE }),
+      musicQueries.comparePhraseContour({ left: PROOF_PHRASE, right: PROOF_PHRASE }),
+      musicQueries.comparePhraseRhythm({ left: PROOF_PHRASE, right: PROOF_PHRASE }),
     ];
     for (const result of results) {
       expect(result.schemaVersion).toBe(1);

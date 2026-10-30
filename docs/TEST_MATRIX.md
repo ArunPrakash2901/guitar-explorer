@@ -1,7 +1,7 @@
 # Test Matrix
 
 > **Current status:** automated coverage includes Music Engine Phase 1 through
-> Phase 2D, the existing Lab activities, ScenarioV1, and Rule Generator V1 using
+> Phase 2D plus Phrase Foundation PR 1, the existing Lab activities, ScenarioV1, and Rule Generator V1 using
 > generator algorithm/provenance version 2. The current Product Spine architecture
 > is defined in [ARCHITECTURE.md](ARCHITECTURE.md); its consolidation is
 > documentation only. Historical v0.2 acceptance examples are preserved separately
@@ -62,7 +62,27 @@ do not establish physical playability or pedagogical effectiveness.
 - exhausted distinct-generation UI search preserves accepted material, session progress, selections, and evidence; a recoverable message appears without an unrestricted fallback or answer leakage
 - Melody preparation seam verification (`scripts/test-melody-experience.mjs`): DOM-free execution without browser/DOM globals, catalogue preparation across all 3 approved entries, generated scenario preparation determinism and version-2 replay, distinct generation, source convergence to identical PreparedMelodyExperience shape, explicit error semantics (INVALID_REQUEST, UNKNOWN_CATALOGUE_SCENARIO, UNKNOWN_RULE, UNKNOWN_DIFFICULTY, RESOLUTION_FAILURE, GENERATION_FAILURE), no silent fallback between material authorities, and shared query adapter (`createPhraseQueries`) verification
 
-## Product Spine documentation acceptance — manual checks only
+## Phrase Foundation PR 1 — executable acceptance coverage
+
+The normative contract is [PHRASE_FOUNDATION_V1.md](PHRASE_FOUNDATION_V1.md).
+These checks exercise the new time/Phrase slice, not Product Spine UI or the
+dependent harmony timeline/analysis slice. Full repository gate: `npm run verify`.
+
+| File | Implemented gates |
+|---|---|
+| `tests/domain/time.test.ts` | T01–T06 exact normalization, tuplets, signed arithmetic, all malformed numeric fields, huge intermediates with safe reduced results, close-fraction comparisons, reduced-result overflow; finite fraction-equivalence/complement loops. |
+| `tests/domain/phrase.test.ts` | A01–A09 mandatory rhythm/register/spelling, exact transposition/inverse, contour versus intervals, repetitions/silence and authored clipped crop; A13–A15 twelve registered placement checks, transposition versus relocation and unsupported overlaps. T07/T11–T14/T17–T18 as applicable: empty/count semantics, half-open/silent/zero crops, strict fields, copying/freezing, dense/order/bounds, 10,000/10,001 resource boundary and independent transformation scope. |
+| `tests/contracts/phrase-foundation.test.ts` | All eight wrapper facts and success/failure envelopes, JSON/determinism/input ownership, strict requests, oversize early rejection, empty-argument validation, programming-error propagation and collision-safe root exports; T12/T14–T15/T18. |
+| `tests/fixtures/phrases.ts` | Hand-authored six-note phrase, interval/contour/transposition/crop expectations and two external placement sidecars. No timeline/analysis or API-derived expected fractions. |
+| `tests/contracts/query.test.ts`, `boundaries.test.ts` | Exact 23-method facade and 24 named runtime query exports including `musicQueries`; browser globals trapped for every new wrapper; existing local-only import graph/dependency direction retained. |
+
+A10–A12 and harmonic T08–T10/T16 are reserved for dependent PR 2 and are not
+reported as implemented here. Existing Lab, generator-version-2 replay, evidence,
+identity, deployment and prototype checks remain regression gates. These automated
+checks establish musical/numeric contracts; they do not claim new physical teaching
+success. Issue #15's completed four-Lab validation remains accepted.
+
+## Historical Product Spine documentation acceptance — manual checks only
 
 The consolidation adds no runtime behavior or application architecture code and
 introduces no new test framework. Its acceptance review must confirm:

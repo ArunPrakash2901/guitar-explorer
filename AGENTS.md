@@ -1,6 +1,15 @@
 # AGENTS.md
 
-## Current scope — Product Spine consolidation
+## Current scope — Phrase Foundation PR 1 (Issue #40)
+
+Arun approved the Phrase Foundation v1 design handoff on 2026-10-30 and explicitly
+authorized Foundation PR 1. Implement only exact rational quarter lengths,
+monophonic Phrase, pure operations, eight additive query methods, tests and scoped
+documentation. See [`docs/PHRASE_FOUNDATION_V1.md`](docs/PHRASE_FOUNDATION_V1.md).
+The complete v1 needs dependent PR 2; do not implement its timeline/analysis types
+or stubs in PR 1. No Product Spine UI, consumer migration/repair, import, technique,
+polyphony, generation, audio or learner-model work is authorized by this slice.
+Run full `npm run verify`, open the PR and wait for Arun's review before merge.
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
 active work, waiting-on-Arun state and decision gate. For machine-readable recovery,
@@ -33,8 +42,11 @@ Melody-specific; do not generalize it into a complete Experience Router, Practic
 Policy, generic Learning Engine, runtime reorganization or UI redesign without a new
 explicit issue/scope.
 
-Issue #15 is the active learner-evidence task. Issue #16 is the next capability
-decision gate and is blocked on physical evidence. Arun has enabled the existing
+Issue #15 is complete: Arun confirmed all four existing Labs were physically
+validated and approved, including PR #37's transfer regression. Do not repeat those
+trials. Issue #16's physical blocker is satisfied; Issue #40 records the bounded
+approved next foundation slice, while broader Product Spine work remains deferred.
+Arun has enabled the existing
 GitHub Pages PR-preview publication path; do not switch hosts, treat previews as
 production, publish stable/experimental channels, or publish private evidence without
 separate explicit approval. Stable publication remains a separate release decision;
@@ -62,7 +74,9 @@ diatonic triad/seventh harmony with structured Roman identity.
 
 Do not begin Issue #2 slice 2E, harmonic-function classification, CAGED, inversions,
 voicings, progressions, Audio, Ear, Learning, storage, React or rhythm implementation
-without later authorization. Do not add future-engine placeholders. Do not introduce
+without later authorization. Issue #40 is the narrow exception for exact time and
+pure monophonic Phrase, not broader rhythm/performance capability. Do not add
+future-engine placeholders. Do not introduce
 bitsets, fretboard graphs, caching or adaptive-learning infrastructure without a
 concrete later requirement. The preserved prototype remains a reference, not the
 production implementation.
@@ -141,7 +155,8 @@ Home/pressure/expectation language belongs to this curated lesson, not Core. The
 first harmony response concerns perceived musical consequence; reveal Roman and
 functional labels only after prediction and melodic comparison. Do not score
 perception or infer mastery. No engine/query/contract changes are authorized for
-this learner-facing revision absent a real correctness bug. No generic Practice
+maintenance of this learner-facing revision absent a real correctness bug;
+Issue #40's additive pure foundation is a separate approved scope. No generic Practice
 Engine, curriculum framework, progression generator or Phase 2E capability.
 
 The separately authorized Parsimonious Path remains a bounded Lab experiment at
@@ -154,7 +169,8 @@ authorization.
 
 Use `npm run verify` as the authoritative full-repository verification gate. Narrower
 scripts may be used for focused diagnosis, but they do not replace the full gate.
-See `docs/VERIFY.md`. Stop engine breadth after Phase 2D unless separately authorized.
+See `docs/VERIFY.md`. Stop engine breadth after Phase 2D plus the explicitly
+authorized Issue #40 slice unless separately authorized.
 The exact original handoff is in `references/approved-v0.2-handoff.zip`.
 
 ## Historical instructions

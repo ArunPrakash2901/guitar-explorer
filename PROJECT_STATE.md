@@ -1,6 +1,6 @@
 # Guitar Explorer — Project State
 
-Last updated: 2026-10-25
+Last updated: 2026-10-30
 
 This is the short operational entry point for deciding **what matters now**. It is
 not a replacement for architecture, decisions, tests or issue-specific scope. The
@@ -15,7 +15,7 @@ The product should develop independent musical use rather than shape memorisatio
 
 ## Current stage
 
-**Product Spine consolidation with a hardened development/validation loop.**
+**Phrase Foundation PR 1: approved pure engine slice, pending PR review.**
 
 The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
 generation already exist. Standing support/runtime infrastructure now includes:
@@ -37,33 +37,37 @@ builds are opt-in and non-production.
 
 ## Active work
 
-**Issue #15 — Physical validation — current Lab cohort.**
+**[Issue #40 — Phrase Foundation PR 1](https://github.com/ArunPrakash2901/guitar-explorer/issues/40).**
 
-The next useful evidence now comes from real-guitar trials. Use
-`docs/PHYSICAL_VALIDATION_PROTOCOL.md` and the Session Evidence panel to evaluate:
+Arun approved the Phrase Foundation v1 design handoff and explicitly authorized
+PR 1 on 2026-10-30. Implement exact rational quarter lengths, monophonic registered
+phrases, pure transformations/comparisons/clipping, eight additive query methods,
+tests and scoped documentation. See `docs/PHRASE_FOUNDATION_V1.md`.
 
-- Harmonic Gravity / Practice Session
-- Parsimonious Path
-- Melody Over Harmony
-- Develop the Idea
+This branch implements that slice; it is not the complete two-PR foundation and
+must be reviewed before merge. Supplied harmony timeline/overlap analysis belongs
+to dependent PR 2, with no placeholder API here. Product Spine UI/Figma direction
+remains established but unimplemented.
 
-Evidence schema v3 records protocol, scenario and exact build/deployment provenance.
-`npm run evidence:timeline` can reconcile repeated exports of the same `trialId` and
-build a local descriptive history under the gitignored `.evidence-local/` path.
-Nothing is uploaded automatically and the timeline must not infer mastery.
+### Completed physical gate
 
-### Decision held behind it
+Issue #15 is closed/completed. Arun directly confirmed that Harmonic Gravity /
+Practice Session, Parsimonious Path, Melody Over Harmony and Develop the Idea are
+physically validated and approved, including PR #37's transfer regression:
+[validation confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657).
+Preserve this approval; do not repeat those old trials or infer mastery from it.
+Issue #16's physical-evidence blocker is satisfied; Issue #40 records the next
+bounded approved work item. The decision gate remains open for broader choices.
 
-- **Issue #16 — Decision gate — choose next Product Spine slice** remains blocked on
-  enough Issue #15 physical evidence to support a bounded next decision.
+Evidence schema v3 and `npm run evidence:timeline` remain local descriptive tooling;
+no evidence is uploaded automatically and no mastery is inferred.
 
 ## Current gate
 
-New capability breadth is not the default next move.
-
-Before promoting more experimental behaviour into permanent engine/product
-architecture, gather physical-guitar evidence from the existing learning probes and
-use that evidence to decide whether to keep, change, remove or promote them.
+Complete only the approved Foundation PR 1 contract and full `npm run verify`,
+publish the ordinary exact-head PR preview, and wait for Arun's review before merge.
+This pure Core slice needs no repeat physical trials. The unchanged Lab preview
+does not demonstrate the new APIs; head-specific tests and the authored proof do.
 
 The Melody preparation seam and all three developer-leverage batches are standing
 infrastructure only. They do not authorize a general Experience Router, Practice
@@ -71,31 +75,25 @@ Policy, new theory breadth or a Learning Engine.
 
 ## Waiting on Arun
 
-Issue #15 requires at least one focused Protocol v1 trial for each current experience.
-For each trial:
-
-1. make an unaided attempt
-2. use the smallest assistance only if needed
-3. play the idea in context
-4. try the transfer
-5. record reflection and a provisional disposition
-
-Reset the Session Evidence panel after choosing the material/scenario. Export JSON
-when useful; the local timeline can combine those exports later without turning them
-into scores or inferred mastery.
+Review the concrete Foundation PR 1 code and automated evidence once the PR is
+ready. No additional answer or old Lab validation is required to implement the
+currently approved slice. A later consuming exercise must establish its own
+physical usefulness; this foundation makes no such claim.
 
 ## Authorized next work
 
-- collect structured physical-guitar evidence in Issue #15
-- fix correctness, usability or pedagogy problems directly supported by evidence
+- implement and verify Issue #40 exactly within the approved handoff
 - maintain the existing context/preview/verify/evidence/Melody-preparation
   infrastructure when needed for correctness or reliability
-- use Issue #16 to choose and bound the next Product Spine slice only after its
-  physical-evidence blocker is satisfied
+- use Issue #16 for separately bounded later decisions; PR 2 implementation is
+  not part of the current request
 
 ## Not currently authorized
 
 - Phase 2E progression/cadence/function breadth
+- Foundation PR 2 timeline/analysis implementation in this PR
+- Product Spine UI or existing Lab migration
+- polyphony, techniques, meter/tempo/transport and phrase generation
 - CAGED production logic
 - generic voicing or voice-leading engine promotion
 - new standalone Labs by default
@@ -112,9 +110,9 @@ authorization.
 
 ## Decision queue
 
-1. What do the existing Labs actually improve during physical playing? (Issue #15)
-2. Which Lab behaviours deserve simplification, removal or promotion?
-3. Given that evidence, what is the smallest next Product Spine slice? (Issue #16)
+1. Review Foundation PR 1's exact time, invariants, operations and regression evidence.
+2. After PR 1 review/merge, explicitly commission the dependent supplied-harmony slice.
+3. Keep consumer repairs, placement search and Product Spine UI in separate scopes.
 
 ## Control-plane rules
 

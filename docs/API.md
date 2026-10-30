@@ -1,4 +1,4 @@
-# Musical API — Phase 1 through Phase 2D
+# Musical API — Phase 1 through Phase 2D and Phrase Foundation PR 1
 
 Import the pure public surface from `src/engine/index.ts`. Source uses ESM syntax
 and .js import specifiers for TypeScript bundlers; the preserved prototype remains
@@ -36,6 +36,14 @@ emit NO_MATCH; the reserved error code does not imply an unimplemented method.
 | transposePitch | { pitch: Pitch, interval: Interval } | Transposed spelled pitch |
 | transposeNote | { note: NoteName, interval: Interval } | Transposed spelled note without register |
 | invertInterval | { interval: Interval } | Simple ascending octave complement |
+| getPhrase | Phrase | Canonical frozen monophonic Phrase with exact time |
+| getPhraseIntervals | { phrase: Phrase } | Adjacent registered intervals |
+| getPhraseContour | { phrase: Phrase } | Adjacent sounding directions |
+| transposePhrase | { phrase: Phrase, interval: Interval } | Exact transposition with unchanged timing |
+| extractPhraseFragment | { phrase: Phrase, range: MusicalTimeSpan } | Clipped/rebased phrase with source indices and clipping flags |
+| comparePhraseIntervals | { left: Phrase, right: Phrase } | Exact adjacent interval-pattern equality |
+| comparePhraseContour | { left: Phrase, right: Phrase } | Sounding-contour equality |
+| comparePhraseRhythm | { left: Phrase, right: Phrase } | Exact span/onset/duration equality, ignoring pitch |
 
 Scale breadth is exposed through the
 existing `getScale` and `analyseNotes` surfaces rather than new per-scale methods.
@@ -44,6 +52,21 @@ Phase 2D adds `getDiatonicHarmony` without changing existing query contracts.
 Named query exports return result envelopes; direct Core/Guitar helpers validate and
 throw `MusicError` domain failures. Parsers and low-level transposition helpers are
 helpers, not free-text theory-interpretation endpoints.
+
+Phrase Foundation PR 1 adds eight methods (23 total). Its normative value types,
+quarter-length units, validation, clipping and examples are in
+[PHRASE_FOUNDATION_V1.md](PHRASE_FOUNDATION_V1.md). Times are canonical safe-integer
+rational pairs with exact BigInt intermediates, never public BigInt/decimals.
+Empty phrases, empty fragments and false comparisons succeed; polyphony, unknown
+new-record fields and unrepresentable reduced results are unsupported. Missing or
+malformed values/order/bounds are invalid. Existing nested Pitch/Interval and old
+query semantics remain unchanged. New wrapper request records are strict.
+
+Named `transposePhraseQuery` / `extractPhraseFragmentQuery` return envelopes;
+direct Core `transposePhrase` / `extractPhraseFragment` throw MusicError. Direct
+time helpers and `buildPhrase`, `phraseIntervals`, `phraseContour`,
+`samePhraseIntervals`, `samePhraseContour`, `samePhraseRhythm` are also exported.
+No supplied-harmony timeline/analysis API exists until dependent PR 2.
 
 Phase 2B intentionally changes the TypeScript type of
 `ScaleRelation.alterationFromScale` from `number` to `number | null`. Existing
