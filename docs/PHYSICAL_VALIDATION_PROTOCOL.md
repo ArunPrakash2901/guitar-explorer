@@ -87,13 +87,14 @@ Choose one provisional disposition:
 
 ## Evidence export
 
-The Session Evidence JSON is supporting evidence for this protocol. Version-2 exports
+The Session Evidence JSON is supporting evidence for this protocol. Version-3 exports
 record:
 
-- evidence schema/version
+- evidence schema/version and stable `trialId`
 - physical-validation protocol ID/version
 - experience/page
 - exact preview PR and code revision when available
+- deployment channel/label provenance
 - active ScenarioV1 ID/source when applicable
 - low-risk UI interaction events with elapsed time
 - learner-authored reflection fields
@@ -120,7 +121,14 @@ It may **not** by itself support claims such as:
 
 Those require separate evidence or an explicitly authorized future model.
 
-## Completion rule for Issue #15
+## Completed current cohort — Issue #15
+
+Issue #15 is closed. Arun's [recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
+accepts all four experiences, including PR #37's transfer regression. Do not repeat
+those old trials. The original completion rule below remains the method for the
+cohort's historical evidence; new learner-facing behaviour needs its own trial.
+
+### Original completion rule
 
 Each of the four current experiences needs at least one focused trial following this
 protocol with enough evidence to make a provisional keep/change/remove/promotion/

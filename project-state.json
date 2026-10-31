@@ -1,23 +1,21 @@
 {
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
-  "updatedAt": "2026-10-30",
-  "stage": "Approved Phrase Foundation PR 1, pending PR review",
+  "updatedAt": "2026-11-01",
+  "stage": "Product Spine v1: Harmonic Gravity first; learner usefulness before breadth",
   "phase": {
-    "engine": "through Phase 2D plus exact time and pure Phrase on this PR branch",
+    "engine": "through Phase 2D",
     "runtime": "bounded Melody preparation seam reconciled",
-    "learningValidation": "all four current Labs validated and approved by Arun; Issue #15 complete"
+    "learningValidation": "four current Lab experiences physically validated and accepted; Issue #15 complete"
   },
   "activeWork": {
-    "issue": 40,
+    "issue": 16,
     "pullRequest": null,
-    "kind": "engine-foundation",
-    "summary": "Approved Foundation PR 1: exact time, monophonic Phrase, pure operations and eight queries"
+    "kind": "product-design-review",
+    "summary": "Approve the existing Harmonic Gravity Figma direction, then commission one bounded Product Spine v1 slice"
   },
   "evidence": {
     "issue": 15,
-    "status": "completed-confirmed-by-Arun",
-    "confirmationUrl": "https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657",
     "schema": "guitar-explorer/session-evidence",
     "schemaVersion": 3,
     "protocol": {
@@ -30,17 +28,24 @@
       "parsimonious-path",
       "melody-over-harmony",
       "develop-the-idea"
-    ]
+    ],
+    "status": "accepted"
   },
   "gate": {
     "issue": 16,
-    "status": "awaiting-foundation-pr1-review",
-    "statement": "Issue #15 physical blocker is satisfied. Only Issue #40 / Foundation PR 1 is currently authorized; wait for Arun's review before merge or further implementation."
+    "status": "awaiting-figma-approval",
+    "statement": "Issue #15 physical validation and the Melody seam blockers are satisfied. Product Spine v1 awaits Arun's Figma approval; new learner-facing behaviour requires exact-head preview, physical/browser review and explicit merge approval."
   },
   "verification": {
     "command": "npm run verify",
     "ciWorkflow": ".github/workflows/ci.yml",
     "status": "authoritative"
+  },
+  "reviewWorkflow": {
+    "implementationPreview": "required-before-merge",
+    "previewReadiness": "pages-deployment-complete",
+    "reviewSurface": "github-pages-pr-preview",
+    "learnerFacingApproval": "explicit-arun-go-ahead-when-manual-validation-is-required"
   },
   "deployments": {
     "stable": {
@@ -63,10 +68,8 @@
     }
   },
   "deferred": [
+    "Phrase/Harmony PR 2 unless a concrete learner task needs its facts and it is separately commissioned",
     "Phase 2E progression/cadence/function breadth",
-    "Foundation PR 2 timeline/analysis implementation in this PR",
-    "Product Spine UI or existing Lab migration",
-    "polyphony, techniques, meter/tempo/transport and phrase generation",
     "CAGED production logic",
     "generic voicing or voice-leading engine promotion",
     "new standalone Labs by default",
@@ -76,6 +79,8 @@
     "AI tutor behaviour",
     "React/framework migration",
     "broad song/progression import",
-    "production deployment or paid/external preview infrastructure"
+    "production deployment or paid/external preview infrastructure",
+    "GX-10/rig control and broad AI-agent integration",
+    "universal material/exercise schemas, curriculum graphs and large random-content generators"
   ]
 }
