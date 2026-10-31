@@ -32,7 +32,9 @@ remain useful for focused diagnosis, but they do not replace the full gate.
 
 Learning experiences cannot be validated by unit tests alone. Use
 `docs/PHYSICAL_VALIDATION_PROTOCOL.md` as the current versioned real-guitar method
-before promoting experimental Lab behaviour into permanent architecture.
+before promoting new experimental Lab behaviour into permanent architecture.
+Issue #15's four current experiences are already accepted; preserve its recorded
+confirmation and use this protocol for new behaviour, not to reopen old trials.
 
 Protocol v1 requires this order:
 
@@ -52,7 +54,7 @@ Important evidence includes:
 
 The Lab's session-evidence recorder may be used to export a versioned JSON snapshot
 for a trial. That export is local-only until Arun deliberately shares it. Evidence
-schema v2 records the physical-validation protocol version and, for ScenarioV1
+schema v3 records the physical-validation protocol version and, for ScenarioV1
 Melody/Motif material, the active stable scenario ID/source. It is supporting
 evidence, not a mastery score or automatic promotion decision.
 
@@ -68,6 +70,19 @@ Small maintenance PRs may explain why no issue is needed.
 For learner-facing/browser work, use the PR preview when available so physical review
 is performed against the exact revision under discussion. Preview setup is documented
 in `docs/PR_PREVIEWS.md`.
+
+## Authority and learner demand
+
+GitHub master proves merged capability; a GitHub issue/PR bounds one work slice.
+Figma records applicable visual/product approval. Trello is the human-readable
+navigation and priority index; update its existing cards with actual outcomes.
+Research artifacts inform proposals and do not authorize implementation. Add no
+other planning system.
+
+Start substantial work with the learner action and benefit. Only a demonstrated
+missing deterministic fact justifies the smallest engine addition; otherwise reuse
+existing facts. Product Spine v1 is the primary learner-facing milestone, with its
+existing Figma approval gate. See `PROJECT_STATE.md` for the current decision.
 
 ## Updating project state
 
