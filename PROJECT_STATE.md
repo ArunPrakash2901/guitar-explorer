@@ -35,6 +35,17 @@ non-production preview infrastructure and must not publish private learner evide
 Stable publication remains reserved for a separate explicit decision; experimental
 builds are opt-in and non-production.
 
+## Review workflow
+
+Implementation changes use the existing GitHub Pages PR preview before merge. The
+preview must represent the exact PR head and be live in Pages before it is treated as
+ready for review. When a change is learner-facing, starts a new implementation phase,
+materially changes an experience, or the active issue otherwise requires Arun's
+manual validation, stop at that live preview, give Arun the link, and wait for his
+explicit go-ahead before merging. Routine non-learner-facing maintenance may still
+merge autonomously when the autonomy contract's merge conditions are satisfied and no
+manual-review requirement applies.
+
 ## Active work
 
 **Issue #15 — Physical validation — current Lab cohort.**

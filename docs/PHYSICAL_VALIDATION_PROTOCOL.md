@@ -87,13 +87,14 @@ Choose one provisional disposition:
 
 ## Evidence export
 
-The Session Evidence JSON is supporting evidence for this protocol. Version-2 exports
+The Session Evidence JSON is supporting evidence for this protocol. Version-3 exports
 record:
 
-- evidence schema/version
+- evidence schema/version and stable `trialId`
 - physical-validation protocol ID/version
 - experience/page
 - exact preview PR and code revision when available
+- deployment channel/label provenance
 - active ScenarioV1 ID/source when applicable
 - low-risk UI interaction events with elapsed time
 - learner-authored reflection fields

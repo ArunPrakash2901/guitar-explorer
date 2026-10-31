@@ -31,6 +31,10 @@ export function validateProjectState(state) {
   requireIssue(state.gate?.issue, "gate.issue");
   requireText(state.gate?.status, "gate.status");
   if (state.verification?.command !== "npm run verify") throw new TypeError("verification.command must remain npm run verify");
+  requireText(state.reviewWorkflow?.implementationPreview, "reviewWorkflow.implementationPreview");
+  requireText(state.reviewWorkflow?.previewReadiness, "reviewWorkflow.previewReadiness");
+  requireText(state.reviewWorkflow?.reviewSurface, "reviewWorkflow.reviewSurface");
+  requireText(state.reviewWorkflow?.learnerFacingApproval, "reviewWorkflow.learnerFacingApproval");
   for (const channel of ["stable", "preview", "experimental"]) {
     requireText(state.deployments?.[channel]?.status, `deployments.${channel}.status`);
     requireText(state.deployments?.[channel]?.source, `deployments.${channel}.source`);

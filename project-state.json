@@ -40,6 +40,12 @@
     "ciWorkflow": ".github/workflows/ci.yml",
     "status": "authoritative"
   },
+  "reviewWorkflow": {
+    "implementationPreview": "required-before-merge",
+    "previewReadiness": "pages-deployment-complete",
+    "reviewSurface": "github-pages-pr-preview",
+    "learnerFacingApproval": "explicit-arun-go-ahead-when-manual-validation-is-required"
+  },
   "deployments": {
     "stable": {
       "status": "reserved-not-published",
