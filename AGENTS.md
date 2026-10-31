@@ -33,12 +33,32 @@ Melody-specific; do not generalize it into a complete Experience Router, Practic
 Policy, generic Learning Engine, runtime reorganization or UI redesign without a new
 explicit issue/scope.
 
-Issue #15 is the active learner-evidence task. Issue #16 is the next capability
-decision gate and is blocked on physical evidence. Arun has enabled the existing
-GitHub Pages PR-preview publication path; do not switch hosts, treat previews as
-production, publish stable/experimental channels, or publish private evidence without
-separate explicit approval. Stable publication remains a separate release decision;
-experimental builds are opt-in and non-production. See `docs/DEPLOYMENT_CHANNELS.md`.
+Issue #15 is closed: Arun physically validated and accepted all four current Lab
+experiences, including PR #37's transfer regression. Preserve the
+[recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
+and do not repeat those trials. PR #30 satisfied the old PR #13 seam blocker.
+Issue #16 now tracks the primary learner-facing milestone: Product Spine v1,
+Harmonic Gravity first, awaiting explicit approval of the existing Figma direction.
+No Product Spine implementation starts before that approval and a bounded issue.
+Reuse validated behaviour, preserve legacy Lab routes and require an exact-head
+Pages preview plus Arun's physical/browser review before learner-facing merge.
+
+For substantial work, state what Arun can hear, understand, find, play, improvise
+or transfer more reliably. Follow learner action → missing deterministic fact →
+smallest engine addition; if existing facts suffice, do not expand Core. PR #41 is
+the separately authorized narrow Phrase foundation under review, not permission
+for Phrase/Harmony PR 2, a recipe framework or other breadth. Design one small
+reusable material/exercise pilot before generalizing; Role Lens remains a candidate.
+
+Keep broad AI/agent work and optional GX-10/rig control in Research & Later, beneath
+a concrete learning need. Trello is project navigation; GitHub master proves merged
+capability, issues/PRs bound slices, Figma records applicable design approval, and
+research is input. Update existing Trello cards; create no parallel planning system.
+
+Arun has enabled the existing GitHub Pages PR-preview path; do not switch hosts,
+treat previews as production, publish stable/experimental channels, or publish
+private evidence without separate explicit approval. Stable publication remains a
+separate release decision. See `docs/DEPLOYMENT_CHANNELS.md`.
 
 No new capability receives a learner-facing destination by default. It must fit
 Explore, Practice, Apply or a shared service. Practice Policy applies only to an

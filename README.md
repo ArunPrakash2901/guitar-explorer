@@ -235,16 +235,16 @@ explicit Practice only. Style knowledge is not a separate product mode.
 
 ## Roadmap
 
-1. **Stable baseline** — engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody generation are integrated.
-2. **Product Spine documentation** — current slice; record one workspace, three intentions and explicit boundaries without runtime changes.
-3. **One material-preparation seam** — a separately authorized future slice may connect existing Melody launch paths while preserving behavior.
-4. **Context and surface consolidation** — later prove Explore / Practice / Apply handoffs with existing capabilities and retained legacy routes.
-5. **Selective expansion** — resume only after the spine is proven and a capability has an explicit owner, consuming flow and validation criteria.
+1. **Accepted foundation** — engine through Phase 2D, Labs, ScenarioV1, Melody generation, the preparation seam and developer tooling are merged. Issue #15's four Lab experiences are physically validated and accepted.
+2. **Product Spine v1, Harmonic Gravity first** — the primary learner-facing milestone. Review the existing Figma direction in Issue #16, then commission one bounded implementation PR. Reuse validated behaviour, retain legacy routes and review an exact-head Pages preview with the guitar before learner-facing merge.
+3. **One material/exercise design pilot** — prove that one supplied material supports different learner actions, with explicit invariant, transfer, assistance and human listening. Role Lens is a candidate, not runtime authorization.
+4. **Demand-driven engine work** — approved Phrase PR #41 is under review. PR 2 and all further breadth need a concrete learner action, a missing deterministic fact and separate scope.
 
-Style Packs, Motif Generator, full audio, learner modelling, adaptation, general
-song/progression or Ultimate Guitar-style import, external AI ideas, new standalone
-Labs, ScenarioV2, broad voice-leading promotion and UI framework migration remain
-deferred. This roadmap is direction, not authorization to begin those features.
+For current priorities and approval gates read [PROJECT_STATE.md](PROJECT_STATE.md);
+[Trello](https://trello.com/b/blLKS9e7/guitar-explorer-project-hub) is the project navigation index.
+Broad AI/agent and GX-10/rig work, Style Packs, Motif Generator, audio, learner models,
+imports, general voice leading and framework migration remain Research & Later.
+This roadmap does not authorize their implementation.
 
 ## Prototype and historical references
 

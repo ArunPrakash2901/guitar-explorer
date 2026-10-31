@@ -1,18 +1,18 @@
 {
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
-  "updatedAt": "2026-10-25",
-  "stage": "Product Spine consolidation with a hardened development/validation loop",
+  "updatedAt": "2026-11-01",
+  "stage": "Product Spine v1: Harmonic Gravity first; learner usefulness before breadth",
   "phase": {
     "engine": "through Phase 2D",
     "runtime": "bounded Melody preparation seam reconciled",
-    "learningValidation": "physical validation of current Lab cohort"
+    "learningValidation": "four current Lab experiences physically validated and accepted; Issue #15 complete"
   },
   "activeWork": {
-    "issue": 15,
+    "issue": 16,
     "pullRequest": null,
-    "kind": "physical-validation",
-    "summary": "Protocol v1 physical-guitar validation of the current Lab cohort"
+    "kind": "product-design-review",
+    "summary": "Approve the existing Harmonic Gravity Figma direction, then commission one bounded Product Spine v1 slice"
   },
   "evidence": {
     "issue": 15,
@@ -28,12 +28,13 @@
       "parsimonious-path",
       "melody-over-harmony",
       "develop-the-idea"
-    ]
+    ],
+    "status": "accepted"
   },
   "gate": {
     "issue": 16,
-    "status": "blocked-on-physical-evidence",
-    "statement": "Choose the next Product Spine slice only after enough Issue #15 physical evidence exists."
+    "status": "awaiting-figma-approval",
+    "statement": "Issue #15 physical validation and the Melody seam blockers are satisfied. Product Spine v1 awaits Arun's Figma approval; new learner-facing behaviour requires exact-head preview, physical/browser review and explicit merge approval."
   },
   "verification": {
     "command": "npm run verify",
@@ -67,6 +68,7 @@
     }
   },
   "deferred": [
+    "Phrase/Harmony PR 2 unless a concrete learner task needs its facts and it is separately commissioned",
     "Phase 2E progression/cadence/function breadth",
     "CAGED production logic",
     "generic voicing or voice-leading engine promotion",
@@ -77,6 +79,8 @@
     "AI tutor behaviour",
     "React/framework migration",
     "broad song/progression import",
-    "production deployment or paid/external preview infrastructure"
+    "production deployment or paid/external preview infrastructure",
+    "GX-10/rig control and broad AI-agent integration",
+    "universal material/exercise schemas, curriculum graphs and large random-content generators"
   ]
 }

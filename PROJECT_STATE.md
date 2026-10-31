@@ -1,148 +1,106 @@
 # Guitar Explorer — Project State
 
-Last updated: 2026-10-25
+Last updated: 2026-11-01
 
-This is the short operational entry point for deciding **what matters now**. It is
-not a replacement for architecture, decisions, tests or issue-specific scope. The
-versioned machine-readable companion is [`project-state.json`](project-state.json);
-`npm run context` validates and prints it with runtime revision/PR/channel metadata.
+This is the operational entry point. `project-state.json` is its validated
+machine-readable companion; `npm run context` prints it with revision metadata.
 
 ## North star
 
-Build a fretboard-first musical reasoning environment that helps the guitarist see,
-hear, physically locate, manipulate and reuse musical relationships in real music.
-The product should develop independent musical use rather than shape memorisation.
+Help Arun see the fretboard, hear relationships, follow harmony, create and develop
+short phrases, improvise and transfer ideas on his guitar. For substantial work,
+state what he will be able to hear, understand, find, play, improvise or transfer
+more reliably. Physical usefulness is the product signal; completion is not mastery.
 
-## Current stage
+## Current implementation and accepted evidence
 
-**Product Spine consolidation with a hardened development/validation loop.**
+Merged master has the deterministic engine through Phase 2D, existing Labs,
+ScenarioV1, bounded Melody generation, the Melody preparation seam, and the preview /
+verify / identity / local-evidence tooling. PR #36 adds the existing exact-head
+preview protection. Stable publication remains a separate explicit decision.
 
-The engine through Phase 2D, current Labs, ScenarioV1 and stabilized Melody
-generation already exist. Standing support/runtime infrastructure now includes:
+**Issue #15 is complete.** Arun accepted Harmonic Gravity / Practice Session,
+Parsimonious Path, Melody Over Harmony and Develop the Idea, including PR #37's
+transfer regression. Preserve the [recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
+and earlier history. Do not repeat those old trials or describe them as blockers.
+PR #30 satisfied the old seam blocker by reworking and superseding PR #13.
 
-- Issue #18 / PR #19: PR previews, local-only evidence export and explicit agent autonomy
-- Issue #21 / PR #22: authoritative `npm run verify`, stable ScenarioV1 identity,
-  evidence schema v2 and Physical Validation Protocol v1
-- Issue #29 / PR #30: the bounded DOM-free Melody preparation seam, reconciled onto
-  current `master`; stale PR #13 is closed as superseded
-- Issue #32 / PR #33: machine-readable project context, explicit stable/preview/
-  experimental build-channel provenance, Session Evidence schema v3, and local
-  longitudinal evidence timeline tooling
+## Primary learner-facing milestone
 
-Arun has enabled GitHub Pages for the `gh-pages` preview branch. GitHub's Pages build
-and deployment workflow has successfully published PR previews. This remains
-non-production preview infrastructure and must not publish private learner evidence.
-Stable publication remains reserved for a separate explicit decision; experimental
-builds are opt-in and non-production.
+**Issue #16 — Product Spine v1: Harmonic Gravity first.**
 
-## Review workflow
+The existing [Figma journey](https://www.figma.com/design/0nYwx0YwxqYZ0t29FeYMI9?node-id=8-2260)
+still needs Arun's explicit design approval. No later approval is recorded in the
+checked sources. Product Spine implementation has not begun.
 
-Implementation changes use the existing GitHub Pages PR preview before merge. The
-preview must represent the exact PR head and be live in Pages before it is treated as
-ready for review. When a change is learner-facing, starts a new implementation phase,
-materially changes an experience, or the active issue otherwise requires Arun's
-manual validation, stop at that live preview, give Arun the link, and wait for his
-explicit go-ahead before merging. Routine non-learner-facing maintenance may still
-merge autonomously when the autonomy contract's merge conditions are satisfied and no
-manual-review requirement applies.
+Use Instrument Desk as the shell, Guitar Focus Mode as temporary PLAY, and
+Relationship Sketchbook's musical-question framing. Preserve context through
+PLAY → NOTICE → UNDERSTAND → TRANSFER, showing only what matters now. Explore
+remains permissive; Practice deliberately withholds answers.
 
-## Active work
+After approval, commission one bounded implementation issue/PR. Reuse accepted
+Harmonic Gravity behaviour and preserve legacy Lab routes. Do not build a general
+router/framework or universal Learning Engine. Existing engine facts suffice for
+the supported journey unless a concrete approved learner action proves otherwise.
 
-**Issue #15 — Physical validation — current Lab cohort.**
+## Current PR disposition
 
-The next useful evidence now comes from real-guitar trials. Use
-`docs/PHYSICAL_VALIDATION_PROTOCOL.md` and the Session Evidence panel to evaluate:
+- **PR #41 / Issue #40:** the approved narrow exact-time / monophonic Phrase
+  foundation is under review, not merged capability. Its contract and proof are
+  legitimate reusable groundwork. Keep it separate from Product Spine and return
+  for the explicit merge decision required by its scope. It does not commission PR 2.
+- **PR #36 / Issue #35:** merged; retain exact-head preview protection.
+- **PR #39 / Issue #38:** deferred and closed unmerged. The optional assistant-hint
+  exchange has no accepted physical-use benefit and is not an active milestone.
 
-- Harmonic Gravity / Practice Session
-- Parsimonious Path
-- Melody Over Harmony
-- Develop the Idea
+## Next small exercise design
 
-Evidence schema v3 records protocol, scenario and exact build/deployment provenance.
-`npm run evidence:timeline` can reconcile repeated exports of the same `trialId` and
-build a local descriptive history under the gitignored `.evidence-local/` path.
-Nothing is uploaded automatically and the timeline must not infer mastery.
+Prove **Engine truth → Musical material → Exercise recipe → Learner experience**
+with one supplied material reused for different learner actions. Role Lens is a
+candidate, not an approved runtime or schema. State question, action, invariant,
+variation, transfer, deterministic facts, assistance/reveal and human listening.
 
-### Decision held behind it
+Bias the small set of repeatable experiences toward orientation, chord-tone
+targeting, changing harmonic roles, short phrase creation, motif development,
+rhythmic/phrase variation, constraint improvisation and transfer.
 
-- **Issue #16 — Decision gate — choose next Product Spine slice** remains blocked on
-  enough Issue #15 physical evidence to support a bounded next decision.
+## Development rule and scope
 
-## Current gate
+Follow **learner action → missing deterministic fact → smallest engine addition**.
+Use existing Core facts when sufficient. Phrase/Harmony PR 2 needs a concrete timed
+phrase/harmony task and separate commissioning. Do not expand theory, voice leading,
+CAGED, technique, audio, learner models, progression/function engines or universal
+material schemas merely because they could be useful.
 
-New capability breadth is not the default next move.
+AI may later propose material or prompts; the engine owns objective musical facts
+and humans judge subjective musical quality. Broad AI/agent work and optional
+GX-10/rig control stay in Research & Later, beneath a demonstrated learning need.
+No new exercise framework, generator, curriculum graph or mastery system is approved.
 
-Before promoting more experimental behaviour into permanent engine/product
-architecture, gather physical-guitar evidence from the existing learning probes and
-use that evidence to decide whether to keep, change, remove or promote them.
+This session authorizes operational reconciliation and queue disposition, not
+Product Spine implementation, learner-facing merges, production publication,
+paid services, telemetry or private-evidence upload.
 
-The Melody preparation seam and all three developer-leverage batches are standing
-infrastructure only. They do not authorize a general Experience Router, Practice
-Policy, new theory breadth or a Learning Engine.
+## Review and verification
 
-## Waiting on Arun
+Use `npm run verify` as the full repository gate. Implementation PRs retain the
+existing exact-head Pages preview path. Learner-facing work requires Arun's
+browser/physical-guitar review of new behaviour and explicit approval before merge.
+Routine non-learner-facing maintenance may resolve within its authorized scope;
+do not invent extra approvals or ask to repeat accepted trials. PR #41 retains
+its own explicit review/merge requirement. Musical truth, task compliance and
+subjective musical judgment remain separate.
 
-Issue #15 requires at least one focused Protocol v1 trial for each current experience.
-For each trial:
+## Where decisions live
 
-1. make an unaided attempt
-2. use the smallest assistance only if needed
-3. play the idea in context
-4. try the transfer
-5. record reflection and a provisional disposition
+- GitHub master: merged implementation/capability.
+- GitHub issue/PR: one slice's scope and implementation evidence.
+- Figma: approved visual/product design when applicable.
+- [Trello Project Hub](https://trello.com/b/blLKS9e7/guitar-explorer-project-hub): human-readable priorities,
+  dependencies, sources and decisions; update existing cards during work sessions.
+- Research artifacts: input, not implementation authorization.
 
-Reset the Session Evidence panel after choosing the material/scenario. Export JSON
-when useful; the local timeline can combine those exports later without turning them
-into scores or inferred mastery.
-
-## Authorized next work
-
-- collect structured physical-guitar evidence in Issue #15
-- fix correctness, usability or pedagogy problems directly supported by evidence
-- maintain the existing context/preview/verify/evidence/Melody-preparation
-  infrastructure when needed for correctness or reliability
-- use Issue #16 to choose and bound the next Product Spine slice only after its
-  physical-evidence blocker is satisfied
-
-## Not currently authorized
-
-- Phase 2E progression/cadence/function breadth
-- CAGED production logic
-- generic voicing or voice-leading engine promotion
-- new standalone Labs by default
-- general Experience Router or Practice/Learning Engine infrastructure
-- learner mastery/adaptation/telemetry systems
-- microphone grading or audio recognition
-- AI tutor behaviour
-- React/framework migration
-- broad song/progression import
-- production deployment or paid/external preview infrastructure
-
-These may be reconsidered later; their presence in historical plans is not current
-authorization.
-
-## Decision queue
-
-1. What do the existing Labs actually improve during physical playing? (Issue #15)
-2. Which Lab behaviours deserve simplification, removal or promotion?
-3. Given that evidence, what is the smallest next Product Spine slice? (Issue #16)
-
-## Control-plane rules
-
-- `PROJECT_STATE.md` defines the current human-readable operational focus and gates.
-- `project-state.json` is the validated machine-readable snapshot; use `npm run context`.
-- `AGENTS.md` defines repository constraints and current authorization rules.
-- `docs/AUTONOMY_CONTRACT.md` defines what an agent may do independently and where it
-  must stop for Arun.
-- `docs/ARCHITECTURE.md` defines current product/architecture boundaries.
-- `docs/VERIFY.md` defines the authoritative software verification gate.
-- `docs/DEPLOYMENT_CHANNELS.md` defines build-channel identity and evidence privacy.
-- `docs/PHYSICAL_VALIDATION_PROTOCOL.md` defines the current real-guitar validation method.
-- A GitHub issue defines the scope and acceptance criteria for one authorized work
-  slice.
-- A pull request should link its issue (or explain why no issue is needed), state
-  behaviour impact, list verification, and identify any required physical review.
-- If these disagree, stop expansion and resolve the mismatch rather than guessing.
-- Update this file when the active slice, gate, waiting-on-Arun state or next
-  decision materially changes. Keep it short enough to read at the start of a new
-  session.
+`AGENTS.md` and `docs/AUTONOMY_CONTRACT.md` define execution boundaries;
+`docs/ARCHITECTURE.md` defines architecture, and the physical protocol applies to
+new trials. Update these operational records and Trello when real status changes.
+Keep the control layer small; add no other planning system or invented deadlines.
