@@ -19,6 +19,7 @@ const FIELD_IDS = {
 
 function experienceFromPath(pathname) {
   const path = pathname.toLowerCase();
+  if (path.includes("product-spine")) return "harmonic-gravity-product-spine";
   if (path.includes("voice-leading")) return "parsimonious-path";
   if (path.includes("melody")) return "melody-over-harmony";
   if (path.includes("motif")) return "develop-the-idea";

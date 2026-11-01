@@ -4,15 +4,15 @@
   "updatedAt": "2026-11-01",
   "stage": "Product Spine v1: Harmonic Gravity first; learner usefulness before breadth",
   "phase": {
-    "engine": "through Phase 2D",
-    "runtime": "bounded Melody preparation seam reconciled",
-    "learningValidation": "four current Lab experiences physically validated and accepted; Issue #15 complete"
+    "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
+    "runtime": "bounded Melody preparation seam plus review-ready Harmonic Gravity Product Spine PR #44",
+    "learningValidation": "four legacy Lab experiences physically validated and accepted; new Product Spine presentation awaits its own review"
   },
   "activeWork": {
-    "issue": 16,
-    "pullRequest": null,
-    "kind": "product-design-review",
-    "summary": "Approve the existing Harmonic Gravity Figma direction, then commission one bounded Product Spine v1 slice"
+    "issue": 43,
+    "pullRequest": 44,
+    "kind": "learner-facing-review",
+    "summary": "Approved Harmonic Gravity Product Spine v1 implemented on PR #44; exact-head preview and Arun browser/physical-guitar approval required before merge"
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted"
+    "status": "accepted-for-legacy-labs-new-product-spine-review-required"
   },
   "gate": {
-    "issue": 16,
-    "status": "awaiting-figma-approval",
-    "statement": "Issue #15 physical validation and the Melody seam blockers are satisfied. Product Spine v1 awaits Arun's Figma approval; new learner-facing behaviour requires exact-head preview, physical/browser review and explicit merge approval."
+    "issue": 43,
+    "status": "learner-review-pending",
+    "statement": "Figma detail access is restored and the approved Product Spine is implemented on PR #44 using existing engine facts and the shared fretboard. Full repository verification covers the new disclosure/transfer flow and legacy regressions. Before learner-facing merge require a live exact-head Pages preview, Arun browser/physical-guitar review and explicit approval of that head. Examples remain a vertical proof, not a fixed exercise architecture."
   },
   "verification": {
     "command": "npm run verify",

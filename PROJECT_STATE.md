@@ -15,7 +15,8 @@ more reliably. Physical usefulness is the product signal; completion is not mast
 ## Current implementation and accepted evidence
 
 Merged master has the deterministic engine through Phase 2D, existing Labs,
-ScenarioV1, bounded Melody generation, the Melody preparation seam, and the preview /
+ScenarioV1, bounded Melody generation, the Melody preparation seam, Phrase Foundation
+PR 1 (merged #41 at d25217a), and the preview /
 verify / identity / local-evidence tooling. PR #36 adds the existing exact-head
 preview protection. Stable publication remains a separate explicit decision.
 
@@ -27,28 +28,39 @@ PR #30 satisfied the old seam blocker by reworking and superseding PR #13.
 
 ## Primary learner-facing milestone
 
-**Issue #16 — Product Spine v1: Harmonic Gravity first.**
+**Issue #43 — Product Spine v1: bounded Harmonic Gravity workspace.**
 
 The existing [Figma journey](https://www.figma.com/design/0nYwx0YwxqYZ0t29FeYMI9?node-id=8-2260)
-still needs Arun's explicit design approval. No later approval is recorded in the
-checked sources. Product Spine implementation has not begun.
+was explicitly approved by Arun on 1 November 2026. Issue #16's design gate is
+complete; Issue #43 commissions PR #44 as the single bounded implementation.
 
-Use Instrument Desk as the shell, Guitar Focus Mode as temporary PLAY, and
-Relationship Sketchbook's musical-question framing. Preserve context through
-PLAY → NOTICE → UNDERSTAND → TRANSFER, showing only what matters now. Explore
-remains permissive; Practice deliberately withholds answers.
+Detailed Figma design context and screenshots are now available after the seat
+upgrade. PR #44 implements the approved Instrument Desk shell, temporary PLAY
+Focus Mode and PLAY → NOTICE → UNDERSTAND → TRANSFER journey as one additive
+native HTML/CSS/JS workspace. It reuses the validated Harmonic Gravity plan and
+shared fretboard renderer while preserving every legacy Lab route.
 
-After approval, commission one bounded implementation issue/PR. Reuse accepted
-Harmonic Gravity behaviour and preserve legacy Lab routes. Do not build a general
-router/framework or universal Learning Engine. Existing engine facts suffice for
-the supported journey unless a concrete approved learner action proves otherwise.
+Practice keeps prediction selection separate from commitment, withholds note-role
+answers until the physical comparison, asks for one tiny phrase choice, then
+requires a fresh prediction and comparison in A major before the transferred
+relationship is revealed. Explore remains permissive and returning to the desk
+preserves the in-page practice context.
+
+The simple Figma questions and examples are a first vertical proof, not the
+product breadth, exercise vocabulary or long-term ceiling. Keep this flow local
+to Harmonic Gravity; do not turn its stages/examples into a fixed exercise schema.
+Future material must permit substantially different learner actions and richer
+musical material without inheriting this exemplar as a universal architecture.
 
 ## Current PR disposition
 
-- **PR #41 / Issue #40:** the approved narrow exact-time / monophonic Phrase
-  foundation is under review, not merged capability. Its contract and proof are
-  legitimate reusable groundwork. Keep it separate from Product Spine and return
-  for the explicit merge decision required by its scope. It does not commission PR 2.
+- **PR #41 / Issue #40:** merged as `d25217a` after Arun explicitly approved
+  unchanged reviewed head `5bc8d3e`; all head checks were green. Exact-time /
+  monophonic Phrase foundation is now merged capability. PR 2 is not commissioned.
+- **PR #44 / Issue #43:** Product Spine implementation is review-ready. Full
+  repository verification covers the new disclosure/transfer flow plus all legacy
+  regressions. Do not merge until the exact-head Pages preview is live and Arun
+  completes the new browser/physical-guitar review and explicitly approves that head.
 - **PR #36 / Issue #35:** merged; retain exact-head preview protection.
 - **PR #39 / Issue #38:** deferred and closed unmerged. The optional assistant-hint
   exchange has no accepted physical-use benefit and is not an active milestone.
@@ -77,9 +89,11 @@ and humans judge subjective musical quality. Broad AI/agent work and optional
 GX-10/rig control stay in Research & Later, beneath a demonstrated learning need.
 No new exercise framework, generator, curriculum graph or mastery system is approved.
 
-This session authorizes operational reconciliation and queue disposition, not
-Product Spine implementation, learner-facing merges, production publication,
-paid services, telemetry or private-evidence upload.
+Arun authorizes one bounded Product Spine implementation issue/PR and approved
+merging PR #41 only at its unchanged reviewed head. Learner-facing merge still
+requires the new exact-head preview and explicit browser/physical-guitar approval.
+Production publication, paid services, telemetry and private-evidence upload remain
+outside this scope.
 
 ## Review and verification
 
@@ -87,9 +101,9 @@ Use `npm run verify` as the full repository gate. Implementation PRs retain the
 existing exact-head Pages preview path. Learner-facing work requires Arun's
 browser/physical-guitar review of new behaviour and explicit approval before merge.
 Routine non-learner-facing maintenance may resolve within its authorized scope;
-do not invent extra approvals or ask to repeat accepted trials. PR #41 retains
-its own explicit review/merge requirement. Musical truth, task compliance and
-subjective musical judgment remain separate.
+do not invent extra approvals or ask to repeat accepted trials. PR #41's explicit
+merge decision is complete; that approval does not extend to Issue #43 or Phrase
+PR 2. Musical truth, task compliance and subjective musical judgment remain separate.
 
 ## Where decisions live
 

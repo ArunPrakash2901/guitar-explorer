@@ -6,13 +6,15 @@ physically locate them, manipulate them and reuse them in real music. It is not
 primarily a course app.
 
 The implemented product is a tested TypeScript music kernel with browser Lab
-consumers. The target is one shared musical workspace with **Explore**, **Practice**
-and **Apply** intentions. That workspace and its Experience Router are documented,
-not implemented. Existing pages and sessions remain unchanged.
+consumers. PR #44 adds the first bounded Product Spine workspace for Harmonic
+Gravity while preserving every existing Lab route. The longer-term target remains
+one shared musical workspace with **Explore**, **Practice** and **Apply** intentions;
+this first vertical slice does not implement a general Experience Router or fixed
+exercise architecture.
 
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the current source of truth for
 ownership, migration direction, deferred work and the distinction between current
-capabilities and the target. This consolidation slice changes documentation only.
+capabilities and the target.
 
 ## Current status
 
@@ -24,7 +26,9 @@ capabilities and the target. This consolidation slice changes documentation only
 
 **Phase 2C — Chord catalogue and learner-selectable Chord Lab: implemented**
 
-**Phase 2D — Diatonic harmony/Roman engine implemented; Practice Session v0 ready for physical review**
+**Phase 2D — Diatonic harmony/Roman engine implemented; current Lab cohort physically validated**
+
+**Phrase Foundation PR 1 — exact musical time and pure monophonic Phrase: merged**
 
 The shared fretboard, Parsimonious Path, Melody Over Harmony, Develop the Idea,
 ScenarioV1/resolver and six-entry catalogue are implemented Lab capabilities.
@@ -51,6 +55,8 @@ The current kernel includes:
 - structured Roman identities derived from degree and actual chord quality
 - configurable tuning and standard guitar tuning
 - bounded fretboard location queries
+- exact rational musical time and immutable monophonic Phrase values
+- phrase interval/contour/rhythm comparison, exact transposition and fragment extraction
 - structured, JSON-compatible musical queries through `musicQueries`
 - typed `MusicError` failures for low-level helpers
 - strict TypeScript and Vitest coverage
@@ -66,10 +72,9 @@ capability expansion during Product Spine consolidation.
 ## Try the Phase 2C Chord Lab
 
 `lab/` is a deliberately thin browser consumer of the existing engine. It is not
-the production app and it does not introduce a general Learning Engine, persistence,
-mastery scores or new musical truth. Its purpose is to test whether already-known
-theory can become more tightly connected to sound, fretboard location, harmonic
-function and phrase use.
+a general Learning Engine and it does not introduce persistence, mastery scores or
+new musical truth. Its purpose is to test whether already-known theory can become
+more tightly connected to sound, fretboard location, harmonic function and phrase use.
 
 Requires Node.js 22.17 or newer.
 
@@ -108,11 +113,37 @@ your improvisation was musically good.
 Treat the lab as a disposable learning probe: keep, change or delete interactions
 based on whether they improve real practice.
 
+## Product Spine v1 — Harmonic Gravity review surface
+
+Run `npm run lab`, then open `http://127.0.0.1:4173/product-spine.html` for the
+bounded Product Spine v1 workspace. It reuses the existing Harmonic Gravity lesson
+facts and shared fretboard instead of creating another source of musical truth.
+
+The first journey follows the approved design:
+
+1. **Instrument Desk / Explore:** inspect the current fretboard context and choose a
+   musical question without a curriculum gate.
+2. **PLAY Focus:** play G → D7 → silence with normal workspace navigation removed so
+   only the current cue remains.
+3. **NOTICE:** select an expectation, optionally replay the comparison, then commit it
+   before trying D7 → G. Listening responses are not scored.
+4. **UNDERSTAND:** after confirming the physical comparison, reveal F# as D7's third,
+   G as G's root, and the one-fret F# → G connection.
+5. **Tiny phrase:** reuse those two notes in a small directed phrase rather than
+   answering another identification question.
+6. **TRANSFER:** change to A major, make a fresh prediction before labels, then reveal
+   the corresponding G# → A relationship and replay the chosen phrase under new names.
+
+Returning to the Instrument Desk preserves the in-page practice stage and choices.
+Nothing is persisted, scored or interpreted as mastery. The simple musical examples
+are a vertical Product Spine proof, not Guitar Explorer's future exercise vocabulary
+or content ceiling.
+
 ## Practice Session v0 — Harmonic Gravity
 
 Run `npm run lab`, then open `http://127.0.0.1:4173/practice.html` for the connected
-session. Allow roughly 35–50 minutes of physical playing and listening; estimates
-are guidance, with no timers or enforced pace.
+legacy session. Allow roughly 35–50 minutes of physical playing and listening;
+estimates are guidance, with no timers or enforced pace.
 
 One G-major context connects all six blocks:
 
@@ -129,7 +160,7 @@ One G-major context connects all six blocks:
 6. **Reflect:** identify one source of friction, including fingering or no clear
    breakdown. Nothing is saved or turned into a mastery score.
 
-`/harmony.html` now opens the focused Harmonic Gravity version of the same page,
+`/harmony.html` opens the focused Harmonic Gravity version of the same legacy page,
 plan and interaction code. It omits the retrieval warm-up rather than duplicating
 the lesson. The old chord-construction Harmony workflow has been replaced.
 The Chord Lab remains available at `/` as a separate focused tool; Practice Session
@@ -182,8 +213,7 @@ existing teaching plans; neither is a general song analyzer or a motif generator
 Attempts and reflections remain temporary, and the physical guitar supplies sound.
 
 All standalone Lab URLs remain available during the planned migration. Their
-target destinations are documented in the architecture; no navigation change has
-been made in this slice.
+target destinations are documented in the architecture.
 
 ## Verify the kernel and Lab consumers
 
@@ -191,11 +221,11 @@ Requires Node.js 22.17 or newer.
 
 ```sh
 npm ci
-npm run typecheck
-npm test
-npm run test:prototype
-npm run test:lab
+npm run verify
 ```
+
+`npm run verify` is the authoritative repository gate. Narrower commands remain
+available for diagnosis but do not replace it.
 
 Import `src/engine/index.ts` from a TypeScript consumer. See:
 
@@ -208,7 +238,7 @@ Import `src/engine/index.ts` from a TypeScript consumer. See:
 The engine keeps musical truth separate from presentation and learner state.
 
 ```text
-Current Lab consumers
+Current browser consumers
         |
         +--> Musical Query Interface --> Music Core
         |                           \--> Guitar Engine --> Music Core
@@ -223,22 +253,22 @@ Key principles:
 - Music Core remains instrument-independent.
 - Guitar geometry is built on Core rather than defining musical truth.
 - CAGED is a future guitar representation, not the fretboard model itself.
-- Ear training remains instrument-independent; combined tasks such as hear → identify → find are composed by the Learning layer.
+- Ear training remains instrument-independent; combined tasks such as hear → identify → find are composed by a future Learning layer.
 - `musicQueries` is the musical-truth query surface. Learner history will use a separate future learning query surface.
 - Spelled identity and sounding membership stay distinct, including in non-heptatonic scales.
-- A future rhythm/time domain is reserved architecturally but is not implemented yet.
+- Exact musical Phrase timing is implemented independently of audio seconds, meter and learner wall-clock time.
 
-The target Experience Router selects compatible capabilities and preserves context;
-it does not replace these domain or activity boundaries. Future visual and audio
-presentation consume prepared material in parallel. Practice Policy constrains
+The target Experience Router may later select compatible capabilities and preserve
+context; Product Spine v1 does not implement that general service. Future visual and
+audio presentation consume prepared material in parallel. Practice Policy constrains
 explicit Practice only. Style knowledge is not a separate product mode.
 
 ## Roadmap
 
-1. **Accepted foundation** — engine through Phase 2D, Labs, ScenarioV1, Melody generation, the preparation seam and developer tooling are merged. Issue #15's four Lab experiences are physically validated and accepted.
-2. **Product Spine v1, Harmonic Gravity first** — the primary learner-facing milestone. Review the existing Figma direction in Issue #16, then commission one bounded implementation PR. Reuse validated behaviour, retain legacy routes and review an exact-head Pages preview with the guitar before learner-facing merge.
+1. **Accepted foundation** — engine through Phase 2D, Phrase Foundation PR 1, Labs, ScenarioV1, Melody generation, the preparation seam and developer tooling are merged. Issue #15's four Lab experiences are physically validated and accepted.
+2. **Product Spine v1, Harmonic Gravity first** — the primary learner-facing milestone. The Figma direction is approved and PR #44 implements the bounded workspace. Full repository verification must remain green; exact-head Pages preview plus Arun's browser/physical-guitar approval are required before merge. The simple examples are a vertical proof, not a fixed exercise architecture.
 3. **One material/exercise design pilot** — prove that one supplied material supports different learner actions, with explicit invariant, transfer, assistance and human listening. Role Lens is a candidate, not runtime authorization.
-4. **Demand-driven engine work** — approved Phrase PR #41 is under review. PR 2 and all further breadth need a concrete learner action, a missing deterministic fact and separate scope.
+4. **Demand-driven engine work** — PR 2 and all further breadth need a concrete learner action, a missing deterministic fact and separate scope.
 
 For current priorities and approval gates read [PROJECT_STATE.md](PROJECT_STATE.md);
 [Trello](https://trello.com/b/blLKS9e7/guitar-explorer-project-hub) is the project navigation index.
