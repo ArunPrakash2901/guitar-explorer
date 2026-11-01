@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guitar Explorer · Develop the Idea</title>
+<link rel="stylesheet" href="./fretboard.css">
+<link rel="stylesheet" href="./phrase.css">
+  <meta name="guitar-explorer-revision" content="ccb2c2ad269e07f2d3fe4c1e90f09ca25143385e">
+  <meta name="guitar-explorer-preview-pr" content="46">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-46">
+</head>
+<body data-probe="motif">
+<main>
+<header>
+<p>
+<a href="./">Chord Lab</a> · <a href="./practice.html">Connected Practice</a> · <a href="./voice-leading.html">Parsimonious Path</a> · <a href="./melody.html">Melody Over Harmony</a>
+</p>
+<h1>Develop the Idea</h1>
+<p class="lede">Can one small musical idea survive changing harmony instead of becoming another scale pattern?</p>
+</header>
+<div class="shell">
+<section class="panel" aria-labelledby="stage-title">
+<section class="scenario-picker" aria-label="Choose a musical scenario">
+<label for="scenario-select">Musical scenario<select id="scenario-select"></select></label>
+<p id="scenario-info" class="small"></p>
+<div class="actions"><button id="start-scenario" type="button">Start selected / new scenario</button><button id="surprise-scenario" type="button">Surprise me</button></div>
+</section>
+<div class="progress-row">
+<span>Motif experiment</span>
+<span id="progress-text">
+</span>
+</div>
+<div class="progress-track" aria-hidden="true">
+<div id="progress-fill" class="progress-fill">
+</div>
+</div>
+<div id="stage-kicker" class="kicker">
+</div>
+<h2 id="stage-title">
+</h2>
+<p id="prompt" class="prompt">
+</p>
+<p id="instruction" class="instruction">
+</p>
+<p id="context" class="small">
+</p>
+<section id="board-panel" class="board-panel" hidden>
+<h3>Physical fretboard</h3>
+<p id="board-context">
+</p>
+<div id="board">
+</div>
+</section>
+<label id="reflection-panel" hidden>Did the idea or your response feel connected?<select id="reflection">
+<option value="">Choose an impression…</option>
+<option value="connected">The idea stayed recognizable</option>
+<option value="changed">It changed more than I expected</option>
+<option value="unclear">I am not sure yet</option>
+</select>
+</label>
+<section id="explanation" class="explanation" hidden>
+<h3>Music and your decision</h3>
+<ol id="explanation-list">
+</ol>
+</section>
+<div id="feedback" class="feedback" aria-live="polite">
+</div>
+<div class="actions">
+<button id="check" type="button" class="primary" hidden>Check planned notes</button>
+<button id="hint" type="button" hidden>Hint</button>
+<button id="act" type="button" class="primary" hidden>
+</button>
+<button id="next" type="button" class="primary" hidden>Continue</button>
+</div>
+<div class="actions">
+<button id="back" type="button">Back</button>
+<button id="replay" type="button">Replay/reset this step</button>
+<button id="restart" type="button">Restart experiment</button>
+</div>
+</section>
+<aside class="side">
+<strong>Preserve a small identity</strong>
+<p>The fixed short–short–long feel and rise–return contour make a recognizable question. Change pitches to meet each chord.</p>
+<strong>Your guitar supplies sound</strong>
+<p>Only objective planned note relations are checked. Artistic connection is your reflection.</p>
+<strong>Temporary evidence</strong>
+<p>Attempts, hints and elapsed time stay in memory until restart or close.</p>
+</aside>
+</div>
+<footer>No audio, persistence, mastery model, generic motif engine or standalone rhythm lesson is used here.</footer>
+</main>
+<script type="module" src="./phrase-app.js">
+</script>
+  <script type="module" src="./session-evidence.mjs"></script>
+</body>
+</html>
