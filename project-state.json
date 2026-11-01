@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-01",
-  "stage": "Product Spine v1: Harmonic Gravity first; learner usefulness before breadth",
+  "stage": "Product Spine v1 merged; next bounded material/exercise design before breadth",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "bounded Melody preparation seam plus review-ready Harmonic Gravity Product Spine PR #44",
-    "learningValidation": "four legacy Lab experiences physically validated and accepted; new Product Spine presentation awaits its own review"
+    "runtime": "bounded Melody preparation seam plus merged Harmonic Gravity Product Spine v1",
+    "learningValidation": "four legacy Lab experiences plus Product Spine v1 physically/browser validated and accepted"
   },
   "activeWork": {
     "issue": 43,
-    "pullRequest": 44,
-    "kind": "learner-facing-review",
-    "summary": "Approved Harmonic Gravity Product Spine v1 implemented on PR #44; exact-head preview and Arun browser/physical-guitar approval required before merge"
+    "pullRequest": null,
+    "kind": "no-active-implementation",
+    "summary": "Product Spine v1 is merged and accepted; no new learner-facing runtime is commissioned. Role Lens remains a proposed material/exercise design pilot."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-for-legacy-labs-new-product-spine-review-required"
+    "status": "accepted-legacy-labs-and-product-spine"
   },
   "gate": {
     "issue": 43,
-    "status": "learner-review-pending",
-    "statement": "Figma detail access is restored and the approved Product Spine is implemented on PR #44 using existing engine facts and the shared fretboard. Full repository verification covers the new disclosure/transfer flow and legacy regressions. Before learner-facing merge require a live exact-head Pages preview, Arun browser/physical-guitar review and explicit approval of that head. Examples remain a vertical proof, not a fixed exercise architecture."
+    "status": "completed-awaiting-next-commission",
+    "statement": "Product Spine v1 merged as 239d933 after exact-head verification, live Pages revision check and Arun browser/physical-guitar approval of c46d961. No active learner-facing implementation remains. Future material/exercise, audio or engine work needs a separately bounded learner need and scope."
   },
   "verification": {
     "command": "npm run verify",
@@ -42,8 +42,8 @@
     "status": "authoritative"
   },
   "reviewWorkflow": {
-    "implementationPreview": "required-before-merge",
-    "previewReadiness": "pages-deployment-complete",
+    "implementationPreview": "required-for-future-learner-facing-prs",
+    "previewReadiness": "no-active-preview",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-when-manual-validation-is-required"
   },
@@ -55,7 +55,7 @@
       "pathPattern": "stable/"
     },
     "preview": {
-      "status": "active",
+      "status": "available-on-pull-request",
       "source": "exact-pull-request-head",
       "publication": "automatic-on-pull-request",
       "pathPattern": "pr-preview/pr-<number>/"
@@ -75,7 +75,7 @@
     "new standalone Labs by default",
     "general Experience Router or Practice/Learning Engine infrastructure",
     "learner mastery/adaptation/telemetry systems",
-    "microphone grading or audio recognition",
+    "broad audio input recognition or microphone grading; Audio Out/In may be separately researched/scoped but no implementation is commissioned",
     "AI tutor behaviour",
     "React/framework migration",
     "broad song/progression import",
