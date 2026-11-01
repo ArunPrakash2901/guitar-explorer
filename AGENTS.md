@@ -1,6 +1,6 @@
 # AGENTS.md
 
-## Current scope — Product Spine consolidation
+## Current scope — post-Product-Spine consolidation
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
 active work, waiting-on-Arun state and decision gate. For machine-readable recovery,
@@ -24,6 +24,9 @@ infrastructure:
 - Issue #32 / PR #33: machine-readable project context, explicit stable/preview/
   experimental build-channel provenance, Session Evidence schema v3 and local
   longitudinal evidence timeline tooling
+- Issue #43 / PR #44: accepted Harmonic Gravity Product Spine v1 with Instrument
+  Desk, temporary PLAY Focus Mode, staged disclosure, tiny phrase use and A-major
+  transfer while preserving legacy Lab routes
 
 Those capabilities may be maintained for correctness and reliability, but they do
 not authorize a Learning Engine, analytics backend, persistence, scoring, a general
@@ -33,25 +36,34 @@ Melody-specific; do not generalize it into a complete Experience Router, Practic
 Policy, generic Learning Engine, runtime reorganization or UI redesign without a new
 explicit issue/scope.
 
-Issue #15 is closed: Arun physically validated and accepted all four current Lab
+Issue #15 is closed: Arun physically validated and accepted all four legacy Lab
 experiences, including PR #37's transfer regression. Preserve the
 [recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
 and do not repeat those trials. PR #30 satisfied the old PR #13 seam blocker.
-Arun explicitly approved the existing Figma direction on 1 November 2026.
-Issue #16's design decision is complete; Issue #43 authorizes one bounded Harmonic
-Gravity Product Spine implementation. The simple Figma examples are a first
-vertical proof, not a fixed exercise architecture or a ceiling on future material
-and learner actions. Detailed Figma access is restored and PR #44 now implements
-the approved bounded workspace. Reuse validated behaviour, preserve legacy Lab
-routes and require an exact-head Pages preview plus Arun's physical/browser review
-and explicit approval before learner-facing merge.
 
-For substantial work, state what Arun can hear, understand, find, play, improvise
-or transfer more reliably. Follow learner action → missing deterministic fact →
-smallest engine addition; if existing facts suffice, do not expand Core. PR #41 is
-the merged, explicitly approved narrow Phrase foundation, not permission
-for Phrase/Harmony PR 2, a recipe framework or other breadth. Design one small
-reusable material/exercise pilot before generalizing; Role Lens remains a candidate.
+Product Spine v1 is also complete. Arun approved the Figma direction, reviewed exact
+head `c46d9617a07ddd8e59402332b4311f2746e65f77` with his guitar/browser and
+explicitly approved merge. PR #44 merged as
+`239d933e6b70f761a07539f4f34e672d22852922`; Issue #43 closed completed. The
+accepted learner result is that the flow changed how Arun listened, predicted,
+noticed and made a musical decision rather than merely following instructions.
+The simple Figma examples remain a first vertical proof, not a fixed exercise
+architecture or a ceiling on future material and learner actions.
+
+There is no active learner-facing implementation after Product Spine v1. Do not
+create implementation work merely to keep a queue active. For substantial work,
+state what Arun can hear, understand, find, play, improvise or transfer more
+reliably. Follow learner action → missing deterministic fact → smallest engine
+addition; if existing facts suffice, do not expand Core. PR #41 is the merged,
+explicitly approved narrow Phrase foundation, not permission for Phrase/Harmony PR 2,
+a recipe framework or other breadth. Design one small reusable material/exercise
+pilot before generalizing; Role Lens remains a candidate rather than runtime
+authorization.
+
+Audio Out / Audio In is a promising future research direction because Product Spine
+confirmed the value of listening-led interaction, but no audio implementation is
+commissioned. Keep deterministic musical truth separate from audio perception and do
+not jump directly to microphone grading or AI judgment of improvisation.
 
 Keep broad AI/agent work and optional GX-10/rig control in Research & Later, beneath
 a concrete learning need. Trello is project navigation; GitHub master proves merged
@@ -68,8 +80,9 @@ Explore, Practice, Apply or a shared service. Practice Policy applies only to an
 explicit Practice experience; Explore and Apply have no curriculum gates.
 ScenarioV1 remains bounded Melody/Motif material, not a universal workspace schema.
 Preserve deterministic engine truth, current generator provenance, answer
-withholding and the distinction between musical validity, exercise compliance and
-subjective musical judgment. See the architecture for deferred capabilities.
+withholding and the distinction between musical validity, exercise compliance,
+audio perception and subjective musical judgment. See the architecture for deferred
+capabilities.
 
 ## Existing foundation and Lab boundaries — implemented through Phase 2D
 
