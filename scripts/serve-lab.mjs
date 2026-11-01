@@ -28,6 +28,7 @@ function resolveRequest(pathname) {
   if ([
     "/fretboard-view.mjs",
     "/fretboard.css",
+    "/product-spine.css",
     "/session-evidence.mjs",
     "/session-evidence-core.mjs",
     "/scenario-identity.mjs",
@@ -43,6 +44,12 @@ function resolveRequest(pathname) {
   }
   if (pathname === "/session-logic.mjs") {
     return resolve(labRoot, "session-logic.mjs");
+  }
+  if (["/product-spine.html", "/product-spine"].includes(pathname)) {
+    return resolve(labRoot, "product-spine.html");
+  }
+  if (pathname === "/product-spine-app.js") {
+    return resolve(labRoot, "product-spine-app.js");
   }
   if (["/practice.html", "/practice", "/harmony.html", "/harmony"].includes(pathname)) {
     return resolve(labRoot, "practice.html");
