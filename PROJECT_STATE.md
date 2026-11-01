@@ -16,9 +16,10 @@ more reliably. Physical usefulness is the product signal; completion is not mast
 
 Merged master has the deterministic engine through Phase 2D, existing Labs,
 ScenarioV1, bounded Melody generation, the Melody preparation seam, Phrase Foundation
-PR 1 (merged #41 at d25217a), and the preview /
-verify / identity / local-evidence tooling. PR #36 adds the existing exact-head
-preview protection. Stable publication remains a separate explicit decision.
+PR 1 (merged #41 at `d25217a`), Harmonic Gravity Product Spine v1 (merged #44 at
+`239d933`), and the preview / verify / identity / local-evidence tooling. PR #36
+provides the existing exact-head preview protection. Stable publication remains a
+separate explicit decision.
 
 **Issue #15 is complete.** Arun accepted Harmonic Gravity / Practice Session,
 Parsimonious Path, Melody Over Harmony and Develop the Idea, including PR #37's
@@ -26,55 +27,53 @@ transfer regression. Preserve the [recorded confirmation](https://github.com/Aru
 and earlier history. Do not repeat those old trials or describe them as blockers.
 PR #30 satisfied the old seam blocker by reworking and superseding PR #13.
 
-## Primary learner-facing milestone
+**Product Spine v1 is also complete and separately accepted.** Arun approved the
+existing [Figma journey](https://www.figma.com/design/0nYwx0YwxqYZ0t29FeYMI9?node-id=8-2260),
+reviewed exact head `c46d9617a07ddd8e59402332b4311f2746e65f77` in the browser
+with his guitar, and explicitly approved merge. PR #44 merged as `239d933e6b70f761a07539f4f34e672d22852922`;
+Issue #43 closed completed.
 
-**Issue #43 — Product Spine v1: bounded Harmonic Gravity workspace.**
+The accepted learner result is that the Product Spine flow changed how Arun listened,
+predicted, noticed and made a musical decision rather than merely following
+instructions. The merged slice provides Instrument Desk as the shell, temporary PLAY
+Focus Mode, explicit NOTICE commitment, delayed note-role/fretboard reveal, a tiny
+phrase action using the same material, and an A-major transfer while preserving
+in-page context and every legacy Lab route.
 
-The existing [Figma journey](https://www.figma.com/design/0nYwx0YwxqYZ0t29FeYMI9?node-id=8-2260)
-was explicitly approved by Arun on 1 November 2026. Issue #16's design gate is
-complete; Issue #43 commissions PR #44 as the single bounded implementation.
+The simple Harmonic Gravity questions and examples remain a first vertical proof,
+not the product breadth, exercise vocabulary or long-term ceiling. Do not turn its
+stages/examples into a fixed exercise schema. Future material must permit
+substantially different learner actions and richer musical material.
 
-Detailed Figma design context and screenshots are now available after the seat
-upgrade. PR #44 implements the approved Instrument Desk shell, temporary PLAY
-Focus Mode and PLAY → NOTICE → UNDERSTAND → TRANSFER journey as one additive
-native HTML/CSS/JS workspace. It reuses the validated Harmonic Gravity plan and
-shared fretboard renderer while preserving every legacy Lab route.
+## Current operational state
 
-Practice keeps prediction selection separate from commitment, withholds note-role
-answers until the physical comparison, asks for one tiny phrase choice, then
-requires a fresh prediction and comparison in A major before the transferred
-relationship is revealed. Explore remains permissive and returning to the desk
-preserves the in-page practice context.
+There is no active learner-facing implementation issue or PR after Product Spine v1.
+Do not create implementation work merely to keep the queue busy.
 
-The simple Figma questions and examples are a first vertical proof, not the
-product breadth, exercise vocabulary or long-term ceiling. Keep this flow local
-to Harmonic Gravity; do not turn its stages/examples into a fixed exercise schema.
-Future material must permit substantially different learner actions and richer
-musical material without inheriting this exemplar as a universal architecture.
+The next bounded product question is the existing material/exercise design pilot:
+prove **Engine truth → Musical material → Exercise recipe → Learner experience**
+with one supplied material reused for genuinely different learner actions. Role Lens
+is a candidate, not an approved runtime or schema. State question, action, invariant,
+variation, transfer, deterministic facts, assistance/reveal and human listening.
+
+Audio Out / Audio In is now a promising future research direction because Product
+Spine demonstrated the value of listening-led interaction. It is not commissioned
+implementation. Keep deterministic musical truth separate from audio perception;
+do not jump directly to microphone grading or AI judgment of improvisation.
 
 ## Current PR disposition
 
 - **PR #41 / Issue #40:** merged as `d25217a` after Arun explicitly approved
-  unchanged reviewed head `5bc8d3e`; all head checks were green. Exact-time /
-  monophonic Phrase foundation is now merged capability. PR 2 is not commissioned.
-- **PR #44 / Issue #43:** Product Spine implementation is review-ready. Full
-  repository verification covers the new disclosure/transfer flow plus all legacy
-  regressions. Do not merge until the exact-head Pages preview is live and Arun
-  completes the new browser/physical-guitar review and explicitly approves that head.
+  unchanged reviewed head `5bc8d3e`; exact-time / monophonic Phrase foundation is
+  merged capability. PR 2 is not commissioned.
+- **PR #44 / Issue #43:** Product Spine v1 merged as `239d933` after exact-head
+  verification, live Pages revision check and Arun's separate browser/physical-guitar
+  review of `c46d961`. Issue #43 is closed completed.
 - **PR #36 / Issue #35:** merged; retain exact-head preview protection.
 - **PR #39 / Issue #38:** deferred and closed unmerged. The optional assistant-hint
   exchange has no accepted physical-use benefit and is not an active milestone.
 
-## Next small exercise design
-
-Prove **Engine truth → Musical material → Exercise recipe → Learner experience**
-with one supplied material reused for different learner actions. Role Lens is a
-candidate, not an approved runtime or schema. State question, action, invariant,
-variation, transfer, deterministic facts, assistance/reveal and human listening.
-
-Bias the small set of repeatable experiences toward orientation, chord-tone
-targeting, changing harmonic roles, short phrase creation, motif development,
-rhythmic/phrase variation, constraint improvisation and transfer.
+There are currently no open GitHub issues after Product Spine completion.
 
 ## Development rule and scope
 
@@ -89,21 +88,19 @@ and humans judge subjective musical quality. Broad AI/agent work and optional
 GX-10/rig control stay in Research & Later, beneath a demonstrated learning need.
 No new exercise framework, generator, curriculum graph or mastery system is approved.
 
-Arun authorizes one bounded Product Spine implementation issue/PR and approved
-merging PR #41 only at its unchanged reviewed head. Learner-facing merge still
-requires the new exact-head preview and explicit browser/physical-guitar approval.
-Production publication, paid services, telemetry and private-evidence upload remain
-outside this scope.
+No new learner-facing runtime, audio capability, Phrase PR 2, production publication,
+paid service, telemetry or private-evidence upload is currently commissioned.
+Routine non-learner-facing maintenance may reconcile state without inventing a new
+product gate.
 
 ## Review and verification
 
-Use `npm run verify` as the full repository gate. Implementation PRs retain the
-existing exact-head Pages preview path. Learner-facing work requires Arun's
-browser/physical-guitar review of new behaviour and explicit approval before merge.
-Routine non-learner-facing maintenance may resolve within its authorized scope;
-do not invent extra approvals or ask to repeat accepted trials. PR #41's explicit
-merge decision is complete; that approval does not extend to Issue #43 or Phrase
-PR 2. Musical truth, task compliance and subjective musical judgment remain separate.
+Use `npm run verify` as the full repository gate. Future implementation PRs retain
+the existing exact-head Pages preview path. New learner-facing behaviour requires
+Arun's browser/physical-guitar review and explicit approval before merge; preserve
+accepted old trials rather than repeating them. Product Spine #44 has completed that
+gate. Musical truth, task compliance, audio perception and subjective musical
+judgment remain separate.
 
 ## Where decisions live
 
