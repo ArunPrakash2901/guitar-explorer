@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Role Lens v0: prove one material across multiple learner actions before broader architecture",
+  "stage": "Style Study: pressure-test real musical material before more engine architecture",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Harmonic Gravity Product Spine v1 plus active bounded Role Lens v0 slice",
-    "learningValidation": "four legacy Lab experiences plus Product Spine v1 physically/browser validated and accepted"
+    "runtime": "merged Harmonic Gravity Product Spine v1 plus merged and physically accepted Role Lens v0",
+    "learningValidation": "four legacy Lab experiences, Product Spine v1 and Role Lens v0 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": 45,
+    "issue": null,
     "pullRequest": null,
-    "kind": "learner-facing-implementation",
-    "summary": "Role Lens v0 is commissioned to prove that one supplied musical material can support at least two genuinely different learner actions without a universal recipe/context framework."
+    "kind": "research-only-style-study",
+    "summary": "Run a source-backed 5-10 fragment representation pressure test before commissioning more engine or learner-facing runtime work."
   },
   "evidence": {
     "issue": 15,
@@ -29,21 +29,21 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-and-product-spine-role-lens-new-review-required"
+    "status": "accepted-legacy-labs-product-spine-and-role-lens"
   },
   "gate": {
-    "issue": 45,
-    "status": "implementation-active-learner-review-required-before-merge",
-    "statement": "Role Lens v0 must reuse current deterministic facts first and prove multiple genuinely different learner actions over the same supplied material. No universal Exercise Recipe JSON/DSL, permanent Context layer, broad engine expansion, Audio, Style runtime or AI is included. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
+    "issue": null,
+    "status": "research-active-no-runtime-implementation-commissioned",
+    "statement": "Role Lens v0 is merged and physically accepted. The next work is a 5-10 fragment Style Study to discover repeated representation needs. Do not create Style runtime, universal recipe/context architecture, broad engine expansion, Audio or AI implementation without a later bounded decision."
   },
   "verification": {
     "command": "npm run verify",
     "ciWorkflow": ".github/workflows/ci.yml",
-    "status": "authoritative"
+    "status": "authoritative-for-implementation"
   },
   "reviewWorkflow": {
-    "implementationPreview": "required-before-merge",
-    "previewReadiness": "pending-first-role-lens-pr",
+    "implementationPreview": "required-before-merge-for-future-runtime-slices",
+    "previewReadiness": "no-active-runtime-pr",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-and-physical-guitar-review"
   },
@@ -67,18 +67,32 @@
       "pathPattern": "experimental/<name>/"
     }
   },
+  "acceptedSlices": {
+    "productSpineV1": {
+      "issue": 43,
+      "pullRequest": 44,
+      "mergeCommit": "239d933e6b70f761a07539f4f34e672d22852922"
+    },
+    "roleLensV0": {
+      "issue": 45,
+      "pullRequest": 46,
+      "approvedHead": "125f9458802b1f1fd02293c9a8c12240f3cbcd96",
+      "mergeCommit": "415605407252b4046fe36bc42b9af29043163517",
+      "result": "one supplied material supported distinct role-notice, create-vary and transfer actions without a universal recipe/context framework"
+    }
+  },
   "deferred": [
-    "Phrase/Harmony PR 2 unless a concrete learner task needs its facts and it is separately commissioned",
+    "Phrase/Harmony PR 2 unless a concrete learner/material task needs its facts and it is separately commissioned",
     "Phase 2E progression/cadence/function breadth",
     "CAGED production logic",
     "generic voicing or voice-leading engine promotion",
     "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "Audio Out until Role Lens evidence justifies a concrete learner need",
+    "Audio Out until a later decision identifies the next proven learner need",
     "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
-    "Style Pack runtime/generator; first run only a 5-10 fragment representation pressure study",
+    "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
     "meter/groove/articulation/polyphony/timed-harmony expansion until repeated real material requires one specific addition",
     "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
