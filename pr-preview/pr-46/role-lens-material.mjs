@@ -33,7 +33,9 @@ export function createRoleLensMaterial({ getHarmony, getCatalog, analyseNotes, f
   }
 
   function locate(anchor, key, chord) {
-    return findLocations({ key, chord: chord.entry.chord, pitch: anchor }).filter(({ pitch: found }) => samePitch(found, anchor));
+    return findLocations({ key, chord: chord.entry.chord, pitch: anchor })
+      .filter(({ pitch: found }) => samePitch(found, anchor))
+      .filter(({ position }) => position.fret <= 8);
   }
 
   function endingOption(target, key, chord) {
