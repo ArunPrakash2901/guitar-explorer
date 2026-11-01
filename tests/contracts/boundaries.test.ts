@@ -96,6 +96,19 @@ describe("pure public engine boundary", () => {
       expect(engine.getInterval({ from: engine.parsePitch("C4"), to: engine.parsePitch("F#4") }).ok).toBe(true);
       expect(engine.getNoteAtFret({ position: { stringIndex: 0, fret: 0 } }).ok).toBe(true);
       expect(engine.analyseNotes({ notes: [engine.parsePitch("E4")], context: {} }).ok).toBe(true);
+      const phrase = { duration: { numerator: 1, denominator: 1 }, events: [{
+        pitch: engine.parsePitch("C4"), onset: { numerator: 0, denominator: 1 }, duration: { numerator: 1, denominator: 1 },
+      }] };
+      expect(engine.getPhrase(phrase).ok).toBe(true);
+      expect(engine.getPhraseIntervals({ phrase }).ok).toBe(true);
+      expect(engine.getPhraseContour({ phrase }).ok).toBe(true);
+      expect(engine.transposePhraseQuery({ phrase, interval: { diatonicSteps: 1, semitones: 2 } }).ok).toBe(true);
+      expect(engine.extractPhraseFragmentQuery({ phrase, range: { onset: { numerator: 0, denominator: 1 }, duration: { numerator: 1, denominator: 2 } } }).ok).toBe(true);
+      expect(engine.comparePhraseIntervals({ left: phrase, right: phrase }).ok).toBe(true);
+      expect(engine.comparePhraseContour({ left: phrase, right: phrase }).ok).toBe(true);
+      expect(engine.comparePhraseRhythm({ left: phrase, right: phrase }).ok).toBe(true);
+      expect(engine.addMusicalTime({ numerator: 1, denominator: 3 }, { numerator: 2, denominator: 3 }))
+        .toEqual({ numerator: 1, denominator: 1 });
     } finally {
       for (const name of browserGlobals) {
         const descriptor = original.get(name);
@@ -111,11 +124,15 @@ describe("pure public engine boundary", () => {
       "analyseNotes", "getChord", "getChordCatalog", "getDiatonicHarmony", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "musicQueries", "transposeNoteQuery", "transposePitchQuery",
+      "getPhrase", "getPhraseIntervals", "getPhraseContour", "transposePhraseQuery", "extractPhraseFragmentQuery",
+      "comparePhraseIntervals", "comparePhraseContour", "comparePhraseRhythm",
     ].sort());
     expect(Object.keys(queries.musicQueries).sort()).toEqual([
       "analyseNotes", "getChord", "getChordCatalog", "getDiatonicHarmony", "getFifthsNeighbors", "getFretboardLocations", "getInterval",
       "getKeyProfile", "getKeySignature", "getNoteAtFret", "getRelativeKey", "getScale",
       "invertInterval", "transposeNote", "transposePitch",
+      "getPhrase", "getPhraseIntervals", "getPhraseContour", "transposePhrase", "extractPhraseFragment",
+      "comparePhraseIntervals", "comparePhraseContour", "comparePhraseRhythm",
     ].sort());
     expect(Object.values(queries.musicQueries).every((query) => typeof query === "function")).toBe(true);
   });

@@ -4,7 +4,9 @@ This is the current source of truth for product architecture and engine boundari
 It distinguishes implemented capabilities from the agreed Product Spine direction.
 The Product Spine is documented, not implemented: there is no shared application
 workspace, Experience Router or extracted Practice Policy module yet. This
-consolidation authorizes no runtime restructuring or new musical capability.
+consolidation authorizes no runtime restructuring. The later, explicitly approved
+Phrase Foundation PR 1 scope is recorded below; other capability breadth remains
+deferred.
 
 The approved engine architecture supersedes the v0.2 handoff's combined `src/music`
 layout and UI-first kickoff. `PRODUCT_SPEC.md` and `V0_2_PLAN.md` preserve historical
@@ -74,6 +76,7 @@ responses and reflections remain ungraded.
 | Capability | Current status |
 |---|---|
 | Music Core, Guitar and `musicQueries` | Implemented deterministic foundation through Phase 2D. |
+| Exact musical time and monophonic Phrase | Phrase Foundation PR 1: pure Core values/operations and eight additive queries; no consumer migration. |
 | Chord, Practice/Harmony, Parsimonious Path, Melody and Motif Labs | Implemented browser consumers with separate page/session state and ephemeral evidence. |
 | Fretboard UI v2 | Implemented shared rendering surface; consumers own theory adaptation and disclosure. |
 | ScenarioV1, catalogue and resolver | Implemented bounded Melody/Motif material preparation. |
@@ -104,7 +107,8 @@ The simplified diagram omits the page-level adapters that unwrap query results.
 Not every activity uses ScenarioV1.
 
 - **Core:** written notes, sounding pitches, intervals, formulas, collections and
-  context. Pure and instrument-independent; no browser, storage or learner state.
+  context, exact quarter lengths and monophonic phrases. Pure and
+  instrument-independent; no browser, storage or learner state.
 - **Guitar:** tuning, physical string order and bounded geometry over Core.
   CAGED, 3NPS and other later views sit above this geometry.
 - **Musical Query Interface:** validated JSON-compatible facts from Core + Guitar.
@@ -334,17 +338,26 @@ They cannot redefine engine facts or turn stylistic taste into objective validit
 ScenarioV1 does not represent most of this information; the existing rule boundary
 does not promise style support without new contracts and later authorization.
 
-## Future rhythm/time domain — documentation only
+## Exact time and Phrase — Foundation PR 1
 
-A future instrument-independent time domain will describe meter, beats, duration,
-subdivision and harmonic rhythm (when chords change). Musical positions/durations
-remain distinct from Audio's scheduling seconds and Learning's wall-clock
-timestamps/response times. A tempo-aware adapter will compile beat-based events
-into audio plans. Chord identity itself will not acquire timing state.
+The approved [Phrase Foundation](PHRASE_FOUNDATION_V1.md) adds `core/time.ts` and
+`core/phrase.ts` without a new layer or package. MusicalTime is a canonical
+safe-integer rational pair in quarter-note lengths, using BigInt intermediates.
+Phrase has mandatory total duration and ordered, nonoverlapping registered-pitch
+events with exact onset/duration. It preserves silence, spelling and repetition
+on owned frozen values. No MIDI range, key or guitar region constrains it.
 
-Do not implement time types, a tempo map, transport or timing placeholders in the
-current theory slices. Existing pitch/chord/context values can be referenced by
-later timed events.
+Pure adjacent intervals, sounding contour, exact transposition, pattern/rhythm
+comparisons and half-open clipping/rebasing consume existing Pitch/Interval truth.
+Guitar placement and supplied harmony stay external. PR 1 contains no timeline
+stub; dependent PR 2 will add that separate supplied-context representation and
+overlap analysis. Neither slice infers harmony, function or musical quality.
+
+ScenarioV1 and the existing Labs retain their present untimed contracts. Musical
+quarter lengths remain distinct from Audio scheduling seconds and Learning
+wall-clock timestamps. Meter, tempo maps, transport, playback, import, techniques,
+polyphony and timing adapters remain deferred, with no placeholders. Chord identity
+does not acquire timing state.
 
 ## Future Learning Query Interface — documentation only
 
@@ -448,9 +461,9 @@ the Idea already exists, while a Motif Generator remains deferred.
 
 ## Next implementation boundary
 
-The current work records decisions and reconciles documentation only. No
-Experience Router implementation, shared-workspace state, UI redesign or new
-feature begins here.
+Issue #40 implements only approved Foundation PR 1: exact time, monophonic Phrase,
+pure operations, eight facade wrappers and verification/documentation. No
+Experience Router implementation, shared-workspace state or UI redesign begins here.
 
 One Melody-specific DOM-free preparation seam is implemented (`lab/melody-experience.mjs`)
 as the first runtime proof of the documented boundary: it extracts the

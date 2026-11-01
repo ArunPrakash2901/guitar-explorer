@@ -7,3 +7,5 @@ export * from "./chords.js";
 export * from "./keys.js";
 export * from "./harmony.js";
 export * from "./context.js";
+export * from "./time.js";
+export * from "./phrase.js";
