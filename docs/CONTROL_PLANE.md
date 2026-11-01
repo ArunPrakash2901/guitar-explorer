@@ -82,7 +82,9 @@ other planning system.
 Start substantial work with the learner action and benefit. Only a demonstrated
 missing deterministic fact justifies the smallest engine addition; otherwise reuse
 existing facts. Product Spine v1 is the primary learner-facing milestone, with its
-existing Figma approval gate. See `PROJECT_STATE.md` for the current decision.
+approved Figma direction and bounded Issue #43. Its simple examples are a vertical
+proof, not a universal exercise model. Exact-head preview and new physical/browser
+review still precede learner-facing merge. See `PROJECT_STATE.md` for current status.
 
 ## Updating project state
 

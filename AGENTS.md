@@ -37,16 +37,18 @@ Issue #15 is closed: Arun physically validated and accepted all four current Lab
 experiences, including PR #37's transfer regression. Preserve the
 [recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
 and do not repeat those trials. PR #30 satisfied the old PR #13 seam blocker.
-Issue #16 now tracks the primary learner-facing milestone: Product Spine v1,
-Harmonic Gravity first, awaiting explicit approval of the existing Figma direction.
-No Product Spine implementation starts before that approval and a bounded issue.
+Arun explicitly approved the existing Figma direction on 1 November 2026.
+Issue #16's design decision is complete; Issue #43 authorizes one bounded Harmonic
+Gravity Product Spine implementation. The simple Figma examples are a first
+vertical proof, not a fixed exercise architecture or a ceiling on future material
+and learner actions. Design-tool access is currently blocked; see PROJECT_STATE.
 Reuse validated behaviour, preserve legacy Lab routes and require an exact-head
 Pages preview plus Arun's physical/browser review before learner-facing merge.
 
 For substantial work, state what Arun can hear, understand, find, play, improvise
 or transfer more reliably. Follow learner action → missing deterministic fact →
 smallest engine addition; if existing facts suffice, do not expand Core. PR #41 is
-the separately authorized narrow Phrase foundation under review, not permission
+the merged, explicitly approved narrow Phrase foundation, not permission
 for Phrase/Harmony PR 2, a recipe framework or other breadth. Design one small
 reusable material/exercise pilot before generalizing; Role Lens remains a candidate.
 

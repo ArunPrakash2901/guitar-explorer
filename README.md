@@ -236,9 +236,9 @@ explicit Practice only. Style knowledge is not a separate product mode.
 ## Roadmap
 
 1. **Accepted foundation** — engine through Phase 2D, Labs, ScenarioV1, Melody generation, the preparation seam and developer tooling are merged. Issue #15's four Lab experiences are physically validated and accepted.
-2. **Product Spine v1, Harmonic Gravity first** — the primary learner-facing milestone. Review the existing Figma direction in Issue #16, then commission one bounded implementation PR. Reuse validated behaviour, retain legacy routes and review an exact-head Pages preview with the guitar before learner-facing merge.
+2. **Product Spine v1, Harmonic Gravity first** — the primary learner-facing milestone. The Figma direction is approved (Issue #16); Issue #43 commissions one bounded implementation PR, currently blocked on design-tool access. The simple examples are a vertical proof, not a fixed exercise architecture. Reuse validated behaviour, retain legacy routes and review an exact-head Pages preview with the guitar before learner-facing merge.
 3. **One material/exercise design pilot** — prove that one supplied material supports different learner actions, with explicit invariant, transfer, assistance and human listening. Role Lens is a candidate, not runtime authorization.
-4. **Demand-driven engine work** — approved Phrase PR #41 is under review. PR 2 and all further breadth need a concrete learner action, a missing deterministic fact and separate scope.
+4. **Demand-driven engine work** — Phrase PR #41 is merged after explicit approval of unchanged head 5bc8d3e. PR 2 and all further breadth need a concrete learner action, a missing deterministic fact and separate scope.
 
 For current priorities and approval gates read [PROJECT_STATE.md](PROJECT_STATE.md);
 [Trello](https://trello.com/b/blLKS9e7/guitar-explorer-project-hub) is the project navigation index.
