@@ -1,6 +1,6 @@
 # AGENTS.md
 
-## Current scope — Role Lens v0 material/action proof
+## Current scope — post-Role-Lens Style Study
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
 active work, waiting-on-Arun state and decision gate. For machine-readable recovery,
@@ -12,7 +12,7 @@ without asking and where explicit approval is required. Then read
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
-The completed developer-leverage and bounded Product Spine slices are standing
+The completed developer-leverage and bounded learner slices are standing
 infrastructure:
 
 - Issue #18 / PR #19: PR previews, local-only Session Evidence export and the agent
@@ -27,78 +27,78 @@ infrastructure:
 - Issue #43 / PR #44: accepted Harmonic Gravity Product Spine v1 with Instrument
   Desk, temporary PLAY Focus Mode, staged disclosure, tiny phrase use and A-major
   transfer while preserving legacy Lab routes
+- Issue #45 / PR #46: accepted Role Lens v0, proving one supplied material can support
+  distinct role-notice, create/vary and transfer actions without a universal recipe
+  or Context framework
 
 Those capabilities may be maintained for correctness and reliability, but they do
 not authorize a Learning Engine, analytics backend, persistence, scoring, a general
-Experience Router or new musical capability. Scenario identity remains Lab/validation
-metadata, not a universal workspace schema. The Melody preparation seam remains
-Melody-specific; do not generalize it into a complete Experience Router, Practice
-Policy, generic Learning Engine, runtime reorganization or UI redesign without a new
-explicit issue/scope.
+Experience Router or speculative new musical capability. Scenario identity remains
+Lab/validation metadata, not a universal workspace schema. The Melody preparation
+seam remains Melody-specific; do not generalize it without a new explicit issue.
 
 Issue #15 is closed: Arun physically validated and accepted all four legacy Lab
-experiences, including PR #37's transfer regression. Preserve the recorded evidence
-and do not repeat those trials. Product Spine v1 is also complete: Arun approved the
-Figma direction, reviewed exact head `c46d9617a07ddd8e59402332b4311f2746e65f77`
-with his guitar/browser, and explicitly approved merge. PR #44 merged as
-`239d933e6b70f761a07539f4f34e672d22852922`; Issue #43 closed completed. Its
-accepted learner result is that the flow changed how Arun listened, predicted,
-noticed and made a musical decision rather than merely following instructions.
+experiences, including PR #37's transfer regression. Product Spine v1 is complete and
+accepted. Role Lens v0 is also complete: Arun reviewed exact head
+`125f9458802b1f1fd02293c9a8c12240f3cbcd96` with his guitar/browser and explicitly
+approved it; PR #46 merged as `415605407252b4046fe36bc42b9af29043163517`.
 
-**Issue #45 is now the single active learner-facing implementation scope.** Role Lens
-v0 must prove that one supplied musical material can support at least two genuinely
-different useful learner actions. Use C4 over supplied Am7 → D7 → Gmaj7, with D4
-over Bm7 → E7 → Amaj7 as the transfer context, unless a bounded implementation
-adjustment preserves the same product question.
+The accepted Role Lens result is architectural evidence with a narrow meaning:
+**Musical Material → learner action** is a useful separation, and one material can
+support genuinely different musical work. It is not permission to introduce a
+universal Exercise Recipe JSON/DSL, permanent generic Context/Constraint layer,
+general Learning Engine/router or broad new theory layer.
 
-Reuse existing Music/Guitar/Phrase/Query/Product Spine capability first. Follow
-**learner action → missing deterministic fact → smallest engine addition**. If current
-facts suffice, do not expand Core. Prefer ordinary local objects/functions and
-activity-local contracts. Do not introduce a universal Exercise Recipe JSON/DSL,
-permanent generic Context/Constraint layer, general Learning Engine/router, mastery
-system, Audio, Style runtime or AI runtime inside #45. Phrase/Harmony PR 2 remains
-uncommissioned unless this exact learner action proves a missing timed-harmony fact
-and receives separate scope.
+There is **no active learner-facing implementation issue or PR** after Role Lens v0.
+Do not create runtime work merely to keep a queue active.
 
-The Role Lens UI may reuse Instrument Desk/Product Spine principles where useful but
-must not mechanically copy Harmonic Gravity's PLAY → NOTICE → UNDERSTAND → TRANSFER
-stage shape. The proof is about distinct learner actions over the same material, not
-a new universal stage machine. Preserve relevant context, withhold answers where
-that improves the task, keep subjective listening unscored and preserve accepted
-legacy routes.
+The current active task is a **research-only 5–10 fragment Style Study**. Use one or
+two coherent artists/traditions and record, for each source-backed fragment:
+provenance, pitch structure, rhythm where supported, harmonic situation/roles,
+articulation/technique, guitar placement where known, transferable principle, what
+Guitar Explorer already represents, what it cannot represent, and confidence /
+interpretation notes.
 
-A 5–10 fragment Style Study is the parallel research track only. It may identify
-repeated representation needs such as timed harmony, meter/groove, articulation,
-polyphony or phrase placement, but it cannot broaden #45 or create a Style Pack
-runtime/schema. Style Knowledge should propose/select material; it does not redefine
-deterministic music truth.
+The Style Study is a representation pressure test, not a Style Pack implementation.
+Look for repeated real requirements before proposing engine work. Repeated demand may
+justify one later bounded addition such as timed harmony, meter/groove, articulation,
+polyphony or phrase-level guitar placement. A single awkward fragment does not justify
+a framework. Heterogeneous gaps are evidence to keep material flexible rather than
+inventing a universal Style schema.
 
-Audio Out v0 waits on learner evidence from #45. If later justified, begin with the
-smallest renderer needed by one proven learner action and treat Web Audio as the
-technical baseline; larger libraries/sample assets remain experiments. Audio In is
-later and experimental, stopping first at permission/input level, onset and stable
-monophonic pitch while preserving uncertainty in an observation object. Never turn
-probabilistic detection into certain performed correctness, polyphonic grading or AI
-judgment of style.
+Style Knowledge may propose/select material but never redefine deterministic music
+truth. Preserve provenance and distinguish source facts from human/AI interpretation.
+Do not build weighted artist generators, automatic style scoring or a copied-lick
+catalogue from this research.
 
-Keep broad AI/agent work and optional GX-10/rig control in Research & Later, beneath
-a concrete learning need. Trello is project navigation; GitHub master proves merged
-capability, issues/PRs bind slices, Figma records applicable design approval, and
-research is input. Update existing Trello cards; create no parallel planning system.
+Audio Out v0 remains waiting. Role Lens confirms the value of listening-led work but
+does not itself require an audio subsystem. After the Style Study, compare Audio Out
+against any repeated representation gap exposed by real material. If Audio Out is
+chosen, start with the smallest renderer needed by one proven learner action and use
+native Web Audio as the baseline; larger libraries/sample assets remain experiments.
+Audio In remains later and experimental, stopping first at permission/input level,
+onset and stable monophonic pitch while preserving uncertainty in an observation
+object. Never turn probabilistic detection into certain performed correctness.
 
-Arun has enabled the existing GitHub Pages PR-preview path. Issue #45 must reach the
-authoritative `npm run verify`, an exact-head Pages preview, Arun browser/physical-
-guitar review and explicit approval before merge. If the supposed multiple learner
-actions feel like one exercise with cosmetic variants, stop instead of formalizing a
-recipe abstraction. Do not publish stable/experimental channels or private evidence
-without separate approval.
+Keep Phrase/Harmony PR 2, meter/groove, articulation, polyphony, broad AI/agent work,
+Style runtime and optional GX-10/rig control gated behind a concrete learner/material
+need. Follow **learner action → missing deterministic fact → smallest engine addition**.
+If existing facts suffice, do not expand Core.
+
+Trello is project navigation; GitHub master proves merged capability, issues/PRs bind
+implementation slices, Figma records applicable design approval, and research is
+input. Update existing Trello cards; create no parallel planning system. Any future
+learner-facing implementation still requires authoritative `npm run verify`, an
+exact-head Pages preview where applicable, Arun browser/physical-guitar review and
+explicit approval before merge. Do not publish stable/experimental channels or
+private evidence without separate approval.
 
 No new capability receives a learner-facing destination by default. Practice Policy
 applies only to an explicit Practice experience; Explore and Apply have no global
 curriculum gates. ScenarioV1 remains bounded Melody/Motif material, not a universal
 workspace schema. Preserve deterministic engine truth, current generator provenance,
 answer withholding and the distinction between musical validity, exercise
-compliance, audio perception and subjective musical judgment.
+compliance, audio perception, AI proposals and subjective musical judgment.
 
 ## Existing foundation and Lab boundaries — implemented through Phase 2D
 
@@ -165,7 +165,7 @@ remain separate. See the current architecture for documentation-only extensions.
 Scale formulas are structured degree/alteration values. Selected-scale analysis
 must preserve written-degree evidence separately from sounding membership; omitted
 and repeated formula degrees are explicit data, not errors or implicit choices.
-Key analysis remains the existing seven-note major/natural-minor contract.
+Key analysis remains the existing seven-degree major/natural-minor contract.
 
 `CHORD_FORMULAS` is the only declaration of chord formula truth. Chord catalogue
 metadata may contain only identity and presentation data; attach the authoritative
