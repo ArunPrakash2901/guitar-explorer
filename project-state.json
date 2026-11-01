@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 43,
-    "pullRequest": null,
+    "pullRequest": 44,
     "kind": "bounded-implementation",
     "summary": "Approved Harmonic Gravity Product Spine v1; draft preparation, blocked on Figma design access"
   },

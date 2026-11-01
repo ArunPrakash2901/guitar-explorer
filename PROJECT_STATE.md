@@ -32,7 +32,7 @@ PR #30 satisfied the old seam blocker by reworking and superseding PR #13.
 
 The existing [Figma journey](https://www.figma.com/design/0nYwx0YwxqYZ0t29FeYMI9?node-id=8-2260)
 was explicitly approved by Arun on 1 November 2026. Issue #16's design gate is
-complete; Issue #43 commissions one bounded implementation PR.
+complete; Issue #43 commissions draft PR #44 as the single bounded implementation.
 
 The first design-context read timed out and subsequent Figma reads hit the Starter
 plan tool limit. Only structure was retrieved; visual implementation and its
@@ -60,7 +60,7 @@ musical material without inheriting this exemplar as a universal architecture.
 - **PR #41 / Issue #40:** merged as `d25217a` after Arun explicitly approved
   unchanged reviewed head `5bc8d3e`; all head checks were green. Exact-time /
   monophonic Phrase foundation is now merged capability. PR 2 is not commissioned.
-- **Issue #43 implementation PR:** draft preparation only; design access blocked,
+- **Draft PR #44 / Issue #43:** draft preparation only; design access blocked,
   no new learner UI or Product Spine review preview ready yet.
 - **PR #36 / Issue #35:** merged; retain exact-head preview protection.
 - **PR #39 / Issue #38:** deferred and closed unmerged. The optional assistant-hint
@@ -102,8 +102,9 @@ Use `npm run verify` as the full repository gate. Implementation PRs retain the
 existing exact-head Pages preview path. Learner-facing work requires Arun's
 browser/physical-guitar review of new behaviour and explicit approval before merge.
 Routine non-learner-facing maintenance may resolve within its authorized scope;
-do not invent extra approvals or ask to repeat accepted trials. PR #41's explicit merge decision is complete;
-that approval does not extend to Issue #43 or Phrase PR 2. Musical truth, task compliance and
+do not invent extra approvals or ask to repeat accepted trials. PR #41's explicit
+merge decision is complete; that approval does not extend to Issue #43 or Phrase
+PR 2. Musical truth, task compliance and
 subjective musical judgment remain separate.
 
 ## Where decisions live
