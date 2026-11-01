@@ -32,22 +32,19 @@ PR #30 satisfied the old seam blocker by reworking and superseding PR #13.
 
 The existing [Figma journey](https://www.figma.com/design/0nYwx0YwxqYZ0t29FeYMI9?node-id=8-2260)
 was explicitly approved by Arun on 1 November 2026. Issue #16's design gate is
-complete; Issue #43 commissions draft PR #44 as the single bounded implementation.
+complete; Issue #43 commissions PR #44 as the single bounded implementation.
 
-The first design-context read timed out and subsequent Figma reads hit the Starter
-plan tool limit. Only structure was retrieved; visual implementation and its
-review preview are not yet ready. Resume this same slice when design access is
-restored or an authorized alternative source is available.
+Detailed Figma design context and screenshots are now available after the seat
+upgrade. PR #44 implements the approved Instrument Desk shell, temporary PLAY
+Focus Mode and PLAY → NOTICE → UNDERSTAND → TRANSFER journey as one additive
+native HTML/CSS/JS workspace. It reuses the validated Harmonic Gravity plan and
+shared fretboard renderer while preserving every legacy Lab route.
 
-Use Instrument Desk as the shell, Guitar Focus Mode as temporary PLAY, and
-Relationship Sketchbook's musical-question framing. Preserve context through
-PLAY → NOTICE → UNDERSTAND → TRANSFER, showing only what matters now. Explore
-remains permissive; Practice deliberately withholds answers.
-
-This approval commissions only the bounded Issue #43 implementation. Reuse accepted
-Harmonic Gravity behaviour and preserve legacy Lab routes. Do not build a general
-router/framework or universal Learning Engine. Existing engine facts suffice for
-the supported journey unless a concrete approved learner action proves otherwise.
+Practice keeps prediction selection separate from commitment, withholds note-role
+answers until the physical comparison, asks for one tiny phrase choice, then
+requires a fresh prediction and comparison in A major before the transferred
+relationship is revealed. Explore remains permissive and returning to the desk
+preserves the in-page practice context.
 
 The simple Figma questions and examples are a first vertical proof, not the
 product breadth, exercise vocabulary or long-term ceiling. Keep this flow local
@@ -60,8 +57,10 @@ musical material without inheriting this exemplar as a universal architecture.
 - **PR #41 / Issue #40:** merged as `d25217a` after Arun explicitly approved
   unchanged reviewed head `5bc8d3e`; all head checks were green. Exact-time /
   monophonic Phrase foundation is now merged capability. PR 2 is not commissioned.
-- **Draft PR #44 / Issue #43:** draft preparation only; design access blocked,
-  no new learner UI or Product Spine review preview ready yet.
+- **PR #44 / Issue #43:** Product Spine implementation is review-ready. Full
+  repository verification covers the new disclosure/transfer flow plus all legacy
+  regressions. Do not merge until the exact-head Pages preview is live and Arun
+  completes the new browser/physical-guitar review and explicitly approves that head.
 - **PR #36 / Issue #35:** merged; retain exact-head preview protection.
 - **PR #39 / Issue #38:** deferred and closed unmerged. The optional assistant-hint
   exchange has no accepted physical-use benefit and is not an active milestone.
@@ -104,8 +103,7 @@ browser/physical-guitar review of new behaviour and explicit approval before mer
 Routine non-learner-facing maintenance may resolve within its authorized scope;
 do not invent extra approvals or ask to repeat accepted trials. PR #41's explicit
 merge decision is complete; that approval does not extend to Issue #43 or Phrase
-PR 2. Musical truth, task compliance and
-subjective musical judgment remain separate.
+PR 2. Musical truth, task compliance and subjective musical judgment remain separate.
 
 ## Where decisions live
 
