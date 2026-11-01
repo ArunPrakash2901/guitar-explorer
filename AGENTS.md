@@ -41,9 +41,10 @@ Arun explicitly approved the existing Figma direction on 1 November 2026.
 Issue #16's design decision is complete; Issue #43 authorizes one bounded Harmonic
 Gravity Product Spine implementation. The simple Figma examples are a first
 vertical proof, not a fixed exercise architecture or a ceiling on future material
-and learner actions. Design-tool access is currently blocked; see PROJECT_STATE.
-Reuse validated behaviour, preserve legacy Lab routes and require an exact-head
-Pages preview plus Arun's physical/browser review before learner-facing merge.
+and learner actions. Detailed Figma access is restored and PR #44 now implements
+the approved bounded workspace. Reuse validated behaviour, preserve legacy Lab
+routes and require an exact-head Pages preview plus Arun's physical/browser review
+and explicit approval before learner-facing merge.
 
 For substantial work, state what Arun can hear, understand, find, play, improvise
 or transfer more reliably. Follow learner action → missing deterministic fact →
