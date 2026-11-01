@@ -1,6 +1,6 @@
 # AGENTS.md
 
-## Current scope — post-Product-Spine consolidation
+## Current scope — Role Lens v0 material/action proof
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
 active work, waiting-on-Arun state and decision gate. For machine-readable recovery,
@@ -8,7 +8,7 @@ read [`project-state.json`](project-state.json) or run `npm run context`; the sn
 is validated by the authoritative repository gate. Read
 [`docs/AUTONOMY_CONTRACT.md`](docs/AUTONOMY_CONTRACT.md) for what an agent may do
 without asking and where explicit approval is required. Then read
-[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) as the current product/architecture
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) as the current product/architecture
 source of truth alongside `docs/LEARNING_MODEL.md`, `docs/DECISIONS.md` and the
 current part of `docs/TEST_MATRIX.md` before proposing changes.
 
@@ -37,52 +37,68 @@ Policy, generic Learning Engine, runtime reorganization or UI redesign without a
 explicit issue/scope.
 
 Issue #15 is closed: Arun physically validated and accepted all four legacy Lab
-experiences, including PR #37's transfer regression. Preserve the
-[recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
-and do not repeat those trials. PR #30 satisfied the old PR #13 seam blocker.
-
-Product Spine v1 is also complete. Arun approved the Figma direction, reviewed exact
-head `c46d9617a07ddd8e59402332b4311f2746e65f77` with his guitar/browser and
-explicitly approved merge. PR #44 merged as
-`239d933e6b70f761a07539f4f34e672d22852922`; Issue #43 closed completed. The
+experiences, including PR #37's transfer regression. Preserve the recorded evidence
+and do not repeat those trials. Product Spine v1 is also complete: Arun approved the
+Figma direction, reviewed exact head `c46d9617a07ddd8e59402332b4311f2746e65f77`
+with his guitar/browser, and explicitly approved merge. PR #44 merged as
+`239d933e6b70f761a07539f4f34e672d22852922`; Issue #43 closed completed. Its
 accepted learner result is that the flow changed how Arun listened, predicted,
 noticed and made a musical decision rather than merely following instructions.
-The simple Figma examples remain a first vertical proof, not a fixed exercise
-architecture or a ceiling on future material and learner actions.
 
-There is no active learner-facing implementation after Product Spine v1. Do not
-create implementation work merely to keep a queue active. For substantial work,
-state what Arun can hear, understand, find, play, improvise or transfer more
-reliably. Follow learner action → missing deterministic fact → smallest engine
-addition; if existing facts suffice, do not expand Core. PR #41 is the merged,
-explicitly approved narrow Phrase foundation, not permission for Phrase/Harmony PR 2,
-a recipe framework or other breadth. Design one small reusable material/exercise
-pilot before generalizing; Role Lens remains a candidate rather than runtime
-authorization.
+**Issue #45 is now the single active learner-facing implementation scope.** Role Lens
+v0 must prove that one supplied musical material can support at least two genuinely
+different useful learner actions. Use C4 over supplied Am7 → D7 → Gmaj7, with D4
+over Bm7 → E7 → Amaj7 as the transfer context, unless a bounded implementation
+adjustment preserves the same product question.
 
-Audio Out / Audio In is a promising future research direction because Product Spine
-confirmed the value of listening-led interaction, but no audio implementation is
-commissioned. Keep deterministic musical truth separate from audio perception and do
-not jump directly to microphone grading or AI judgment of improvisation.
+Reuse existing Music/Guitar/Phrase/Query/Product Spine capability first. Follow
+**learner action → missing deterministic fact → smallest engine addition**. If current
+facts suffice, do not expand Core. Prefer ordinary local objects/functions and
+activity-local contracts. Do not introduce a universal Exercise Recipe JSON/DSL,
+permanent generic Context/Constraint layer, general Learning Engine/router, mastery
+system, Audio, Style runtime or AI runtime inside #45. Phrase/Harmony PR 2 remains
+uncommissioned unless this exact learner action proves a missing timed-harmony fact
+and receives separate scope.
+
+The Role Lens UI may reuse Instrument Desk/Product Spine principles where useful but
+must not mechanically copy Harmonic Gravity's PLAY → NOTICE → UNDERSTAND → TRANSFER
+stage shape. The proof is about distinct learner actions over the same material, not
+a new universal stage machine. Preserve relevant context, withhold answers where
+that improves the task, keep subjective listening unscored and preserve accepted
+legacy routes.
+
+A 5–10 fragment Style Study is the parallel research track only. It may identify
+repeated representation needs such as timed harmony, meter/groove, articulation,
+polyphony or phrase placement, but it cannot broaden #45 or create a Style Pack
+runtime/schema. Style Knowledge should propose/select material; it does not redefine
+deterministic music truth.
+
+Audio Out v0 waits on learner evidence from #45. If later justified, begin with the
+smallest renderer needed by one proven learner action and treat Web Audio as the
+technical baseline; larger libraries/sample assets remain experiments. Audio In is
+later and experimental, stopping first at permission/input level, onset and stable
+monophonic pitch while preserving uncertainty in an observation object. Never turn
+probabilistic detection into certain performed correctness, polyphonic grading or AI
+judgment of style.
 
 Keep broad AI/agent work and optional GX-10/rig control in Research & Later, beneath
 a concrete learning need. Trello is project navigation; GitHub master proves merged
-capability, issues/PRs bound slices, Figma records applicable design approval, and
+capability, issues/PRs bind slices, Figma records applicable design approval, and
 research is input. Update existing Trello cards; create no parallel planning system.
 
-Arun has enabled the existing GitHub Pages PR-preview path; do not switch hosts,
-treat previews as production, publish stable/experimental channels, or publish
-private evidence without separate explicit approval. Stable publication remains a
-separate release decision. See `docs/DEPLOYMENT_CHANNELS.md`.
+Arun has enabled the existing GitHub Pages PR-preview path. Issue #45 must reach the
+authoritative `npm run verify`, an exact-head Pages preview, Arun browser/physical-
+guitar review and explicit approval before merge. If the supposed multiple learner
+actions feel like one exercise with cosmetic variants, stop instead of formalizing a
+recipe abstraction. Do not publish stable/experimental channels or private evidence
+without separate approval.
 
-No new capability receives a learner-facing destination by default. It must fit
-Explore, Practice, Apply or a shared service. Practice Policy applies only to an
-explicit Practice experience; Explore and Apply have no curriculum gates.
-ScenarioV1 remains bounded Melody/Motif material, not a universal workspace schema.
-Preserve deterministic engine truth, current generator provenance, answer
-withholding and the distinction between musical validity, exercise compliance,
-audio perception and subjective musical judgment. See the architecture for deferred
-capabilities.
+No new capability receives a learner-facing destination by default. Practice Policy
+applies only to an explicit Practice experience; Explore and Apply have no global
+curriculum gates. ScenarioV1 remains bounded Melody/Motif material, not a universal
+workspace schema. Preserve deterministic engine truth, current generator provenance,
+answer withholding and the distinction between musical validity, exercise
+compliance, audio perception and subjective musical judgment.
 
 ## Existing foundation and Lab boundaries — implemented through Phase 2D
 
@@ -176,9 +192,8 @@ the Chord Lab as a separate focused tool rather than embedding its full session.
 Home/pressure/expectation language belongs to this curated lesson, not Core. The
 first harmony response concerns perceived musical consequence; reveal Roman and
 functional labels only after prediction and melodic comparison. Do not score
-perception or infer mastery. No engine/query/contract changes are authorized for
-this learner-facing revision absent a real correctness bug. No generic Practice
-Engine, curriculum framework, progression generator or Phase 2E capability.
+perception or infer mastery. No generic Practice Engine, curriculum framework,
+progression generator or Phase 2E capability is authorized.
 
 The separately authorized Parsimonious Path remains a bounded Lab experiment at
 `/voice-leading.html`. Its deterministic candidate enumeration and same-string fret
