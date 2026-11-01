@@ -1,18 +1,18 @@
 {
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
-  "updatedAt": "2026-11-01",
-  "stage": "Product Spine v1 merged; next bounded material/exercise design before breadth",
+  "updatedAt": "2026-11-02",
+  "stage": "Role Lens v0: prove one material across multiple learner actions before broader architecture",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "bounded Melody preparation seam plus merged Harmonic Gravity Product Spine v1",
+    "runtime": "merged Harmonic Gravity Product Spine v1 plus active bounded Role Lens v0 slice",
     "learningValidation": "four legacy Lab experiences plus Product Spine v1 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": 43,
+    "issue": 45,
     "pullRequest": null,
-    "kind": "no-active-implementation",
-    "summary": "Product Spine v1 is merged and accepted; no new learner-facing runtime is commissioned. Role Lens remains a proposed material/exercise design pilot."
+    "kind": "learner-facing-implementation",
+    "summary": "Role Lens v0 is commissioned to prove that one supplied musical material can support at least two genuinely different learner actions without a universal recipe/context framework."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-and-product-spine"
+    "status": "accepted-legacy-labs-and-product-spine-role-lens-new-review-required"
   },
   "gate": {
-    "issue": 43,
-    "status": "completed-awaiting-next-commission",
-    "statement": "Product Spine v1 merged as 239d933 after exact-head verification, live Pages revision check and Arun browser/physical-guitar approval of c46d961. No active learner-facing implementation remains. Future material/exercise, audio or engine work needs a separately bounded learner need and scope."
+    "issue": 45,
+    "status": "implementation-active-learner-review-required-before-merge",
+    "statement": "Role Lens v0 must reuse current deterministic facts first and prove multiple genuinely different learner actions over the same supplied material. No universal Exercise Recipe JSON/DSL, permanent Context layer, broad engine expansion, Audio, Style runtime or AI is included. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
   },
   "verification": {
     "command": "npm run verify",
@@ -42,10 +42,10 @@
     "status": "authoritative"
   },
   "reviewWorkflow": {
-    "implementationPreview": "required-for-future-learner-facing-prs",
-    "previewReadiness": "no-active-preview",
+    "implementationPreview": "required-before-merge",
+    "previewReadiness": "pending-first-role-lens-pr",
     "reviewSurface": "github-pages-pr-preview",
-    "learnerFacingApproval": "explicit-arun-go-ahead-when-manual-validation-is-required"
+    "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-and-physical-guitar-review"
   },
   "deployments": {
     "stable": {
@@ -72,15 +72,19 @@
     "Phase 2E progression/cadence/function breadth",
     "CAGED production logic",
     "generic voicing or voice-leading engine promotion",
-    "new standalone Labs by default",
     "general Experience Router or Practice/Learning Engine infrastructure",
+    "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "broad audio input recognition or microphone grading; Audio Out/In may be separately researched/scoped but no implementation is commissioned",
-    "AI tutor behaviour",
+    "Audio Out until Role Lens evidence justifies a concrete learner need",
+    "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
+    "microphone grading, polyphonic/style grading or AI audio judgment",
+    "Style Pack runtime/generator; first run only a 5-10 fragment representation pressure study",
+    "meter/groove/articulation/polyphony/timed-harmony expansion until repeated real material requires one specific addition",
+    "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
     "broad song/progression import",
     "production deployment or paid/external preview infrastructure",
     "GX-10/rig control and broad AI-agent integration",
-    "universal material/exercise schemas, curriculum graphs and large random-content generators"
+    "curriculum graphs and large random-content generators"
   ]
 }
