@@ -37,6 +37,10 @@ const requiredPaths = [
   "accompaniment.css",
   "accompaniment-app.js",
   "accompaniment-plan.mjs",
+  "looper.html",
+  "looper.css",
+  "looper-app.js",
+  "looper-runtime.mjs",
   "audio-out.mjs",
   "audio-cues.mjs",
   "practice.html",
@@ -123,8 +127,6 @@ await mkdir(outputRoot, { recursive: true });
 await cp(labRoot, outputRoot, { recursive: true });
 await cp(engineRoot, join(outputRoot, "engine"), { recursive: true });
 
-// The local server aliases /harmony.html to practice.html. Static channel builds need an
-// actual file while preserving the pathname distinction used by the practice app.
 await cp(join(outputRoot, "practice.html"), join(outputRoot, "harmony.html"));
 await writeFile(join(outputRoot, ".nojekyll"), "");
 
