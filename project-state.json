@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Accompaniment v1: editable strumming plan over supplied harmony",
+  "stage": "Looper v0: record learner accompaniment and loop it for improvisation",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Harmonic Gravity Product Spine v1, Role Lens v0 and accepted Audio Out v0.5 plus active bounded Accompaniment v1 slice",
-    "learningValidation": "four legacy Lab experiences, Product Spine v1, Role Lens v0 and Audio Out v0.5 physically/browser validated and accepted"
+    "runtime": "merged Harmonic Gravity Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1 plus active bounded Looper v0 slice",
+    "learningValidation": "four legacy Lab experiences, Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": 51,
-    "pullRequest": 52,
+    "issue": 53,
+    "pullRequest": null,
     "kind": "learner-facing-implementation",
-    "summary": "Accompaniment v1 reuses supplied G-C-D7-G harmony and accepted Audio Out rendering to prove learner-editable tempo, per-chord bar lengths and one-bar down/up/rest strumming patterns without a DAW, looper or new harmony theory."
+    "summary": "Looper v0 proves a reusable local capture runtime: supplied count-in/capture timing, browser input permission, one bounded recording, replay/loop/re-record and an improvisation handoff without grading or transcription."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-role-lens-and-audio-out-accompaniment-new-review-required"
+    "status": "accepted-through-accompaniment-v1-looper-v0-new-review-required"
   },
   "gate": {
-    "issue": 51,
+    "issue": 53,
     "status": "implementation-active-learner-review-required-before-merge",
-    "statement": "Accompaniment v1 must keep harmony truth separate from accompaniment choices, remain bounded to supplied G-C-D7-G in 4/4 with editable tempo, per-chord bars and an eight-slot down/up/rest pattern, reuse accepted Audio Out rendering, and avoid recording/looping or a general transport framework. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
+    "statement": "Looper v0 must remain reusable runtime infrastructure rather than exercise-specific theory logic: the supplying exercise/accompaniment layer provides context and capture duration, while the looper owns permission, count-in, local MediaRecorder capture and loop playback only. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar/input-device review and explicit approval before merge."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,9 +43,9 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "draft-pr-52-awaiting-exact-head-gates",
+    "previewReadiness": "looper-v0-branch-active-pr-pending",
     "reviewSurface": "github-pages-pr-preview",
-    "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
+    "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-input-and-physical-guitar-review"
   },
   "deployments": {
     "stable": {
@@ -77,26 +77,33 @@
       "issue": 45,
       "pullRequest": 46,
       "approvedHead": "125f9458802b1f1fd02293c9a8c12240f3cbcd96",
-      "mergeCommit": "415605407252b4046fe36bc42b9af29043163517",
-      "result": "one supplied material supported distinct role-notice, create-vary and transfer actions without a universal recipe/context framework"
+      "mergeCommit": "415605407252b4046fe36bc42b9af29043163517"
     },
     "audioOutV05": {
       "issue": 47,
       "pullRequest": 48,
       "approvedHead": "7c5a7415efa858cb4a3d3daacfbd93b0f3917f94",
-      "mergeCommit": "3f1c8edd786202e93d9a12df6fd27217efa2c270",
-      "result": "learner-controlled tempo, guitar-like plucks/strums and a single-note pluck were physically/browser approved while prediction and physical guitar remained central"
+      "mergeCommit": "3f1c8edd786202e93d9a12df6fd27217efa2c270"
+    },
+    "accompanimentV1": {
+      "issue": 51,
+      "pullRequest": 52,
+      "approvedHead": "5bf9f26d943e3860301ef9ff2ff21d514885e0d2",
+      "mergeCommit": "135a4589c57467c66472f86ab8a8463d9eeb7d10",
+      "result": "supplied harmony can drive reusable editable tempo, per-chord bars and down/up/rest accompaniment without moving rhythm taste into deterministic theory"
     }
   },
   "parallelResearch": {
-    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #51"
+    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #53"
   },
-  "plannedSequence": {
-    "afterAccompanimentV1": [
-      "Looper v0: separately scope count-in, record/re-record and loop playback for learner-created accompaniment only if Accompaniment v1 is accepted and useful"
-    ]
+  "architectureBoundary": {
+    "musicEngine": "deterministic musical truth",
+    "accompanimentRuntime": "meter, tempo, bars and strumming choices supplied to playback",
+    "looperRuntime": "permission, count-in, capture duration, local recorded-media lifecycle and loop playback",
+    "exercise": "supplies musical material and decides when accompaniment/looping is pedagogically useful"
   },
   "deferred": [
+    "Product Design/Figma refinement of Accompaniment and Looper surfaces after the bounded runtime proofs",
     "Phrase/Harmony PR 2 unless a concrete learner/material task needs its facts and it is separately commissioned",
     "Phase 2E progression/cadence/function breadth",
     "CAGED production logic",
@@ -104,12 +111,11 @@
     "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "general accompaniment/transport architecture beyond the bounded Accompaniment v1 proof",
-    "Looper v0 recording and loop capture until Accompaniment v1 is physically accepted",
-    "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
+    "latency calibration, waveform editing, multitrack transport or DAW architecture beyond Looper v0",
+    "Audio In analysis beyond local recording and a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
     "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
-    "broad meter/groove/articulation/polyphony/timed-harmony expansion beyond the local Accompaniment v1 representation",
+    "broad meter/groove/articulation/polyphony/timed-harmony expansion beyond the accepted local accompaniment representation",
     "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
     "broad song/progression import",
