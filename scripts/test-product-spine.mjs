@@ -28,7 +28,8 @@ function createPage() {
   const choose = (containerId, value) => {
     const button = find($(containerId), (element) => element.dataset.value === value);
     assert.ok(button, `${value} is available in ${containerId}`);
-    button.click();
+    button.focus();
+    button.key(" ");
   };
   return { document, root, read, $, choose, text: () => accessibleText(root) };
 }
@@ -48,6 +49,13 @@ assert.equal(page.read("state.mode"), "practice");
 assert.equal(page.read("state.stage"), "play");
 assert.equal(page.$("intent-nav").hidden, true);
 assert.equal(page.$("return-desk").hidden, false);
+assert.equal(page.$("practice-moments").hidden, true);
+assert.equal(page.$("stage-title").hidden, true);
+assert.equal(page.document.activeElement, page.$("focus-prompt"));
+assert.match(page.document.activeElement.textContent, /Predict before the next chord/);
+assert.equal(page.$("moment-actions").parentElement, page.$("focus-actions"));
+assert.equal(page.$("product-header").scrollCalls.at(-1).block, "start");
+assert.equal((page.text().match(/PLAY · Focus/g) ?? []).length, 1);
 assert.match(page.text(), /G → D7 → silence/);
 assert.doesNotMatch(page.text(), /F# is the third|G# is the third/);
 page.$("return-desk").click();
@@ -59,10 +67,16 @@ page.$("primary-action").click();
 // NOTICE separates selecting an expectation from committing it; compare-again retains the selection.
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "notice");
+assert.equal(page.$("stage-title").hidden, false);
+assert.equal(page.document.activeElement, page.$("stage-title"));
+assert.equal(page.$("moment-actions").parentElement, page.$("desk-actions"));
+assert.equal((page.text().match(/What do you expect next\?/g) ?? []).length, 1);
 assert.equal(page.$("primary-action").disabled, true);
 page.choose("response-options", "return");
 assert.equal(page.read("state.mainSelection"), "return");
 assert.equal(page.read("state.mainPrediction"), null);
+assert.equal(page.document.activeElement.dataset.value, "return");
+assert.equal(page.document.activeElement.getAttribute("aria-pressed"), "true");
 assert.equal(page.$("primary-action").disabled, false);
 page.$("secondary-action").click();
 assert.equal(page.read("state.stage"), "play");
@@ -72,13 +86,30 @@ assert.equal(page.read("state.mainSelection"), "return");
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "compare");
 assert.equal(page.read("state.mainPrediction"), "return");
+assert.equal(page.$("intent-nav").hidden, true);
+assert.equal(page.$("practice-moments").hidden, true);
+assert.equal(page.document.activeElement, page.$("focus-prompt"));
+assert.equal(page.$("moment-actions").parentElement, page.$("focus-actions"));
+assert.match(page.text(), /You predicted: Return home/);
 assert.match(page.text(), /D7 → G/);
+assert.doesNotMatch(page.text(), /F# is the third of D7|One fret up/);
+
+// Pausing the physical comparison keeps the committed expectation and exact return point.
+page.$("return-desk").click();
+assert.equal(page.read("state.stage"), "compare");
+assert.equal(page.read("state.mainPrediction"), "return");
+assert.equal(page.$("key-label").textContent, "G major");
+page.$("primary-action").click();
+assert.equal(page.read("state.stage"), "compare");
+assert.equal(page.document.activeElement, page.$("focus-prompt"));
 assert.doesNotMatch(page.text(), /F# is the third of D7|One fret up/);
 
 // UNDERSTAND reveals only after the learner confirms the physical comparison.
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "understand");
 assert.equal(page.read("state.mainCompared"), true);
+assert.equal(page.$("intent-nav").hidden, false);
+assert.equal(page.$("moment-actions").parentElement, page.$("desk-actions"));
 assert.match(page.text(), /F# is the third of D7/);
 assert.match(page.text(), /G is the root of G/);
 assert.match(page.text(), /One fret up/);
@@ -93,10 +124,19 @@ assert.match(page.text(), /F# → G · direct answer/);
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "transfer-setup");
 assert.match(page.text(), /G major[\s\S]*A major/);
+assert.equal(page.$("key-label").textContent, "G major");
+page.$("intent-explore").click();
+assert.equal(page.$("key-label").textContent, "G major");
+assert.match(page.$("context-label").textContent, /G major · G reference/);
+page.$("primary-action").click();
+assert.equal(page.read("state.stage"), "transfer-setup");
+assert.equal(page.$("key-label").textContent, "G major");
 
 // Transfer requires a fresh PLAY and NOTICE cycle; the A-major answer remains hidden until comparison.
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "transfer-play");
+assert.equal(page.$("key-label").textContent, "A major");
+assert.equal(page.document.activeElement, page.$("focus-prompt"));
 assert.match(page.text(), /A → E7 → silence/);
 assert.doesNotMatch(page.text(), /G# is the third of E7/);
 page.$("primary-action").click();
@@ -106,6 +146,9 @@ assert.equal(page.read("state.transferPrediction"), null);
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "transfer-compare");
 assert.equal(page.read("state.transferPrediction"), "return");
+assert.equal(page.$("intent-nav").hidden, true);
+assert.equal(page.$("practice-moments").hidden, true);
+assert.equal(page.document.activeElement, page.$("focus-prompt"));
 assert.match(page.text(), /E7 → A/);
 assert.doesNotMatch(page.text(), /G# is the third of E7|One fret up/);
 page.$("primary-action").click();
@@ -120,6 +163,7 @@ page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "reflect");
 assert.equal(page.$("primary-action").disabled, true);
 page.choose("reflection-options", "clearer");
+assert.equal(page.document.activeElement.dataset.value, "clearer");
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "complete");
 assert.match(page.text(), /no mastery claim/i);
@@ -127,5 +171,7 @@ page.$("primary-action").click();
 assert.equal(page.read("state.mode"), "desk");
 assert.equal(page.read("state.stage"), "complete");
 assert.match(page.$("primary-action").textContent, /Resume/);
+assert.equal(page.$("key-label").textContent, "A major");
+assert.match(page.$("context-label").textContent, /A major · A reference/);
 
 console.log("Product Spine v1 checks passed through Desk, PLAY Focus, NOTICE, UNDERSTAND, tiny phrase, TRANSFER and reflection.");

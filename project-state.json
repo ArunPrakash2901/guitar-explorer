@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Style Study: pressure-test real musical material before more engine architecture",
+  "stage": "Issue #49: bounded Harmonic Gravity UI follow-up on the accepted Product Spine",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
     "runtime": "merged Harmonic Gravity Product Spine v1 plus merged and physically accepted Role Lens v0",
     "learningValidation": "four legacy Lab experiences, Product Spine v1 and Role Lens v0 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": null,
+    "issue": 49,
     "pullRequest": null,
-    "kind": "research-only-style-study",
-    "summary": "Run a source-backed 5-10 fragment representation pressure test before commissioning more engine or learner-facing runtime work."
+    "kind": "product-spine-ui-follow-up",
+    "summary": "Arun authorized UI review and implementation on 2026-11-02 without a new design approval stop: refine the accepted Desk/temporary Focus presentation, keyboard continuity and transfer context; preserve musical tasks and disclosure."
   },
   "evidence": {
     "issue": 15,
@@ -32,9 +32,9 @@
     "status": "accepted-legacy-labs-product-spine-and-role-lens"
   },
   "gate": {
-    "issue": null,
-    "status": "research-active-no-runtime-implementation-commissioned",
-    "statement": "Role Lens v0 is merged and physically accepted. The next work is a 5-10 fragment Style Study to discover repeated representation needs. Do not create Style runtime, universal recipe/context architecture, broad engine expansion, Audio or AI implementation without a later bounded decision."
+    "issue": 49,
+    "status": "ui-follow-up-authorized-awaiting-exact-head-preview",
+    "statement": "Issue #49 is a presentation/accessibility follow-up to the physically accepted Product Spine, explicitly commissioned by Arun. Publish the verified exact-head Pages preview before merge. Do not claim fresh physical evidence or expand the musical task, engine, audio, AI or Style runtime. The Style Study remains research-only."
   },
   "verification": {
     "command": "npm run verify",
@@ -42,8 +42,8 @@
     "status": "authoritative-for-implementation"
   },
   "reviewWorkflow": {
-    "implementationPreview": "required-before-merge-for-future-runtime-slices",
-    "previewReadiness": "no-active-runtime-pr",
+    "implementationPreview": "required-before-merge",
+    "previewReadiness": "pending-exact-head-ci-and-pages",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-and-physical-guitar-review"
   },

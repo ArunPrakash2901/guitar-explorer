@@ -7,8 +7,8 @@
   <link rel="stylesheet" href="/fretboard.css">
   <link rel="stylesheet" href="/product-spine.css">
 </head>
-<body class="product-spine">
-  <header class="product-header" aria-label="Guitar Explorer workspace">
+<body class="product-spine harmonic-gravity">
+  <header id="product-header" class="product-header" aria-label="Guitar Explorer workspace">
     <a class="brand" href="/product-spine.html">Guitar Explorer</a>
     <nav id="intent-nav" class="intent-nav" aria-label="Workspace intention">
       <button type="button" id="intent-explore" class="intent-tab" aria-pressed="true">Explore</button>
@@ -22,7 +22,7 @@
   </header>
 
   <main class="workspace">
-    <div class="moment-context">
+    <div id="moment-context" class="moment-context">
       <p id="experience-label" class="eyebrow">Harmonic Gravity</p>
       <p id="context-label" class="context-label">G major · G reference</p>
     </div>
@@ -67,13 +67,15 @@
 
     <section id="focus-panel" class="focus-panel" hidden aria-label="Playing focus">
       <p class="focus-kicker">PLAY · Focus</p>
-      <p id="focus-prompt" class="focus-prompt"></p>
+      <h1 id="focus-prompt" class="focus-prompt" tabindex="-1"></h1>
+      <p id="focus-memory" class="focus-memory" hidden></p>
       <p id="focus-cue" class="focus-cue"></p>
       <p id="focus-instruction" class="focus-instruction"></p>
+      <p id="focus-support" class="focus-support"></p>
+      <div id="focus-actions" class="focus-actions"></div>
     </section>
 
-    <section id="response-panel" class="response-panel" hidden aria-labelledby="response-heading">
-      <h2 id="response-heading">What do you expect next?</h2>
+    <section id="response-panel" class="response-panel" hidden aria-labelledby="stage-title">
       <div id="response-options" class="response-options"></div>
       <p class="muted">Choose what you noticed. There is no correct listening response.</p>
     </section>
@@ -114,16 +116,18 @@
 
     <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
 
-    <div class="moment-actions">
-      <button type="button" id="secondary-action" class="secondary" hidden></button>
-      <div class="action-spacer"></div>
-      <button type="button" id="primary-action" class="primary"></button>
+    <div id="desk-actions" class="desk-actions">
+      <div id="moment-actions" class="moment-actions">
+        <button type="button" id="secondary-action" class="secondary" hidden></button>
+        <div class="action-spacer"></div>
+        <button type="button" id="primary-action" class="primary"></button>
+      </div>
     </div>
   </main>
 
   <footer class="product-footer">
     <span>Your guitar supplies the sound.</span>
-    <span>Session evidence · local only</span>
+    <span id="footer-context">Session evidence · local only</span>
   </footer>
 
   <script type="module" src="/product-spine-app.js"></script>

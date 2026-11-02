@@ -48,10 +48,15 @@ permanent generic Context framework, Learning Engine or broader engine abstracti
 
 ## Current active work
 
-There is **no active learner-facing implementation issue or PR** after Role Lens v0.
-Do not create runtime work merely to keep a queue active.
+**Issue #49 is the current bounded UI follow-up.** On 2026-11-02 Arun requested a
+fresh Product Design/Figma review and implementation without another design-approval
+stop. Refine the accepted Harmonic Gravity Instrument Desk and temporary playing
+Focus, remove repeated headings, retain keyboard focus and correct the transfer key
+boundary. Keep the accepted musical tasks, commitments, reveals and shared renderer.
+This branch requires `npm run verify` and an exact-head Pages PR preview. It records
+browser/software review only; it does not claim new physical-guitar acceptance.
 
-The active question is now the **5–10 fragment Style Study**, a research-only
+The **5–10 fragment Style Study** remains a research-only
 representation pressure test. Use a small, source-backed set of real musical ideas
 from one or two coherent artists/traditions and record for each fragment:
 
@@ -105,6 +110,8 @@ by a concrete learner/material need.
 
 ## Current PR / issue disposition
 
+- **Issue #49:** UI follow-up commissioned on 2026-11-02; implementation/preview work
+  continues on its own branch. No new theory, audio, framework or general router.
 - **PR #46 / Issue #45:** Role Lens v0 merged as
   `415605407252b4046fe36bc42b9af29043163517`; completed and physically accepted.
 - **PR #44 / Issue #43:** Product Spine v1 merged as `239d933`; completed.

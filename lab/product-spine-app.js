@@ -65,7 +65,9 @@ function motionNames(context) {
   };
 }
 function isTransferStage(stage = state.stage) { return stage.startsWith("transfer-") || stage === "reflect" || stage === "complete"; }
-function activeContext() { return isTransferStage() ? plan.transfer : plan.context; }
+// Preparing a transfer does not change the active key until the learner starts it.
+function activeContext() { return isTransferStage() && state.stage !== "transfer-setup" ? plan.transfer : plan.context; }
+function isPlayingFocus() { return state.mode === "practice" && ["play", "compare", "transfer-play", "transfer-compare"].includes(state.stage); }
 function currentMoment() {
   if (["play"].includes(state.stage)) return "play";
   if (["notice", "compare"].includes(state.stage)) return "notice";
@@ -96,11 +98,16 @@ function updateIntent() {
 }
 function updateMoments() {
   const moment = currentMoment();
-  $("practice-moments").hidden = state.mode !== "practice" || ["play", "transfer-play"].includes(state.stage);
-  for (const node of $("practice-moments").children) node.className = node.dataset.moment === moment ? "active" : "";
+  $("practice-moments").hidden = state.mode !== "practice" || isPlayingFocus();
+  for (const node of $("practice-moments").children) {
+    const active = node.dataset.moment === moment;
+    node.className = active ? "active" : "";
+    if (active) node.setAttribute("aria-current", "step");
+    else node.removeAttribute("aria-current");
+  }
 }
 function updateSharedHeader() {
-  const context = state.mode === "desk" ? activeContext() : activeContext();
+  const context = activeContext();
   $("key-label").textContent = keyName(context.key);
   updateIntent();
   updateMoments();
@@ -164,6 +171,7 @@ function renderRelationshipBoard(context) {
 }
 
 function renderOptionButtons(container, choices, selected, className, onChoose) {
+  const focusedValue = container.contains(document.activeElement) ? document.activeElement.dataset.value : null;
   const buttons = choices.map(({ value, label }) => {
     const button = document.createElement("button");
     button.type = "button";
@@ -175,6 +183,8 @@ function renderOptionButtons(container, choices, selected, className, onChoose) 
     return button;
   });
   container.replaceChildren(...buttons);
+  // A selection updates the same question; keep the keyboard on that choice.
+  if (focusedValue) buttons.find((button) => button.dataset.value === focusedValue)?.focus();
 }
 
 function renderDesk() {
@@ -201,14 +211,16 @@ function renderFocus({ transfer = false } = {}) {
   showOnly("focus-panel");
   const context = transfer ? plan.transfer : plan.context;
   $("focus-label").textContent = "Practice · Harmonic Gravity";
-  $("experience-label").textContent = "PLAY · Focus";
+  $("experience-label").textContent = "Harmonic Gravity";
   $("context-label").textContent = "";
-  $("stage-title").textContent = "";
+  $("stage-title").textContent = "Predict before the next chord";
   $("stage-lead").textContent = "";
   $("focus-prompt").textContent = transfer ? "Predict again before the next chord" : "Predict before the next chord";
+  $("focus-memory").textContent = "";
   $("focus-cue").textContent = `${context.chords.home.symbol} → ${context.chords.pressure.symbol} → silence`;
-  $("focus-instruction").textContent = "Play. Stop. Leave real silence. Form an expectation before trying an ending.";
-  setFeedback("Only the current musical cue stays visible while you play.");
+  $("focus-instruction").textContent = "Play. Stop. Leave real silence.";
+  $("focus-support").textContent = "Form an expectation before trying an ending.";
+  setFeedback("");
   setButton("secondary-action", { hidden: true });
   setButton("primary-action", { text: transfer ? "I'm ready to predict in A major" : "I'm ready to predict" });
   updateSharedHeader();
@@ -223,7 +235,6 @@ function renderNotice({ transfer = false } = {}) {
   $("context-label").textContent = `${keyName(context.key)} · stopped on ${context.chords.pressure.symbol}`;
   $("stage-title").textContent = "What do you expect next?";
   $("stage-lead").textContent = "";
-  $("response-heading").textContent = "What do you expect next?";
   renderOptionButtons($("response-options"), responseChoices, selected, "response-option", (value) => {
     if (transfer) state.transferSelection = value;
     else state.mainSelection = value;
@@ -236,19 +247,22 @@ function renderNotice({ transfer = false } = {}) {
 }
 
 function renderCompare({ transfer = false } = {}) {
-  setNormalHeader(true);
+  setNormalHeader(false);
   showOnly("focus-panel");
   const context = transfer ? plan.transfer : plan.context;
   const prediction = transfer ? state.transferPrediction : state.mainPrediction;
   const label = responseChoices.find(({ value }) => value === prediction)?.label ?? "your prediction";
+  $("focus-label").textContent = "Practice · Harmonic Gravity";
   $("experience-label").textContent = "Harmonic Gravity";
   $("context-label").textContent = `${keyName(context.key)} · committed prediction`;
   $("stage-title").textContent = "Now test the ending";
-  $("stage-lead").textContent = `You predicted: ${label}. The app does not mark that prediction right or wrong.`;
-  $("focus-prompt").textContent = "Play the ending before opening any labels";
+  $("stage-lead").textContent = "";
+  $("focus-prompt").textContent = "Now test the ending";
+  $("focus-memory").textContent = `You predicted: ${label}.`;
   $("focus-cue").textContent = `${context.chords.pressure.symbol} → ${context.chords.home.symbol}`;
-  $("focus-instruction").textContent = "Listen to the consequence. Compare it with the expectation you committed.";
-  setFeedback("Theory and target-note labels remain hidden until you confirm the physical comparison.");
+  $("focus-instruction").textContent = "Play the ending. Listen before opening any labels.";
+  $("focus-support").textContent = "Compare it with the expectation you committed.";
+  setFeedback("");
   setButton("secondary-action", { text: "Compare again from silence", hidden: false });
   setButton("primary-action", { text: "I played and listened" });
   updateSharedHeader();
@@ -264,7 +278,7 @@ function renderUnderstand({ transfer = false } = {}) {
   $("stage-title").textContent = transfer ? "The relationship survived new names" : "One small connection";
   $("stage-lead").textContent = transfer
     ? `You made a fresh prediction in ${keyName(context.key)} before seeing ${names.from} → ${names.to}.`
-    : "Roles appear after the physical and melodic comparison.";
+    : "Connect what you heard to one movement on the guitar.";
   renderRelationshipBoard(context);
   setFeedback("The chord roles and locations are engine-derived facts. The sense of home belongs to this listening comparison.");
   setButton("secondary-action", { hidden: true });
@@ -364,18 +378,36 @@ function render() {
   document.body.dataset.stage = state.stage;
   if (state.mode === "desk") renderDesk();
   else renderPractice();
+  const focus = isPlayingFocus();
+  document.body.dataset.view = focus ? "focus" : "desk";
+  $("moment-context").hidden = focus;
+  $("stage-title").hidden = focus;
+  $("stage-lead").hidden = focus || !$("stage-lead").textContent;
+  $("focus-memory").hidden = !$("focus-memory").textContent;
+  $("feedback").hidden = focus || !$("feedback").textContent;
+  $("desk-actions").hidden = focus;
+  $("footer-context").textContent = focus ? "Move on when you're ready." : "Session evidence · local only";
+  const actions = $("moment-actions");
+  const destination = $(focus ? "focus-actions" : "desk-actions");
+  if (actions.parentElement !== destination) destination.append(actions);
+}
+
+function focusCurrentStage() {
+  $(isPlayingFocus() ? "focus-prompt" : "stage-title").focus();
+  // A long Desk may have scrolled. Enter each moment with its context and exit visible.
+  $("product-header").scrollIntoView({ block: "start", behavior: "instant" });
 }
 
 function enterPractice() {
   state.started = true;
   state.mode = "practice";
   render();
-  $("stage-title").focus();
+  focusCurrentStage();
 }
 function returnToDesk() {
   state.mode = "desk";
   render();
-  $("stage-title").focus();
+  focusCurrentStage();
 }
 function resetPractice() {
   Object.assign(state, {
@@ -392,7 +424,7 @@ function resetPractice() {
     reflection: null,
   });
   render();
-  $("stage-title").focus();
+  focusCurrentStage();
 }
 function choosePrimary() {
   if (state.mode === "desk") return enterPractice();
@@ -416,7 +448,7 @@ function choosePrimary() {
     default: return;
   }
   render();
-  $("stage-title").focus();
+  focusCurrentStage();
 }
 function chooseSecondary() {
   if (state.stage === "notice") state.stage = "play";
@@ -426,7 +458,7 @@ function chooseSecondary() {
   else if (state.stage === "complete") return resetPractice();
   else return;
   render();
-  $("stage-title").focus();
+  focusCurrentStage();
 }
 
 $("primary-action").addEventListener("click", choosePrimary);

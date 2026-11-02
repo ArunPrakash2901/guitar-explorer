@@ -1,6 +1,17 @@
 # AGENTS.md
 
-## Current scope — post-Role-Lens Style Study
+## Current scope — Harmonic Gravity UI follow-up, Issue #49
+
+On 2026-11-02 Arun explicitly requested a fresh UI/Product Design/Figma review and
+implementation without another design-approval stop. Issue #49 bounds this branch:
+refine the accepted Instrument Desk/temporary playing Focus presentation, keyboard
+continuity and transfer context. Preserve musical tasks, reveal order, shared
+renderer, evidence semantics and all legacy routes. No new engine, router, audio,
+AI, CAGED, persistence or framework scope follows from this UI request. Complete
+`npm run verify` and publish an exact-head Pages PR preview. Do not claim physical
+evidence from browser automation. Existing preview-first merge rules still apply.
+
+### Standing post-Role-Lens direction and boundaries
 
 Read [`PROJECT_STATE.md`](PROJECT_STATE.md) first for the current operational focus,
 active work, waiting-on-Arun state and decision gate. For machine-readable recovery,
@@ -49,10 +60,11 @@ support genuinely different musical work. It is not permission to introduce a
 universal Exercise Recipe JSON/DSL, permanent generic Context/Constraint layer,
 general Learning Engine/router or broad new theory layer.
 
-There is **no active learner-facing implementation issue or PR** after Role Lens v0.
-Do not create runtime work merely to keep a queue active.
+The default after Role Lens v0 was research-only work. Issue #49 supersedes that
+default for the explicitly commissioned UI follow-up; it does not authorize other
+runtime work merely to keep a queue active.
 
-The current active task is a **research-only 5–10 fragment Style Study**. Use one or
+The **research-only 5–10 fragment Style Study** remains a separate task. Use one or
 two coherent artists/traditions and record, for each source-backed fragment:
 provenance, pitch structure, rhythm where supported, harmonic situation/roles,
 articulation/technique, guitar placement where known, transferable principle, what
