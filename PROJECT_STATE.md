@@ -8,117 +8,95 @@ machine-readable companion; `npm run context` prints it with revision metadata.
 ## North star
 
 Help Arun see the fretboard, hear relationships, follow harmony, create and develop
-short phrases, improvise and transfer ideas on his guitar. For substantial work,
-state what he will be able to hear, understand, find, play, improvise or transfer
-more reliably. Physical usefulness is the product signal; completion is not mastery.
+short phrases, improvise and transfer ideas on his guitar. Physical usefulness is the
+product signal; completion is not mastery.
 
 ## Accepted merged capability
 
 Merged master includes the deterministic engine through Phase 2D, existing Labs,
 ScenarioV1, bounded Melody generation, Phrase Foundation PR 1 (#41), Harmonic Gravity
-Product Spine v1 (#44), Role Lens v0 (#46), exact-head preview/verify/evidence tooling,
-and **Audio Out v0.5 (#48)**.
+Product Spine v1 (#44), Role Lens v0 (#46), Audio Out v0.5 (#48), exact-head
+preview/verify/evidence tooling, and now **Accompaniment v1 (#52)**.
 
-Issue #15 remains complete. Arun's acceptance of Harmonic Gravity / Practice Session,
-Parsimonious Path, Melody Over Harmony and Develop the Idea must not be repeated as an
-old blocker.
+Issue #15 remains complete. Do not repeat the old Harmonic Gravity, Parsimonious Path,
+Melody Over Harmony or Develop the Idea validation gates.
 
-Product Spine v1 is accepted: Instrument Desk, temporary PLAY Focus Mode, preserved
-musical context and PLAY → NOTICE → UNDERSTAND → TRANSFER changed how Arun listened,
-predicted, noticed and made a musical decision rather than merely following
-instructions.
+**Audio Out v0.5 is accepted.** It established learner-controlled tempo, native
+plucked-string playback, staggered chord strums and explicit single-note plucks while
+preserving prediction and real guitar use.
 
-Role Lens v0 is accepted: one supplied material supported distinct role-notice,
-phrase creation/variation and transfer actions without requiring a universal recipe
-schema, generic Context framework or Learning Engine.
-
-**Audio Out v0.5 is now accepted and merged.** Arun reviewed exact head
-`7c5a7415efa858cb4a3d3daacfbd93b0f3917f94` in the browser with his guitar and
-explicitly approved it. PR #48 merged as
-`3f1c8edd786202e93d9a12df6fd27217efa2c270`; Issue #47 is complete. Accepted Audio
-Out capability is intentionally bounded to learner-controlled tempo, native
-plucked-string playback, staggered chord strums and explicit single-note plucks. The
-learner's prediction and physical guitar remain central.
+**Accompaniment v1 is accepted and merged.** Arun approved exact head
+`5bf9f26d943e3860301ef9ff2ff21d514885e0d2`; PR #52 merged as
+`135a4589c57467c66472f86ab8a8463d9eeb7d10`; Issue #51 is complete. The accepted
+proof keeps harmony truth in the existing engine while a reusable accompaniment
+runtime owns editable tempo, per-chord bars and a small down/up/rest strumming plan.
+Arun also explicitly noted that the current accompaniment UI should receive a later
+Product Design/Figma refinement. That visual refinement is not a reason to move the
+runtime logic into exercise-specific code.
 
 ## Current active work
 
 Two independent tracks are active.
 
-### 1. Accompaniment v1 · Issue #51 / draft PR #52
+### 1. Looper v0 · Issue #53
 
-The next learner-facing slice is now commissioned.
+Goal: record one learner-created accompaniment pass, loop it locally, then improvise
+over the learner's own rhythm.
 
-Goal: turn one supplied progression into an editable accompaniment plan the learner
-can hear, modify and then play physically.
+The first proof reuses the accepted G-major `G → C → D7 → G` accompaniment context.
+The supplying accompaniment/exercise layer provides tempo, bars, pattern and capture
+duration. The looper itself does not parse or judge harmony.
 
-The first proof deliberately reuses the existing G-major material:
+Bounded v0 scope:
 
-`G → C → D7 → G`
+- browser `getUserMedia` + `MediaRecorder` only;
+- choose an audio input after permission where the browser exposes devices;
+- one four-beat count-in at the supplied tempo;
+- one bounded progression-length recording;
+- automatic stop at the supplied capture duration plus manual stop/cancel;
+- one local in-memory take at a time;
+- play once, loop, stop and discard/re-record;
+- use the loop as a backing context for a small existing Guitar Explorer improvisation
+  relationship;
+- explicit privacy boundary: no upload, transcription, pitch/chord/style grading or AI
+  audio judgment.
 
-Current bounded scope:
+### Reusable architecture boundary
 
-- 4/4 only;
-- tempo 50–140 BPM;
-- 1–4 bars independently for each chord;
-- one-bar eighth-note pattern with eight editable slots;
-- each slot is `down`, `up` or `rest`;
-- three starting patterns plus direct slot editing;
-- down/up events reuse the accepted Audio Out v0.5 renderer;
-- playback repeats the chosen pattern for each chord's configured bars;
-- the learner then stops playback and plays the same plan on guitar.
+These capabilities should be reusable across many exercises, but **not all belong in
+the deterministic music engine**:
 
-Architecture separation is mandatory:
+- **Music engine:** notes, intervals, chords, harmony, phrases and other deterministic
+  musical truth.
+- **Accompaniment runtime:** tempo, meter, bars-per-chord and strumming choices supplied
+  to playback. These are material/learner choices, not theory truth.
+- **Looper runtime:** microphone permission, count-in, supplied capture duration,
+  recorded-media lifecycle and loop playback. It must not know whether the learner
+  played the right notes or chords.
+- **Exercise/material layer:** supplies the musical context and decides when playback or
+  looping is pedagogically useful.
 
-- **Harmony truth** stays in the deterministic engine / supplied musical material.
-- **Accompaniment plan** owns meter, tempo, bars and strumming choices. These are not
-  deterministic theory truth.
-- **Audio renderer** renders the plan. It does not choose harmony or musical taste.
+This makes accompaniment and looping **product-native reusable capabilities** without
+polluting Core theory or baking them into one exercise.
 
-Explicitly out of scope for #51/#52: recording, loop capture, microphone analysis,
-performance grading, generalized transport/DAW/mixer architecture, swing/groove
-quality judgement, Style runtime, AI-generated accompaniment, persistence and new
-harmony theory.
+Explicitly out of scope for Looper v0: latency calibration, automatic trimming or beat
+correction, waveform editing, multitrack transport, effects/amp modelling, cloud
+storage/sharing, transcription, correctness grading and generalized DAW architecture.
 
 Merge gate: exact-head `npm run verify`, exact-head Pages preview, Arun browser +
-physical-guitar review, then explicit approval of that exact head.
+physical-guitar + microphone/audio-interface review, then explicit approval.
 
 ### 2. 5–10 fragment Style Study · research only
 
 The Style Study continues independently as a source-backed representation pressure
-test. For each fragment record source/provenance, pitch structure, supported rhythm,
-harmonic situation/roles, articulation/technique, guitar placement where known,
-transferable principle, current representability, missing representation and
-confidence/interpretation notes.
-
-The study must not be shaped to justify Accompaniment, Looper or Style runtime. Repeated
-real requirements may later justify one bounded representation addition; heterogeneous
-gaps are evidence to keep material flexible.
-
-## Planned next slice after Accompaniment v1
-
-Only if Accompaniment v1 is physically useful and accepted:
-
-**Looper v0** may separately test count-in, input-device choice, one bounded learner
-recording, re-record, loop playback and improvisation over the learner's own
-accompaniment.
-
-Recorded learner audio is media/observation, not deterministic proof of correctness.
-Looper v0 does not automatically authorize pitch grading, transcription, effects,
-cloud storage or a DAW.
-
-## Gated follow-ups
-
-Audio In remains later and experimental. A first spike should stop at permission /
-input level, onset and stable monophonic pitch, preserving uncertainty in an
-`AudioObservation` rather than converting perception into certain correctness.
-
-Phrase/Harmony PR 2, broad meter/groove/articulation/polyphony promotion,
-voicing/fingering promotion, broad AI/agent work, Style runtime and GX-10/rig control
-remain gated by concrete learner/material needs.
+test. It must not be shaped to justify Looper, Audio In or Style runtime. Repeated real
+requirements may later justify one bounded representation addition.
 
 ## Current PR / issue disposition
 
-- **PR #52 / Issue #51:** Accompaniment v1 active and draft; review/merge gate pending.
+- **Issue #53:** Looper v0 active; implementation branch `feat/looper-v0`.
+- **PR #52 / Issue #51:** Accompaniment v1 merged as
+  `135a4589c57467c66472f86ab8a8463d9eeb7d10`; physically/browser accepted.
 - **PR #48 / Issue #47:** Audio Out v0.5 merged as
   `3f1c8edd786202e93d9a12df6fd27217efa2c270`; physically/browser accepted.
 - **PR #46 / Issue #45:** Role Lens v0 merged and physically accepted.
@@ -130,13 +108,11 @@ remain gated by concrete learner/material needs.
 ## Review and verification
 
 Use `npm run verify` as the authoritative full repository gate for implementation.
-Learner-facing runtime work requires the exact-head Pages preview and Arun's explicit
-browser/physical-guitar approval before merge.
+Learner-facing runtime work requires an exact-head Pages preview and Arun's explicit
+physical/browser approval before merge.
 
-The Style Study is research and has no learner-facing merge gate by itself.
-
-Keep musical truth, accompaniment choice, task compliance, audio perception, AI
-proposals and subjective musical judgment separate.
+Keep musical truth, accompaniment choice, recorded media, audio perception, task
+compliance, AI proposals and subjective musical judgment separate.
 
 ## Where decisions live
 
@@ -148,6 +124,5 @@ proposals and subjective musical judgment separate.
 - Research artifacts: input, not implementation authorization.
 
 `AGENTS.md` and `docs/AUTONOMY_CONTRACT.md` define execution boundaries;
-`docs/ARCHITECTURE.md` defines architecture, and the physical protocol applies to new
-trials. Keep the control layer small; add no other planning system or invented
-deadlines.
+`docs/ARCHITECTURE.md` defines architecture. Keep the control layer small and avoid
+inventing a second planning system.
