@@ -7,7 +7,7 @@ import {
 } from "/engine/index.js";
 import { createPracticePlan } from "/practice-session.mjs";
 import { createAudioOut } from "/audio-out.mjs";
-import { harmonicGravityPromptCue } from "/audio-cues.mjs";
+import { DEFAULT_AUDIO_BPM, harmonicGravityPromptCue } from "/audio-cues.mjs";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {
@@ -39,12 +39,21 @@ function setStatus(text) {
   $("product-audio-status").textContent = text;
 }
 
+function currentTempo() {
+  const bpm = Number($("product-audio-tempo").value);
+  return Number.isFinite(bpm) ? bpm : DEFAULT_AUDIO_BPM;
+}
+
+function syncTempoLabel() {
+  $("product-audio-tempo-value").value = `${currentTempo()} BPM`;
+}
+
 async function playPrompt() {
   const context = activeContext();
-  const key = `${formatNote(context.key.tonic)} ${context.key.mode}`;
+  const bpm = currentTempo();
   try {
-    const result = await audio.play(harmonicGravityPromptCue(context, transposePitch));
-    setStatus(`Playing ${context.chords.home.symbol} → ${context.chords.pressure.symbol}. After ${result.durationSeconds.toFixed(1)}s, keep the silence and form your own expectation.`);
+    const result = await audio.play(harmonicGravityPromptCue(context, transposePitch, { bpm }));
+    setStatus(`Strumming ${context.chords.home.symbol} → ${context.chords.pressure.symbol} at ${bpm} BPM with the plucked-string voice. After ${result.durationSeconds.toFixed(1)}s, keep the silence and form your own expectation.`);
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Audio could not start in this browser.");
   }
@@ -55,6 +64,8 @@ function stopPrompt() {
   setStatus(stopped ? "Audio stopped. Your prediction is unchanged." : "No app audio is currently sounding.");
 }
 
+$("product-audio-tempo").addEventListener("input", syncTempoLabel);
 $("product-audio-play").addEventListener("click", playPrompt);
 $("product-audio-stop").addEventListener("click", stopPrompt);
+syncTempoLabel();
 globalThis.addEventListener?.("pagehide", () => audio.stop());
