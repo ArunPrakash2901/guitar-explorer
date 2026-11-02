@@ -1,5 +1,7 @@
 import {
   STANDARD_FRETBOARD,
+  getNoteAt,
+  pitchFromSemitone,
   formatNote,
   musicQueries,
   toSemitone,
@@ -7,6 +9,7 @@ import {
 } from "/engine/index.js";
 import { createPracticePlan } from "/practice-session.mjs";
 import { createAudioOut } from "/audio-out.mjs";
+import { buildGuitarPerformanceCue } from "/guitar-performance.mjs";
 import {
   ACCOMPANIMENT_ACTIONS,
   ACCOMPANIMENT_PRESETS,
@@ -138,9 +141,14 @@ function applyPreset(id) {
 async function playAccompaniment() {
   try {
     const plan = currentPlan();
-    const cue = buildAccompanimentCue(plan, transposePitch);
+    const useGuitarPositions = $("guitar-position-playback").checked;
+    const cue = useGuitarPositions
+      ? buildGuitarPerformanceCue(plan, {
+        board: STANDARD_FRETBOARD, getNoteAt, pitchFromSemitone, toSemitone, transposePitch,
+      })
+      : buildAccompanimentCue(plan, transposePitch);
     const result = await audio.play(cue);
-    setStatus(`Playing ${progression.map(({ symbol }) => symbol).join(" → ")} at ${plan.bpm} BPM · ${result.eventCount} strums · ${result.durationSeconds.toFixed(1)}s rendered.`);
+    setStatus(`Playing ${useGuitarPositions ? "curated guitar positions" : "abstract chord tones"} (native synth) · ${progression.map(({ symbol }) => symbol).join(" → ")} at ${plan.bpm} BPM · ${result.eventCount} strums · ${result.durationSeconds.toFixed(1)}s rendered.`);
   } catch (error) {
     setStatus(error instanceof Error ? error.message : "Accompaniment could not start in this browser.");
   }
@@ -160,6 +168,7 @@ for (const button of document.querySelectorAll("[data-preset]")) {
   button.addEventListener("click", () => applyPreset(button.dataset.preset));
 }
 
+$("guitar-position-playback").addEventListener("change", () => { audio.stop(); updateSummary(); });
 $("accompaniment-play").addEventListener("click", playAccompaniment);
 $("accompaniment-stop").addEventListener("click", stopAccompaniment);
 globalThis.addEventListener?.("pagehide", () => audio.stop());
