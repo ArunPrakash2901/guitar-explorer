@@ -1,482 +1,438 @@
 # Guitar Explorer architecture
 
-This is the current source of truth for product architecture and engine boundaries.
-It distinguishes implemented capabilities from the agreed Product Spine direction.
-The Product Spine is documented, not implemented: there is no shared application
-workspace, Experience Router or extracted Practice Policy module yet. This
-consolidation authorizes no runtime restructuring. The later, explicitly approved
-Phrase Foundation PR 1 scope is recorded below; other capability breadth remains
-deferred.
+This document defines the **durable product and software boundaries** for Guitar Explorer. It is not the current-work queue. Read `PROJECT_STATE.md` / `project-state.json` for active issues, PRs and approval gates.
 
-The approved engine architecture supersedes the v0.2 handoff's combined `src/music`
-layout and UI-first kickoff. `PRODUCT_SPEC.md` and `V0_2_PLAN.md` preserve historical
-product requirements and implementation order; they do not authorize their old
-Explore/Navigate/Harmony modes, telemetry, CAGED or React migration. `DECISIONS.md`
-records the decision history, `LEARNING_MODEL.md` describes practice principles,
-and `TEST_MATRIX.md` distinguishes current verification from historical targets.
+## Product definition
 
-## Product Spine — agreed direction, not yet implemented
+Guitar Explorer is a fretboard-first musical reasoning and practice environment that helps a guitarist hear relationships, understand their role, locate them physically, manipulate them, create with them, improvise and transfer them into new contexts.
 
-Guitar Explorer is a **fretboard-first musical reasoning environment that helps
-the guitarist see musical relationships they currently cannot see, hear those
-relationships, physically locate them, manipulate them, and reuse them in real
-music**. It is not primarily a course app.
+It is not primarily a course app and should not become a generic theory app, tab player, DAW, transcription system, AI guitar judge or architecture showcase.
 
-One shared musical workspace has three primary user intentions:
+The core design question is always:
 
-| Intention | Organizing question | Responsibility |
-|---|---|---|
-| **Explore** | What relationships are here? | Broad, permissive inspection: reveal, compare and manipulate notes, chords, roles and regions. Open fretboard vision has no curriculum lock. |
-| **Practice** | Can I retrieve and use this relationship independently? | Deliberate constraints, answer withholding, repetition, support, remediation and transfer. Practice Policy applies here. |
-| **Apply** | What can I understand and do with this musical material? | Begin with selected material, such as a progression, chord or fragment; expose useful relationships, chord-tone connections and target-note paths. Later style knowledge and audio can support this work. |
+> What can the learner hear, understand, find, play, create, improvise or transfer more reliably after this experience?
 
-These intentions belong to one application. A handoff should preserve the musical
-question rather than restart an unrelated Lab. Apply describes an intention; it
-does not mean arbitrary song/progression entry, import or generated licks already
-exist. There is no arbitrary AI lick-generation direction.
+## Current implemented baseline
 
-The initial shared context should preserve selected material, explicit key,
-selected scale and current chord where relevant, region, focus and active intent.
-Key, selected scale and chord remain independent existing engine concepts. The
-workspace need not contain every activity's internal state or a learner model.
+Merged `master` has established the following durable capabilities:
 
-### Experience Router — planned application responsibility
-
-Use a small **Experience Router** to preserve selected musical context, understand
-Explore/Practice/Apply intent, select compatible existing capabilities, prepare
-material through the appropriate service, and preserve explicit handoff context.
-Unsupported combinations and preparation/generation failures must be clear
-outcomes. Practice launches apply the activity's Practice Policy.
-
-The router must not own musical truth, chord/scale derivation, generator grammar,
-activity state machines, style taste, learner mastery, fretboard geometry, playback
-scheduling or subjective musical grading. Existing activity plans may retain their
-own shapes; a universal workflow engine or generic stage schema is unnecessary.
-
-### Practice Policy — planned boundary around explicit Practice
-
-The previously discussed Pedagogical Governor becomes **Practice Policy inside
-explicit Practice experiences**. It may specify the target relationship, variables
-held constant, allowed variation, support, answer visibility, objective checks,
-repetition, remediation and transfer. Existing sessions currently distribute these
-decisions across their planners and page handlers; no policy framework is implied.
-
-Explore and Apply remain accessible without XP, levels, unlock trees or mandatory
-global prerequisite gates. Apply may offer a deliberate Practice handoff around
-the selected relationship. Exploration need not adopt an assessment reveal sequence.
-
-Universal musical validity, exercise compliance and musical judgment are separate.
-A real chord can miss a minimum-movement constraint while remaining harmonically
-correct. Assistance must remain visible in evidence; a screen selection does not
-establish that a note was heard, sung or played correctly. Subjective musical
-responses and reflections remain ungraded.
-
-## Implemented system and dependency direction
-
-| Capability | Current status |
+| Capability | Architectural status |
 |---|---|
-| Music Core, Guitar and `musicQueries` | Implemented deterministic foundation through Phase 2D. |
-| Exact musical time and monophonic Phrase | Phrase Foundation PR 1: pure Core values/operations and eight additive queries; no consumer migration. |
-| Chord, Practice/Harmony, Parsimonious Path, Melody and Motif Labs | Implemented browser consumers with separate page/session state and ephemeral evidence. |
-| Fretboard UI v2 | Implemented shared rendering surface; consumers own theory adaptation and disclosure. |
-| ScenarioV1, catalogue and resolver | Implemented bounded Melody/Motif material preparation. |
-| Rule Generator V1 | Implemented Melody-only material source; current generator provenance is version 2. |
-| Melody preparation seam (`prepareMelodyExperience`) | Implemented DOM-free seam proving material preparation and source convergence before page control. |
-| Shared workspace, three-intention navigation, general Experience Router, extracted Practice Policy | Agreed architecture only; not implemented. |
-| Audio, Ear, learner model, persistent learning history, style knowledge | Future boundaries; no placeholder implementation. |
+| Music Core + Guitar + `musicQueries` | Implemented deterministic foundation through Phase 2D. |
+| Exact musical time + monophonic Phrase | Implemented by Phrase Foundation PR 1; pure, additive and consumer-independent. |
+| Existing Labs / ScenarioV1 / bounded Melody generation | Implemented validation and learner-experience infrastructure. ScenarioV1 remains Melody/Motif-local, not universal. |
+| Product Spine v1 / Harmonic Gravity | Implemented and physically accepted: Instrument Desk, temporary PLAY Focus Mode, staged disclosure, tiny phrase use and transfer. |
+| Role Lens v0 | Implemented and physically accepted: one supplied material supports distinct learner actions without a universal recipe/context framework. |
+| Audio Out v0.5 | Implemented and physically accepted: learner-controlled tempo, native plucked-string playback, staggered strums and explicit single-note plucks. |
+| Accompaniment v1 | Implemented and physically accepted: supplied harmony plus bounded tempo, bars-per-chord and down/up/rest strumming choices. |
+| Guitar Performance placement | Experimental/review layer above accepted accompaniment; not automatically permanent until learner evidence supports it. |
+| Sample-backed acoustic rendering | Experimental/review renderer; not a general sampler or tone system. |
+| Precise learner looper | Not implemented. Earlier MediaRecorder prototype is reference UX only. |
+| Style runtime, AI runtime, learner model, backend persistence | Not implemented; explicitly deferred pending concrete learner need. |
 
-```mermaid
-flowchart TD
-  Pages[Existing Lab pages and activity state] --> Query[musicQueries]
-  Query --> Core[Music Core]
-  Query --> Guitar[Guitar geometry]
-  Guitar --> Core
-  Pages --> Planner[Existing activity planners]
-  Planner --> Query
-  Pages --> Generator[Melody generator v2]
-  Generator --> Resolver[ScenarioV1 resolver]
-  Catalogue[Scenario catalogue] --> Resolver
-  Resolver --> Query
-  Resolver --> Material[Frozen runtime material]
-  Material --> Planner
-  Pages --> View[Shared fretboard renderer]
+## Dependency direction
+
+The preferred dependency direction is:
+
+```text
+Learner experience / page
+        ↓
+activity material + learner action
+        ↓
+queries / guitar placement / accompaniment choices
+        ↓
+Music Core + Guitar geometry
+
+optional presentation consumers:
+visual fretboard / native audio / sampled audio
 ```
 
-Arrows show consumption/preparation dependencies. The engine imports no consumer.
-The simplified diagram omits the page-level adapters that unwrap query results.
-Not every activity uses ScenarioV1.
+Musical truth flows outward. Browser/audio/learner code must not become a second source of musical truth.
 
-- **Core:** written notes, sounding pitches, intervals, formulas, collections and
-  context, exact quarter lengths and monophonic phrases. Pure and
-  instrument-independent; no browser, storage or learner state.
-- **Guitar:** tuning, physical string order and bounded geometry over Core.
-  CAGED, 3NPS and other later views sit above this geometry.
-- **Musical Query Interface:** validated JSON-compatible facts from Core + Guitar.
-  No playback commands, exercise sessions, mastery, history or persistence.
-- **Lab services and activities:** bounded material preparation and teaching
-  procedures consuming existing queries. These are not a production Learning Engine.
-- **Presentation:** consumers supply prepared positions, labels, selection and
-  connections to the shared fretboard; rendering derives no musical truth.
+One TypeScript package and ordinary module boundaries remain sufficient. No service split, backend, dependency-injection container, plugin framework or framework migration is justified by current needs.
 
-One TypeScript package and ordinary module boundaries remain sufficient. No backend,
-service split, plugin system, dependency-injection container or theory DSL is needed.
-UI framework migration is deferred; choosing React/Vite is not the next task.
+## 1. Music Core
 
-## Material preparation and ScenarioV1
+Core owns instrument-independent deterministic musical values and pure operations, including:
 
-Material representation and teaching procedure remain separate. Ordinary Explore
-inspection may use `musicQueries` directly; it does not require a scenario or
-session. Apply may later use other material representations appropriate to the
-selected music. ScenarioV1 is not Guitar Explorer's universal data model.
+- written notes and accidentals;
+- registered pitches and sounding semitones;
+- intervals and formulas;
+- scales/collections and chord formulas;
+- conventional major/natural-minor diatonic harmony already implemented;
+- exact rational musical time;
+- immutable monophonic Phrase values and pure phrase operations.
 
-`ScenarioV1` remains a Lab-local contract for compatible Melody/Motif exercises:
+Core must not own:
 
-- Spelled major keys for main and transfer contexts; three or four diatonic chord
-  degrees, with triads or sevenths. Core's wider scale/key support does not expand it.
-- Explicit main/transfer regions using string indices 0–5 and frets 0–15; declared
-  chord-role targets and a later arrival must resolve within both chosen regions.
-- Melody has an upward diatonic-step approach and two phrase-lead notes ascending
-  into the target. Motif has rise-return cells plus an interval-preserving sequence.
-- The resolver derives facts through queries and checks supported chord roles,
-  exact spelled locations, registered motion and transfer invariance. Existence in
-  a bounded region is not a general fingering or physical-playability assessment.
-- Descriptive difficulty is not adaptation. No rhythm, articulation, style grammar,
-  song analysis, aesthetic grading, learner state or playback is represented.
+- guitar fingering;
+- playback;
+- learner state;
+- exercise stages;
+- accompaniment taste;
+- style interpretation;
+- audio observations;
+- subjective musical quality.
 
-The plain scenario specification is serializable. Its resolved, frozen runtime
-bundle includes query closures such as `at`, `tone` and `locate`; it is not a
-persistable workspace document. A resolved scenario must also be compatible with
-its activity: the current Melody interaction selects/evaluates on the target
-string, so broader target/arrival string combinations represented by the schema
-are not a promise of UI support. Preserve supported catalogue/generated choices.
-See `SCENARIO_V1.md` for the detailed contract.
+“Deterministic” means deterministic computation from supplied inputs/assumptions. It does not make an uncertain human analysis of key, style or tonic automatically true.
 
-### Implemented Melody generation
+## 2. Guitar geometry
 
-Rule Generator V1 proposes ScenarioV1 Melody material, validates it through the
-resolver, applies bounded material preferences and returns the accepted scenario,
-resolved bundle and provenance to the existing Melody session. It generates no
-Motif material and does not teach or evaluate a learner. Material scores do not
-measure mastery or aesthetic quality.
+Guitar owns instrument-specific physical geometry over Core:
 
-The generator's supported region policy is narrower than ScenarioV1: target and
-arrival use high E (index 5); the first phrase-lead note uses B (4) or high E (5).
-Main/transfer windows derive independently from their target locations. Difficulty
-changes approved key pools, not arbitrary strings or caller-selected regions.
+- tuning;
+- string order;
+- fret positions;
+- note-at-position and location queries;
+- bounded physical geometry explicitly required by learner tasks.
 
-Current provenance reports `generatorVersion: 2`; the Rule and Scenario contracts
-remain V1. Fixed-order seeded Fisher–Yates selection and pinned fixtures protect
-replay with the same rule, difficulty, seed, generator version and unchanged
-engine/query facts and ordering. Version-1 seeded outputs are not preserved.
-Distinct-generation exhaustion preserves accepted material and the active session,
-shows a recoverable failure, and never falls back to unrestricted generation.
-See `RULE_GENERATOR_V1.md` for the exact policy, budgets and replay contract.
+Playable voicing choices, fingering strategy, CAGED, 3NPS and ergonomic search are **not automatically Core/Guitar truth**. They should remain local/curated until repeated learner needs justify promotion.
 
-## Musical values and context
+## 3. Musical Query Interface
 
-NoteName is letter plus integer accidental; Pitch adds scientific octave.
-Sounding semitone numbers use C4=60 and are derived from spelling/register.
-B#3 and C4 sound alike but retain distinct written identities.
+`musicQueries` exposes validated JSON-compatible facts derived from Core + Guitar.
 
-Intervals retain signed letter and semitone displacement. Formula tones retain
-actual degree and alteration relative to major/perfect intervals. Catalog requests
-select a formula; resolved results include that formula and every derived tone.
+It may expose deterministic musical relationships and locations. It must not expose:
 
-Key, selected scale (with its own tonic), and current chord are independent.
-Key-relative alteration and formula alteration are different measurements.
-Sounding membership and exact spelling membership are reported separately.
-See API.md for unison, spelling-precedence and numeric/resource conventions.
+- playback commands;
+- session/mastery state;
+- learner history;
+- subjective style judgments;
+- probabilistic microphone detections as certain facts.
 
-## Implemented key relationships — Phase 2A
+Future evidence/history queries, if ever justified, belong outside the musical query surface.
 
-Conventional signatures are located on a signed fifths axis from C major. Minor
-keys reach that axis through their relative major. Alterations are generated in
-conventional order from the fifths count; the engine does not store a table of
-finished signatures for every key.
+## 4. Musical material and learner action
 
-Relative keys and clockwise/counterclockwise fifths neighbors are constructed by
-spelled interval transposition and retain the relationship interval in their
-results. These relationships remain available outside the conventional signature
-range, while signature and composed-profile requests beyond seven sharps/flats
-return UNSUPPORTED. No key is inferred from unordered notes or a progression.
+The accepted learner evidence supports this conceptual separation:
 
-## Implemented scale breadth and context — Phase 2B
+```text
+Musical material → learner action → learner experience
+```
 
-Scale formulas now include harmonic minor, ascending melodic minor, major/minor
-pentatonic, minor blues and the remaining five major-scale modes. Formula identity
-remains structured as `{ degree, alteration }`; minor blues deliberately declares
-both flat-five and perfect-five references for written degree 5.
+One supplied material can support different useful actions: prediction, role noticing, locating, phrase creation, variation and transfer.
 
-Selected-scale analysis is generalized independently from key analysis. A queried
-written degree may have exactly one formula reference, no formula reference, or
-multiple formula references. Scale relations therefore expose `referenceStatus`,
-ordered `degreeReferences`, nullable `alterationFromScale`, and pitch-class-based
-`matchingTones`. This preserves the distinction between written identity and
-sounding membership without forcing pentatonic or blues collections into a
-seven-degree assumption.
+This does **not** require one universal runtime schema.
 
-Key analysis remains major/natural-minor and seven-note by design. Broad harmonic
-interpretation and functional analysis remain deferred.
+Existing material contracts may remain bounded to the experiences that need them. Do not introduce a universal Exercise Recipe DSL, permanent generic Context/Constraint object or Learning Engine merely to unify shapes.
 
-## Implemented chord catalogue and Lab planning — Phase 2C
+Use the smallest representation that preserves the facts required by the current learner action.
 
-Core declares all 35 approved formulas in `CHORD_FORMULAS`. Catalogue metadata is
-limited to identity and presentation fields, and catalogue construction attaches
-the exact formula object rather than redeclaring theory. The public
-`getChordCatalog({})` query returns frozen families and entries in deterministic
-order through the existing version-1 envelope.
+## 5. Product Spine and experience structure
 
-Chord formulas retain their abstract compound roles. A chordal 9, 11 or 13 keeps
-its compound degree and canonical interval even when a chosen guitar location lies
-within a simple octave of the root anchor. The Lab asks `getInterval` for the two
-registered pitches and presents that played interval as a separate fact. This is
-also the boundary between an abstract chord collection and a later concrete voicing.
+The implemented Instrument Desk provides a shared workspace direction. Temporary Focus Mode is appropriate while the learner is physically playing.
 
-The Lab planner is a pure consumer with injected randomness. It chooses permitted
-material and a formula role, derives valid locations through Guitar queries, samples
-an actual result, derives a containing window and freezes the complete plan.
-Transfers preserve quality and exact degree/alteration identity on a different root.
-Collections of at most four tones are reconstructed completely; longer formulas use
-at most four structural roles while the complete formula remains visible and
-authoritative. No inversion, fingering or voicing model is implied.
+The durable interaction principles are:
 
-## Implemented diatonic harmony — Phase 2D
+- preserve the musical question and relevant context;
+- prediction before explanation where appropriate;
+- keep answers withheld until the learner has made the intended attempt;
+- connect hearing to physical location/use;
+- include transfer rather than stopping at identification;
+- keep subjective reflections ungraded;
+- avoid global curriculum locks, XP trees or mastery assumptions.
 
-`buildDiatonicHarmony` is pure Core. An explicit major/minor key selects the major
-or natural-minor scale; stacking its written degrees constructs seven triads or
-sevenths. Matching those exact spellings and stack roles against the authoritative
-chord formulas supplies canonical `Chord` identities. No per-key chord-answer table
-or second formula authority is introduced.
+There is currently **no general Experience Router or extracted Practice Policy framework**. Existing experiences may keep local planners/state. Introduce a shared router/policy only after repeated real duplication demonstrates value.
 
-`getDiatonicHarmony` returns the copied key, chord size and ordered degree entries
-through the existing query envelope. Each entry contains a complete chord and a
-frozen Roman identity derived from degree plus actual chord quality. This is
-structural identity, without tonic/predominant/dominant classification, cadence,
-resolution or progression claims. Minor requests never silently raise degree 7.
+## 6. Guitar Performance boundary
 
-Practice Session v0 consumes this query and existing Guitar queries through one
-frozen, curated G-major lesson plan. Three relevant retrieval prompts precede
-Harmonic Gravity: physical context, perceived consequence, committed prediction,
-contrasting outcomes, and one melodic response before theory compression. One
-explanatory relationship, a two-note phrase, A-major transfer and reflection
-complete the connected session. No full chord-construction drill is embedded.
+A chord or pitch collection is not automatically a guitar performance.
 
-The focused Harmony route and Practice Session serve the same page and app, using
-the same lesson content. Harmony omits the retrieval warm-up. Physical locations
-and explanatory notes derive from existing queries. The original Chord Lab remains
-a separate tool. Curated home/pressure descriptions are lesson interpretations of
-these chosen examples, not a new musical-truth function/cadence/progression API.
-There is no generic Practice/Learning Engine, persistence, automatic scheduler or
-performed-voicing evaluator. The guitar supplies the sound; the app cannot verify it.
+Where needed, a Guitar Performance layer may map supplied musical material to curated physical events such as:
+
+- string/fret positions;
+- muted strings;
+- attack order/direction;
+- per-string attack timing;
+- bounded release/velocity choices.
+
+This layer sits **above** deterministic chord/pitch truth. A playable voicing must be checked against musical truth but does not redefine it.
+
+Do not promote current curated G/C/D7 placement into a universal voicing/fingering engine without repeated need.
+
+## 7. Accompaniment boundary
+
+Accompaniment owns bounded practice/performance choices over supplied harmony, such as:
+
+- tempo;
+- meter for the supplied exercise;
+- bars per chord;
+- subdivision/pattern choices;
+- down/up/rest strumming actions.
+
+These are not Music Core truths.
+
+The accepted Accompaniment v1 intentionally uses one supplied progression and a small 4/4 eighth-note pattern. It proves the boundary; it does not authorize a general sequencer, transport, groove engine or backing-track system.
+
+Musical time and audio seconds remain distinct. Convert to audio scheduling only at the presentation boundary.
+
+## 8. Audio Out
+
+Audio Out is a presentation consumer of already prepared musical/performance events.
+
+Its responsibilities may include:
+
+- scheduling on the Web Audio clock;
+- rendering single pitches and chord/performance attacks;
+- stopping/restarting playback;
+- selecting between bounded rendering implementations where explicitly authorized.
+
+It must not:
+
+- select harmony;
+- infer style;
+- decide learner correctness;
+- own exercise sequencing;
+- become a DAW/mixer.
+
+Native Web Audio is the baseline technology.
+
+A small sample-backed instrument is acceptable when:
+
+- source/license/provenance are clear;
+- only the needed asset set is included;
+- it serves a concrete learner/listening question;
+- a broader sampler architecture is not smuggled in.
+
+A minimal common interface such as `play(performanceEvents)` / `stop()` may be introduced only if actual renderer reuse earns it. Do not build a plugin system around it.
+
+Tone/amp modelling is not on the critical path. Acoustic samples should not be used as a pretext to build an amp simulator. Revisit tone only with an appropriate clean/DI source and a concrete learner purpose.
+
+## 9. Audio In and looper boundary
+
+Audio capture/perception has a different epistemic status from deterministic music facts.
+
+Preserve:
+
+```text
+AudioObservation ≠ MusicalFact ≠ ExerciseCompliance ≠ HumanJudgment
+```
+
+The earlier MediaRecorder looper prototype proved useful interaction ideas but did not establish a precise musical timing architecture.
+
+A future precise looper should be separately scoped around:
+
+```text
+Accompaniment timing
+      ↓
+shared AudioContext clock
+      ↓
+count-in / capture boundary
+      ↓
+AudioWorklet fixed-frame PCM capture
+      ↓
+AudioBuffer loop playback
+```
+
+Required proof before promotion:
+
+- exact/fixed capture length;
+- stable repeated loop duration without accumulating drift;
+- acceptable loop seam behavior;
+- real microphone/interface input-latency observations.
+
+Frame-accurate buffer length does not imply latency-free player alignment. Do not silently auto-correct or grade performances.
+
+No multitrack DAW, waveform editor, cloud audio storage, automatic beat correction, transcription or AI audio judgment is implied.
+
+## 10. Style research and provenance
+
+Style research is currently a source-backed representation pressure test.
+
+For external musical material, preserve enough provenance to distinguish:
+
+- source/documented observation;
+- supplied analytical assumption;
+- deterministic derived fact;
+- human/AI interpretation;
+- pedagogical use.
+
+Do not force every internal note/chord object to carry provenance when it is unnecessary. Attach provenance where source-backed/uncertain material requires it.
+
+Repeated representation needs may justify one bounded extension such as timed harmony, articulation, polyphony or phrase-level placement. One difficult fragment does not justify a framework.
+
+Style knowledge may propose/select material and interpretations; it never redefines Music Core truth.
+
+## 11. AI boundary
+
+AI may be useful for research, extraction, proposal, transformation, explanation, comparison and conversational guidance.
+
+AI output must remain distinguishable from:
+
+- deterministic musical computation;
+- verified source observations;
+- learner performance evidence;
+- subjective human musical judgment.
+
+Do not build a broad AI tutor/runtime until a concrete learner action demonstrates that existing deterministic/material boundaries are insufficient.
+
+## 12. Validation and evidence
+
+`npm run verify` is the authoritative repository gate.
+
+Learner-facing/new-phase/audio-facing work also requires exact-head GitHub Pages preview and Arun's explicit physical/browser approval before merge where the issue requires it.
+
+Physical evidence is descriptive. Do not convert hesitation, retries, timing or self-report into a mastery score unless a future explicitly authorized learning model defines that interpretation.
+
+Session Evidence remains local-only validation tooling, not telemetry or a learner database.
+
+## 13. Deployment boundaries
+
+- `preview`: automatically published exact-head PR review surface.
+- `experimental`: opt-in/non-production.
+- `stable`: reserved and explicitly controlled; not automatically published.
+
+Do not add another host, production deployment, account system or backend merely for convenience.
+
+## 14. Detailed implemented contracts that remain normative
+
+The control-plane cleanup must not erase established lower-level contracts. The following details remain part of the architecture unless their dedicated contract documents are explicitly superseded.
+
+### ScenarioV1 and material preparation
+
+ScenarioV1 remains a **Lab-local** contract for compatible Melody/Motif exercises, not Guitar Explorer's universal data model.
+
+It preserves:
+
+- explicit main/transfer keys and bounded guitar regions;
+- declared chord-role targets and arrivals that must resolve in the supplied regions;
+- activity-specific Melody and Motif structures;
+- query-derived spelling/location/interval facts;
+- transfer invariance checks;
+- a distinction between physical existence in a region and general fingering/playability.
+
+The plain scenario is serializable; the resolved runtime bundle may contain query closures and is not a persistable workspace document. See `SCENARIO_V1.md` for the exact contract.
+
+`prepareMelodyExperience(...)` remains a Melody-specific DOM-free preparation seam that converges approved catalogue and generated sources before the existing Melody plan. It does not authorize a general Experience Router.
+
+### Rule Generator V1
+
+Rule Generator V1 proposes Melody ScenarioV1 material only. It validates through the resolver, applies bounded preferences and returns provenance with the accepted material.
+
+Generator provenance/versioning, deterministic seeded ordering, pinned replay fixtures, bounded generation budgets and explicit exhaustion behavior remain normative. No silent fallback to unrestricted generation is allowed. See `RULE_GENERATOR_V1.md` for exact behavior.
+
+### Musical values and context
+
+- Note identity preserves spelling separately from sounding equivalence.
+- Pitch adds register; sounding semitone numbers are derived, not the identity itself.
+- Intervals retain signed letter/semitone displacement.
+- Formula tones retain actual degree and alteration.
+- Key, selected scale and current chord remain independent context concepts.
+- Key-relative alteration and formula alteration are distinct.
+- Sounding membership and exact spelling membership are reported separately.
+
+See `API.md` for detailed numeric/resource conventions and public query semantics.
+
+### Phase 2A — key relationships
+
+Conventional signatures derive from a fifths-axis model; minor reaches that axis through relative major. Relative keys and fifths neighbours retain spelling-aware interval relationships.
+
+Signature/profile requests beyond the supported conventional range remain unsupported. The engine does not infer a unique key from unordered notes or a progression.
+
+### Phase 2B — scale breadth/context
+
+Implemented scale formulas include harmonic minor, ascending melodic minor, major/minor pentatonic, minor blues and the remaining major-scale modes.
+
+Selected-scale analysis preserves written-degree evidence separately from sounding pitch-class membership, including omitted or repeated formula-degree situations. Key analysis remains the approved major/natural-minor seven-degree contract.
+
+### Phase 2C — chord catalogue and physical planning
+
+`CHORD_FORMULAS` remains the single theory authority for the approved chord formulas. Catalogue metadata must not redeclare formulas.
+
+Compound chord roles such as 9, 11 and 13 remain abstract formula identities even when a selected registered guitar location lies within a simple octave. Played registered intervals are separate derived facts.
+
+Lab planners may choose bounded material and actual locations from engine/Guitar query results, but no inversion/fingering/voicing engine is implied.
+
+### Phase 2D — diatonic harmony
+
+`buildDiatonicHarmony` remains pure Core. Explicit major/natural-minor keys construct seven triads/sevenths from spelled scale degrees and match them to authoritative chord formulas.
+
+Roman identity is structural degree + actual quality. It does not itself classify tonic/predominant/dominant function, cadence or expected resolution. Natural-minor requests do not silently raise degree 7.
+
+Curated home/pressure/expectation language in learner experiences is pedagogy/interpretation, not a new Core harmonic-function API.
 
 ### Lab-local voice-leading probe
 
-`/voice-leading.html` is a second bounded learning probe, separate from Practice
-Session v0. It consumes the existing diatonic-harmony, chord-catalogue, fretboard,
-note-at-fret and interval queries. Its planner enumerates complete four-string chord
-candidates in a small fret range and compares them with the learner's previously
-accepted voicing by same-string fret distance. The tie-break order is deterministic:
-total movement, largest single movement, then fret vector. All candidates tied at
-the minimum total movement satisfy the learning constraint.
+The Parsimonious Path / voice-leading Lab keeps its bounded candidate enumeration and same-string fret-distance comparison under `lab/`. It is not a generic Core voicing, fingering, inversion, progression or voice-leading model.
 
-This calculation remains under `lab/`. It does not define a general voicing,
-fingering, inversion, progression, harmonic-function or voice-leading model, and it
-does not enter `musicQueries`. The experiment must first show that physically
-following the separate voices improves learning. Its G-major example and A-major
-transfer derive their musical identities and annotations from the engine; the Lab
-owns only the bounded task, physical-distance rule, assistance sequence and local
-session evidence.
+Promotion requires demonstrated reuse and physical value plus an explicitly reviewed contract.
 
-### Fretboard UI v2 presentation boundary
+### Shared fretboard presentation
 
-The Lab shares `lab/fretboard-view.mjs` and `lab/fretboard.css` across Parsimonious
-Path, Chord Lab, the Practice Session retrieval warm-up, Melody Over Harmony and
-Develop the Idea / Motif. The renderer receives
-an explicit view model: display-ordered strings, active strings, a fret range,
-positions with selectable/selected states and short labels, and optional directed
-connections. It draws six physical string lanes, frets, open positions, markers,
-position controls and movement paths. Native buttons provide focus, selection and
-keyboard navigation. A stationary connection receives a distinct ring rather than
-a zero-length arrow. The focused Harmony route uses the Practice Session's shared
-page but skips this warm-up, so its listening interactions are unchanged.
+`lab/fretboard-view.mjs` / shared fretboard CSS remain presentation surfaces. Consumers prepare positions, labels, selection state and optional directed connections before rendering.
 
-The consumer projects engine-derived musical facts and session decisions into
-that view model. It decides which positions and labels exist before commitment,
-which are revealed after checking or assistance, and what counts as correct. The
-renderer does not infer pitches, chord roles, scale degrees, hints, candidate
-voicings, movement efficiency or learner evidence. Parsimonious Path's bounded
-enumeration and ranking remain in `lab/voice-leading-session.mjs`; Music Core and
-`musicQueries` retain musical truth. The same connection shape supports the
-existing movement, melody and motif paths without owning their teaching procedure.
+The renderer must not infer pitches, chord roles, scale degrees, hints, candidate voicings, movement efficiency or learner evidence. Disclosure remains owned by the experience.
 
-## Future audio, style and learning boundaries — documentation only
+### Phrase Foundation PR 1
 
-Visual fretboard presentation and audio presentation should be sibling consumers
-of prepared musical material. Audio is a shared presentation/service capability,
-not a final stage downstream of a fretboard lesson. A future adapter may compile
-prepared pitches and timed events into pure playback plans; a separately imported
-browser adapter schedules them without deriving theory or deciding disclosure.
+`core/time.ts` and `core/phrase.ts` remain pure foundation values/operations.
 
-```mermaid
-flowchart TD
-  Prepared[Prepared musical material] --> Visual[Visual presentation adapter]
-  Visual --> Board[Shared fretboard renderer]
-  Prepared --> Audio[Future audio plan preparation]
-  Audio --> Runtime[Future browser playback]
+MusicalTime is exact rational quarter-note length; Phrase is immutable monophonic registered-pitch events with exact onset/duration and mandatory total span. Pure operations cover adjacent intervals, contour, exact transposition, pattern/rhythm comparison and half-open clipping/rebasing.
+
+Guitar placement and harmony remain external. Meter, tempo maps, transport, playback, articulation, polyphony and timed harmony are not smuggled into Phrase PR 1.
+
+Musical quarter lengths, audio scheduling seconds and learning wall-clock timestamps remain distinct.
+
+## 15. What is intentionally not architecture yet
+
+Do not build these without a separately justified learner/material need:
+
+- general Learning Engine / curriculum graph;
+- universal Exercise Recipe or Context DSL;
+- broad Experience Router;
+- mastery/adaptation/telemetry backend;
+- generic voicing/fingering solver;
+- full Style Pack runtime/generator;
+- broad timed-harmony/meter/groove/articulation/polyphony framework;
+- SFZ/SoundFont sampler platform;
+- amp/effects suite;
+- DAW/multitrack transport;
+- automatic transcription or microphone grading;
+- broad AI tutor/runtime;
+- React/framework migration;
+- broad song import.
+
+## 16. Architecture rules
+
+1. **No automatic destinations.** A capability must serve a proven learner action or shared service before gaining a learner-facing destination.
+2. **One authority for musical facts.** Core/Guitar/query derivation remains authoritative; presentation, pedagogy, interpretation and style consume it.
+3. **Separate material from teaching procedure.** Reusing musical material does not require a universal activity state machine.
+4. **Keep local contracts local until reuse is demonstrated.** ScenarioV1, voice-leading probes, Guitar Performance mappings and other bounded contracts do not become global architecture by default.
+5. **Separate validity, compliance and judgment.** A musically valid answer may miss an exercise constraint; subjective musical taste is not objective correctness.
+6. **Present prepared information.** Renderers and playback adapters do not infer theory, select pedagogy or decide disclosure.
+7. **Honor generation/provenance constraints.** Preserve explicit limits, versions, replay information and source uncertainty.
+8. **Describe learner evidence precisely.** Screen correctness, assistance, self-reported playing/hearing and future audio evidence are distinct.
+9. **Promote experiments only after evidence.** Generalize an algorithm or data shape only after demonstrated reuse and learner value.
+10. **Do not confuse research validity with implementation necessity.** A sound external architecture idea is not automatically needed in Guitar Explorer now.
+
+## 17. Architecture stop condition
+
+The platform is sufficiently mature when Guitar Explorer can reliably support this loop without new broad infrastructure:
+
+```text
+supplied musical relationship
+→ believable optional guitar playback
+→ editable accompaniment
+→ learner physical performance
+→ optional reliable recording/looping
+→ target-note / relationship navigation
+→ improvisation
+→ transfer
 ```
 
-This is a future boundary, not an implemented pipeline. Pure Audio contracts can
-depend on Core; browser playback depends on those contracts. Future Ear tasks are
-instrument-independent and depend on Core plus pure Audio contracts, never Guitar.
-Future Learning composes Ear and Guitar for hear → identify → find, preserving the
-target while distinguishing recognition, retrieval and transfer evidence.
+Once that workflow is stable, freeze broad platform work and prioritize learner capability rather than continuing to elaborate infrastructure.
 
-Future **Style Packs are knowledge/preferences**, not product modes or automatic
-standalone pages. They may influence target choices, phrase vocabulary,
-articulation, rhythmic language, harmonic treatment and generated-idea preferences.
-They cannot redefine engine facts or turn stylistic taste into objective validity.
-ScenarioV1 does not represent most of this information; the existing rule boundary
-does not promise style support without new contracts and later authorization.
+## Sources of authority
 
-## Exact time and Phrase — Foundation PR 1
+- `PROJECT_STATE.md` / `project-state.json`: current operational state.
+- `AGENTS.md` + `docs/AUTONOMY_CONTRACT.md`: execution/approval rules.
+- this file: durable architecture boundaries.
+- `docs/DECISIONS.md`: decision history.
+- `docs/LEARNING_MODEL.md`: learning principles.
+- `docs/PHYSICAL_VALIDATION_PROTOCOL.md`: physical evidence procedure.
+- `API.md`, `SCENARIO_V1.md`, `RULE_GENERATOR_V1.md`, `PHRASE_FOUNDATION_V1.md`: detailed bounded contracts.
+- GitHub issues/PRs: bounded implementation authority and review evidence.
+- Trello: navigation/coordination only.
+- Figma: approved visual/product direction where applicable.
 
-The approved [Phrase Foundation](PHRASE_FOUNDATION_V1.md) adds `core/time.ts` and
-`core/phrase.ts` without a new layer or package. MusicalTime is a canonical
-safe-integer rational pair in quarter-note lengths, using BigInt intermediates.
-Phrase has mandatory total duration and ordered, nonoverlapping registered-pitch
-events with exact onset/duration. It preserves silence, spelling and repetition
-on owned frozen values. No MIDI range, key or guitar region constrains it.
-
-Pure adjacent intervals, sounding contour, exact transposition, pattern/rhythm
-comparisons and half-open clipping/rebasing consume existing Pitch/Interval truth.
-Guitar placement and supplied harmony stay external. PR 1 contains no timeline
-stub; dependent PR 2 will add that separate supplied-context representation and
-overlap analysis. Neither slice infers harmony, function or musical quality.
-
-ScenarioV1 and the existing Labs retain their present untimed contracts. Musical
-quarter lengths remain distinct from Audio scheduling seconds and Learning
-wall-clock timestamps. Meter, tempo maps, transport, playback, import, techniques,
-polyphony and timing adapters remain deferred, with no placeholders. Chord identity
-does not acquire timing state.
-
-## Future Learning Query Interface — documentation only
-
-Keep `musicQueries` the musical-truth surface. A separate future read-only Learning
-Query Interface may expose attempts, assistance, retrieval/transfer evidence and
-history through Learning and persistence. It may reference musical concept IDs or
-compose musical facts at the application layer; learner state never enters Core
-or musical query results.
-
-## Existing feature migration direction — not a runtime change
-
-| Existing capability | Intended home and reuse |
-|---|---|
-| Chord Lab | Inspection portions move into Explore; retrieval, reconstruction and transfer become a Practice activity. Preserve both behaviors. |
-| Practice Session / Harmonic Gravity | Practice, with the existing full-session and focused Harmony entry sharing one plan. |
-| Parsimonious Path | Practice. Its bounded movement comparison may later support Explore/Apply after demonstrated reuse. |
-| Melody Over Harmony | Practice. Contextual note analysis is reusable elsewhere. |
-| Develop the Idea / Motif | Practice. Supported motif transformations may later support Apply. |
-| Generated Melody Practice | A material source inside compatible Practice activities; no independent product destination. |
-| Existing standalone Lab URLs | Retain during migration. Deprecate independent learner-facing destinations only after replacement is proven; keep useful regression/dev surfaces. |
-| Preserved prototype and references | Historical and diagnostic evidence; no second production music engine. |
-
-Share material services, context and the fretboard without forcing every activity
-into one teaching sequence. Do not delete earlier useful work or rename existing
-pages as if the three intentions were already implemented.
-
-## Deferred until the Product Spine is proven
-
-The following capabilities remain deferred and are not started by this architecture
-decision. Each needs a concrete consuming flow and separate later authorization.
-
-1. Style Pack V1.
-2. Motif Generator.
-3. Full audio layer.
-4. Learner model.
-5. Adaptive scheduling.
-6. Arbitrary song/progression import.
-7. Ultimate Guitar-style input.
-8. External AI idea generation.
-9. New standalone Labs.
-10. ScenarioV2.
-11. Broad voice-leading engine promotion.
-12. UI framework migration.
-
-The full audio layer's scope need not determine the scope of a later small audition
-experiment, but no audio implementation is authorized now. Likewise, selecting
-approved material for an eventual bounded Apply proof does not imply general
-progression entry or song import.
-
-Previously described harmony relationships, maps/triad voicings, standard-tuning
-CAGED and auditory exercise families also remain unimplemented unless separately
-authorized. Current Roman labels are key-relative structural identities: natural
-minor has III, VI and VII. Future functional rules must distinguish calculated
-facts from interpretations and must not infer a unique key automatically.
-
-Western twelve-tone equal temperament remains the foundation. Microphone and
-transcription, DSP-heavy processing, AI authority, cloud sync, general chord-text
-parsing, global voice-leading/fingering optimization and notation engraving remain
-outside current scope. Documentation of an extension point is not a request for
-placeholder types, APIs or infrastructure.
-
-## Architecture rules
-
-1. **No automatic destinations.** A new capability must serve Explore, Practice,
-   Apply or a shared service before gaining a learner-facing destination.
-2. **One authority for musical facts.** The deterministic engine owns derivation;
-   presentation, teaching, interpretation and style consume it.
-3. **Preserve context across intentions.** Carry material, region and focus
-   explicitly through supported Explore/Practice/Apply handoffs.
-4. **Practice Policy applies only to explicit Practice.** Explore and Apply have no
-   curriculum prerequisite gates.
-5. **Separate material from teaching procedure.** Reusing musical material does not
-   require a universal activity state machine.
-6. **Keep ScenarioV1 bounded.** It serves compatible Melody/Motif exercises; direct
-   queries and other later material representations remain valid alternatives.
-7. **Separate validity, compliance and judgment.** A valid musical answer may miss
-   an exercise constraint; musical taste is not objective correctness.
-8. **Present prepared information.** Renderers and playback adapters do not infer
-   theory, select pedagogy or decide assessment disclosure.
-9. **Honor generation constraints and provenance.** Preserve explicit limits,
-   version and replay information. Handle exhaustion without weakening guarantees.
-10. **Describe observed evidence precisely.** Objective screen correctness,
-    assistance, self-reported playing/hearing and future performed/audio evidence
-    are distinct. Elapsed time alone is not mastery.
-11. **Promote experiments after evidence.** Generalize an algorithm only after
-    demonstrated reuse and physical value, with an explicitly reviewed contract.
-
-## Interpreting learning research
-
-The Musicianship System Design Plan informs experiments; it does not override
-implemented musical contracts or grant implementation scope. Singing is useful
-within practice, not an application-wide prerequisite. Exact latency thresholds
-such as 800 ms require stronger evidence before becoming product rules; present
-elapsed time includes thinking, guitar action and interface use.
-
-Tonal stability is contextual interpretation knowledge rather than basic
-pitch/interval truth. Minimum movement is an exercise constraint rather than a
-universal measure of musical quality. Prose research examples never override
-engine-verified facts. Claims that motif work is missing are historical: Develop
-the Idea already exists, while a Motif Generator remains deferred.
-
-## Next implementation boundary
-
-Issue #40 implements only approved Foundation PR 1: exact time, monophonic Phrase,
-pure operations, eight facade wrappers and verification/documentation. No
-Experience Router implementation, shared-workspace state or UI redesign begins here.
-
-One Melody-specific DOM-free preparation seam is implemented (`lab/melody-experience.mjs`)
-as the first runtime proof of the documented boundary: it extracts the
-material-source request → validated/resolved Melody material → existing Melody plan
-pipeline from `phrase-app.js`, supporting both approved catalogue scenarios and Rule
-Generator V1 without browser dependencies or silent fallbacks.
-
-The general Experience Router, shared workspace, Explore/Apply surfaces, Practice
-Policy framework, and broader activity migrations remain planned future work.
-Broader workspace handoffs follow only after these preparation boundaries are proven
-and separately authorized.
-
-Retain `npm run typecheck`, `npm test`, `npm run test:prototype` and
-`npm run test:lab` as baseline checks. Add meaningful boundary coverage when runtime
-changes are authorized. Current automated checks do not establish browser layout,
-physical performance or pedagogical effectiveness; those need direct review.
+Historical plans are references only and do not override these boundaries.
