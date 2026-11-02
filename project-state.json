@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Audio Out v0: let Guitar Explorer pose a musical question with sound",
+  "stage": "Audio Out v0.5: tempo-aware guitar-like prompts before accompaniment/looping",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Harmonic Gravity Product Spine v1 and Role Lens v0 plus active bounded Audio Out v0 slice",
+    "runtime": "merged Harmonic Gravity Product Spine v1 and Role Lens v0 plus active bounded Audio Out v0.5 slice",
     "learningValidation": "four legacy Lab experiences, Product Spine v1 and Role Lens v0 physically/browser validated and accepted"
   },
   "activeWork": {
     "issue": 47,
     "pullRequest": 48,
     "kind": "learner-facing-implementation",
-    "summary": "Audio Out v0 is commissioned to let Harmonic Gravity pose its existing auditory question and prove reuse in Role Lens using a tiny native Web Audio renderer while preserving prediction and physical guitar use."
+    "summary": "Revise Audio Out from the first oscillator proof into a bounded v0.5: adjustable playback tempo, native plucked-string synthesis, staggered chord strums and explicit single-note plucks across Harmonic Gravity and Role Lens."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-and-role-lens-audio-out-new-review-required"
+    "status": "accepted-legacy-labs-product-spine-and-role-lens-audio-out-v0.5-new-review-required"
   },
   "gate": {
     "issue": 47,
     "status": "implementation-active-learner-review-required-before-merge",
-    "statement": "Audio Out v0 must consume existing deterministic musical facts, use native Web Audio first, remain optional, preserve the learner's prediction and physical guitar answer, and prove reuse across Harmonic Gravity and Role Lens without a general sequencer/DAW framework. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
+    "statement": "Audio Out v0.5 must consume existing deterministic musical facts, remain optional, preserve the learner's prediction and physical guitar answer, support tempo changes without changing musical truth, and prove one native plucked-string renderer across chord strums and single-note plucks. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "draft-pr-48-awaiting-exact-head-gates",
+    "previewReadiness": "draft-pr-48-awaiting-refreshed-exact-head-gates",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -84,6 +84,12 @@
   "parallelResearch": {
     "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #47"
   },
+  "plannedSequence": {
+    "afterAudioOutV05": [
+      "Accompaniment v1: separately scoped meter/bars-per-chord/strumming-pattern representation plus editable playback only if v0.5 is accepted",
+      "Looper v0: separately scoped count-in/record/replay/loop for learner-created accompaniment only after accompaniment playback is useful"
+    ]
+  },
   "deferred": [
     "Phrase/Harmony PR 2 unless a concrete learner/material task needs its facts and it is separately commissioned",
     "Phase 2E progression/cadence/function breadth",
@@ -92,11 +98,11 @@
     "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "Audio Out beyond the bounded native-Web-Audio v0 renderer until learner evidence justifies a larger capability",
+    "Audio Out beyond v0.5 accompaniment/transport features until the v0.5 learner proof is accepted and a separate slice is commissioned",
     "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
     "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
-    "meter/groove/articulation/polyphony/timed-harmony expansion until repeated real material requires one specific addition",
+    "meter/groove/articulation/polyphony/timed-harmony expansion except a separately scoped accompaniment representation justified after v0.5",
     "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
     "broad song/progression import",
