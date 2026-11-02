@@ -119,11 +119,20 @@ function renderPattern() {
   $("pattern-readable").textContent = pattern.map((action) => actionGlyph[action]).join("  ");
 }
 
+function updateLooperLink(plan) {
+  const url = new URL("looper.html", location.href);
+  url.searchParams.set("bpm", String(plan.bpm));
+  url.searchParams.set("bars", plan.barsPerChord.join(","));
+  url.searchParams.set("pattern", plan.pattern.join(","));
+  $("accompaniment-record").href = url.href;
+}
+
 function updateSummary() {
   const plan = currentPlan();
   const duration = accompanimentDurationSeconds(plan);
   $("tempo-output").textContent = `${plan.bpm} BPM`;
   setStatus(`Ready · ${plan.barsPerChord.join(" / ")} bars · about ${duration.toFixed(1)} seconds.`);
+  updateLooperLink(plan);
 }
 
 function applyPreset(id) {
