@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 53,
-    "pullRequest": null,
+    "pullRequest": 54,
     "kind": "learner-facing-implementation",
     "summary": "Looper v0 proves a reusable local capture runtime: supplied count-in/capture timing, browser input permission, one bounded recording, replay/loop/re-record and an improvisation handoff without grading or transcription."
   },
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "looper-v0-branch-active-pr-pending",
+    "previewReadiness": "draft-pr-54-awaiting-exact-head-gates",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-input-and-physical-guitar-review"
   },
