@@ -2,17 +2,23 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Accompaniment v1: editable strumming plan over supplied harmony",
+  "stage": "Guitar Performance v0 and stacked sampled-acoustic feasibility review",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Harmonic Gravity Product Spine v1, Role Lens v0 and accepted Audio Out v0.5 plus active bounded Accompaniment v1 slice",
-    "learningValidation": "four legacy Lab experiences, Product Spine v1, Role Lens v0 and Audio Out v0.5 physically/browser validated and accepted"
+    "runtime": "accepted Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1; Guitar Performance v0 and sampled-acoustic A/B remain unmerged review experiments",
+    "learningValidation": "legacy Labs, Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": 51,
-    "pullRequest": 52,
-    "kind": "learner-facing-implementation",
-    "summary": "Accompaniment v1 reuses supplied G-C-D7-G harmony and accepted Audio Out rendering to prove learner-editable tempo, per-chord bar lengths and one-bar down/up/rest strumming patterns without a DAW, looper or new harmony theory."
+    "issue": 55,
+    "pullRequest": 56,
+    "kind": "learner-facing-review",
+    "summary": "Guitar Performance v0 compares accepted abstract chord-tone playback with curated standard-tuning G/C/D7 open-position voicings through the same native synth, preserving the accepted accompaniment plan and requiring Arun listening/physical-guitar approval before merge."
+  },
+  "stackedExperiment": {
+    "issue": 57,
+    "pullRequest": 58,
+    "kind": "sample-feasibility-review",
+    "summary": "A bounded 12-sample CC0 steel-string acoustic renderer is stacked on PR #56 so the same physical voicings can be compared against native synth playback. It is not approved for merge and is not a general sampler, electric DI tone system or amp model."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +35,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-role-lens-and-audio-out-accompaniment-new-review-required"
+    "status": "accepted-legacy-labs-product-spine-role-lens-audio-out-and-accompaniment; guitar-performance-and-sampled-audio-await-review"
   },
   "gate": {
-    "issue": 51,
-    "status": "implementation-active-learner-review-required-before-merge",
-    "statement": "Accompaniment v1 must keep harmony truth separate from accompaniment choices, remain bounded to supplied G-C-D7-G in 4/4 with editable tempo, per-chord bars and an eight-slot down/up/rest pattern, reuse accepted Audio Out rendering, and avoid recording/looping or a general transport framework. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
+    "issue": 55,
+    "status": "learner-listening-and-physical-review-required-before-merge",
+    "statement": "PR #56 remains the primary learner-facing gate. Review the same G-C-D7-G accompaniment as abstract chord-tone native synth versus curated physical G/C/D7 voicings; stacked PR #58 may add the sampled-acoustic third mode in the same evidence session. Neither PR may merge without exact-head approval."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,7 +49,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "draft-pr-52-awaiting-exact-head-gates",
+    "previewReadiness": "pr-56-and-stacked-pr-58-exact-head-previews-available; physical-listening-approval-pending",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -68,6 +74,11 @@
     }
   },
   "acceptedSlices": {
+    "phraseFoundationPr1": {
+      "issue": 40,
+      "pullRequest": 41,
+      "mergeCommit": "d25217a967b295bdd4ce9797b4dbfbae71a7d8a5"
+    },
     "productSpineV1": {
       "issue": 43,
       "pullRequest": 44,
@@ -86,14 +97,36 @@
       "approvedHead": "7c5a7415efa858cb4a3d3daacfbd93b0f3917f94",
       "mergeCommit": "3f1c8edd786202e93d9a12df6fd27217efa2c270",
       "result": "learner-controlled tempo, guitar-like plucks/strums and a single-note pluck were physically/browser approved while prediction and physical guitar remained central"
+    },
+    "accompanimentV1": {
+      "issue": 51,
+      "pullRequest": 52,
+      "mergeCommit": "135a4589c57467c66472f86ab8a8463d9eeb7d10",
+      "result": "supplied G-C-D7-G harmony with learner-editable tempo, per-chord bars and one-bar down/up/rest accompaniment pattern was physically/browser accepted"
+    }
+  },
+  "closedUnmergedReferences": {
+    "harmonicGravityUiFollowUp": {
+      "issue": 49,
+      "pullRequest": 50,
+      "reason": "superseded by a later consolidated Instrument Desk/Product Design pass; preserve concrete accessibility/state fixes as reference"
+    },
+    "mediaRecorderLooperV0": {
+      "issue": 53,
+      "pullRequest": 54,
+      "reason": "preserve UX evidence only; MediaRecorder/JavaScript-timer timing is not the future precise musical looper architecture"
     }
   },
   "parallelResearch": {
-    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #51"
+    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not be shaped to justify audio, looper or Style runtime work"
   },
   "plannedSequence": {
-    "afterAccompanimentV1": [
-      "Looper v0: separately scope count-in, record/re-record and loop playback for learner-created accompaniment only if Accompaniment v1 is accepted and useful"
+    "afterCurrentReview": [
+      "If accepted, merge PR #56 and PR #58 separately after exact-head approval",
+      "Only if reuse is demonstrated, consider a tiny common audio-instrument play/stop boundary",
+      "Separately commission a PCM/AudioWorklet looper proof if learner recording/looping still has clear value",
+      "After runtime boundaries stabilize, run one consolidated Product Design/Figma pass for accompaniment, recording/looping and improvisation/target navigation",
+      "Then freeze broad audio/platform setup and return the main product lane to fretboard navigation and transfer"
     ]
   },
   "deferred": [
@@ -104,12 +137,13 @@
     "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "general accompaniment/transport architecture beyond the bounded Accompaniment v1 proof",
-    "Looper v0 recording and loop capture until Accompaniment v1 is physically accepted",
+    "broad accompaniment/transport or DAW architecture",
+    "Tone/amp modelling until a suitable electric/DI source and concrete learner need justify it",
+    "precise looper implementation until a separately commissioned PCM/AudioWorklet issue; PR #54 remains closed reference only",
     "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
     "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
-    "broad meter/groove/articulation/polyphony/timed-harmony expansion beyond the local Accompaniment v1 representation",
+    "broad meter/groove/articulation/polyphony/timed-harmony expansion unless repeated real material needs it",
     "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
     "broad song/progression import",
