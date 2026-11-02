@@ -9,6 +9,7 @@ import {
 } from "/engine/index.js";
 import { createPracticePlan } from "/practice-session.mjs";
 import { createAudioOut } from "/audio-out.mjs";
+import { createSampledGuitar } from "/sampled-guitar.mjs";
 import { buildGuitarPerformanceCue } from "/guitar-performance.mjs";
 import {
   ACCOMPANIMENT_ACTIONS,
@@ -48,6 +49,12 @@ const progression = Object.freeze([
 ]);
 
 const audio = createAudioOut({ toSemitone });
+const sampled = createSampledGuitar();
+let playbackRequest = 0;
+function stopPlayback() {
+  playbackRequest += 1;
+  return audio.stop() + sampled.stop();
+}
 let pattern = [...ACCOMPANIMENT_PRESETS.open.pattern];
 let barsPerChord = progression.map(() => 1);
 
@@ -84,7 +91,7 @@ function renderProgressionControls() {
     }
     select.addEventListener("change", () => {
       barsPerChord = barsPerChord.map((bars, itemIndex) => itemIndex === index ? Number(select.value) : bars);
-      audio.stop();
+      stopPlayback();
       updateSummary();
     });
     wrapper.append(select);
@@ -113,7 +120,7 @@ function renderPattern() {
       const nextIndex = (ACCOMPANIMENT_ACTIONS.indexOf(pattern[index]) + 1) % ACCOMPANIMENT_ACTIONS.length;
       pattern[index] = ACCOMPANIMENT_ACTIONS[nextIndex];
       if (pattern.every((item) => item === "rest")) pattern[index] = "down";
-      audio.stop();
+      stopPlayback();
       renderPattern();
       updateSummary();
     });
@@ -133,34 +140,49 @@ function applyPreset(id) {
   const preset = ACCOMPANIMENT_PRESETS[id];
   if (!preset) return;
   pattern = [...preset.pattern];
-  audio.stop();
+  stopPlayback();
   renderPattern();
   updateSummary();
 }
 
 async function playAccompaniment() {
+  stopPlayback();
+  const request = playbackRequest;
   try {
     const plan = currentPlan();
     const useGuitarPositions = $("guitar-position-playback").checked;
+    const useSampled = useGuitarPositions && $("sampled-playback").checked;
     const cue = useGuitarPositions
       ? buildGuitarPerformanceCue(plan, {
         board: STANDARD_FRETBOARD, getNoteAt, pitchFromSemitone, toSemitone, transposePitch,
       })
       : buildAccompanimentCue(plan, transposePitch);
-    const result = await audio.play(cue);
-    setStatus(`Playing ${useGuitarPositions ? "curated guitar positions" : "abstract chord tones"} (native synth) · ${progression.map(({ symbol }) => symbol).join(" → ")} at ${plan.bpm} BPM · ${result.eventCount} strums · ${result.durationSeconds.toFixed(1)}s rendered.`);
+    if (useSampled) setStatus("Loading the small acoustic sample set…");
+    let result;
+    let timbre = "native synth";
+    try {
+      result = useSampled ? await sampled.play(cue) : await audio.play(cue);
+      if (result.cancelled || request !== playbackRequest) return;
+      if (useSampled) timbre = "sampled acoustic";
+    } catch (sampleError) {
+      if (!useSampled || request !== playbackRequest) throw sampleError;
+      result = await audio.play(cue);
+      if (request !== playbackRequest) return;
+      timbre = "native synth fallback (acoustic samples could not load)";
+    }
+    setStatus(`Playing ${useGuitarPositions ? "curated guitar positions" : "abstract chord tones"} (${timbre}) · ${progression.map(({ symbol }) => symbol).join(" → ")} at ${plan.bpm} BPM · ${result.eventCount} strums · ${result.durationSeconds.toFixed(1)}s rendered.`);
   } catch (error) {
-    setStatus(error instanceof Error ? error.message : "Accompaniment could not start in this browser.");
+    if (request === playbackRequest) setStatus(error instanceof Error ? error.message : "Accompaniment could not start in this browser.");
   }
 }
 
 function stopAccompaniment() {
-  const stopped = audio.stop();
+  const stopped = stopPlayback();
   setStatus(stopped ? "Audio stopped. Keep the same plan and play it yourself." : "No accompaniment is currently sounding.");
 }
 
 $("accompaniment-tempo").addEventListener("input", () => {
-  audio.stop();
+  stopPlayback();
   updateSummary();
 });
 
@@ -168,7 +190,12 @@ for (const button of document.querySelectorAll("[data-preset]")) {
   button.addEventListener("click", () => applyPreset(button.dataset.preset));
 }
 
-$("guitar-position-playback").addEventListener("change", () => { audio.stop(); updateSummary(); });
+$("guitar-position-playback").addEventListener("change", () => {
+  stopPlayback();
+  $("sampled-playback").disabled = !$("guitar-position-playback").checked;
+  updateSummary();
+});
+$("sampled-playback").addEventListener("change", () => { stopPlayback(); updateSummary(); });
 $("accompaniment-play").addEventListener("click", playAccompaniment);
 $("accompaniment-stop").addEventListener("click", stopAccompaniment);
 globalThis.addEventListener?.("pagehide", () => audio.stop());
