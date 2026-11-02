@@ -45,9 +45,15 @@
         <p>Strum one chord, let it ring briefly, then play or sing the anchor pitch. Leave space between comparisons.</p>
       </div>
       <div aria-label="Optional app audio comparison">
+        <div>
+          <label for="role-audio-tempo"><strong>Playback tempo</strong> · <output id="role-audio-tempo-value" for="role-audio-tempo">84 BPM</output></label>
+          <input type="range" id="role-audio-tempo" min="50" max="140" step="1" value="84" aria-describedby="role-audio-tempo-help">
+          <p id="role-audio-tempo-help" class="muted">Change only the playback pace. The musical roles and your prediction task stay the same.</p>
+        </div>
+        <button type="button" id="role-audio-anchor" class="secondary compact">Hear anchor note</button>
         <button type="button" id="role-audio-play" class="secondary compact">Hear all three comparisons</button>
         <button type="button" id="role-audio-stop" class="secondary compact">Stop audio</button>
-        <p id="role-audio-status" class="muted" role="status" aria-live="polite">Optional: hear the supplied comparison, then repeat it yourself with the same anchor pitch.</p>
+        <p id="role-audio-status" class="muted" role="status" aria-live="polite">Optional: hear the supplied guitar-like comparison, then repeat it yourself with the same anchor pitch.</p>
       </div>
     </section>
 
