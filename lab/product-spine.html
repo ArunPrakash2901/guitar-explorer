@@ -70,6 +70,16 @@
       <p id="focus-prompt" class="focus-prompt"></p>
       <p id="focus-cue" class="focus-cue"></p>
       <p id="focus-instruction" class="focus-instruction"></p>
+      <div aria-label="Optional app audio prompt">
+        <div>
+          <label for="product-audio-tempo"><strong>Playback tempo</strong> · <output id="product-audio-tempo-value" for="product-audio-tempo">84 BPM</output></label>
+          <input type="range" id="product-audio-tempo" min="50" max="140" step="1" value="84" aria-describedby="product-audio-tempo-help">
+          <p id="product-audio-tempo-help" class="muted">Slow it down to let each strum ring longer, or speed it up when the question feels familiar.</p>
+        </div>
+        <button type="button" id="product-audio-play" class="secondary compact">Hear guitar prompt</button>
+        <button type="button" id="product-audio-stop" class="secondary compact">Stop audio</button>
+        <p id="product-audio-status" class="muted" role="status" aria-live="polite">Optional: let the app strum the chord question, then keep the silence and answer with your guitar.</p>
+      </div>
     </section>
 
     <section id="response-panel" class="response-panel" hidden aria-labelledby="response-heading">
@@ -122,10 +132,11 @@
   </main>
 
   <footer class="product-footer">
-    <span>Your guitar supplies the sound.</span>
+    <span>App audio can pose the prompt; your guitar still supplies the answer.</span>
     <span>Session evidence · local only</span>
   </footer>
 
   <script type="module" src="/product-spine-app.js"></script>
+  <script type="module" src="/product-spine-audio.js"></script>
 </body>
 </html>
