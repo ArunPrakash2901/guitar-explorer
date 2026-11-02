@@ -88,6 +88,7 @@ export function buildAccompanimentCue(plan, transposePitch) {
       normalized.pattern.forEach((action, slotIndex) => {
         if (action === "rest") return;
         events.push(Object.freeze({
+          chordIndex,
           at: timeline + (bar * secondsPerBar) + (slotIndex * secondsPerSubdivision),
           duration,
           pitches,
