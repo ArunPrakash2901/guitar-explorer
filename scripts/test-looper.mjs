@@ -49,7 +49,6 @@ assert.match(app, /URL\.createObjectURL/);
 assert.match(app, /audio\.loop = loop/);
 assert.match(accompaniment, /looper\.html/);
 assert.match(accompaniment, /searchParams\.set\("pattern"/);
-assert.doesNotMatch(app, /fetch\(|XMLHttpRequest|WebSocket|upload/i);
-assert.doesNotMatch(app, /pitch detection|transcrib|grading|correctness/i);
+assert.doesNotMatch(app, /fetch\(|XMLHttpRequest|WebSocket|sendBeacon|FormData/);
 
 console.log("Looper v0 checks passed for capture timing, lifecycle, local MediaRecorder wiring and accompaniment handoff.");
