@@ -280,7 +280,7 @@ function renderUnderstand({ transfer = false } = {}) {
     ? `You made a fresh prediction in ${keyName(context.key)} before seeing ${names.from} → ${names.to}.`
     : "Connect what you heard to one movement on the guitar.";
   renderRelationshipBoard(context);
-  setFeedback("The chord roles and locations are engine-derived facts. The sense of home belongs to this listening comparison.");
+  setFeedback("");
   setButton("secondary-action", { hidden: true });
   setButton("primary-action", { text: transfer ? "Reflect on the connection" : "Use these two notes" });
   updateSharedHeader();

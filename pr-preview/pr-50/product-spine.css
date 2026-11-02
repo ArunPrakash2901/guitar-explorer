@@ -271,6 +271,7 @@ body.harmonic-gravity { display: flex; flex-direction: column; min-height: 100sv
 .harmonic-gravity .fb-neck { margin-inline: auto; }
 .harmonic-gravity .relationship-grid { grid-template-columns: minmax(0, 1fr) 264px; gap: 32px; }
 .harmonic-gravity .relationship-copy { gap: 18px; font-size: 1.2rem; padding-top: 12px; }
+.harmonic-gravity .relationship-note { color: var(--muted); font-size: .9rem; line-height: 1.6; margin-top: 8px; }
 .harmonic-gravity .response-panel { margin-top: 0; }
 .harmonic-gravity .response-options { gap: 16px; }
 .harmonic-gravity .phrase-options, .harmonic-gravity .reflection-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -328,6 +329,7 @@ body.harmonic-gravity { display: flex; flex-direction: column; min-height: 100sv
   .harmonic-gravity .desk-grid, .harmonic-gravity .relationship-grid { grid-template-columns: 1fr; gap: 24px; }
   .harmonic-gravity .question-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .harmonic-gravity .relationship-copy { grid-template-columns: repeat(3, minmax(0, 1fr)); padding-top: 0; font-size: 1rem; }
+  .harmonic-gravity .relationship-note { grid-column: 1 / -1; }
   .harmonic-gravity .response-options { grid-template-columns: 1fr; }
   .harmonic-gravity .product-footer { padding-inline: 24px; }
 }
