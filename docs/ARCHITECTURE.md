@@ -284,7 +284,96 @@ Session Evidence remains local-only validation tooling, not telemetry or a learn
 
 Do not add another host, production deployment, account system or backend merely for convenience.
 
-## 14. What is intentionally not architecture yet
+## 14. Detailed implemented contracts that remain normative
+
+The control-plane cleanup must not erase established lower-level contracts. The following details remain part of the architecture unless their dedicated contract documents are explicitly superseded.
+
+### ScenarioV1 and material preparation
+
+ScenarioV1 remains a **Lab-local** contract for compatible Melody/Motif exercises, not Guitar Explorer's universal data model.
+
+It preserves:
+
+- explicit main/transfer keys and bounded guitar regions;
+- declared chord-role targets and arrivals that must resolve in the supplied regions;
+- activity-specific Melody and Motif structures;
+- query-derived spelling/location/interval facts;
+- transfer invariance checks;
+- a distinction between physical existence in a region and general fingering/playability.
+
+The plain scenario is serializable; the resolved runtime bundle may contain query closures and is not a persistable workspace document. See `SCENARIO_V1.md` for the exact contract.
+
+`prepareMelodyExperience(...)` remains a Melody-specific DOM-free preparation seam that converges approved catalogue and generated sources before the existing Melody plan. It does not authorize a general Experience Router.
+
+### Rule Generator V1
+
+Rule Generator V1 proposes Melody ScenarioV1 material only. It validates through the resolver, applies bounded preferences and returns provenance with the accepted material.
+
+Generator provenance/versioning, deterministic seeded ordering, pinned replay fixtures, bounded generation budgets and explicit exhaustion behavior remain normative. No silent fallback to unrestricted generation is allowed. See `RULE_GENERATOR_V1.md` for exact behavior.
+
+### Musical values and context
+
+- Note identity preserves spelling separately from sounding equivalence.
+- Pitch adds register; sounding semitone numbers are derived, not the identity itself.
+- Intervals retain signed letter/semitone displacement.
+- Formula tones retain actual degree and alteration.
+- Key, selected scale and current chord remain independent context concepts.
+- Key-relative alteration and formula alteration are distinct.
+- Sounding membership and exact spelling membership are reported separately.
+
+See `API.md` for detailed numeric/resource conventions and public query semantics.
+
+### Phase 2A — key relationships
+
+Conventional signatures derive from a fifths-axis model; minor reaches that axis through relative major. Relative keys and fifths neighbours retain spelling-aware interval relationships.
+
+Signature/profile requests beyond the supported conventional range remain unsupported. The engine does not infer a unique key from unordered notes or a progression.
+
+### Phase 2B — scale breadth/context
+
+Implemented scale formulas include harmonic minor, ascending melodic minor, major/minor pentatonic, minor blues and the remaining major-scale modes.
+
+Selected-scale analysis preserves written-degree evidence separately from sounding pitch-class membership, including omitted or repeated formula-degree situations. Key analysis remains the approved major/natural-minor seven-degree contract.
+
+### Phase 2C — chord catalogue and physical planning
+
+`CHORD_FORMULAS` remains the single theory authority for the approved chord formulas. Catalogue metadata must not redeclare formulas.
+
+Compound chord roles such as 9, 11 and 13 remain abstract formula identities even when a selected registered guitar location lies within a simple octave. Played registered intervals are separate derived facts.
+
+Lab planners may choose bounded material and actual locations from engine/Guitar query results, but no inversion/fingering/voicing engine is implied.
+
+### Phase 2D — diatonic harmony
+
+`buildDiatonicHarmony` remains pure Core. Explicit major/natural-minor keys construct seven triads/sevenths from spelled scale degrees and match them to authoritative chord formulas.
+
+Roman identity is structural degree + actual quality. It does not itself classify tonic/predominant/dominant function, cadence or expected resolution. Natural-minor requests do not silently raise degree 7.
+
+Curated home/pressure/expectation language in learner experiences is pedagogy/interpretation, not a new Core harmonic-function API.
+
+### Lab-local voice-leading probe
+
+The Parsimonious Path / voice-leading Lab keeps its bounded candidate enumeration and same-string fret-distance comparison under `lab/`. It is not a generic Core voicing, fingering, inversion, progression or voice-leading model.
+
+Promotion requires demonstrated reuse and physical value plus an explicitly reviewed contract.
+
+### Shared fretboard presentation
+
+`lab/fretboard-view.mjs` / shared fretboard CSS remain presentation surfaces. Consumers prepare positions, labels, selection state and optional directed connections before rendering.
+
+The renderer must not infer pitches, chord roles, scale degrees, hints, candidate voicings, movement efficiency or learner evidence. Disclosure remains owned by the experience.
+
+### Phrase Foundation PR 1
+
+`core/time.ts` and `core/phrase.ts` remain pure foundation values/operations.
+
+MusicalTime is exact rational quarter-note length; Phrase is immutable monophonic registered-pitch events with exact onset/duration and mandatory total span. Pure operations cover adjacent intervals, contour, exact transposition, pattern/rhythm comparison and half-open clipping/rebasing.
+
+Guitar placement and harmony remain external. Meter, tempo maps, transport, playback, articulation, polyphony and timed harmony are not smuggled into Phrase PR 1.
+
+Musical quarter lengths, audio scheduling seconds and learning wall-clock timestamps remain distinct.
+
+## 15. What is intentionally not architecture yet
 
 Do not build these without a separately justified learner/material need:
 
@@ -303,7 +392,20 @@ Do not build these without a separately justified learner/material need:
 - React/framework migration;
 - broad song import.
 
-## 15. Architecture stop condition
+## 16. Architecture rules
+
+1. **No automatic destinations.** A capability must serve a proven learner action or shared service before gaining a learner-facing destination.
+2. **One authority for musical facts.** Core/Guitar/query derivation remains authoritative; presentation, pedagogy, interpretation and style consume it.
+3. **Separate material from teaching procedure.** Reusing musical material does not require a universal activity state machine.
+4. **Keep local contracts local until reuse is demonstrated.** ScenarioV1, voice-leading probes, Guitar Performance mappings and other bounded contracts do not become global architecture by default.
+5. **Separate validity, compliance and judgment.** A musically valid answer may miss an exercise constraint; subjective musical taste is not objective correctness.
+6. **Present prepared information.** Renderers and playback adapters do not infer theory, select pedagogy or decide disclosure.
+7. **Honor generation/provenance constraints.** Preserve explicit limits, versions, replay information and source uncertainty.
+8. **Describe learner evidence precisely.** Screen correctness, assistance, self-reported playing/hearing and future audio evidence are distinct.
+9. **Promote experiments only after evidence.** Generalize an algorithm or data shape only after demonstrated reuse and learner value.
+10. **Do not confuse research validity with implementation necessity.** A sound external architecture idea is not automatically needed in Guitar Explorer now.
+
+## 17. Architecture stop condition
 
 The platform is sufficiently mature when Guitar Explorer can reliably support this loop without new broad infrastructure:
 
@@ -328,6 +430,7 @@ Once that workflow is stable, freeze broad platform work and prioritize learner 
 - `docs/DECISIONS.md`: decision history.
 - `docs/LEARNING_MODEL.md`: learning principles.
 - `docs/PHYSICAL_VALIDATION_PROTOCOL.md`: physical evidence procedure.
+- `API.md`, `SCENARIO_V1.md`, `RULE_GENERATOR_V1.md`, `PHRASE_FOUNDATION_V1.md`: detailed bounded contracts.
 - GitHub issues/PRs: bounded implementation authority and review evidence.
 - Trello: navigation/coordination only.
 - Figma: approved visual/product direction where applicable.
