@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Guitar Explorer · Melody Over Harmony</title>
+<link rel="stylesheet" href="./fretboard.css">
+<link rel="stylesheet" href="./phrase.css">
+  <meta name="guitar-explorer-revision" content="891942ee58ba969ac42e65fe43ceb7e0600d193c">
+  <meta name="guitar-explorer-preview-pr" content="54">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-54">
+</head>
+<body data-probe="melody">
+<main>
+<header>
+<p>
+<a href="./">Chord Lab</a> · <a href="./practice.html">Connected Practice</a> · <a href="./voice-leading.html">Parsimonious Path</a> · <a href="./motif.html">Develop the Idea</a>
+</p>
+<h1>Melody Over Harmony</h1>
+<p class="lede">Stop asking only “what scale?” Start asking “what is this note doing over this chord?”</p>
+</header>
+<div class="shell">
+<section class="panel" aria-labelledby="stage-title">
+<section class="scenario-picker" aria-label="Choose a musical scenario">
+<div class="picker-tabs" role="tablist" aria-label="Practice source">
+<button id="source-catalogue" type="button" class="tab active" role="tab" aria-selected="true">Approved catalogue</button>
+<button id="source-generated" type="button" class="tab" role="tab" aria-selected="false">Generated practice</button>
+</div>
+<div id="catalogue-controls" class="picker-section">
+<label for="scenario-select">Musical scenario<select id="scenario-select"></select></label>
+<div class="actions"><button id="start-scenario" type="button">Start selected scenario</button><button id="surprise-scenario" type="button">Surprise me</button></div>
+</div>
+<div id="generated-controls" class="picker-section" hidden>
+<div class="generation-inputs">
+<label for="rule-select">Focus<select id="rule-select">
+<option value="rule-dominant-third">Dominant 3rd</option>
+<option value="rule-dominant-seventh">Dominant ♭7</option>
+<option value="rule-target-trajectory">Target trajectory</option>
+<option value="surprise">Surprise me (any focus)</option>
+</select></label>
+<label for="difficulty-select">Difficulty<select id="difficulty-select">
+<option value="introductory">Introductory</option>
+<option value="developing">Developing</option>
+<option value="transfer">Transfer</option>
+</select></label>
+</div>
+<div class="actions"><button id="generate-scenario" type="button">Generate practice</button><button id="generate-another" type="button">Generate another</button><button id="replay-scenario" type="button">Replay this scenario</button></div>
+<div id="generation-feedback" class="feedback warn" role="status" aria-live="polite" hidden></div>
+</div>
+<p id="scenario-info" class="small"></p>
+</section>
+<div class="progress-row">
+<span>Target-tone experiment</span>
+<span id="progress-text">
+</span>
+</div>
+<div class="progress-track" aria-hidden="true">
+<div id="progress-fill" class="progress-fill">
+</div>
+</div>
+<div id="stage-kicker" class="kicker">
+</div>
+<h2 id="stage-title">
+</h2>
+<p id="prompt" class="prompt">
+</p>
+<p id="instruction" class="instruction">
+</p>
+<p id="context" class="small">
+</p>
+<section id="board-panel" class="board-panel" hidden>
+<h3>Physical fretboard</h3>
+<p id="board-context">
+</p>
+<div id="board">
+</div>
+</section>
+<label id="reflection-panel" hidden>What did you notice?<select id="reflection">
+<option value="">Choose an impression…</option>
+<option value="changed">The role or feeling changed</option>
+<option value="similar">It felt similar</option>
+<option value="unclear">I could not tell yet</option>
+</select>
+</label>
+<section id="explanation" class="explanation" hidden>
+<h3>What the engine identifies</h3>
+<ol id="explanation-list">
+</ol>
+</section>
+<div id="feedback" class="feedback" aria-live="polite">
+</div>
+<div class="actions">
+<button id="check" type="button" class="primary" hidden>Check committed fret</button>
+<button id="hint" type="button" hidden>Hint</button>
+<button id="act" type="button" class="primary" hidden>
+</button>
+<button id="next" type="button" class="primary" hidden>Continue</button>
+</div>
+<div class="actions">
+<button id="back" type="button">Back</button>
+<button id="replay" type="button">Replay/reset this step</button>
+<button id="restart" type="button">Restart experiment</button>
+</div>
+</section>
+<aside class="side">
+<strong>Your guitar supplies sound</strong>
+<p>The app checks planned note relationships. It cannot hear your playing.</p>
+<strong>Listen before labels</strong>
+<p>Answers appear only after you commit the action. Your impressions remain ungraded.</p>
+<strong>Temporary evidence</strong>
+<p>Attempts, hints and elapsed time stay in this page until restart or close.</p>
+</aside>
+</div>
+<footer>No audio, persistent history, mastery score, rhythm curriculum or generic melody engine is used here.</footer>
+</main>
+<script type="module" src="./phrase-app.js">
+</script>
+  <script type="module" src="./session-evidence.mjs"></script>
+</body>
+</html>

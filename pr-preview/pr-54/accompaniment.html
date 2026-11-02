@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · Accompaniment v1</title>
+  <link rel="stylesheet" href="./product-spine.css">
+  <link rel="stylesheet" href="./accompaniment.css">
+  <meta name="guitar-explorer-revision" content="891942ee58ba969ac42e65fe43ceb7e0600d193c">
+  <meta name="guitar-explorer-preview-pr" content="54">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-54">
+</head>
+<body class="product-spine accompaniment-page">
+  <header class="product-header" aria-label="Guitar Explorer workspace">
+    <a class="brand" href="./product-spine.html">Guitar Explorer</a>
+    <nav class="intent-nav" aria-label="Workspace intention">
+      <a class="intent-tab" href="./product-spine.html">Explore</a>
+      <span class="intent-tab" aria-pressed="true">Practice</span>
+      <span class="intent-tab is-disabled" aria-disabled="true">Apply</span>
+    </nav>
+    <div class="header-spacer"></div>
+    <p class="key-label">G major · 4/4</p>
+    <a class="secondary compact back-link" href="./product-spine.html">Return to desk</a>
+  </header>
+
+  <main class="workspace accompaniment-workspace">
+    <div class="moment-context">
+      <p class="eyebrow">Accompaniment v1</p>
+      <p class="context-label">One progression · your rhythm choices</p>
+    </div>
+
+    <h1>Build the rhythm under the chords</h1>
+    <p class="stage-lead">Start from a supplied progression. Change how long each chord lasts and what your strumming hand does, then hear the result before you play it yourself.</p>
+
+    <section class="accompaniment-card" aria-labelledby="progression-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Harmony stays fixed</p>
+          <h2 id="progression-heading">G → C → D7 → G</h2>
+        </div>
+        <p class="muted">The engine supplies the chords. The accompaniment choices are yours.</p>
+      </div>
+      <div id="progression-controls" class="progression-controls" aria-label="Bars per chord"></div>
+    </section>
+
+    <section class="accompaniment-card" aria-labelledby="tempo-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Playback pace</p>
+          <h2 id="tempo-heading">Tempo</h2>
+        </div>
+        <output id="tempo-output" for="accompaniment-tempo">84 BPM</output>
+      </div>
+      <input id="accompaniment-tempo" type="range" min="50" max="140" step="1" value="84" aria-label="Accompaniment tempo">
+    </section>
+
+    <section class="accompaniment-card" aria-labelledby="pattern-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">One bar · eighth-note grid</p>
+          <h2 id="pattern-heading">Strumming pattern</h2>
+        </div>
+        <p class="muted">Click a slot to cycle ↓ down, ↑ up, · rest.</p>
+      </div>
+
+      <div class="preset-row" aria-label="Pattern presets">
+        <button type="button" class="secondary compact" data-preset="steady">Steady eighths</button>
+        <button type="button" class="secondary compact" data-preset="open">Open groove</button>
+        <button type="button" class="secondary compact" data-preset="spacious">Leave space</button>
+      </div>
+
+      <div id="pattern-grid" class="pattern-grid" aria-label="Editable strumming pattern"></div>
+      <p id="pattern-readable" class="pattern-readable" aria-live="polite"></p>
+    </section>
+
+    <section class="accompaniment-card playback-card" aria-labelledby="playback-heading">
+      <div>
+        <p class="eyebrow">Hear it, then play it</p>
+        <h2 id="playback-heading">Accompaniment playback</h2>
+        <p class="muted">Listen once if useful. Then stop the app and play the same plan on your guitar.</p>
+      </div>
+      <div class="playback-actions">
+        <button type="button" id="accompaniment-play" class="primary">Hear accompaniment</button>
+        <button type="button" id="accompaniment-stop" class="secondary">Stop audio</button>
+        <a id="accompaniment-record" class="secondary" href="./looper.html">Record this plan</a>
+      </div>
+      <p id="accompaniment-status" class="feedback" role="status" aria-live="polite">Ready.</p>
+    </section>
+
+    <section class="physical-card" aria-labelledby="physical-heading">
+      <p class="eyebrow">Physical transfer</p>
+      <h2 id="physical-heading">Now make the accompaniment yours</h2>
+      <p>Mute playback. Keep the same tempo, chord lengths and strumming pattern. Play the full progression yourself, then change one pattern slot and compare how the feel changes.</p>
+    </section>
+  </main>
+
+  <footer class="product-footer">
+    <span>Harmony truth stays fixed. Rhythm choices stay editable.</span>
+    <span>Recording is a separate reusable runtime layer.</span>
+  </footer>
+
+  <script type="module" src="./accompaniment-app.js"></script>
+  <script type="module" src="./session-evidence.mjs"></script>
+</body>
+</html>

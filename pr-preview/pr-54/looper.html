@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · Looper v0</title>
+  <link rel="stylesheet" href="./product-spine.css">
+  <link rel="stylesheet" href="./accompaniment.css">
+  <link rel="stylesheet" href="./looper.css">
+  <meta name="guitar-explorer-revision" content="891942ee58ba969ac42e65fe43ceb7e0600d193c">
+  <meta name="guitar-explorer-preview-pr" content="54">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-54">
+</head>
+<body class="product-spine looper-page">
+  <header class="product-header" aria-label="Guitar Explorer workspace">
+    <a class="brand" href="./product-spine.html">Guitar Explorer</a>
+    <nav class="intent-nav" aria-label="Workspace intention">
+      <a class="intent-tab" href="./product-spine.html">Explore</a>
+      <span class="intent-tab" aria-pressed="true">Practice</span>
+      <span class="intent-tab">Apply</span>
+    </nav>
+    <div class="header-spacer"></div>
+    <p class="key-label">G major · local recording</p>
+    <a class="secondary compact back-link" href="./accompaniment.html">Back to accompaniment</a>
+  </header>
+
+  <main class="workspace looper-workspace">
+    <div class="moment-context">
+      <p class="eyebrow">Looper v0</p>
+      <p class="context-label">Your rhythm becomes the backing track</p>
+    </div>
+
+    <h1>Record the progression. Loop it. Improvise over yourself.</h1>
+    <p class="stage-lead">The app supplies timing and capture. You supply the performance. Nothing you record is graded, transcribed or uploaded.</p>
+
+    <section class="accompaniment-card" aria-labelledby="capture-plan-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Supplied practice context</p>
+          <h2 id="capture-plan-heading">G → C → D7 → G</h2>
+        </div>
+        <p id="capture-summary" class="muted"></p>
+      </div>
+      <div class="looper-plan-grid">
+        <div><span>Tempo</span><strong id="capture-tempo">84 BPM</strong></div>
+        <div><span>Bars</span><strong id="capture-bars">1 / 1 / 1 / 1</strong></div>
+        <div><span>Pattern</span><strong id="capture-pattern">↓ · ↓ ↑ · ↑ ↓ ↑</strong></div>
+        <div><span>Take length</span><strong id="capture-length">11.4s</strong></div>
+      </div>
+    </section>
+
+    <section class="accompaniment-card" aria-labelledby="input-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Local input</p>
+          <h2 id="input-heading">Choose what the browser records</h2>
+        </div>
+        <p class="muted">Use your laptop mic or audio interface. Monitoring stays off to avoid feedback.</p>
+      </div>
+      <div class="input-row">
+        <button type="button" id="enable-input" class="primary">Enable microphone</button>
+        <label for="input-device">Audio input</label>
+        <select id="input-device" disabled aria-label="Audio input device">
+          <option value="">Enable microphone first</option>
+        </select>
+      </div>
+      <p id="input-status" class="feedback" role="status" aria-live="polite">Audio stays in this browser tab. Guitar Explorer does not analyse or upload it.</p>
+    </section>
+
+    <section class="accompaniment-card looper-capture-card" aria-labelledby="record-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">One pass</p>
+          <h2 id="record-heading">Count in, then record the progression</h2>
+        </div>
+        <p class="muted">Four clicks lead you in. Recording then runs for exactly one supplied progression window.</p>
+      </div>
+
+      <div id="count-display" class="count-display" aria-live="assertive">Ready</div>
+      <div class="playback-actions">
+        <button type="button" id="record-start" class="primary" disabled>Count in & record</button>
+        <button type="button" id="capture-stop" class="secondary" disabled>Stop / cancel</button>
+        <button type="button" id="record-again" class="secondary" disabled>Discard & re-record</button>
+      </div>
+      <p id="record-status" class="feedback" role="status" aria-live="polite">Enable an audio input to begin.</p>
+    </section>
+
+    <section id="take-panel" class="accompaniment-card" aria-labelledby="take-heading" hidden>
+      <div class="section-heading-row">
+        <div>
+          <p class="eyebrow">Your take</p>
+          <h2 id="take-heading">Use your own rhythm as the backing track</h2>
+        </div>
+        <p class="muted">Loop playback is local media only. It is not proof that the progression was played correctly.</p>
+      </div>
+      <audio id="take-audio" preload="metadata"></audio>
+      <div class="playback-actions">
+        <button type="button" id="take-play" class="secondary">Play once</button>
+        <button type="button" id="take-loop" class="primary">Loop take</button>
+        <button type="button" id="take-stop" class="secondary">Stop playback</button>
+      </div>
+      <p id="take-status" class="feedback" role="status" aria-live="polite">Take ready.</p>
+    </section>
+
+    <section id="improv-panel" class="physical-card" aria-labelledby="improv-heading" hidden>
+      <p class="eyebrow">Improvisation bridge</p>
+      <h2 id="improv-heading">Keep the rhythm. Make one melodic decision.</h2>
+      <p id="improv-prompt"></p>
+      <p class="muted">This is deliberately small: the looper creates the repeatable context; the existing musical engine supplies the relationship to explore.</p>
+    </section>
+  </main>
+
+  <footer class="product-footer">
+    <span>Recorded audio is local media, not musical truth.</span>
+    <span>No grading · no transcription · no upload.</span>
+  </footer>
+
+  <script type="module" src="./looper-app.js"></script>
+  <script type="module" src="./session-evidence.mjs"></script>
+</body>
+</html>
