@@ -48,12 +48,38 @@ permanent generic Context framework, Learning Engine or broader engine abstracti
 
 ## Current active work
 
-There is **no active learner-facing implementation issue or PR** after Role Lens v0.
-Do not create runtime work merely to keep a queue active.
+Two independent tracks are active.
 
-The active question is now the **5–10 fragment Style Study**, a research-only
-representation pressure test. Use a small, source-backed set of real musical ideas
-from one or two coherent artists/traditions and record for each fragment:
+### 1. Audio Out v0.5 · Issue #47 / draft PR #48
+
+Arun's first Audio Out review rejected the primitive simultaneous oscillator / web-blip
+surface as too weak for a musical-learning product. The merge target is now a bounded
+v0.5 rather than the original v0 proof.
+
+The current slice adds only:
+
+- learner-controlled playback tempo (50–140 BPM in the current UI);
+- native sample-free plucked-string synthesis;
+- staggered pitch onsets for chord strums;
+- an explicit single-note pluck in Role Lens;
+- the existing Harmonic Gravity and Role Lens musical facts, unchanged.
+
+The Harmonic Gravity prompt still leaves the resolving answer silent. Audio remains
+optional and must preserve prediction plus physical guitar use rather than turning the
+experience into passive playback.
+
+This slice deliberately does **not** add editable strumming-pattern vocabulary,
+bars-per-chord accompaniment, recording/looping, Audio In, grading, a backing-track
+engine, sample-library framework, DAW/transport architecture or Style runtime.
+
+If the native plucked-string voice remains musically distracting in physical review,
+stop and evaluate one licensed/sample-backed guitar instrument as a separate decision
+rather than expanding synthesis architecture inside #48.
+
+### 2. 5–10 fragment Style Study · research only
+
+The Style Study continues independently as a source-backed representation pressure
+test. For each fragment record:
 
 - source/provenance;
 - pitch structure;
@@ -67,10 +93,7 @@ from one or two coherent artists/traditions and record for each fragment:
 - confidence/interpretation notes.
 
 The purpose is to discover repeated real representation needs before expanding the
-engine. Repeated material requirements may justify one later addition such as timed
-harmony, meter/groove, articulation, polyphony or phrase-level guitar placement.
-Heterogeneous gaps are evidence to keep material flexible rather than inventing a
-universal Style schema.
+engine. Do not shape the study to justify Audio, Accompaniment, Looper or Style runtime.
 
 ### Style research boundary
 
@@ -83,15 +106,21 @@ universal Style schema.
 - Do not turn copyrighted source material into a lick catalogue. Capture only the
   structure needed for capability analysis and transferable learning concepts.
 
-## Gated follow-ups
+## Planned sequence after Audio Out v0.5
 
-**Audio Out v0 remains waiting.** Role Lens confirms that listening-led interaction is
-valuable, but that alone does not require an audio subsystem. After the Style Study,
-compare whether the next highest-information slice is Audio Out, one specific
-representation addition exposed by the material study, or another material/action
-proof. If Audio Out is chosen, begin with the smallest renderer needed by one proven
-learner action. Native Web Audio remains the technical baseline; Tone.js, smplr and
-sample assets are experiments rather than architecture commitments.
+Only if #48 is physically accepted, the current product direction is:
+
+1. **Accompaniment v1** — separately scope meter, bars-per-chord and a small editable
+   strumming-pattern representation/playback boundary. Harmony truth remains in the
+   engine; accompaniment choice remains material/playback policy, not theory truth.
+2. **Looper v0** — only after accompaniment is useful, separately scope count-in,
+   record/re-record, loop playback and improvisation over the learner's own recorded
+   progression. Recorded audio remains media/observation, not proof of correctness.
+
+Neither follow-up is commissioned by this file. Each needs its own issue, implementation
+scope, exact-head preview and learner review.
+
+## Gated follow-ups
 
 **Audio In remains later and experimental.** A first spike should stop at permission /
 input level, onset and stable monophonic pitch. Preserve uncertainty in an
@@ -99,12 +128,15 @@ input level, onset and stable monophonic pitch. Preserve uncertainty in an
 would mean, but must not convert probabilistic perception into certain performed
 correctness. No polyphonic/style grading.
 
-Phrase/Harmony PR 2, meter/groove, articulation, polyphony, voicing/fingering
-promotion, broad AI/agent work, Style runtime and GX-10/rig control all remain gated
-by a concrete learner/material need.
+Phrase/Harmony PR 2, broad meter/groove/articulation/polyphony promotion,
+voicing/fingering promotion, broad AI/agent work, Style runtime and GX-10/rig control
+remain gated by a concrete learner/material need.
 
 ## Current PR / issue disposition
 
+- **PR #48 / Issue #47:** Audio Out v0.5 active and draft; current merge gate is exact-head
+  verification/preview plus Arun browser/audio/physical-guitar review and explicit
+  approval.
 - **PR #46 / Issue #45:** Role Lens v0 merged as
   `415605407252b4046fe36bc42b9af29043163517`; completed and physically accepted.
 - **PR #44 / Issue #43:** Product Spine v1 merged as `239d933`; completed.
@@ -116,19 +148,24 @@ by a concrete learner/material need.
 ## Review and verification
 
 Use `npm run verify` as the authoritative full repository gate for implementation.
-The next Style Study is research and therefore has no learner-facing merge gate of its
-own. Any future runtime slice derived from it must receive a new bounded issue, exact-
-head verification/preview where applicable, and physical review before merge.
+PR #48 must have refreshed exact-head CI and Pages revision evidence after the v0.5
+changes. Arun must test tempo, timbre, chord strum and Role Lens single-note playback
+with his guitar and explicitly approve the exact head before merge.
 
-Keep musical truth, task compliance, audio perception, AI proposals and subjective
-musical judgment separate.
+The Style Study is research and has no learner-facing merge gate of its own. Any future
+runtime slice derived from it must receive a new bounded issue and the normal review
+gates.
+
+Keep musical truth, accompaniment choice, task compliance, audio perception, AI
+proposals and subjective musical judgment separate.
 
 ## Where decisions live
 
 - GitHub master: merged implementation/capability.
 - GitHub issue/PR: one implementation slice's scope and evidence.
 - Figma: approved visual/product design when applicable.
-- Trello Project Hub: human-readable priorities, dependencies, sources and decisions.
+- Trello Project Hub: cross-chat meeting point for priorities, dependencies, sources and
+  decisions.
 - Research artifacts: input, not implementation authorization.
 
 `AGENTS.md` and `docs/AUTONOMY_CONTRACT.md` define execution boundaries;
