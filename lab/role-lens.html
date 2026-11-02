@@ -44,6 +44,11 @@
         <strong id="anchor-instruction"></strong>
         <p>Strum one chord, let it ring briefly, then play or sing the anchor pitch. Leave space between comparisons.</p>
       </div>
+      <div aria-label="Optional app audio comparison">
+        <button type="button" id="role-audio-play" class="secondary compact">Hear all three comparisons</button>
+        <button type="button" id="role-audio-stop" class="secondary compact">Stop audio</button>
+        <p id="role-audio-status" class="muted" role="status" aria-live="polite">Optional: hear the supplied comparison, then repeat it yourself with the same anchor pitch.</p>
+      </div>
     </section>
 
     <section id="predict-panel" class="role-panel" hidden aria-labelledby="predict-heading">
@@ -101,10 +106,11 @@
   </main>
 
   <footer class="product-footer">
-    <span>Your guitar supplies the sound.</span>
+    <span>App audio can demonstrate the supplied comparison; your guitar still does the learning work.</span>
     <span>One material · two learner actions · no score</span>
   </footer>
 
   <script type="module" src="/role-lens-app.js"></script>
+  <script type="module" src="/role-lens-audio.js"></script>
 </body>
 </html>
