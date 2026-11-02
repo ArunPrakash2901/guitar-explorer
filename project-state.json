@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Style Study: pressure-test real musical material before more engine architecture",
+  "stage": "Audio Out v0: let Guitar Explorer pose a musical question with sound",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Harmonic Gravity Product Spine v1 plus merged and physically accepted Role Lens v0",
+    "runtime": "merged Harmonic Gravity Product Spine v1 and Role Lens v0 plus active bounded Audio Out v0 slice",
     "learningValidation": "four legacy Lab experiences, Product Spine v1 and Role Lens v0 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": null,
-    "pullRequest": null,
-    "kind": "research-only-style-study",
-    "summary": "Run a source-backed 5-10 fragment representation pressure test before commissioning more engine or learner-facing runtime work."
+    "issue": 47,
+    "pullRequest": 48,
+    "kind": "learner-facing-implementation",
+    "summary": "Audio Out v0 is commissioned to let Harmonic Gravity pose its existing auditory question and prove reuse in Role Lens using a tiny native Web Audio renderer while preserving prediction and physical guitar use."
   },
   "evidence": {
     "issue": 15,
@@ -29,23 +29,23 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-and-role-lens"
+    "status": "accepted-legacy-labs-product-spine-and-role-lens-audio-out-new-review-required"
   },
   "gate": {
-    "issue": null,
-    "status": "research-active-no-runtime-implementation-commissioned",
-    "statement": "Role Lens v0 is merged and physically accepted. The next work is a 5-10 fragment Style Study to discover repeated representation needs. Do not create Style runtime, universal recipe/context architecture, broad engine expansion, Audio or AI implementation without a later bounded decision."
+    "issue": 47,
+    "status": "implementation-active-learner-review-required-before-merge",
+    "statement": "Audio Out v0 must consume existing deterministic musical facts, use native Web Audio first, remain optional, preserve the learner's prediction and physical guitar answer, and prove reuse across Harmonic Gravity and Role Lens without a general sequencer/DAW framework. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
   },
   "verification": {
     "command": "npm run verify",
     "ciWorkflow": ".github/workflows/ci.yml",
-    "status": "authoritative-for-implementation"
+    "status": "authoritative"
   },
   "reviewWorkflow": {
-    "implementationPreview": "required-before-merge-for-future-runtime-slices",
-    "previewReadiness": "no-active-runtime-pr",
+    "implementationPreview": "required-before-merge",
+    "previewReadiness": "draft-pr-48-awaiting-exact-head-gates",
     "reviewSurface": "github-pages-pr-preview",
-    "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-and-physical-guitar-review"
+    "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
   "deployments": {
     "stable": {
@@ -81,6 +81,9 @@
       "result": "one supplied material supported distinct role-notice, create-vary and transfer actions without a universal recipe/context framework"
     }
   },
+  "parallelResearch": {
+    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #47"
+  },
   "deferred": [
     "Phrase/Harmony PR 2 unless a concrete learner/material task needs its facts and it is separately commissioned",
     "Phase 2E progression/cadence/function breadth",
@@ -89,7 +92,7 @@
     "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "Audio Out until a later decision identifies the next proven learner need",
+    "Audio Out beyond the bounded native-Web-Audio v0 renderer until learner evidence justifies a larger capability",
     "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
     "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
