@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · Practice Session</title>
+  <link rel="stylesheet" href="./fretboard.css">
+  <style>
+    :root { color-scheme:dark; --bg:#101216; --panel:#191d24; --line:#343c49; --text:#edf0f5; --muted:#abb5c5; --accent:#9ebcf0; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:17px/1.6 system-ui,sans-serif; }
+    main { max-width:880px; margin:auto; padding:28px 20px 50px; }
+    a { color:var(--accent); }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { font-size:clamp(1.65rem,4vw,2.3rem); line-height:1.25; margin-bottom:12px; }
+    h2 { font-size:clamp(1.4rem,3vw,1.8rem); line-height:1.35; }
+    .muted,footer { color:var(--muted); }
+    .panel { background:var(--panel); padding:24px; border:1px solid var(--line); border-radius:15px; margin:24px 0; }
+    .eyebrow { color:var(--accent); font-size:.87rem; margin-bottom:10px; }
+    .context { color:var(--muted); font-size:.95rem; margin-bottom:20px; }
+    #prompt { font-size:1.15rem; }
+    #sequence { display:grid; gap:12px; margin:22px 0; }
+    .sequence-line { border-left:3px solid var(--accent); padding:8px 14px; font-size:1.35rem; letter-spacing:.02em; background:#12161d; }
+    button,select { color:var(--text); font:inherit; background:#232a35; border:1px solid #485569; border-radius:10px; min-height:48px; padding:10px 15px; }
+    button { cursor:pointer; }
+    button.primary { background:#314b72; border-color:#6785ad; }
+    button:disabled { opacity:.45; cursor:default; }
+    button[aria-pressed="true"] { border-color:#c4d9ff; background:#334b70; }
+    button:focus-visible,select:focus-visible,a:focus-visible { outline:3px solid #bad3ff; outline-offset:3px; }
+    .choices,.actions { display:flex; flex-wrap:wrap; gap:10px; margin:18px 0; }
+    .choices button { flex:1 1 170px; }
+    .actions { margin-bottom:0; }
+    .utility { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    .utility button { font-size:.9rem; background:transparent; }
+    #feedback { color:var(--muted); min-height:28px; margin:20px 0 0; }
+    #feedback.warn { color:#f0d29c; }
+    #feedback.good { color:#b8dfc6; }
+    #theory-panel { padding:18px; border:1px solid var(--line); border-radius:12px; background:#12161d; margin:20px 0; }
+    dl { display:grid; grid-template-columns:minmax(100px,170px) 1fr; gap:12px; }
+    dt { color:var(--muted); } dd { margin:0; }
+    .theory-note { color:var(--muted); font-size:.93rem; }
+    .board-wrap { overflow-x:auto; }
+    table { border-spacing:5px; width:100%; } th { font-size:.85rem; color:var(--muted); }
+    .fret { min-width:49px; padding:8px; }
+    .note-palette { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0; }
+    .note-card { background:#252f3d; border:1px solid #536984; padding:12px 16px; border-radius:10px; }
+    .note-card strong { display:block; font-size:1.2rem; }
+    .field { display:grid; gap:7px; margin:20px 0; }
+    .field select { width:100%; max-width:100%; }
+    [hidden] { display:none !important; }
+    @media(max-width:600px) { main { padding:18px 12px 36px; } .panel { padding:18px 14px; } dl { grid-template-columns:1fr; gap:4px; } dd { margin-bottom:12px; } .actions button { flex:1 1 160px; } }
+  </style>
+  <meta name="guitar-explorer-revision" content="4ab152cf0a7c5380d6e15ee999da5eabcb87b339">
+  <meta name="guitar-explorer-preview-pr" content="48">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-48">
+</head>
+<body>
+  <main>
+    <header>
+      <p><a href="./">Chord Lab</a> · <a href="./practice.html">Connected practice</a> · <a href="./harmony.html">Focused listening</a> · <a href="./voice-leading.html">The Parsimonious Path</a> · <a href="./melody.html">Melody Over Harmony</a> · <a href="./motif.html">Develop the Idea</a></p>
+      <h1 id="page-title">One musical idea, several connected angles</h1>
+      <p class="muted" id="session-duration">About 35–50 minutes with your guitar. Estimates guide attention; there is no timer.</p>
+    </header>
+    <section class="panel" aria-labelledby="stage-title">
+      <p class="eyebrow" id="block-label"></p>
+      <h2 id="stage-title" tabindex="-1"></h2>
+      <p class="context" id="context"></p>
+      <p id="prompt"></p>
+      <div id="sequence"></div>
+      <p class="muted" id="instruction"></p>
+      <section id="board-panel" hidden>
+        <div class="board-wrap"><div id="board" aria-label="Physical guitar commitment"></div></div>
+        <p class="muted">Play first, then select the fret you used. Only your screen commitment is checked.</p>
+      </section>
+      <section id="choices-panel" hidden aria-label="Your listening response">
+        <div class="choices" id="choices"></div>
+      </section>
+      <section id="theory-panel" aria-labelledby="theory-heading" hidden>
+        <h3 id="theory-heading"></h3>
+        <div id="theory"></div>
+      </section>
+      <section id="reflection-panel" hidden>
+        <label class="field">Where was the friction?
+          <select id="reflection-choice"><option value="">Choose what you noticed</option></select>
+        </label>
+        <label class="field">How immediate did the relationship feel? (optional)
+          <select id="immediacy"><option value="">Leave unanswered</option></select>
+        </label>
+      </section>
+      <div id="feedback" role="status" aria-live="polite"></div>
+      <div class="actions" id="actions">
+        <button type="button" class="primary" id="check-warmup" hidden>Check committed location</button>
+        <button type="button" id="reveal-warmup" hidden>Reveal this retrieval target</button>
+        <button type="button" class="primary" id="commit-prediction" hidden>Commit my prediction</button>
+        <button type="button" class="primary" id="confirm-listened" hidden>I played and listened</button>
+        <button type="button" class="primary" id="show-transfer-theory" hidden>Reveal the transferred relationship</button>
+        <button type="button" class="primary" id="record-reflection" hidden>Keep this reflection on this page</button>
+        <button type="button" class="primary" id="next" hidden>Continue</button>
+      </div>
+      <div class="utility">
+        <button type="button" id="back">Back</button>
+        <button type="button" id="replay">Repeat this listening step</button>
+        <button type="button" id="restart">Restart session</button>
+      </div>
+    </section>
+    <footer>Your guitar supplies the sound. The page records only what you choose to report, and checks locations only in the brief retrieval. Nothing is saved or scored. If a chord shape gets in the way, use a familiar arpeggio or note that friction in the reflection.</footer>
+  </main>
+  <script type="module" src="./practice-app.js"></script>
+  <script type="module" src="./session-evidence.mjs"></script>
+</body>
+</html>

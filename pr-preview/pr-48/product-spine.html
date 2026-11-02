@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · Harmonic Gravity</title>
+  <link rel="stylesheet" href="./fretboard.css">
+  <link rel="stylesheet" href="./product-spine.css">
+  <meta name="guitar-explorer-revision" content="4ab152cf0a7c5380d6e15ee999da5eabcb87b339">
+  <meta name="guitar-explorer-preview-pr" content="48">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-48">
+</head>
+<body class="product-spine">
+  <header class="product-header" aria-label="Guitar Explorer workspace">
+    <a class="brand" href="./product-spine.html">Guitar Explorer</a>
+    <nav id="intent-nav" class="intent-nav" aria-label="Workspace intention">
+      <button type="button" id="intent-explore" class="intent-tab" aria-pressed="true">Explore</button>
+      <button type="button" id="intent-practice" class="intent-tab" aria-pressed="false">Practice</button>
+      <span class="intent-tab is-disabled" aria-disabled="true">Apply</span>
+    </nav>
+    <p id="focus-label" class="focus-label" hidden>Practice · Harmonic Gravity</p>
+    <div class="header-spacer"></div>
+    <p id="key-label" class="key-label">G major</p>
+    <button type="button" id="return-desk" class="secondary compact" hidden>Return to desk</button>
+  </header>
+
+  <main class="workspace">
+    <div class="moment-context">
+      <p id="experience-label" class="eyebrow">Harmonic Gravity</p>
+      <p id="context-label" class="context-label">G major · G reference</p>
+    </div>
+
+    <div id="practice-moments" class="practice-moments" hidden aria-label="Practice journey">
+      <span data-moment="play">PLAY</span>
+      <span data-moment="notice">NOTICE</span>
+      <span data-moment="understand">UNDERSTAND</span>
+      <span data-moment="transfer">TRANSFER</span>
+    </div>
+
+    <h1 id="stage-title" tabindex="-1">Hear the pull back home</h1>
+    <p id="stage-lead" class="stage-lead"></p>
+
+    <section id="desk-panel" class="desk-grid" aria-label="Instrument Desk">
+      <aside class="question-panel" aria-labelledby="question-heading">
+        <h2 id="question-heading">Choose a musical question</h2>
+        <div class="question-list">
+          <button type="button" class="question active" id="question-harmonic">
+            <strong>Hear the pull back home</strong>
+            <span>Harmonic Gravity</span>
+          </button>
+          <a class="question" href="./role-lens.html">
+            <strong>Hear one note change roles</strong>
+            <span>Role Lens v0</span>
+          </a>
+          <a class="question" href="./melody.html">
+            <strong>Follow a note through chords</strong>
+            <span>Melody Over Harmony</span>
+          </a>
+          <a class="question" href="./voice-leading.html">
+            <strong>Connect chords with less movement</strong>
+            <span>The Parsimonious Path</span>
+          </a>
+        </div>
+      </aside>
+      <div class="instrument-workspace">
+        <div id="desk-board" class="board-slot" aria-label="Shared guitar fretboard"></div>
+        <p id="desk-note" class="muted">Inspect freely, then choose deliberate Practice when you want to retrieve and use the relationship.</p>
+      </div>
+    </section>
+
+    <section id="focus-panel" class="focus-panel" hidden aria-label="Playing focus">
+      <p class="focus-kicker">PLAY · Focus</p>
+      <p id="focus-prompt" class="focus-prompt"></p>
+      <p id="focus-cue" class="focus-cue"></p>
+      <p id="focus-instruction" class="focus-instruction"></p>
+      <div aria-label="Optional app audio prompt">
+        <button type="button" id="product-audio-play" class="secondary compact">Hear app prompt</button>
+        <button type="button" id="product-audio-stop" class="secondary compact">Stop audio</button>
+        <p id="product-audio-status" class="muted" role="status" aria-live="polite">Optional: let the app pose the chord question, then keep the silence and answer with your guitar.</p>
+      </div>
+    </section>
+
+    <section id="response-panel" class="response-panel" hidden aria-labelledby="response-heading">
+      <h2 id="response-heading">What do you expect next?</h2>
+      <div id="response-options" class="response-options"></div>
+      <p class="muted">Choose what you noticed. There is no correct listening response.</p>
+    </section>
+
+    <section id="relationship-panel" class="relationship-grid" hidden aria-label="One musical relationship">
+      <div id="relationship-board" class="board-slot"></div>
+      <div class="relationship-copy">
+        <p id="relationship-line-1"></p>
+        <p id="relationship-line-2"></p>
+        <p id="relationship-line-3"></p>
+      </div>
+    </section>
+
+    <section id="phrase-panel" class="phrase-panel" hidden aria-labelledby="phrase-heading">
+      <h2 id="phrase-heading">Use the connection in a tiny phrase</h2>
+      <p id="phrase-instruction"></p>
+      <div id="phrase-options" class="phrase-options"></div>
+      <p class="muted">The phrase choice is a musical constraint, not a scored answer.</p>
+    </section>
+
+    <section id="context-change-panel" class="context-change-panel" hidden aria-label="Context transfer">
+      <div>
+        <span>Current key</span>
+        <strong>G major</strong>
+      </div>
+      <b aria-hidden="true">→</b>
+      <div>
+        <span>Next key</span>
+        <strong>A major</strong>
+      </div>
+    </section>
+
+    <section id="reflection-panel" class="reflection-panel" hidden aria-labelledby="reflection-heading">
+      <h2 id="reflection-heading">What changed in your playing?</h2>
+      <p>Choose the closest description. This is your report, not a mastery score.</p>
+      <div id="reflection-options" class="reflection-options"></div>
+    </section>
+
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+
+    <div class="moment-actions">
+      <button type="button" id="secondary-action" class="secondary" hidden></button>
+      <div class="action-spacer"></div>
+      <button type="button" id="primary-action" class="primary"></button>
+    </div>
+  </main>
+
+  <footer class="product-footer">
+    <span>App audio can pose the prompt; your guitar still supplies the answer.</span>
+    <span>Session evidence · local only</span>
+  </footer>
+
+  <script type="module" src="./product-spine-app.js"></script>
+  <script type="module" src="./product-spine-audio.js"></script>
+  <script type="module" src="./session-evidence.mjs"></script>
+</body>
+</html>
