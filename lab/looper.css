@@ -1,0 +1,72 @@
+.looper-workspace {
+  max-width: 1080px;
+}
+
+.looper-plan-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.looper-plan-grid > div {
+  border: 1px solid var(--line, #2f3137);
+  border-radius: 0.75rem;
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.looper-plan-grid span,
+.input-row label {
+  color: var(--muted, #a7a9b0);
+  font-size: 0.85rem;
+}
+
+.input-row {
+  display: grid;
+  grid-template-columns: auto minmax(130px, 180px) minmax(220px, 1fr);
+  gap: 0.8rem;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.input-row select {
+  min-height: 2.6rem;
+}
+
+.looper-capture-card {
+  text-align: center;
+}
+
+.count-display {
+  min-height: 5.5rem;
+  display: grid;
+  place-items: center;
+  margin: 1rem 0;
+  border-radius: 1rem;
+  border: 1px solid var(--line, #2f3137);
+  font-size: clamp(2.2rem, 8vw, 4.6rem);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+
+.count-display.is-recording {
+  font-size: clamp(1.5rem, 5vw, 2.6rem);
+}
+
+#take-audio {
+  width: 100%;
+  margin: 0.75rem 0;
+}
+
+@media (max-width: 760px) {
+  .looper-plan-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .input-row {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+}
