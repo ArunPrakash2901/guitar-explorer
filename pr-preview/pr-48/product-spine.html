@@ -6,7 +6,7 @@
   <title>Guitar Explorer · Harmonic Gravity</title>
   <link rel="stylesheet" href="./fretboard.css">
   <link rel="stylesheet" href="./product-spine.css">
-  <meta name="guitar-explorer-revision" content="528d9d745c0aa6039907dd1a57c3f721753f1d60">
+  <meta name="guitar-explorer-revision" content="22b59a0cb2624e2df7a24e09accda4abc52c53b9">
   <meta name="guitar-explorer-preview-pr" content="48">
   <meta name="guitar-explorer-deployment-channel" content="preview">
   <meta name="guitar-explorer-deployment-label" content="pr-48">
@@ -75,9 +75,14 @@
       <p id="focus-cue" class="focus-cue"></p>
       <p id="focus-instruction" class="focus-instruction"></p>
       <div aria-label="Optional app audio prompt">
-        <button type="button" id="product-audio-play" class="secondary compact">Hear app prompt</button>
+        <div>
+          <label for="product-audio-tempo"><strong>Playback tempo</strong> · <output id="product-audio-tempo-value" for="product-audio-tempo">84 BPM</output></label>
+          <input type="range" id="product-audio-tempo" min="50" max="140" step="1" value="84" aria-describedby="product-audio-tempo-help">
+          <p id="product-audio-tempo-help" class="muted">Slow it down to let each strum ring longer, or speed it up when the question feels familiar.</p>
+        </div>
+        <button type="button" id="product-audio-play" class="secondary compact">Hear guitar prompt</button>
         <button type="button" id="product-audio-stop" class="secondary compact">Stop audio</button>
-        <p id="product-audio-status" class="muted" role="status" aria-live="polite">Optional: let the app pose the chord question, then keep the silence and answer with your guitar.</p>
+        <p id="product-audio-status" class="muted" role="status" aria-live="polite">Optional: let the app strum the chord question, then keep the silence and answer with your guitar.</p>
       </div>
     </section>
 
