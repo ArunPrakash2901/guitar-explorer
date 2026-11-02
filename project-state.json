@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-02",
-  "stage": "Audio Out v0.5: tempo-aware guitar-like prompts before accompaniment/looping",
+  "stage": "Accompaniment v1: editable strumming plan over supplied harmony",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Harmonic Gravity Product Spine v1 and Role Lens v0 plus active bounded Audio Out v0.5 slice",
-    "learningValidation": "four legacy Lab experiences, Product Spine v1 and Role Lens v0 physically/browser validated and accepted"
+    "runtime": "merged Harmonic Gravity Product Spine v1, Role Lens v0 and accepted Audio Out v0.5 plus active bounded Accompaniment v1 slice",
+    "learningValidation": "four legacy Lab experiences, Product Spine v1, Role Lens v0 and Audio Out v0.5 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": 47,
-    "pullRequest": 48,
+    "issue": 51,
+    "pullRequest": 52,
     "kind": "learner-facing-implementation",
-    "summary": "Revise Audio Out from the first oscillator proof into a bounded v0.5: adjustable playback tempo, native plucked-string synthesis, staggered chord strums and explicit single-note plucks across Harmonic Gravity and Role Lens."
+    "summary": "Accompaniment v1 reuses supplied G-C-D7-G harmony and accepted Audio Out rendering to prove learner-editable tempo, per-chord bar lengths and one-bar down/up/rest strumming patterns without a DAW, looper or new harmony theory."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-and-role-lens-audio-out-v0.5-new-review-required"
+    "status": "accepted-legacy-labs-product-spine-role-lens-and-audio-out-accompaniment-new-review-required"
   },
   "gate": {
-    "issue": 47,
+    "issue": 51,
     "status": "implementation-active-learner-review-required-before-merge",
-    "statement": "Audio Out v0.5 must consume existing deterministic musical facts, remain optional, preserve the learner's prediction and physical guitar answer, support tempo changes without changing musical truth, and prove one native plucked-string renderer across chord strums and single-note plucks. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
+    "statement": "Accompaniment v1 must keep harmony truth separate from accompaniment choices, remain bounded to supplied G-C-D7-G in 4/4 with editable tempo, per-chord bars and an eight-slot down/up/rest pattern, reuse accepted Audio Out rendering, and avoid recording/looping or a general transport framework. Require exact-head verify, exact-head Pages preview, Arun browser/physical-guitar review and explicit approval before merge."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "draft-pr-48-awaiting-refreshed-exact-head-gates",
+    "previewReadiness": "draft-pr-52-awaiting-exact-head-gates",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -79,15 +79,21 @@
       "approvedHead": "125f9458802b1f1fd02293c9a8c12240f3cbcd96",
       "mergeCommit": "415605407252b4046fe36bc42b9af29043163517",
       "result": "one supplied material supported distinct role-notice, create-vary and transfer actions without a universal recipe/context framework"
+    },
+    "audioOutV05": {
+      "issue": 47,
+      "pullRequest": 48,
+      "approvedHead": "7c5a7415efa858cb4a3d3daacfbd93b0f3917f94",
+      "mergeCommit": "3f1c8edd786202e93d9a12df6fd27217efa2c270",
+      "result": "learner-controlled tempo, guitar-like plucks/strums and a single-note pluck were physically/browser approved while prediction and physical guitar remained central"
     }
   },
   "parallelResearch": {
-    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #47"
+    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not broaden Issue #51"
   },
   "plannedSequence": {
-    "afterAudioOutV05": [
-      "Accompaniment v1: separately scoped meter/bars-per-chord/strumming-pattern representation plus editable playback only if v0.5 is accepted",
-      "Looper v0: separately scoped count-in/record/replay/loop for learner-created accompaniment only after accompaniment playback is useful"
+    "afterAccompanimentV1": [
+      "Looper v0: separately scope count-in, record/re-record and loop playback for learner-created accompaniment only if Accompaniment v1 is accepted and useful"
     ]
   },
   "deferred": [
@@ -98,11 +104,12 @@
     "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
-    "Audio Out beyond v0.5 accompaniment/transport features until the v0.5 learner proof is accepted and a separate slice is commissioned",
+    "general accompaniment/transport architecture beyond the bounded Accompaniment v1 proof",
+    "Looper v0 recording and loop capture until Accompaniment v1 is physically accepted",
     "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
     "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
-    "meter/groove/articulation/polyphony/timed-harmony expansion except a separately scoped accompaniment representation justified after v0.5",
+    "broad meter/groove/articulation/polyphony/timed-harmony expansion beyond the local Accompaniment v1 representation",
     "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
     "broad song/progression import",
