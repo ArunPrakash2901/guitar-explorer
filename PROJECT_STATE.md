@@ -2,152 +2,129 @@
 
 Last updated: 2026-11-02
 
-This is the operational entry point. `project-state.json` is its validated
-machine-readable companion; `npm run context` prints it with revision metadata.
+This is the operational entry point. `project-state.json` is its validated machine-readable companion; `npm run context` prints it with revision metadata.
 
 ## North star
 
-Help Arun see the fretboard, hear relationships, follow harmony, create and develop
-short phrases, improvise and transfer ideas on his guitar. For substantial work,
-state what he will be able to hear, understand, find, play, improvise or transfer
-more reliably. Physical usefulness is the product signal; completion is not mastery.
+Help Arun see the fretboard, hear relationships, follow harmony, create and develop short phrases, improvise and transfer ideas on his guitar. For substantial work, state what he will be able to hear, understand, find, play, improvise or transfer more reliably. Physical usefulness is the product signal; completion is not mastery.
 
 ## Accepted merged capability
 
-Merged master includes the deterministic engine through Phase 2D, existing Labs,
-ScenarioV1, bounded Melody generation, Phrase Foundation PR 1 (#41), Harmonic Gravity
-Product Spine v1 (#44), Role Lens v0 (#46), exact-head preview/verify/evidence tooling,
-and **Audio Out v0.5 (#48)**.
+Merged `master` includes:
 
-Issue #15 remains complete. Arun's acceptance of Harmonic Gravity / Practice Session,
-Parsimonious Path, Melody Over Harmony and Develop the Idea must not be repeated as an
-old blocker.
+- deterministic Music Engine through Phase 2D;
+- existing validated Labs, ScenarioV1 and bounded Melody generation;
+- Phrase Foundation PR 1 (#41): exact rational musical time plus pure monophonic Phrase/query capability;
+- Harmonic Gravity Product Spine v1 (#44): Instrument Desk, temporary PLAY Focus Mode, staged disclosure, tiny phrase use and transfer;
+- Role Lens v0 (#46): one supplied material supporting distinct role-notice, create/vary and transfer actions;
+- Audio Out v0.5 (#48): learner-controlled tempo, native plucked-string playback, staggered strums and explicit single-note plucks;
+- Accompaniment v1 (#52): supplied `G → C → D7 → G` harmony with editable tempo, per-chord bar lengths and one-bar down/up/rest strumming patterns;
+- exact-head preview/verify, Session Evidence v3 and physical-validation tooling.
 
-Product Spine v1 is accepted: Instrument Desk, temporary PLAY Focus Mode, preserved
-musical context and PLAY → NOTICE → UNDERSTAND → TRANSFER changed how Arun listened,
-predicted, noticed and made a musical decision rather than merely following
-instructions.
+Issue #15 is complete. Earlier accepted physical/browser trials must not be reopened as stale blockers.
 
-Role Lens v0 is accepted: one supplied material supported distinct role-notice,
-phrase creation/variation and transfer actions without requiring a universal recipe
-schema, generic Context framework or Learning Engine.
+## Current learner-facing review gate
 
-**Audio Out v0.5 is now accepted and merged.** Arun reviewed exact head
-`7c5a7415efa858cb4a3d3daacfbd93b0f3917f94` in the browser with his guitar and
-explicitly approved it. PR #48 merged as
-`3f1c8edd786202e93d9a12df6fd27217efa2c270`; Issue #47 is complete. Accepted Audio
-Out capability is intentionally bounded to learner-controlled tempo, native
-plucked-string playback, staggered chord strums and explicit single-note plucks. The
-learner's prediction and physical guitar remain central.
+### Guitar Performance v0 · Issue #55 / draft PR #56
 
-## Current active work
+Primary question: does using actual standard-tuning guitar placements for the accepted accompaniment make the rhythm/harmony easier to hear and reproduce physically?
 
-Two independent tracks are active.
+Current proof keeps the accepted `G → C → D7 → G` plan and compares:
 
-### 1. Accompaniment v1 · Issue #51 / draft PR #52
+- abstract registered chord tones through the native synth; and
+- curated playable open-position voicings `G 320003`, `C x32010`, `D7 xx0212`, still through the native synth.
 
-The next learner-facing slice is now commissioned.
+Architecture boundary:
 
-Goal: turn one supplied progression into an editable accompaniment plan the learner
-can hear, modify and then play physically.
+- Music Engine owns chord/pitch truth;
+- Guitar geometry supplies sounding positions;
+- the Guitar Performance adapter owns curated physical placement only;
+- Accompaniment owns tempo, bars and down/up/rest pattern;
+- the audio renderer owns sound only.
 
-The first proof deliberately reuses the existing G-major material:
+PR #56 is verified and previewable but **not approved for merge**. It still requires Arun's listening + physical-guitar A/B review and explicit approval of the exact head.
 
-`G → C → D7 → G`
+### Stacked sample feasibility experiment · Issue #57 / draft PR #58
 
-Current bounded scope:
+PR #58 is intentionally stacked on #56 so the same physical placements can be auditioned with a small legally sourced steel-string acoustic sample set.
 
-- 4/4 only;
-- tempo 50–140 BPM;
-- 1–4 bars independently for each chord;
-- one-bar eighth-note pattern with eight editable slots;
-- each slot is `down`, `up` or `rest`;
-- three starting patterns plus direct slot editing;
-- down/up events reuse the accepted Audio Out v0.5 renderer;
-- playback repeats the chosen pattern for each chord's configured bars;
-- the learner then stops playback and plays the same plan on guitar.
+The experiment uses exactly 12 required string/fret attacks, local CC0 assets, provenance/license records and Web Audio clock scheduling. It is a sample-feasibility audition, not a general sampler, electric DI guitar, amp model or TonePreset system.
 
-Architecture separation is mandatory:
+PR #58 is verified and previewable but **not approved for merge**. The preferred evidence session compares three modes on the same accompaniment:
 
-- **Harmony truth** stays in the deterministic engine / supplied musical material.
-- **Accompaniment plan** owns meter, tempo, bars and strumming choices. These are not
-  deterministic theory truth.
-- **Audio renderer** renders the plan. It does not choose harmony or musical taste.
+1. abstract chord-tone native synth;
+2. curated physical voicings through native synth;
+3. curated physical voicings through sampled acoustic guitar.
 
-Explicitly out of scope for #51/#52: recording, loop capture, microphone analysis,
-performance grading, generalized transport/DAW/mixer architecture, swing/groove
-quality judgement, Style runtime, AI-generated accompaniment, persistence and new
-harmony theory.
+Even if one physical session supplies evidence for both boundaries, #56 and #58 remain separate merge decisions.
 
-Merge gate: exact-head `npm run verify`, exact-head Pages preview, Arun browser +
-physical-guitar review, then explicit approval of that exact head.
+## Closed / superseded work
 
-### 2. 5–10 fragment Style Study · research only
+### Harmonic Gravity UI follow-up · Issue #49 / PR #50
 
-The Style Study continues independently as a source-backed representation pressure
-test. For each fragment record source/provenance, pitch structure, supported rhythm,
-harmonic situation/roles, articulation/technique, guitar placement where known,
-transferable principle, current representability, missing representation and
-confidence/interpretation notes.
+Closed unmerged as superseded by a later consolidated Instrument Desk/Product Design pass. Preserve its concrete reference fixes: one NOTICE question, temporary focused PLAY actions, keyboard-focus preservation, explicit transfer-key boundary and responsive layout. Do not treat #50 as shipped behavior.
 
-The study must not be shaped to justify Accompaniment, Looper or Style runtime. Repeated
-real requirements may later justify one bounded representation addition; heterogeneous
-gaps are evidence to keep material flexible.
+### MediaRecorder Looper v0 · Issue #53 / PR #54
 
-## Planned next slice after Accompaniment v1
+Closed unmerged. Preserve its UX evidence: permission, input selection, count-in, re-record, play/loop/stop and improvisation handoff.
 
-Only if Accompaniment v1 is physically useful and accepted:
+Do **not** promote its MediaRecorder + JavaScript-timer + HTML audio timing path as the musical looper architecture. A future precise looper must be separately scoped around a shared Web Audio clock, fixed-frame PCM/AudioWorklet capture, AudioBuffer looping, seam behavior and real-device input-latency testing.
 
-**Looper v0** may separately test count-in, input-device choice, one bounded learner
-recording, re-record, loop playback and improvisation over the learner's own
-accompaniment.
+## Parallel research
 
-Recorded learner audio is media/observation, not deterministic proof of correctness.
-Looper v0 does not automatically authorize pitch grading, transcription, effects,
-cloud storage or a DAW.
+The 5–10 fragment Style Study continues independently as a source-backed representation pressure test. It must remain research, not a Style Pack/runtime implementation. Repeated real requirements may justify one later bounded representation addition; isolated awkward fragments do not justify a framework.
 
-## Gated follow-ups
+## Planned sequence after the current review
 
-Audio In remains later and experimental. A first spike should stop at permission /
-input level, onset and stable monophonic pitch, preserving uncertainty in an
-`AudioObservation` rather than converting perception into certain correctness.
+No later slice is automatic.
 
-Phrase/Harmony PR 2, broad meter/groove/articulation/polyphony promotion,
-voicing/fingering promotion, broad AI/agent work, Style runtime and GX-10/rig control
-remain gated by concrete learner/material needs.
+1. Complete Arun's physical/listening review of #56/#58.
+2. If accepted, merge #56 and #58 separately with exact-head approval and clean base history.
+3. Only then decide whether a tiny common audio-instrument interface is earned by real reuse.
+4. Separately commission a PCM/AudioWorklet looper proof if learner recording/looping still has clear value.
+5. After runtime boundaries are stable, do one consolidated Product Design/Figma pass for accompaniment + recording/looping + improvisation/target-navigation inside the Instrument Desk.
+6. Freeze broad audio/platform work and return the main product lane to learner capability, especially fretboard navigation and transfer.
 
-## Current PR / issue disposition
-
-- **PR #52 / Issue #51:** Accompaniment v1 active and draft; review/merge gate pending.
-- **PR #48 / Issue #47:** Audio Out v0.5 merged as
-  `3f1c8edd786202e93d9a12df6fd27217efa2c270`; physically/browser accepted.
-- **PR #46 / Issue #45:** Role Lens v0 merged and physically accepted.
-- **PR #44 / Issue #43:** Product Spine v1 merged and physically accepted.
-- **PR #41 / Issue #40:** Phrase Foundation PR 1 merged; PR 2 is not commissioned.
-- **PR #36 / Issue #35:** merged; retain exact-head preview protection.
-- **PR #39 / Issue #38:** deferred and closed unmerged.
+Tone/amp modelling is not on the critical path. It should return only when a suitable electric/DI source and concrete learner need justify it.
 
 ## Review and verification
 
 Use `npm run verify` as the authoritative full repository gate for implementation.
-Learner-facing runtime work requires the exact-head Pages preview and Arun's explicit
-browser/physical-guitar approval before merge.
 
-The Style Study is research and has no learner-facing merge gate by itself.
+Learner-facing runtime work requires:
 
-Keep musical truth, accompaniment choice, task compliance, audio perception, AI
-proposals and subjective musical judgment separate.
+- exact-head verification;
+- exact-head GitHub Pages preview;
+- Arun browser/audio/physical-guitar review where relevant;
+- explicit approval of that exact head before merge.
+
+Documentation/control-plane reconciliation does not require a new physical trial.
+
+## Permanent boundaries
+
+Keep these distinct:
+
+- deterministic musical truth;
+- supplied/curated musical material;
+- guitar placement/performance choices;
+- accompaniment choices;
+- audio rendering;
+- audio observations;
+- exercise/task compliance;
+- AI proposals;
+- subjective human musical judgment.
+
+Do not introduce a generic Learning Engine, universal Exercise Recipe DSL, permanent generic Context/Constraint layer, backend analytics/mastery system, DAW, automatic audio grading or broad Style runtime without a separately justified learner need.
 
 ## Where decisions live
 
-- GitHub master: merged implementation/capability.
-- GitHub issue/PR: one implementation slice's scope and evidence.
-- Figma: approved visual/product design when applicable.
-- Trello Project Hub: cross-chat meeting point for priorities, dependencies, sources and
-  decisions.
-- Research artifacts: input, not implementation authorization.
+- GitHub `master`: merged implementation/capability authority.
+- GitHub issue/PR: one bounded implementation slice and its evidence.
+- `PROJECT_STATE.md` / `project-state.json`: current operational gate.
+- `docs/ARCHITECTURE.md`: durable architecture and boundaries, not transient queue state.
+- `AGENTS.md`: durable execution rules, not transient queue state.
+- Figma: approved visual/product direction where applicable.
+- Trello Project Hub: cross-chat meeting/navigation point for priorities, dependencies and research references.
+- Research artifacts: evidence/input, never blanket implementation authorization.
 
-`AGENTS.md` and `docs/AUTONOMY_CONTRACT.md` define execution boundaries;
-`docs/ARCHITECTURE.md` defines architecture, and the physical protocol applies to new
-trials. Keep the control layer small; add no other planning system or invented
-deadlines.
+`docs/AUTONOMY_CONTRACT.md` defines execution/approval boundaries. Keep the control layer small; add no parallel planning system or invented deadlines.
