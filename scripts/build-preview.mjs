@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const labRoot = resolve(projectRoot, "lab");
 const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
+const researchFixtureRoot = resolve(projectRoot, "tests", "fixtures", "style");
 const outputRoot = resolve(projectRoot, ".preview-dist");
 const revision = process.env.GE_REVISION || process.env.GITHUB_SHA || "local";
 const previewPr = process.env.GE_PREVIEW_PR || "";
@@ -27,6 +28,13 @@ const requiredPaths = [
   "instrument-desk.html",
   "instrument-desk.css",
   "instrument-desk-app.js",
+  "my-music.html",
+  "my-music.css",
+  "my-music-app.js",
+  "interesting-material.mjs",
+  "research/style/jf-cand-004.json",
+  "research/style/jf-cand-011.json",
+  "research/style/jf-cand-012.json",
   "chord-lab.html",
   "product-spine.html",
   "product-spine.css",
@@ -89,7 +97,7 @@ function injectPreviewShell(filename, source) {
     ].join("\n");
     transformed = transformed.replace("</head>", `${metadata}\n</head>`);
   }
-  const productShell = filename === "index.html" || filename === "instrument-desk.html";
+  const productShell = ["index.html", "instrument-desk.html", "my-music.html"].includes(filename);
   if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs") && !productShell) {
     transformed = transformed.replace(
       "</body>",
@@ -127,6 +135,8 @@ await rm(outputRoot, { recursive: true, force: true });
 await mkdir(outputRoot, { recursive: true });
 await cp(labRoot, outputRoot, { recursive: true });
 await cp(engineRoot, join(outputRoot, "engine"), { recursive: true });
+await mkdir(join(outputRoot, "research", "style"), { recursive: true });
+await cp(researchFixtureRoot, join(outputRoot, "research", "style"), { recursive: true });
 
 // Product builds expose the Instrument Desk at the root while retaining the Chord Lab
 // as an explicit legacy/dev route. Source index.html remains the long-standing Chord
