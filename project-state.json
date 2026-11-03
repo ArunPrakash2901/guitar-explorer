@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 73,
-    "pullRequest": null,
+    "pullRequest": 74,
     "kind": "learner-facing-implementation",
     "summary": "Second child of #70: Role Ear \u2192 Fretboard in the same runtime. Hear changing sampled chord contexts, commit ungraded impressions, reveal engine facts, find/play a fixed anchor and transfer. Interval Hunt unchanged."
   },
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "Role Ear child requires its own exact-head PR preview; completed #72 is no longer a pending review gate",
+    "previewReadiness": "Role Ear draft PR #74 requires exact-head verify and Pages preview, then Arun listening/acoustic-guitar review",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },

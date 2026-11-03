@@ -26,7 +26,7 @@ The milestone eventually proves Interval Hunt, Role Ear → Fretboard and Target
 
 ## Current bounded child and review gate
 
-Issue #73: Productization 1B — Role Ear → Fretboard inside the same root Practice Runtime.
+Issue #73 / draft PR #74: Productization 1B — Role Ear → Fretboard inside the same root Practice Runtime.
 
 Fresh branch from master d2db197. Adds one real Ear/context focus: hear an unchanged anchor against three chords → commit ungraded impressions → reveal engine role facts → locate/play the anchor → play that same pitch against changing sampled harmony → transfer to another anchor/context order → complete. Interval Hunt stays available and unchanged.
 
