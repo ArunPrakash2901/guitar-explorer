@@ -1,13 +1,13 @@
-import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { createFretboard } from "./fretboard-view.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { chordRole, pathConnections } from "./phrase-material.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { getMelodyScenarios, getMotifScenarios } from "./scenario-catalogue.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { resolveScenario } from "./scenario-resolver.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { createMelodyPlan } from "./melody-session.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { createMotifPlan } from "./motif-session.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "./melody-generator.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "./melody-experience.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { setScenarioContext } from "./scenario-context.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { chordRole, pathConnections } from "./phrase-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { getMelodyScenarios, getMotifScenarios } from "./scenario-catalogue.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { resolveScenario } from "./scenario-resolver.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { createMelodyPlan } from "./melody-session.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { createMotifPlan } from "./motif-session.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "./melody-generator.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "./melody-experience.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { setScenarioContext } from "./scenario-context.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 
 const $ = (id) => document.getElementById(id);
 const queries = createPhraseQueries({ musicQueries, STANDARD_FRETBOARD, formatNote });

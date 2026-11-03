@@ -1,18 +1,18 @@
-import { musicQueries, formatNote } from "./engine/index.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { createFretboard } from "./fretboard-view.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { STEEL_SAMPLES } from "./sampled-guitar-manifest.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { createSampledGuitar } from "./sampled-guitar.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { composeIntervalSession } from "./practice-material.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { beginSession, advanceSession, intervalBoard, intervalCue, stringName } from "./practice-plan.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { musicQueries, formatNote } from "./engine/index.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { STEEL_SAMPLES } from "./sampled-guitar-manifest.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { createSampledGuitar } from "./sampled-guitar.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { composeIntervalSession } from "./practice-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { beginSession, advanceSession, intervalBoard, intervalCue, stringName } from "./practice-plan.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 
-import { composeRoleSession } from "./role-material.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { prepareRolePerformance, roleCue } from "./role-performance.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { beginRoleSession, advanceRoleSession } from "./role-plan.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { renderRoleTask } from "./role-view.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { composeIntervalDepth, composeRoleDepth } from "./practice-depth-material.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { beginDepthSession, advanceDepthSession } from "./practice-depth-plan.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { prepareDepthPerformance, depthCue } from "./practice-depth-audio.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { renderDepthTask } from "./practice-depth-view.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { composeRoleSession } from "./role-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { prepareRolePerformance, roleCue } from "./role-performance.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { beginRoleSession, advanceRoleSession } from "./role-plan.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { renderRoleTask } from "./role-view.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { composeIntervalDepth, composeRoleDepth } from "./practice-depth-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { beginDepthSession, advanceDepthSession } from "./practice-depth-plan.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { prepareDepthPerformance, depthCue } from "./practice-depth-audio.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { renderDepthTask } from "./practice-depth-view.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 
 const $ = (id) => document.getElementById(id);
 const audio = createSampledGuitar();

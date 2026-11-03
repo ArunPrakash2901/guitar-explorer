@@ -1,4 +1,4 @@
-import { registerChord } from "./audio-out.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { registerChord } from "./audio-out.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 
 export const ACCOMPANIMENT_SUBDIVISIONS = Object.freeze(["1", "&", "2", "&", "3", "&", "4", "&"]);
 export const ACCOMPANIMENT_ACTIONS = Object.freeze(["down", "up", "rest"]);

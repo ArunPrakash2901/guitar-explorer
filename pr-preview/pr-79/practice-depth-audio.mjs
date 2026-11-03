@@ -1,5 +1,5 @@
-import { prepareRolePerformance } from "./role-performance.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { depthPositionKey as key } from "./practice-depth-material.mjs?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { prepareRolePerformance } from "./role-performance.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { depthPositionKey as key } from "./practice-depth-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 
 export function prepareDepthPerformance(plan, { queries, availablePositions }) {
   const coverage = new Set(availablePositions.map(key));

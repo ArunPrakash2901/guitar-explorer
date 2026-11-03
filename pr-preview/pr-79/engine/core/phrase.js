@@ -1,7 +1,7 @@
-import { assertRecord, MusicError } from "./errors.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { getIntervalBetweenPitches, transposePitch, validateInterval } from "./intervals.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { toSemitone, validatePitch } from "./pitch.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { addMusicalTime, compareMusicalTime, MAX_TEMPORAL_EVENTS, normalizeMusicalTime, sameMusicalTime, subtractMusicalTime, ZERO_MUSICAL_TIME, } from "./time.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { assertRecord, MusicError } from "./errors.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { getIntervalBetweenPitches, transposePitch, validateInterval } from "./intervals.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { toSemitone, validatePitch } from "./pitch.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { addMusicalTime, compareMusicalTime, MAX_TEMPORAL_EVENTS, normalizeMusicalTime, sameMusicalTime, subtractMusicalTime, ZERO_MUSICAL_TIME, } from "./time.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 function atPath(path, action) {
     try {
         return action();

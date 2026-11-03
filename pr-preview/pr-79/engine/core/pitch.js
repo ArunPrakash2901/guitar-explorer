@@ -1,4 +1,4 @@
-import { assertInteger, assertRecord, MusicError } from "./errors.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { assertInteger, assertRecord, MusicError } from "./errors.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 export const NOTE_LETTERS = Object.freeze(["C", "D", "E", "F", "G", "A", "B"]);
 export const NATURAL_PITCH_CLASSES = Object.freeze({
     C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11,

@@ -1,13 +1,13 @@
-import { analysePitch, spellSemitone, validateContext } from "../core/context.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { buildChord, buildScale } from "../core/collections.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { buildChordCatalog } from "../core/chords.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { buildDiatonicHarmony } from "../core/harmony.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { assertRecord, MusicError } from "../core/errors.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { getIntervalBetweenPitches, intervalBetweenNotes, invertSimpleInterval, transposeNote as transposeWrittenNote, transposePitch as transposeRegisteredPitch } from "../core/intervals.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { buildKeyProfile, buildKeySignature, getFifthsRelationships, getRelativeKeyRelationship } from "../core/keys.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { mod12, validateNote } from "../core/pitch.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { buildPhrase, extractPhraseFragment, phraseContour, phraseIntervals, samePhraseContour, samePhraseIntervals, samePhraseRhythm, transposePhrase, } from "../core/phrase.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
-import { findLocations, getNoteAt, STANDARD_FRETBOARD } from "../guitar/fretboard.js?ge-revision=8b3830d1376736c80e35194273dc4a2d2d3b31b2";
+import { analysePitch, spellSemitone, validateContext } from "../core/context.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { buildChord, buildScale } from "../core/collections.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { buildChordCatalog } from "../core/chords.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { buildDiatonicHarmony } from "../core/harmony.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { assertRecord, MusicError } from "../core/errors.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { getIntervalBetweenPitches, intervalBetweenNotes, invertSimpleInterval, transposeNote as transposeWrittenNote, transposePitch as transposeRegisteredPitch } from "../core/intervals.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { buildKeyProfile, buildKeySignature, getFifthsRelationships, getRelativeKeyRelationship } from "../core/keys.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { mod12, validateNote } from "../core/pitch.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { buildPhrase, extractPhraseFragment, phraseContour, phraseIntervals, samePhraseContour, samePhraseIntervals, samePhraseRhythm, transposePhrase, } from "../core/phrase.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { findLocations, getNoteAt, STANDARD_FRETBOARD } from "../guitar/fretboard.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
 function query(request, action) {
     try {
         assertRecord(request, "request");
