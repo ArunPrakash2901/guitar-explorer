@@ -5,19 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Guitar Explorer · Harmonic Gravity</title>
   <link rel="stylesheet" href="/fretboard.css">
+  <link rel="stylesheet" href="/instrument-desk.css">
   <link rel="stylesheet" href="/product-spine.css">
 </head>
 <body class="product-spine">
   <header class="product-header" aria-label="Guitar Explorer workspace">
-    <a class="brand" href="/product-spine.html">Guitar Explorer</a>
+    <a class="brand" href="/">Guitar Explorer</a>
     <nav id="intent-nav" class="intent-nav" aria-label="Workspace intention">
-      <button type="button" id="intent-explore" class="intent-tab" aria-pressed="true">Explore</button>
-      <button type="button" id="intent-practice" class="intent-tab" aria-pressed="false">Practice</button>
-      <span class="intent-tab is-disabled" aria-disabled="true">Apply</span>
+      <button type="button" id="intent-explore" class="intent-tab" aria-pressed="true">♧ Explore</button>
+      <button type="button" id="intent-practice" class="intent-tab" aria-pressed="false">Ⅱ Practice</button>
+      <a class="intent-tab" href="/accompaniment.html">◇ Apply</a>
     </nav>
     <p id="focus-label" class="focus-label" hidden>Practice · Harmonic Gravity</p>
     <div class="header-spacer"></div>
     <p id="key-label" class="key-label">G major</p>
+    <div class="product-theme" aria-label="Appearance">
+      <button type="button" class="theme-option" id="theme-light" aria-pressed="true">☼ Light</button>
+      <button type="button" class="theme-option" id="theme-dark" aria-pressed="false">◐ Dark</button>
+    </div>
     <button type="button" id="return-desk" class="secondary compact" hidden>Return to desk</button>
   </header>
 
@@ -39,7 +44,7 @@
 
     <section id="desk-panel" class="desk-grid" aria-label="Instrument Desk">
       <aside class="question-panel" aria-labelledby="question-heading">
-        <h2 id="question-heading">Choose a musical question</h2>
+        <h2 id="question-heading">Practice questions</h2>
         <div class="question-list">
           <button type="button" class="question active" id="question-harmonic">
             <strong>Hear the pull back home</strong>
@@ -47,11 +52,7 @@
           </button>
           <a class="question" href="/role-lens.html">
             <strong>Hear one note change roles</strong>
-            <span>Role Lens v0</span>
-          </a>
-          <a class="question" href="/accompaniment.html">
-            <strong>Build the rhythm under the chords</strong>
-            <span>Accompaniment v1</span>
+            <span>Role Lens</span>
           </a>
           <a class="question" href="/melody.html">
             <strong>Follow a note through chords</strong>
@@ -60,6 +61,10 @@
           <a class="question" href="/voice-leading.html">
             <strong>Connect chords with less movement</strong>
             <span>The Parsimonious Path</span>
+          </a>
+          <a class="question" href="/accompaniment.html">
+            <strong>Build the rhythm under the chords</strong>
+            <span>Apply · Accompaniment</span>
           </a>
         </div>
       </aside>
@@ -109,15 +114,9 @@
     </section>
 
     <section id="context-change-panel" class="context-change-panel" hidden aria-label="Context transfer">
-      <div>
-        <span>Current key</span>
-        <strong>G major</strong>
-      </div>
+      <div><span>Current key</span><strong>G major</strong></div>
       <b aria-hidden="true">→</b>
-      <div>
-        <span>Next key</span>
-        <strong>A major</strong>
-      </div>
+      <div><span>Next key</span><strong>A major</strong></div>
     </section>
 
     <section id="reflection-panel" class="reflection-panel" hidden aria-labelledby="reflection-heading">
@@ -137,9 +136,10 @@
 
   <footer class="product-footer">
     <span>App audio can pose the prompt; your guitar still supplies the answer.</span>
-    <span>Session evidence · local only</span>
+    <span>G major · Standard tuning · local session evidence</span>
   </footer>
 
+  <script type="module" src="/product-theme.js"></script>
   <script type="module" src="/product-spine-app.js"></script>
   <script type="module" src="/product-spine-audio.js"></script>
 </body>
