@@ -42,7 +42,7 @@ Read docs/PRODUCTIZATION_1_BLUEPRINT.md for the current flow audit, minimal stat
 
 ## Current Practice Depth child
 
-Issue #77 is the depth acceptance target; bounded child #78 is the current unmerged implementation. Read docs/PRACTICE_DEPTH_MATRIX.md for the engine/audio inventory, selected tasks, exclusions and review examples. Existing queries already supply the facts; no Music Engine expansion.
+Issue #77 is the depth acceptance target; bounded child #78 / draft PR #79 is the current unmerged implementation. Read docs/PRACTICE_DEPTH_MATRIX.md for the engine/audio inventory, selected tasks, exclusions and review examples. Existing queries already supply the facts; no Music Engine expansion.
 
 Foundation remains unchanged. One Foundation/Stretch choice stays inside Home and the same runtime. Interval Stretch: alternate physical routes/fretted targets → chord-role translation → reconstruct a new root from a given third. Role Stretch: predict before hearing → compare two pitches over one chord → transfer that comparison to changed harmony. Subjective expectations, hearing and A/B preferences remain ungraded.
 

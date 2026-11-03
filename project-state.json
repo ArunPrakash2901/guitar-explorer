@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 78,
-    "pullRequest": null,
+    "pullRequest": 79,
     "kind": "learner-facing-implementation",
     "parentIssue": 77,
     "milestoneIssue": 70,
@@ -45,7 +45,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "Practice Depth child #78 requires full verify and exact-head Pages preview, then repeated Foundation/Stretch listening and physical-guitar review",
+    "previewReadiness": "Practice Depth child #78 / draft PR #79 requires full verify and exact-head Pages preview, then repeated Foundation/Stretch listening and physical-guitar review",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
