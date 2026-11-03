@@ -1,6 +1,6 @@
-import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js?ge-revision=ee2a3d42ae11bf8d1906c4775b7d967d78be93d2";
-import { createVoiceLeadingPlan } from "./voice-leading-session.mjs?ge-revision=ee2a3d42ae11bf8d1906c4775b7d967d78be93d2";
-import { createFretboard } from "./fretboard-view.mjs?ge-revision=ee2a3d42ae11bf8d1906c4775b7d967d78be93d2";
+import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js?ge-revision=e1287e484dd225d35a5c02e04b22b6d4eb47ad99";
+import { createVoiceLeadingPlan } from "./voice-leading-session.mjs?ge-revision=e1287e484dd225d35a5c02e04b22b6d4eb47ad99";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=e1287e484dd225d35a5c02e04b22b6d4eb47ad99";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {

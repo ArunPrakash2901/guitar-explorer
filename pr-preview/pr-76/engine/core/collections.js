@@ -1,6 +1,6 @@
-import { assertRecord, MusicError } from "./errors.js?ge-revision=ee2a3d42ae11bf8d1906c4775b7d967d78be93d2";
-import { describeInterval, transposeNote } from "./intervals.js?ge-revision=ee2a3d42ae11bf8d1906c4775b7d967d78be93d2";
-import { pitchClass, validateNote } from "./pitch.js?ge-revision=ee2a3d42ae11bf8d1906c4775b7d967d78be93d2";
+import { assertRecord, MusicError } from "./errors.js?ge-revision=e1287e484dd225d35a5c02e04b22b6d4eb47ad99";
+import { describeInterval, transposeNote } from "./intervals.js?ge-revision=e1287e484dd225d35a5c02e04b22b6d4eb47ad99";
+import { pitchClass, validateNote } from "./pitch.js?ge-revision=e1287e484dd225d35a5c02e04b22b6d4eb47ad99";
 function formula(tones) {
     return Object.freeze(tones.map(([degree, alteration]) => Object.freeze({ degree, alteration })));
 }
