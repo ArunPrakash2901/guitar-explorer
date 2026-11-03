@@ -51,7 +51,7 @@ export async function loadInterestingMaterials({ fetchImpl = globalThis.fetch } 
 export function evidenceBoundary(fragment) {
   if (!fragment || !Array.isArray(fragment.observations)) throw new TypeError("Research fragment is required");
   return Object.freeze({
-    supported: Object.freeze(fragment.observations.filter((item) => item.status !== "unknown")),
+    supported: Object.freeze(fragment.observations.filter((item) => item.status !== "unknown" && item.status !== "contested")),
     unknown: Object.freeze(fragment.observations.filter((item) => item.status === "unknown")),
     contested: Object.freeze(fragment.observations.filter((item) => item.status === "contested")),
     alternatives: Object.freeze([...(fragment.alternatives ?? [])]),
