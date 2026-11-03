@@ -116,6 +116,11 @@ function renderHomeFocus() {
     $("outline-" + i + "-title").textContent = title;
     $("outline-" + i + "-copy").textContent = copy;
   }
+  if (session && session.stage !== "complete") {
+    const pausedFocus = isRole() ? "ear practice" : session.plan.quality === "minor" ? "minor thirds" : "major thirds";
+    $("continue-practice").textContent = "Continue " + pausedFocus;
+    $("continue-note").textContent = "Continue resumes your paused " + pausedFocus + ". Start fresh uses Today’s focus and replaces that session. Reloading starts fresh.";
+  }
 }
 
 function render() {
