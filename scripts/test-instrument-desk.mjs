@@ -43,7 +43,8 @@ assert.match(deskApp, /createFretboard/);
 assert.match(deskApp, /positions: \[\]/);
 assert.match(deskApp, /connections: \[\]/);
 assert.match(deskApp, /guitar-explorer-theme/);
-assert.match(deskApp, /does not pretend song import is available yet/);
+assert.match(deskApp, /new URL\("\.\/my-music\.html", import\.meta\.url\)/);
+assert.doesNotMatch(deskApp, /research contract is under review|does not pretend song import is available yet/);
 assert.doesNotMatch(deskApp, /src\/research|tests\/fixtures\/style|jf-cand/i);
 
 assert.match(deskCss, /--ge-canvas: #f7f3ea/);
@@ -53,12 +54,13 @@ assert.match(deskCss, /--ge-canvas: #211f1b/);
 assert.match(deskCss, /--ge-accent: #c8d5a6/);
 assert.match(deskCss, /--ge-wood-1/);
 
-for (const required of ["instrument-desk.html", "instrument-desk.css", "instrument-desk-app.js", "chord-lab.html"]) {
+for (const required of ["instrument-desk.html", "instrument-desk.css", "instrument-desk-app.js", "my-music.html", "chord-lab.html"]) {
   assert.ok(buildPreview.includes(`"${required}"`), `Preview build must require ${required}`);
 }
 assert.match(buildPreview, /instrument-desk\.html"\), join\(outputRoot, "index\.html"/);
 assert.match(server, /pathname === "\/" \|\| pathname === "\/index\.html"/);
 assert.match(server, /return resolve\(labRoot, "instrument-desk\.html"\)/);
+assert.match(server, /"\/my-music\.html"/);
 assert.match(server, /"\/chord-lab\.html"/);
 
 assert.doesNotMatch(desk, /figma\.com\/api\/mcp\/asset/);
