@@ -5,25 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Guitar Explorer · Role Lens</title>
   <link rel="stylesheet" href="/fretboard.css">
+  <link rel="stylesheet" href="/instrument-desk.css">
   <link rel="stylesheet" href="/product-spine.css">
   <link rel="stylesheet" href="/role-lens.css">
 </head>
 <body class="product-spine role-lens">
   <header class="product-header" aria-label="Guitar Explorer workspace">
-    <a class="brand" href="/product-spine.html">Guitar Explorer</a>
+    <a class="brand" href="/">Guitar Explorer</a>
     <nav class="intent-nav" aria-label="Workspace intention">
-      <a class="intent-tab" href="/product-spine.html">Explore</a>
-      <span class="intent-tab" aria-pressed="true">Practice</span>
-      <span class="intent-tab is-disabled" aria-disabled="true">Apply</span>
+      <a class="intent-tab" href="/">♧ Explore</a>
+      <span class="intent-tab" aria-pressed="true">Ⅱ Practice</span>
+      <a class="intent-tab" href="/accompaniment.html">◇ Apply</a>
     </nav>
     <div class="header-spacer"></div>
     <p id="key-label" class="key-label">G major</p>
-    <a class="secondary compact back-link" href="/product-spine.html">Return to desk</a>
+    <div class="product-theme" aria-label="Appearance">
+      <button type="button" class="theme-option" id="theme-light" aria-pressed="true">☼ Light</button>
+      <button type="button" class="theme-option" id="theme-dark" aria-pressed="false">◐ Dark</button>
+    </div>
+    <a class="secondary compact back-link" href="/">Return to desk</a>
   </header>
 
   <main class="workspace">
     <div class="moment-context">
-      <p class="eyebrow">Role Lens v0</p>
+      <p class="eyebrow">Role Lens</p>
       <p id="context-label" class="context-label">One pitch · changing harmony</p>
     </div>
 
@@ -113,9 +118,10 @@
 
   <footer class="product-footer">
     <span>App audio can demonstrate the supplied comparison; your guitar still does the learning work.</span>
-    <span>One material · two learner actions · no score</span>
+    <span>Practice · one material, different learner actions</span>
   </footer>
 
+  <script type="module" src="/product-theme.js"></script>
   <script type="module" src="/role-lens-app.js"></script>
   <script type="module" src="/role-lens-audio.js"></script>
 </body>
