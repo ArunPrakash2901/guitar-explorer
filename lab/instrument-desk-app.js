@@ -52,9 +52,7 @@ inlayToggle.addEventListener("click", () => {
 });
 
 $("my-music").addEventListener("click", () => {
-  const status = $("material-status");
-  status.textContent = "My music is the next material-entry step. The Frusciante research contract is under review, so this Desk does not pretend song import is available yet.";
-  status.focus();
+  globalThis.location.href = new URL("./my-music.html", import.meta.url).href;
 });
 
 $("help-button").addEventListener("click", () => {
