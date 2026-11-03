@@ -37,7 +37,7 @@ let initialTheme = "light";
 try {
   const saved = localStorage.getItem("guitar-explorer-theme");
   if (saved === "light" || saved === "dark") initialTheme = saved;
-  else if (matchMedia?.("(prefers-color-scheme: dark)")?.matches) initialTheme = "dark";
+  else if (globalThis.matchMedia?.("(prefers-color-scheme: dark)")?.matches) initialTheme = "dark";
 } catch { /* use light */ }
 setTheme(initialTheme, { persist: false });
 
