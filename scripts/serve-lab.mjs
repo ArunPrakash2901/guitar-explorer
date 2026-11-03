@@ -28,6 +28,8 @@ function resolveRequest(pathname) {
   if ([
     "/fretboard-view.mjs",
     "/fretboard.css",
+    "/instrument-desk.css",
+    "/instrument-desk-app.js",
     "/product-spine.css",
     "/session-evidence.mjs",
     "/session-evidence-core.mjs",
@@ -37,7 +39,10 @@ function resolveRequest(pathname) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (pathname === "/" || pathname === "/index.html") {
-    return resolve(labRoot, "index.html");
+    return resolve(labRoot, "instrument-desk.html");
+  }
+  if (["/chord-lab.html", "/chord-lab"].includes(pathname)) {
+    return resolve(labRoot, "chord-lab.html");
   }
   if (pathname === "/app.js") {
     return resolve(labRoot, "app.js");
@@ -107,7 +112,7 @@ const server = createServer(async (request, response) => {
 
     const extension = extname(filename);
     let body = await readFile(filename);
-    if (extension === ".html") {
+    if (extension === ".html" && !filename.endsWith("instrument-desk.html")) {
       body = Buffer.from(injectEvidenceRecorder(body.toString("utf8")), "utf8");
     }
 

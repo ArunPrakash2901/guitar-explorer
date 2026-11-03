@@ -24,6 +24,10 @@ const deploymentLabel = process.env.GE_DEPLOYMENT_LABEL
 const textExtensions = new Set([".html", ".js", ".mjs", ".css"]);
 const requiredPaths = [
   "index.html",
+  "instrument-desk.html",
+  "instrument-desk.css",
+  "instrument-desk-app.js",
+  "chord-lab.html",
   "product-spine.html",
   "product-spine.css",
   "product-spine-app.js",
@@ -74,7 +78,7 @@ function applyPreviewCompatibility(filename, source) {
   );
 }
 
-function injectPreviewShell(source) {
+function injectPreviewShell(filename, source) {
   let transformed = source;
   if (transformed.includes("</head>")) {
     const metadata = [
@@ -85,7 +89,8 @@ function injectPreviewShell(source) {
     ].join("\n");
     transformed = transformed.replace("</head>", `${metadata}\n</head>`);
   }
-  if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs")) {
+  const productShell = filename === "index.html" || filename === "instrument-desk.html";
+  if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs") && !productShell) {
     transformed = transformed.replace(
       "</body>",
       '  <script type="module" src="./session-evidence.mjs"></script>\n</body>',
@@ -123,6 +128,11 @@ await mkdir(outputRoot, { recursive: true });
 await cp(labRoot, outputRoot, { recursive: true });
 await cp(engineRoot, join(outputRoot, "engine"), { recursive: true });
 
+// Product builds expose the Instrument Desk at the root while retaining the Chord Lab
+// as an explicit legacy/dev route. Source index.html remains the long-standing Chord
+// Lab fixture so its deep DOM regression test does not need to be weakened.
+await cp(join(outputRoot, "instrument-desk.html"), join(outputRoot, "index.html"));
+
 // The local server aliases /harmony.html to practice.html. Static channel builds need an
 // actual file while preserving the pathname distinction used by the practice app.
 await cp(join(outputRoot, "practice.html"), join(outputRoot, "harmony.html"));
@@ -139,7 +149,7 @@ for (const file of await walk(outputRoot)) {
   const original = await readFile(file, "utf8");
   const filename = relative(outputRoot, file).replaceAll("\\", "/");
   let transformed = original;
-  if (extension === ".html") transformed = injectPreviewShell(transformed);
+  if (extension === ".html") transformed = injectPreviewShell(filename, transformed);
   transformed = rewriteRootReferences(transformed);
   transformed = applyPreviewCompatibility(filename, transformed);
   if (extension === ".js" || extension === ".mjs") {
