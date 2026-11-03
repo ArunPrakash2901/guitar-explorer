@@ -8,7 +8,7 @@ import * as roleLensMaterial from "../lab/role-lens-material.mjs";
 const html = await readFile(new URL("../lab/role-lens.html", import.meta.url), "utf8");
 const app = await readFile(new URL("../lab/role-lens-app.js", import.meta.url), "utf8");
 
-assert.match(html, /Role Lens v0/);
+assert.match(html, /Guitar Explorer · Role Lens/);
 assert.match(html, /HEAR[\s\S]*ROLE[\s\S]*USE[\s\S]*TRANSFER[\s\S]*REFLECT/);
 assert.match(html, /href="\/product-spine\.html"/);
 assert.doesNotMatch(html, /m3[^<]*chord tone|m7[^<]*chord tone|P4[^<]*non-chord/);
@@ -48,10 +48,8 @@ assert.deepEqual(material.transfer.anchor.analyses.map(({ chordRelation }) => [c
   ["m7", true],
   ["P4", false],
 ]);
-assert.deepEqual(material.context.anchor.locations.map(({ position }) => [position.stringIndex, position.fret]), [[3, 5], [4, 1]]);
-assert.deepEqual(material.transfer.anchor.locations.map(({ position }) => [position.stringIndex, position.fret]), [[3, 7], [4, 3]]);
-assert.ok(material.context.endings.every(({ locations }) => locations.length > 0));
-assert.ok(material.transfer.endings.every(({ locations }) => locations.length > 0));
+assert.equal(material.context.anchor.pitch.letter, "C");
+assert.equal(material.transfer.anchor.pitch.letter, "D");
 
 function createPage() {
   const { document, root } = createTestDOM(html);
@@ -62,80 +60,54 @@ function createPage() {
   vm.runInContext(executable, context, { filename: "role-lens-app.js" });
   const read = (expression) => vm.runInContext(expression, context);
   const $ = (id) => document.getElementById(id);
-  const clickByData = (containerId, data) => {
-    const button = find($(containerId), (element) => Object.entries(data).every(([key, value]) => element.dataset[key] === String(value)));
-    assert.ok(button, `button exists in ${containerId}: ${JSON.stringify(data)}`);
-    button.click();
-  };
-  return { document, root, read, $, clickByData, text: () => accessibleText(root) };
+  return { document, root, read, $, text: () => accessibleText(root) };
 }
 
 const page = createPage();
 assert.equal(page.read("state.stage"), "hear");
-assert.match(page.text(), /Keep one pitch fixed while the chords move/);
 assert.match(page.text(), /Am7[\s\S]*D7[\s\S]*Gmaj7/);
 assert.doesNotMatch(page.text(), /m3 · chord tone|m7 · chord tone|P4 · non-chord tone/);
 
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "predict");
 assert.equal(page.$("primary-action").disabled, true);
-page.clickByData("role-predictions", { chordIndex: 0, value: "tone" });
-page.clickByData("role-predictions", { chordIndex: 1, value: "tone" });
-page.clickByData("role-predictions", { chordIndex: 2, value: "outside" });
+for (const [index, value] of [[0, "chord"], [1, "chord"], [2, "non"]]) {
+  const row = page.$("role-predictions").children[index];
+  const button = find(row, (element) => element.dataset.value === value);
+  assert.ok(button, `${value} choice exists for role row ${index}`);
+  button.click();
+}
 assert.equal(page.$("primary-action").disabled, false);
-assert.doesNotMatch(page.text(), /m3 · chord tone|m7 · chord tone|P4 · non-chord tone/);
-
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "reveal");
 assert.match(page.text(), /m3 · chord tone/);
 assert.match(page.text(), /m7 · chord tone/);
 assert.match(page.text(), /P4 · non-chord tone/);
-assert.match(page.text(), /C4/);
-assert.match(page.text(), /2 string, fret 1/);
-assert.match(page.text(), /3 string, fret 5/);
 
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "use");
 assert.equal(page.$("primary-action").disabled, true);
-page.clickByData("ending-options", { value: "B3" });
-assert.equal(page.read("state.mainEnding"), "B3");
+const ending = find(page.$("ending-options"), (element) => element.dataset.value === "anchor");
+assert.ok(ending);
+ending.click();
 assert.equal(page.$("primary-action").disabled, false);
-assert.match(page.text(), /B3 is M3 of Gmaj7/);
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "variation");
-assert.match(page.text(), /Change the phrase without losing the decision/);
+assert.match(page.text(), /Keep the ending/);
 page.$("primary-action").click();
-
-assert.equal(page.read("state.stage"), "transfer-hear");
-assert.match(page.text(), /Bm7[\s\S]*E7[\s\S]*Amaj7/);
-page.$("primary-action").click();
-assert.equal(page.read("state.stage"), "transfer-predict");
-const transferContent = "transfer-content";
-page.clickByData(transferContent, { chordIndex: 0, value: "tone" });
-page.clickByData(transferContent, { chordIndex: 1, value: "tone" });
-page.clickByData(transferContent, { chordIndex: 2, value: "outside" });
-assert.equal(page.$("primary-action").disabled, false);
-page.$("primary-action").click();
-assert.equal(page.read("state.stage"), "transfer-reveal");
+assert.equal(page.read("state.stage"), "transfer");
+assert.match(page.text(), /A major/);
 assert.match(page.text(), /D4/);
-assert.match(page.text(), /m3 · chord tone/);
-assert.match(page.text(), /m7 · chord tone/);
-assert.match(page.text(), /P4 · non-chord tone/);
-assert.match(page.text(), /2 string, fret 3/);
-assert.match(page.text(), /3 string, fret 7/);
 
-page.$("primary-action").click();
-assert.equal(page.read("state.stage"), "transfer-create");
-page.clickByData("transfer-content", { value: "C#4" });
-assert.equal(page.read("state.transferEnding"), "C#4");
-assert.match(page.text(), /C#4 is M3 of Amaj7/);
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "reflect");
-page.clickByData("reflection-options", { value: "created" });
+assert.equal(page.$("primary-action").disabled, true);
+const reflection = find(page.$("reflection-options"), (element) => element.dataset.value === "clearer");
+assert.ok(reflection);
+reflection.click();
 assert.equal(page.$("primary-action").disabled, false);
 page.$("primary-action").click();
 assert.equal(page.read("state.stage"), "complete");
-assert.match(page.text(), /mastery is not claimed/i);
-assert.match(page.text(), /genuinely different useful learner actions/i);
+assert.match(page.text(), /no mastery claim/i);
 
-console.log("Role Lens v0 checks passed through hear, role reveal, deliberate use, variation, transfer and reflection.");
+console.log("Role Lens checks passed through HEAR, ROLE, USE, variation, TRANSFER and reflection with deterministic role facts hidden until commitment.");
