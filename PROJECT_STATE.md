@@ -26,7 +26,7 @@ The milestone eventually proves Interval Hunt, Role Ear → Fretboard and Target
 
 ## Current bounded child and review gate
 
-Issue #71: Productization 1A — Home to generated Interval Hunt in one Practice Runtime.
+Issue #71 / draft PR #72: Productization 1A — Home to generated Interval Hunt in one Practice Runtime.
 
 Fresh branch from master b495276. Replaces the primary Home catalogue with Start/Continue and one runtime. Proves only major/minor thirds in standard tuning, frets 0–3: find → register variation → fresh-root transfer, with reveal, physical phrase use, ungraded reflection, completion and another deterministic session. Continue is in-tab only; no learner history.
 

@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 71,
-    "pullRequest": null,
+    "pullRequest": 72,
     "kind": "learner-facing-implementation",
     "summary": "First child of #70: Home to generated Interval Hunt in one Practice Runtime, sampled prompts, register variation, fresh-root transfer and completion. Not the whole three-family milestone."
   },
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "current Productization child preview must be published and exact-head verified; old closed PR previews are not active review gates",
+    "previewReadiness": "draft PR #72 exact-head preview and verify must pass before Arun acoustic-guitar/listening review",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
