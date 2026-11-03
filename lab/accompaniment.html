@@ -3,31 +3,36 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Guitar Explorer · Accompaniment v1</title>
+  <title>Guitar Explorer · Apply · Accompaniment</title>
+  <link rel="stylesheet" href="/instrument-desk.css">
   <link rel="stylesheet" href="/product-spine.css">
   <link rel="stylesheet" href="/accompaniment.css">
 </head>
 <body class="product-spine accompaniment-page">
   <header class="product-header" aria-label="Guitar Explorer workspace">
-    <a class="brand" href="/product-spine.html">Guitar Explorer</a>
+    <a class="brand" href="/">Guitar Explorer</a>
     <nav class="intent-nav" aria-label="Workspace intention">
-      <a class="intent-tab" href="/product-spine.html">Explore</a>
-      <span class="intent-tab" aria-pressed="true">Practice</span>
-      <span class="intent-tab is-disabled" aria-disabled="true">Apply</span>
+      <a class="intent-tab" href="/">♧ Explore</a>
+      <a class="intent-tab" href="/product-spine.html">Ⅱ Practice</a>
+      <span class="intent-tab" aria-pressed="true">◇ Apply</span>
     </nav>
     <div class="header-spacer"></div>
     <p class="key-label">G major · 4/4</p>
-    <a class="secondary compact back-link" href="/product-spine.html">Return to desk</a>
+    <div class="product-theme" aria-label="Appearance">
+      <button type="button" class="theme-option" id="theme-light" aria-pressed="true">☼ Light</button>
+      <button type="button" class="theme-option" id="theme-dark" aria-pressed="false">◐ Dark</button>
+    </div>
+    <a class="secondary compact back-link" href="/">Return to desk</a>
   </header>
 
   <main class="workspace accompaniment-workspace">
     <div class="moment-context">
-      <p class="eyebrow">Accompaniment v1</p>
+      <p class="eyebrow">Apply · Accompaniment</p>
       <p class="context-label">One progression · your rhythm choices</p>
     </div>
 
     <h1>Build the rhythm under the chords</h1>
-    <p class="stage-lead">Start from a supplied progression. Change how long each chord lasts and what your strumming hand does, then hear the result before you play it yourself.</p>
+    <p class="stage-lead">Shape the supplied progression, hear it if useful, then put the screen down and reproduce the same musical plan on your guitar.</p>
 
     <section class="accompaniment-card" aria-labelledby="progression-heading">
       <div class="section-heading-row">
@@ -35,7 +40,7 @@
           <p class="eyebrow">Harmony stays fixed</p>
           <h2 id="progression-heading">G → C → D7 → G</h2>
         </div>
-        <p class="muted">The engine supplies the chords. The accompaniment choices are yours.</p>
+        <p class="muted">The engine supplies the chords. You choose how long each one lasts.</p>
       </div>
       <div id="progression-controls" class="progression-controls" aria-label="Bars per chord"></div>
     </section>
@@ -59,13 +64,11 @@
         </div>
         <p class="muted">Click a slot to cycle ↓ down, ↑ up, · rest.</p>
       </div>
-
       <div class="preset-row" aria-label="Pattern presets">
         <button type="button" class="secondary compact" data-preset="steady">Steady eighths</button>
         <button type="button" class="secondary compact" data-preset="open">Open groove</button>
         <button type="button" class="secondary compact" data-preset="spacious">Leave space</button>
       </div>
-
       <div id="pattern-grid" class="pattern-grid" aria-label="Editable strumming pattern"></div>
       <p id="pattern-readable" class="pattern-readable" aria-live="polite"></p>
     </section>
@@ -74,7 +77,7 @@
       <div>
         <p class="eyebrow">Hear it, then play it</p>
         <h2 id="playback-heading">Accompaniment playback</h2>
-        <p class="muted">Listen once if useful. Then stop the app and play the same plan on your guitar.</p>
+        <p class="muted">Listen once if useful. Then stop playback and play the same plan yourself.</p>
       </div>
       <div class="playback-actions">
         <button type="button" id="accompaniment-play" class="primary">Hear accompaniment</button>
@@ -86,15 +89,35 @@
     <section class="physical-card" aria-labelledby="physical-heading">
       <p class="eyebrow">Physical transfer</p>
       <h2 id="physical-heading">Now make the accompaniment yours</h2>
-      <p>Mute playback. Keep the same tempo, chord lengths and strumming pattern. Play the full progression yourself, then change one pattern slot and compare how the feel changes.</p>
+      <p>Keep the same tempo, chord lengths and strumming pattern. Play the full progression yourself, then change one pattern slot and compare how the feel changes.</p>
+    </section>
+
+    <section class="record-loop-card" aria-labelledby="record-loop-heading">
+      <div class="record-loop-head">
+        <div>
+          <p class="eyebrow">Next Apply capability</p>
+          <h2 id="record-loop-heading">Record one pass, then improvise over yourself</h2>
+        </div>
+        <span class="planned-badge">Planned · precise PCM looper</span>
+      </div>
+      <div class="record-loop-flow" aria-label="Planned record and loop flow">
+        <div class="record-step"><b>1 · Count in</b><span>Four beats on the shared audio clock.</span></div>
+        <div class="record-step"><b>2 · Record one pass</b><span>Capture one exact progression window from your microphone or interface.</span></div>
+        <div class="record-step"><b>3 · Loop & improvise</b><span>Play over yourself and target the D7 → G arrival.</span></div>
+      </div>
+      <p class="record-loop-note">Local only. No upload, transcription or grading. The old MediaRecorder/JS-timer proof is not being revived; the implementation gate remains AudioWorklet fixed-frame PCM capture → AudioBuffer looping.</p>
+      <div class="record-loop-action">
+        <button type="button" class="primary" disabled aria-disabled="true">Record one pass · not implemented yet</button>
+      </div>
     </section>
   </main>
 
   <footer class="product-footer">
     <span>Harmony truth stays fixed. Rhythm choices stay editable.</span>
-    <span>No recording or grading in this slice.</span>
+    <span>Apply · accompaniment now · precise record/loop next</span>
   </footer>
 
+  <script type="module" src="/product-theme.js"></script>
   <script type="module" src="/accompaniment-app.js"></script>
 </body>
 </html>
