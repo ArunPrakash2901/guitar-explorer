@@ -53,12 +53,12 @@ inlayToggle.addEventListener("click", () => {
 
 $("my-music").addEventListener("click", () => {
   const status = $("material-status");
-  status.textContent = "My music is the next material-entry step. The Frusciante research contract is under review, so this Desk does not pretend song import is available yet.";
+  status.textContent = "My music and Style Pack work are parked for now. Guitar Explorer is prioritising the core Practice and Apply workflows first.";
   status.focus();
 });
 
 $("help-button").addEventListener("click", () => {
   const status = $("material-status");
-  status.textContent = "Choose a musical question below. Each card opens an already working Guitar Explorer experience; your guitar remains the main instrument.";
+  status.textContent = "Explore relationships, practise them with your guitar, then use Apply to build accompaniment and move toward recording, looping and improvisation.";
   status.focus();
 });
