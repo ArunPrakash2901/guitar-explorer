@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const labRoot = resolve(projectRoot, "lab");
 const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
+const researchFixtureRoot = resolve(projectRoot, "tests", "fixtures", "style");
 const port = Number.parseInt(process.env.PORT ?? "4173", 10);
 
 if (!Number.isInteger(port) || port < 1 || port > 65535) {
@@ -17,6 +18,7 @@ const contentTypes = new Map([
   [".js", "text/javascript; charset=utf-8"],
   [".mjs", "text/javascript; charset=utf-8"],
   [".css", "text/css; charset=utf-8"],
+  [".json", "application/json; charset=utf-8"],
   [".map", "application/json; charset=utf-8"],
 ]);
 
@@ -30,6 +32,10 @@ function resolveRequest(pathname) {
     "/fretboard.css",
     "/instrument-desk.css",
     "/instrument-desk-app.js",
+    "/my-music.css",
+    "/my-music-app.js",
+    "/interesting-material.mjs",
+    "/audio-out.mjs",
     "/product-spine.css",
     "/session-evidence.mjs",
     "/session-evidence-core.mjs",
@@ -40,6 +46,9 @@ function resolveRequest(pathname) {
   }
   if (pathname === "/" || pathname === "/index.html") {
     return resolve(labRoot, "instrument-desk.html");
+  }
+  if (["/my-music.html", "/my-music"].includes(pathname)) {
+    return resolve(labRoot, "my-music.html");
   }
   if (["/chord-lab.html", "/chord-lab"].includes(pathname)) {
     return resolve(labRoot, "chord-lab.html");
@@ -79,6 +88,10 @@ function resolveRequest(pathname) {
   if (["/phrase.css", "/phrase-app.js", "/phrase-material.mjs", "/melody-session.mjs", "/motif-session.mjs", "/scenario-catalogue.mjs", "/scenario-resolver.mjs", "/rule-contract.mjs", "/melody-generator.mjs", "/melody-experience.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
+  if (pathname.startsWith("/research/style/")) {
+    const candidate = resolve(researchFixtureRoot, pathname.slice("/research/style/".length));
+    return inside(researchFixtureRoot, candidate) ? candidate : null;
+  }
   if (pathname.startsWith("/engine/")) {
     const candidate = resolve(engineRoot, pathname.slice("/engine/".length));
     return inside(engineRoot, candidate) ? candidate : null;
@@ -92,6 +105,10 @@ function injectEvidenceRecorder(html) {
     "</body>",
     '  <script type="module" src="/session-evidence.mjs"></script>\n</body>',
   );
+}
+
+function isProductShell(filename) {
+  return filename.endsWith("instrument-desk.html") || filename.endsWith("my-music.html");
 }
 
 const server = createServer(async (request, response) => {
@@ -112,7 +129,7 @@ const server = createServer(async (request, response) => {
 
     const extension = extname(filename);
     let body = await readFile(filename);
-    if (extension === ".html" && !filename.endsWith("instrument-desk.html")) {
+    if (extension === ".html" && !isProductShell(filename)) {
       body = Buffer.from(injectEvidenceRecorder(body.toString("utf8")), "utf8");
     }
 
