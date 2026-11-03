@@ -6,12 +6,14 @@ import { fileURLToPath } from "node:url";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const read = (path) => readFile(resolve(root, path), "utf8");
 
-const [desk, deskCss, deskApp, chordLab, buildPreview] = await Promise.all([
-  read("lab/index.html"),
+const [desk, deskCss, deskApp, chordLab, sourceIndex, buildPreview, server] = await Promise.all([
+  read("lab/instrument-desk.html"),
   read("lab/instrument-desk.css"),
   read("lab/instrument-desk-app.js"),
   read("lab/chord-lab.html"),
+  read("lab/index.html"),
   read("scripts/build-preview.mjs"),
+  read("scripts/serve-lab.mjs"),
 ]);
 
 assert.match(desk, /Guitar Explorer · Instrument Desk/);
@@ -33,6 +35,7 @@ for (const route of [
 }
 
 assert.match(chordLab, /Guitar Explorer · Chord Theory Lab/);
+assert.match(sourceIndex, /Guitar Explorer · Chord Theory Lab/);
 assert.doesNotMatch(chordLab, /instrument-desk-app\.js/);
 
 assert.match(deskApp, /STANDARD_FRETBOARD/);
@@ -50,9 +53,13 @@ assert.match(deskCss, /--ge-canvas: #211f1b/);
 assert.match(deskCss, /--ge-accent: #c8d5a6/);
 assert.match(deskCss, /--ge-wood-1/);
 
-for (const required of ["instrument-desk.css", "instrument-desk-app.js", "chord-lab.html"]) {
+for (const required of ["instrument-desk.html", "instrument-desk.css", "instrument-desk-app.js", "chord-lab.html"]) {
   assert.ok(buildPreview.includes(`"${required}"`), `Preview build must require ${required}`);
 }
+assert.match(buildPreview, /instrument-desk\.html"\), join\(outputRoot, "index\.html"/);
+assert.match(server, /pathname === "\/" \|\| pathname === "\/index\.html"/);
+assert.match(server, /return resolve\(labRoot, "instrument-desk\.html"\)/);
+assert.match(server, /"\/chord-lab\.html"/);
 
 assert.doesNotMatch(desk, /figma\.com\/api\/mcp\/asset/);
 assert.doesNotMatch(deskCss, /figma\.com\/api\/mcp\/asset/);
