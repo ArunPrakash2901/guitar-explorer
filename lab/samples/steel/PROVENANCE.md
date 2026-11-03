@@ -6,6 +6,8 @@ Upstream: https://github.com/facebookincubator/Meta-open-sound/tree/main/systems
 
 Selectively extracted from closed reference PR #58, head 4fb04e52ee1ee702efa937f255911909d6b5bde2. Neither #58 nor its base #56 was reopened or merged.
 
-Exactly 11 unmodified recorded attacks, 1,005,111 encoded bytes. This excludes the unused F#4 attack from the original 12-file audition. File names, upstream Git blob hashes, string/fret coordinates and byte counts are in sampled-guitar-manifest.mjs and checked by test-practice-product.mjs. The same hashes identify the bytes stored in reference PR #58. No pitch shifting, extra samples, electric/amp timbre or general sampler claim.
+Productization 1A (#72) used 11 unmodified attacks, 1,005,111 encoded bytes, for major/minor third prompts. Productization 1B (#73) adds only the missing high-E-string fret-2 F#4 attack (46,520 bytes, Git blob 8a46d4455118b1de120f732726f909517349235b) needed to render the supplied D7 voicing.
 
-Use in #71: one root, a third above, then the root again. The material generator derives valid intervals from the Music Engine and explicitly restricts audition to recorded positions in frets 0–3. The sample manifest is rendering coverage, not musical truth.
+The shared renderer now has exactly 12 unmodified attacks, 1,051,631 encoded bytes. File names, upstream Git blob hashes, physical coordinates and byte counts live in sampled-guitar-manifest.mjs and are checked by test-practice-product.mjs. License blob: 0e259d42c996742e9e3cba14c677129b2c1b6311. No pitch shifting, electric/amp timbre or general sampler claim.
+
+Role musical material is prepared from existing engine queries without reading the sample manifest. A separate performance adapter validates curated G 320003, C x32010 and D7 xx0212 placements against engine chord tones, then checks recorded coverage. Missing coverage fails explicitly; it does not silently select different pedagogy or derive theory from sample names.

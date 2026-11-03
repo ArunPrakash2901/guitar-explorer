@@ -28,6 +28,12 @@ for (const channel of ["stable", "experimental", "preview"]) {
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-channel" content="${channel}"`));
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-label" content="${channel}-test"`));
   assert.match(html, new RegExp(`name="guitar-explorer-revision" content="${channel}-revision"`));
+  assert.ok(html.includes(`src="./instrument-desk-app.js?ge-revision=${channel}-revision"`));
+  assert.ok(html.includes(`href="./instrument-desk.css?ge-revision=${channel}-revision"`));
+  const app = await readFile(resolve(projectRoot, ".preview-dist", "instrument-desk-app.js"), "utf8");
+  assert.ok(app.includes(`from "./role-view.mjs?ge-revision=${channel}-revision"`), "entry code imports the advertised revision");
+  const roleView = await readFile(resolve(projectRoot, ".preview-dist", "role-view.mjs"), "utf8");
+  assert.ok(roleView.includes(`from "./role-plan.mjs?ge-revision=${channel}-revision"`), "relative transitive imports share the same revision");
 }
 
 const envFallback = spawnSync(process.execPath, ["scripts/build-preview.mjs"], {

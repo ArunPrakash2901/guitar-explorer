@@ -30,6 +30,10 @@ const requiredPaths = [
   "product-theme.js",
   "practice-material.mjs",
   "practice-plan.mjs",
+  "role-material.mjs",
+  "role-performance.mjs",
+  "role-plan.mjs",
+  "role-view.mjs",
   "sampled-guitar.mjs",
   "sampled-guitar-manifest.mjs",
   "samples/steel/LICENSE",
@@ -75,6 +79,16 @@ function rewriteRootReferences(source) {
     .replace(/\b(src|href)=(['"])\/(?!\/)/g, "$1=$2./")
     .replace(/\bfrom\s+(['"])\/(?!\/)/g, "from $1./")
     .replace(/\bimport\s+(['"])\/(?!\/)/g, "import $1./");
+}
+
+function versionCodeReferences(source) {
+  // The page's revision must identify its code too, even while Pages/browser caches
+  // still hold assets from the preceding review head at the same preview URL.
+  const stamp = "?ge-revision=" + encodeURIComponent(revision);
+  const append = (_, prefix, path, quote) => prefix + path + stamp + quote;
+  return source
+    .replace(/(\b(?:src|href)=['"])(\.{1,2}\/[^'"]+\.(?:m?js|css))(['"])/g, append)
+    .replace(/(\b(?:from|import)\s+['"])(\.{1,2}\/[^'"]+\.m?js)(['"])/g, append);
 }
 
 function applyPreviewCompatibility(filename, source) {
@@ -159,6 +173,7 @@ for (const file of await walk(outputRoot)) {
   if (extension === ".html") transformed = injectPreviewShell(filename, transformed);
   transformed = rewriteRootReferences(transformed);
   transformed = applyPreviewCompatibility(filename, transformed);
+  transformed = versionCodeReferences(transformed);
   if (extension === ".js" || extension === ".mjs") {
     transformed = transformed.replace(/\n?\/\/# sourceMappingURL=.*$/gm, "");
   }

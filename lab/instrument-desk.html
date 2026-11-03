@@ -26,18 +26,19 @@
     <section id="home-view" aria-labelledby="home-title">
       <p class="eyebrow">Your guitar. One useful session.</p>
       <h1 id="home-title" tabindex="-1">Find a relationship.<br>Make it music.</h1>
-      <p class="home-intro">Hear it, locate it on your acoustic guitar, then carry it to a new root. A small region. Time to listen.</p>
+      <p class="home-intro" id="home-intro">Hear it, locate it on your acoustic guitar, then carry it to a new root. A small region. Time to listen.</p>
       <div class="home-layout">
         <section class="panel start-panel" aria-labelledby="focus-title">
-          <p class="eyebrow">Fretboard + theory</p>
+          <p class="eyebrow" id="focus-kicker">Fretboard + theory</p>
           <h2 id="focus-title">Get to know your thirds</h2>
-          <p>Find two notes that belong together. Use them in a phrase, move register, then find the same relationship from a different root.</p>
+          <p id="focus-description">Find two notes that belong together. Use them in a phrase, move register, then find the same relationship from a different root.</p>
           <label for="practice-focus">Today’s focus</label>
           <select id="practice-focus">
             <option value="major">Major thirds</option>
             <option value="minor">Minor thirds</option>
+            <option value="role">One pitch, changing chords</option>
           </select>
-          <p class="quiet">3 rounds · about 6–8 minutes · open strings to fret 3</p>
+          <p class="quiet" id="session-length">3 rounds · about 6–8 minutes · open strings to fret 3</p>
           <div class="button-row">
             <button type="button" class="primary" id="continue-practice" hidden>Continue practice</button>
             <button type="button" class="primary" id="start-practice">Start practice</button>
@@ -46,11 +47,11 @@
           <p class="feedback" id="home-error" role="status"></p>
         </section>
         <aside class="home-guide" aria-label="Your session">
-          <h2>Pick up your guitar.</h2>
+          <h2 id="guide-title">Pick up your guitar.</h2>
           <ol class="session-outline">
-            <li><strong>Find</strong><span>Start from one root. Search before the answer appears.</span></li>
-            <li><strong>Move</strong><span>Keep the interval. Play it in a different register.</span></li>
-            <li><strong>Transfer</strong><span>Change the root. Turn the same relationship into a phrase.</span></li>
+            <li><strong id="outline-1-title">Find</strong><span id="outline-1-copy">Start from one root. Search before the answer appears.</span></li>
+            <li><strong id="outline-2-title">Move</strong><span id="outline-2-copy">Keep the interval. Play it in a different register.</span></li>
+            <li><strong id="outline-3-title">Transfer</strong><span id="outline-3-copy">Change the root. Turn the same relationship into a phrase.</span></li>
           </ol>
           <p class="quiet">Standard tuning: E A D G B E.<br>Recorded acoustic guitar is there when you want a reference.</p>
         </aside>
@@ -79,8 +80,8 @@
           </div>
         </aside>
         <div class="working-surface">
-          <section class="panel board-panel" aria-label="Your guitar fretboard">
-            <div class="board-heading"><strong>Find it on your guitar</strong><span>Open–3 · standard tuning</span></div>
+          <section class="panel board-panel" id="board-panel" aria-label="Your guitar fretboard">
+            <div class="board-heading"><strong>Find it on your guitar</strong><span id="board-region">Open–3 · standard tuning</span></div>
             <div id="desk-board" class="desk-board"></div>
             <p class="quiet board-help" id="board-help">String 1 is high E; string 6 is low E. Choose with a click, or use Tab and the arrow keys, then Enter.</p>
           </section>
@@ -105,6 +106,31 @@
             <p class="quiet">Your listening impression has no right or wrong answer.</p>
             <button type="button" class="primary" id="next-round" disabled>Next round</button>
           </section>
+          <section id="role-controls" class="panel role-panel" hidden aria-label="Listen, understand and use">
+            <div id="role-listen">
+              <p class="eyebrow" id="role-context-counter"></p>
+              <h2 id="role-context-title"></h2>
+              <fieldset>
+                <legend>How did the anchor feel with this chord?</legend>
+                <label><input type="radio" name="role-impression" id="role-settled" value="settled"> Settled</label>
+                <label><input type="radio" name="role-impression" id="role-tense" value="tense"> Tense</label>
+                <label><input type="radio" name="role-impression" id="role-unsure" value="unsure"> Unsure</label>
+              </fieldset>
+              <p class="quiet" id="role-listening-note"></p>
+            </div>
+            <div id="role-reveal" hidden>
+              <h2>One pitch, three relationships</h2>
+              <div id="role-facts"></div>
+              <p class="quiet">Chord membership describes the supplied harmony. Settled, tense and unsure remain your listening impressions.</p>
+            </div>
+            <div id="role-use" hidden>
+              <h2 id="role-use-title"></h2>
+              <p class="physical-prompt" id="role-use-copy"></p>
+              <label class="check-label"><input type="checkbox" id="role-played"> I played the same pitch while the chords changed.</label>
+              <p class="quiet" id="role-use-note"></p>
+            </div>
+            <button type="button" class="primary" id="role-next" disabled>Keep my impression</button>
+          </section>
           <p class="feedback" id="task-feedback" role="status"></p>
         </div>
       </div>
@@ -113,11 +139,11 @@
     <section id="complete-view" hidden aria-labelledby="complete-title">
       <p class="eyebrow">Session complete</p>
       <h1 id="complete-title" tabindex="-1">One relationship.<br>More than one place.</h1>
-      <p class="home-intro">You reached the end of this practice. Keep one short phrase you liked, and play it once more with the screen out of sight.</p>
+      <p class="home-intro" id="complete-intro">You reached the end of this practice. Keep one short phrase you liked, and play it once more with the screen out of sight.</p>
       <div class="panel complete-panel">
         <h2 id="complete-relationship"></h2>
         <ul id="complete-rounds"></ul>
-        <p>Your next session changes the starting material and keeps the same small steps: find, hear, use and transfer.</p>
+        <p id="complete-next-copy">Your next session changes the starting material and keeps the same small steps: find, hear, use and transfer.</p>
         <div class="button-row">
           <button type="button" class="primary" id="another-session">Start another session</button>
           <button type="button" id="finish-home">Back Home</button>
