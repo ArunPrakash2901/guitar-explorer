@@ -24,6 +24,9 @@ const deploymentLabel = process.env.GE_DEPLOYMENT_LABEL
 const textExtensions = new Set([".html", ".js", ".mjs", ".css"]);
 const requiredPaths = [
   "index.html",
+  "instrument-desk.css",
+  "instrument-desk-app.js",
+  "chord-lab.html",
   "product-spine.html",
   "product-spine.css",
   "product-spine-app.js",
