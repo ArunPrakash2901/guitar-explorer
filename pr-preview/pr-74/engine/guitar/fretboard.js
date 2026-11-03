@@ -1,5 +1,5 @@
-import { assertInteger, assertRecord, MusicError } from "../core/errors.js";
-import { mod12, toSemitone, validatePitch } from "../core/pitch.js";
+import { assertInteger, assertRecord, MusicError } from "../core/errors.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { mod12, toSemitone, validatePitch } from "../core/pitch.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 /** Budget counts candidate positions before filtering by pitch class. */
 export const MAX_ENUMERATED_LOCATIONS = 10_000;
 function openPitch(letter, octave) {

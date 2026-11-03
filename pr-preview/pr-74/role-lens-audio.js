@@ -4,14 +4,14 @@ import {
   musicQueries,
   toSemitone,
   transposePitch,
-} from "./engine/index.js";
-import { createRoleLensMaterial } from "./role-lens-material.mjs";
-import { createAudioOut } from "./audio-out.mjs";
+} from "./engine/index.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createRoleLensMaterial } from "./role-lens-material.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createAudioOut } from "./audio-out.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 import {
   DEFAULT_AUDIO_BPM,
   roleLensComparisonCue,
   singlePitchCue,
-} from "./audio-cues.mjs";
+} from "./audio-cues.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {

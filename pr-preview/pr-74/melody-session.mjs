@@ -1,4 +1,4 @@
-import { chordRole, pathConnections } from "./phrase-material.mjs";
+import { chordRole, pathConnections } from "./phrase-material.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 // One teaching procedure over a validated, engine-resolved musical scenario.
 export function createMelodyPlan(material) {

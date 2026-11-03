@@ -1,8 +1,8 @@
 // Deterministic rule-based generator for ScenarioV1 Melody scenarios.
 // Generates candidate ScenarioV1 specifications and compiles them via the pure Scenario Resolver.
-import { getMelodyRuleById, getMelodyRules } from "./rule-contract.mjs";
-import { resolveScenario, ScenarioError } from "./scenario-resolver.mjs";
-import { makeGeneratedScenarioId } from "./scenario-identity.mjs";
+import { getMelodyRuleById, getMelodyRules } from "./rule-contract.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { resolveScenario, ScenarioError } from "./scenario-resolver.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { makeGeneratedScenarioId } from "./scenario-identity.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 export class GenerationError extends Error {
   constructor(message, details = {}) {

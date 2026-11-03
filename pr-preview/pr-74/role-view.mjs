@@ -1,5 +1,5 @@
-import { roleBoard } from "./role-plan.mjs";
-import { stringName } from "./practice-plan.mjs";
+import { roleBoard } from "./role-plan.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { stringName } from "./practice-plan.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 export function renderRoleTask(state, { $, document, board }) {
   const m = state.plan.rounds[state.roundIndex].material;

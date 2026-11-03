@@ -4,8 +4,8 @@ import {
   finalizeEvidenceSession,
   recordEvidenceInteraction,
   withEvidenceScenario,
-} from "./session-evidence-core.mjs";
-import { readScenarioContext } from "./scenario-context.mjs";
+} from "./session-evidence-core.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { readScenarioContext } from "./scenario-context.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 const FIELD_IDS = {
   easierWithoutAnswers: "ge-evidence-easier",

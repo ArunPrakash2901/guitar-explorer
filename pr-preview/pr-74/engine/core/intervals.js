@@ -1,5 +1,5 @@
-import { assertInteger, assertRecord, MusicError } from "./errors.js";
-import { NATURAL_PITCH_CLASSES, NOTE_LETTERS, toSemitone, validateNote, validatePitch } from "./pitch.js";
+import { assertInteger, assertRecord, MusicError } from "./errors.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { NATURAL_PITCH_CLASSES, NOTE_LETTERS, toSemitone, validateNote, validatePitch } from "./pitch.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 const MAJOR_PERFECT_SEMITONES = [0, 2, 4, 5, 7, 9, 11];
 export function validateInterval(value) {
     assertRecord(value, "Interval");

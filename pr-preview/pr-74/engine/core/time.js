@@ -1,4 +1,4 @@
-import { assertInteger, assertRecord, MusicError } from "./errors.js";
+import { assertInteger, assertRecord, MusicError } from "./errors.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 export const ZERO_MUSICAL_TIME = Object.freeze({ numerator: 0, denominator: 1 });
 /** Computational budget per temporal value, not a musical difficulty limit. */
 export const MAX_TEMPORAL_EVENTS = 10_000;

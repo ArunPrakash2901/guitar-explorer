@@ -2,16 +2,16 @@
 // Prepares validated, engine-resolved Melody material and teaching plans
 // for both catalogue and generated sources without browser dependencies.
 
-import { getScenarioById } from "./scenario-catalogue.mjs";
-import { resolveScenario } from "./scenario-resolver.mjs";
+import { getScenarioById } from "./scenario-catalogue.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { resolveScenario } from "./scenario-resolver.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 import {
   generateMelodyScenario,
   generateDistinctMelodyScenario,
   getScenarioFingerprint,
   GenerationError,
-} from "./melody-generator.mjs";
-import { createMelodyPlan } from "./melody-session.mjs";
-import { getMelodyRuleById } from "./rule-contract.mjs";
+} from "./melody-generator.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createMelodyPlan } from "./melody-session.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { getMelodyRuleById } from "./rule-contract.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 export class MelodyPreparationError extends Error {
   constructor(code, message, details = {}) {

@@ -1,7 +1,7 @@
-import { assertRecord, MusicError } from "./errors.js";
-import { getIntervalBetweenPitches, transposePitch, validateInterval } from "./intervals.js";
-import { toSemitone, validatePitch } from "./pitch.js";
-import { addMusicalTime, compareMusicalTime, MAX_TEMPORAL_EVENTS, normalizeMusicalTime, sameMusicalTime, subtractMusicalTime, ZERO_MUSICAL_TIME, } from "./time.js";
+import { assertRecord, MusicError } from "./errors.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { getIntervalBetweenPitches, transposePitch, validateInterval } from "./intervals.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { toSemitone, validatePitch } from "./pitch.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { addMusicalTime, compareMusicalTime, MAX_TEMPORAL_EVENTS, normalizeMusicalTime, sameMusicalTime, subtractMusicalTime, ZERO_MUSICAL_TIME, } from "./time.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 function atPath(path, action) {
     try {
         return action();

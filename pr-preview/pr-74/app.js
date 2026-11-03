@@ -4,7 +4,7 @@ import {
   formatPitch,
   musicQueries,
   parseNote,
-} from "./engine/index.js";
+} from "./engine/index.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 import {
   createSelection,
   createSessionPlan,
@@ -16,8 +16,8 @@ import {
   selectFamily,
   timerSnapshot,
   toggleChordSelection,
-} from "./session-logic.mjs";
-import { createFretboard } from "./fretboard-view.mjs";
+} from "./session-logic.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 const $ = (id) => document.getElementById(id);
 const MAX_FRET = 12;

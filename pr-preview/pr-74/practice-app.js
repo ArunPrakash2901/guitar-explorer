@@ -1,6 +1,6 @@
-import { STANDARD_FRETBOARD, formatNote, formatPitch, musicQueries } from "./engine/index.js";
-import { createPracticePlan } from "./practice-session.mjs";
-import { createFretboard } from "./fretboard-view.mjs";
+import { STANDARD_FRETBOARD, formatNote, formatPitch, musicQueries } from "./engine/index.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createPracticePlan } from "./practice-session.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {

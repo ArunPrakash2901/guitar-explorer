@@ -1,13 +1,13 @@
-import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js";
-import { createFretboard } from "./fretboard-view.mjs";
-import { chordRole, pathConnections } from "./phrase-material.mjs";
-import { getMelodyScenarios, getMotifScenarios } from "./scenario-catalogue.mjs";
-import { resolveScenario } from "./scenario-resolver.mjs";
-import { createMelodyPlan } from "./melody-session.mjs";
-import { createMotifPlan } from "./motif-session.mjs";
-import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "./melody-generator.mjs";
-import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "./melody-experience.mjs";
-import { setScenarioContext } from "./scenario-context.mjs";
+import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { chordRole, pathConnections } from "./phrase-material.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { getMelodyScenarios, getMotifScenarios } from "./scenario-catalogue.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { resolveScenario } from "./scenario-resolver.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createMelodyPlan } from "./melody-session.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createMotifPlan } from "./motif-session.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { generateMelodyScenario, generateDistinctMelodyScenario, getScenarioFingerprint } from "./melody-generator.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { prepareMelodyExperience, prepareDistinctMelodyExperience, createPhraseQueries } from "./melody-experience.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { setScenarioContext } from "./scenario-context.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 const $ = (id) => document.getElementById(id);
 const queries = createPhraseQueries({ musicQueries, STANDARD_FRETBOARD, formatNote });

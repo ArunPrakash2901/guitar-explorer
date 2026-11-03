@@ -1,6 +1,6 @@
-import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js";
-import { createVoiceLeadingPlan } from "./voice-leading-session.mjs";
-import { createFretboard } from "./fretboard-view.mjs";
+import { STANDARD_FRETBOARD, formatNote, musicQueries } from "./engine/index.js?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createVoiceLeadingPlan } from "./voice-leading-session.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=c70c74007e5e75a9789ead40c6c7382eeb951a5e";
 
 const $ = (id) => document.getElementById(id);
 function unwrap(result) {
