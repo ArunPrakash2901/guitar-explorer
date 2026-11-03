@@ -167,3 +167,13 @@ fieldset label { display: flex; align-items: center; gap: 10px; min-height: 44px
   .practice-footer { flex-wrap: wrap; padding: 18px; }
 }
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+.role-panel { padding: 28px; }
+.role-panel h2 { margin-top: 10px; }
+.role-panel fieldset { margin: 24px 0 18px; }
+.role-panel fieldset label { min-height: 52px; padding: 6px 0; }
+.role-panel .primary { margin-top: 12px; }
+.role-fact { border-top: 1px solid var(--ge-border); padding: 16px 0 8px; }
+.role-fact h3 { margin: 0 0 8px; font-size: 18px; }
+.role-fact p { margin-bottom: 8px; }
+#role-use + button { margin-top: 18px; }
+@media (max-width: 800px) { .role-panel { padding: 22px; } }

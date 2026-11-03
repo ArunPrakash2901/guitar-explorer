@@ -1,4 +1,4 @@
-// CC0-1.0 Meta Steel Guitar, medium (Vel02) OGG attacks. Bounded thirds Practice prompts.
+// CC0-1.0 Meta Steel Guitar, medium (Vel02) OGG attacks. Bounded interval and role Practice prompts.
 // Source: https://github.com/facebookincubator/Meta-open-sound/tree/main/systems/instruments/meta-steel-guitar
 // Upstream blob hashes identify the exact files; see samples/steel/PROVENANCE.md.
 export const STEEL_SAMPLES = Object.freeze([
@@ -13,4 +13,5 @@ export const STEEL_SAMPLES = Object.freeze([
   Object.freeze({ stringIndex: 4, fret: 1, note: "C4", file: "INSGuitarSteel_StringB_Vel02_C4_01.ogg", bytes: 84309, gitBlobSha: "53b9f441b20d2261d285ac7e54bd33dd9ef99068" }),
   Object.freeze({ stringIndex: 5, fret: 0, note: "E4", file: "INSGuitarSteel_StringHighE_Vel02_E4_01.ogg", bytes: 60165, gitBlobSha: "c7e6cc936c1187823bec15c02c7b020178edd9c6" }),
   Object.freeze({ stringIndex: 3, fret: 2, note: "A3", file: "INSGuitarSteel_StringG_Vel02_A3_01.ogg", bytes: 82345, gitBlobSha: "a4c24b6c4fe0c52c7df1ac17686bf8503c4d96c5" }),
+  Object.freeze({ stringIndex: 5, fret: 2, note: "F#4", file: "INSGuitarSteel_StringHighE_Vel02_Fs4_01.ogg", bytes: 46520, gitBlobSha: "8a46d4455118b1de120f732726f909517349235b" }),
 ]);

@@ -10,9 +10,9 @@ Can he open Guitar Explorer, begin playing in a couple of actions, finish a usef
 
 ## Merged baseline
 
-Master contains deterministic Music Engine through Phase 2D, Phrase Foundation #41, Product Spine/Harmonic Gravity #44, Role Lens #46, Audio Out v0.5 #48, Accompaniment v1 #52, control-plane reconciliation #61, research-only Style Foundation #63 and Instrument Desk Home #65. Legacy experience behavior remains available and regression-tested.
+Master contains deterministic Music Engine through Phase 2D, Phrase Foundation #41, Product Spine/Harmonic Gravity #44, Role Lens #46, Audio Out v0.5 #48, Accompaniment v1 #52, control-plane reconciliation #61, research-only Style Foundation #63, Instrument Desk Home #65 and Productization 1A #72 (merge d2db197). Legacy experience behavior remains available and regression-tested.
 
-The merged Home catalogue and separate Labs do not yet meet the new product test. The native synth is accepted scaffolding, not the target sound for normal Productization Practice.
+Merged Productization 1A replaces the Home catalogue with a functional Start/Continue path and one sampled-guitar Practice Runtime. Arun accepted that it felt like practicing while deliberately primitive/simple. This is not approval of sufficient exercise depth. Legacy Labs remain reference/regression surfaces, not primary navigation.
 
 ## One primary milestone
 
@@ -26,17 +26,19 @@ The milestone eventually proves Interval Hunt, Role Ear → Fretboard and Target
 
 ## Current bounded child and review gate
 
-Issue #71 / draft PR #72: Productization 1A — Home to generated Interval Hunt in one Practice Runtime.
+Issue #73: Productization 1B — Role Ear → Fretboard inside the same root Practice Runtime.
 
-Fresh branch from master b495276. Replaces the primary Home catalogue with Start/Continue and one runtime. Proves only major/minor thirds in standard tuning, frets 0–3: find → register variation → fresh-root transfer, with reveal, physical phrase use, ungraded reflection, completion and another deterministic session. Continue is in-tab only; no learner history.
+Fresh branch from master d2db197. Adds one real Ear/context focus: hear an unchanged anchor against three chords → commit ungraded impressions → reveal engine role facts → locate/play the anchor → play that same pitch against changing sampled harmony → transfer to another anchor/context order → complete. Interval Hunt stays available and unchanged.
 
-Recorded acoustic prompts are selectively extracted from closed #58: 11 needed CC0 per-string attacks and the small Web Audio renderer. No A/B mode or normal oscillator fallback. #56's curated chord voicings are not needed in this child.
+The musical generator derives valid contrasting roles without reading sample coverage. A separate adapter validates curated G/C/D7 placements against engine chord tones, then checks audio support. Only the F#4 attack from closed #58 is added to the existing renderer; no branch reopen/merge or synth default.
 
-This short single-family session does NOT complete #70 or claim learner effectiveness. Next separately bounded child, after review: Role Ear → Fretboard in this same runtime; later Target Landing with simple backing.
+#71 is closed completed and #72 is merged/accepted at d2db197. This second child still requires its own listening/physical-guitar review and explicit approval. #70 remains incomplete. Target Landing is the next separately scoped child if #73 is accepted; no mixed-family composer yet.
+
+Read docs/ROLE_EAR_PRACTICE_V0.md for the bounded sequence, material/audio boundary and review path.
 
 Read docs/PRODUCTIZATION_1_BLUEPRINT.md for the current flow audit, minimal state model, reuse/removal decisions and audio path.
 
-Required before any learner-facing merge: focused tests, full npm run verify, exact-head Pages preview, browser review, Arun's acoustic-guitar/listening trial and explicit approval of that exact head. Stable publication is still reserved and explicitly controlled. No merge is authorized by #70/#71 alone.
+Required before any learner-facing merge: focused tests, full npm run verify, exact-head Pages preview, browser review, Arun's acoustic-guitar/listening trial and explicit approval of that exact head. Stable publication is still reserved and explicitly controlled. No merge of the new child is authorized by #70/#73 alone.
 
 ## Closed unmerged references
 

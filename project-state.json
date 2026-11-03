@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-03",
-  "stage": "Productization 1 / Practice Session v0 (#70), first bounded child #71",
+  "stage": "Productization 1 / Practice Session v0 (#70), Role Ear child #73",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged experiments and Instrument Desk Home; coherent generated Practice product is pending review in child #71",
-    "learningValidation": "legacy Labs, Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1 physically/browser validated and accepted"
+    "runtime": "merged Productization 1A (#72) provides Home and one generated Interval Hunt runtime with sampled guitar; Role Ear is the current unmerged second-family child",
+    "learningValidation": "accepted legacy experiences plus Productization 1A: Arun said it felt like practicing while deliberately primitive/simple; second-family listening/physical review remains required"
   },
   "activeWork": {
-    "issue": 71,
-    "pullRequest": 72,
+    "issue": 73,
+    "pullRequest": null,
     "kind": "learner-facing-implementation",
-    "summary": "First child of #70: Home to generated Interval Hunt in one Practice Runtime, sampled prompts, register variation, fresh-root transfer and completion. Not the whole three-family milestone."
+    "summary": "Second child of #70: Role Ear \u2192 Fretboard in the same runtime. Hear changing sampled chord contexts, commit ungraded impressions, reveal engine facts, find/play a fixed anchor and transfer. Interval Hunt unchanged."
   },
   "evidence": {
     "issue": 15,
@@ -29,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-role-lens-audio-out-accompaniment; new Productization child requires separate evidence"
+    "status": "accepted legacy experiences and Productization 1A; Role Ear child requires its own evidence"
   },
   "gate": {
-    "issue": 71,
+    "issue": 73,
     "status": "exact-head-browser-listening-and-physical-review-required-before-merge",
-    "statement": "Do not merge learner-facing #71 before full verify, exact-head preview, browser review and Arun acoustic-guitar/listening approval. #70 remains incomplete; #56/#58/#69 are closed unmerged references."
+    "statement": "#71/#72 are completed and merged as d2db197 after Arun acceptance. Do not merge Role Ear #73 before full verify, exact-head preview, browser and Arun listening/acoustic-guitar review. #70 remains incomplete."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "draft PR #72 exact-head preview and verify must pass before Arun acoustic-guitar/listening review",
+    "previewReadiness": "Role Ear child requires its own exact-head PR preview; completed #72 is no longer a pending review gate",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -107,6 +107,13 @@
       "issue": 64,
       "pullRequest": 65,
       "result": "merged warm Home baseline; catalogue UX is explicitly superseded by Productization child #71"
+    },
+    "productization1A": {
+      "issue": 71,
+      "pullRequest": 72,
+      "approvedHead": "31c414ac2d2b5747936e272e9a14fe4bd9406886",
+      "mergeCommit": "d2db19794a72ab8a99c44522cb31d2d1c858af18",
+      "result": "Arun accepted that the shared generated Practice Runtime felt like practicing, while deliberately primitive/simple; not evidence of sufficient exercise depth"
     }
   },
   "closedUnmergedReferences": {
@@ -146,10 +153,10 @@
   },
   "plannedSequence": {
     "productization": [
-      "Review first Home/Interval Hunt child #71 without marking #70 complete",
-      "Separately scope Role Ear \u2192 Fretboard inside the same Practice Runtime",
-      "Separately scope Target Landing with simple sampled backing and complete the mixed-family session",
-      "Then Apply/Jam, precise looper, practice breadth, songs/tone and Style, each separately authorized"
+      "Review Role Ear \u2192 Fretboard child #73 inside the merged runtime",
+      "If accepted, separately scope Target Landing with sampled backing",
+      "Only then decide the smallest mixed-family session composition for #70",
+      "Later Apply/Jam, precise looper, breadth, songs/tone and Style remain separately authorized"
     ]
   },
   "deferred": [
@@ -171,7 +178,7 @@
     "production deployment or paid/external preview infrastructure",
     "GX-10/rig control and broad AI-agent integration",
     "curriculum graphs and large random-content generators",
-    "Role Ear and Target Landing implementation belong to later separate children of #70, not #71",
+    "Target Landing and mixed-family composition remain later separate children of #70, not #73",
     "Looper, songs/tone, Style, AI, backend, grading and learner adaptation remain parked by the Productization reset",
     "Universal learning DSL, curriculum graph or mastery engine"
   ]
