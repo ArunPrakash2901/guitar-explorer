@@ -6,11 +6,12 @@ import { fileURLToPath } from "node:url";
 const root = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const read = (path) => readFile(resolve(root, path), "utf8");
 
-const [desk, practice, role, accompaniment, productCss, accompanimentCss, theme] = await Promise.all([
+const [desk, practice, role, accompaniment, accompanimentApp, productCss, accompanimentCss, theme] = await Promise.all([
   read("lab/instrument-desk.html"),
   read("lab/product-spine.html"),
   read("lab/role-lens.html"),
   read("lab/accompaniment.html"),
+  read("lab/accompaniment-app.js"),
   read("lab/product-spine.css"),
   read("lab/accompaniment.css"),
   read("lab/product-theme.js"),
@@ -41,7 +42,8 @@ assert.match(accompaniment, /Record one pass, then improvise over yourself/);
 assert.match(accompaniment, /Planned · precise PCM looper/);
 assert.match(accompaniment, /AudioWorklet fixed-frame PCM capture → AudioBuffer looping/);
 assert.match(accompaniment, /disabled aria-disabled="true">Record one pass · not implemented yet/);
-assert.doesNotMatch(accompaniment, /MediaRecorder|looper-app\.js|looper-runtime\.mjs/);
+assert.doesNotMatch(accompaniment, /src="\/looper-app\.js"|src="\/looper-runtime\.mjs"/);
+assert.doesNotMatch(accompanimentApp, /MediaRecorder|getUserMedia|AudioWorklet|looper-app|looper-runtime/);
 
 assert.match(productCss, /--ge-accent|var\(--ge-accent\)/);
 assert.match(productCss, /var\(--ge-canvas\)/);
