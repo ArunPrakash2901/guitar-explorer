@@ -1,24 +1,18 @@
 {
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
-  "updatedAt": "2026-11-02",
-  "stage": "Guitar Performance v0 and stacked sampled-acoustic feasibility review",
+  "updatedAt": "2026-11-03",
+  "stage": "Productization 1 / Practice Session v0 (#70), first bounded child #71",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "accepted Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1; Guitar Performance v0 and sampled-acoustic A/B remain unmerged review experiments",
+    "runtime": "merged experiments and Instrument Desk Home; coherent generated Practice product is pending review in child #71",
     "learningValidation": "legacy Labs, Product Spine v1, Role Lens v0, Audio Out v0.5 and Accompaniment v1 physically/browser validated and accepted"
   },
   "activeWork": {
-    "issue": 55,
-    "pullRequest": 56,
-    "kind": "learner-facing-review",
-    "summary": "Guitar Performance v0 compares accepted abstract chord-tone playback with curated standard-tuning G/C/D7 open-position voicings through the same native synth, preserving the accepted accompaniment plan and requiring Arun listening/physical-guitar approval before merge."
-  },
-  "stackedExperiment": {
-    "issue": 57,
-    "pullRequest": 58,
-    "kind": "sample-feasibility-review",
-    "summary": "A bounded 12-sample CC0 steel-string acoustic renderer is stacked on PR #56 so the same physical voicings can be compared against native synth playback. It is not approved for merge and is not a general sampler, electric DI tone system or amp model."
+    "issue": 71,
+    "pullRequest": null,
+    "kind": "learner-facing-implementation",
+    "summary": "First child of #70: Home to generated Interval Hunt in one Practice Runtime, sampled prompts, register variation, fresh-root transfer and completion. Not the whole three-family milestone."
   },
   "evidence": {
     "issue": 15,
@@ -35,12 +29,12 @@
       "melody-over-harmony",
       "develop-the-idea"
     ],
-    "status": "accepted-legacy-labs-product-spine-role-lens-audio-out-and-accompaniment; guitar-performance-and-sampled-audio-await-review"
+    "status": "accepted-legacy-labs-product-spine-role-lens-audio-out-accompaniment; new Productization child requires separate evidence"
   },
   "gate": {
-    "issue": 55,
-    "status": "learner-listening-and-physical-review-required-before-merge",
-    "statement": "PR #56 remains the primary learner-facing gate. Review the same G-C-D7-G accompaniment as abstract chord-tone native synth versus curated physical G/C/D7 voicings; stacked PR #58 may add the sampled-acoustic third mode in the same evidence session. Neither PR may merge without exact-head approval."
+    "issue": 71,
+    "status": "exact-head-browser-listening-and-physical-review-required-before-merge",
+    "statement": "Do not merge learner-facing #71 before full verify, exact-head preview, browser review and Arun acoustic-guitar/listening approval. #70 remains incomplete; #56/#58/#69 are closed unmerged references."
   },
   "verification": {
     "command": "npm run verify",
@@ -49,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "pr-56-and-stacked-pr-58-exact-head-previews-available; physical-listening-approval-pending",
+    "previewReadiness": "current Productization child preview must be published and exact-head verified; old closed PR previews are not active review gates",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -103,6 +97,16 @@
       "pullRequest": 52,
       "mergeCommit": "135a4589c57467c66472f86ab8a8463d9eeb7d10",
       "result": "supplied G-C-D7-G harmony with learner-editable tempo, per-chord bars and one-bar down/up/rest accompaniment pattern was physically/browser accepted"
+    },
+    "styleResearchFoundationV0": {
+      "issue": 62,
+      "pullRequest": 63,
+      "result": "merged research contract, not learner material or a Style runtime"
+    },
+    "instrumentDeskHome": {
+      "issue": 64,
+      "pullRequest": 65,
+      "result": "merged warm Home baseline; catalogue UX is explicitly superseded by Productization child #71"
     }
   },
   "closedUnmergedReferences": {
@@ -115,18 +119,37 @@
       "issue": 53,
       "pullRequest": 54,
       "reason": "preserve UX evidence only; MediaRecorder/JavaScript-timer timing is not the future precise musical looper architecture"
+    },
+    "guitarPerformanceV0": {
+      "issue": 55,
+      "pullRequest": 56,
+      "reason": "closed unmerged; curated physical placement reference only"
+    },
+    "sampledAcousticFeasibility": {
+      "issue": 57,
+      "pullRequest": 58,
+      "reason": "closed unmerged; bounded renderer/assets may be selectively extracted onto fresh branches"
+    },
+    "interestingMaterial": {
+      "issue": 66,
+      "pullRequest": 67,
+      "reason": "parked by Productization reset"
+    },
+    "productSurfaceConsolidation": {
+      "issue": 68,
+      "pullRequest": 69,
+      "reason": "closed unmerged; visual reference, not the new product architecture"
     }
   },
   "parallelResearch": {
-    "styleStudy": "5-10 fragment source-backed representation pressure test continues independently and must not be shaped to justify audio, looper or Style runtime work"
+    "styleStudy": "parked until the core Practice product is genuinely useful; do not restart acquisition"
   },
   "plannedSequence": {
-    "afterCurrentReview": [
-      "If accepted, merge PR #56 and PR #58 separately after exact-head approval",
-      "Only if reuse is demonstrated, consider a tiny common audio-instrument play/stop boundary",
-      "Separately commission a PCM/AudioWorklet looper proof if learner recording/looping still has clear value",
-      "After runtime boundaries stabilize, run one consolidated Product Design/Figma pass for accompaniment, recording/looping and improvisation/target navigation",
-      "Then freeze broad audio/platform setup and return the main product lane to fretboard navigation and transfer"
+    "productization": [
+      "Review first Home/Interval Hunt child #71 without marking #70 complete",
+      "Separately scope Role Ear \u2192 Fretboard inside the same Practice Runtime",
+      "Separately scope Target Landing with simple sampled backing and complete the mixed-family session",
+      "Then Apply/Jam, precise looper, practice breadth, songs/tone and Style, each separately authorized"
     ]
   },
   "deferred": [
@@ -134,7 +157,6 @@
     "Phase 2E progression/cadence/function breadth",
     "CAGED production logic",
     "generic voicing or voice-leading engine promotion",
-    "general Experience Router or Practice/Learning Engine infrastructure",
     "universal Exercise Recipe JSON/DSL or permanent generic Context/Constraint layer",
     "learner mastery/adaptation/telemetry systems",
     "broad accompaniment/transport or DAW architecture",
@@ -142,13 +164,15 @@
     "precise looper implementation until a separately commissioned PCM/AudioWorklet issue; PR #54 remains closed reference only",
     "Audio In beyond a later uncertainty-preserving Tier 0-2 feasibility spike",
     "microphone grading, polyphonic/style grading or AI audio judgment",
-    "Style Pack runtime/generator; first complete only the 5-10 fragment representation pressure study",
     "broad meter/groove/articulation/polyphony/timed-harmony expansion unless repeated real material needs it",
     "AI tutor/runtime until stable material/action boundaries and a demonstrated learner benefit exist",
     "React/framework migration",
     "broad song/progression import",
     "production deployment or paid/external preview infrastructure",
     "GX-10/rig control and broad AI-agent integration",
-    "curriculum graphs and large random-content generators"
+    "curriculum graphs and large random-content generators",
+    "Role Ear and Target Landing implementation belong to later separate children of #70, not #71",
+    "Looper, songs/tone, Style, AI, backend, grading and learner adaptation remain parked by the Productization reset",
+    "Universal learning DSL, curriculum graph or mastery engine"
   ]
 }

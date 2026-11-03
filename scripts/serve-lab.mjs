@@ -18,6 +18,8 @@ const contentTypes = new Map([
   [".mjs", "text/javascript; charset=utf-8"],
   [".css", "text/css; charset=utf-8"],
   [".map", "application/json; charset=utf-8"],
+  [".ogg", "audio/ogg"],
+  [".md", "text/plain; charset=utf-8"],
 ]);
 
 function inside(base, candidate) {
@@ -25,11 +27,21 @@ function inside(base, candidate) {
 }
 
 function resolveRequest(pathname) {
+  if (pathname.startsWith("/samples/steel/")) {
+    const base = resolve(labRoot, "samples", "steel");
+    const candidate = resolve(labRoot, pathname.slice(1));
+    return inside(base, candidate) ? candidate : null;
+  }
   if ([
     "/fretboard-view.mjs",
     "/fretboard.css",
     "/instrument-desk.css",
     "/instrument-desk-app.js",
+    "/product-theme.js",
+    "/practice-material.mjs",
+    "/practice-plan.mjs",
+    "/sampled-guitar.mjs",
+    "/sampled-guitar-manifest.mjs",
     "/product-spine.css",
     "/session-evidence.mjs",
     "/session-evidence-core.mjs",

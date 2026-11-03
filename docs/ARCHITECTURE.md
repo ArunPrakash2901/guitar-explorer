@@ -25,10 +25,18 @@ Merged `master` has established the following durable capabilities:
 | Role Lens v0 | Implemented and physically accepted: one supplied material supports distinct learner actions without a universal recipe/context framework. |
 | Audio Out v0.5 | Implemented and physically accepted: learner-controlled tempo, native plucked-string playback, staggered strums and explicit single-note plucks. |
 | Accompaniment v1 | Implemented and physically accepted: supplied harmony plus bounded tempo, bars-per-chord and down/up/rest strumming choices. |
-| Guitar Performance placement | Experimental/review layer above accepted accompaniment; not automatically permanent until learner evidence supports it. |
-| Sample-backed acoustic rendering | Experimental/review renderer; not a general sampler or tone system. |
+| Guitar Performance placement | Closed unmerged reference; selectively reuse curated physical mappings when a Practice task needs them. |
+| Sample-backed acoustic rendering | Closed experiment provides reference assets/renderer for fresh Productization children; not a general sampler or tone system. |
 | Precise learner looper | Not implemented. Earlier MediaRecorder prototype is reference UX only. |
 | Style runtime, AI runtime, learner model, backend persistence | Not implemented; explicitly deferred pending concrete learner need. |
+
+## Practice product boundary
+
+Learner-facing work composes Home → generated session → one Practice Runtime → physical action → variation → transfer → completion. Implementation/Lab names are not product information architecture. Keep legacy routes for reference/regression while moving useful actions into local recipes and shared tools.
+
+Material generation consumes Music Engine truth; a small recipe owns the action/disclosure/transfer invariant; a simple composer orders prepared rounds; the runtime owns view/state and presents prepared fretboard/audio data. These are ordinary modules, not a universal learning DSL, curriculum graph or mastery engine. Only expose focus filters and tools that actually work.
+
+Sampled guitar is the normal sound in new Productization Practice. Keep native synthesis as legacy/developer infrastructure, not a silent product fallback. Renderer failure should be visible/retryable; physical practice remains possible. Per-string sample coverage constrains supported material explicitly and must not redefine musical truth.
 
 ## Dependency direction
 
