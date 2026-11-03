@@ -1,0 +1,56 @@
+.role-lens .back-link { display: inline-flex; align-items: center; justify-content: center; }
+.role-panel { max-width: none; }
+.role-panel h2 { margin-bottom: 12px; }
+
+.chord-sequence { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin: 8px 0 20px; }
+.chord-card {
+  display: grid;
+  gap: 7px;
+  padding: 20px;
+  border: 1px solid var(--ge-border);
+  background: var(--ge-panel);
+  border-radius: 10px;
+}
+.chord-card span { color: var(--ge-muted); font-size: .8rem; }
+.chord-card strong { color: var(--ge-accent); font-size: 1.7rem; }
+.chord-card b { color: var(--ge-accent); font-size: 1rem; font-weight: 600; }
+
+.instruction-card { padding: 18px 20px; border-left: 3px solid var(--ge-accent); background: var(--ge-hover); }
+.instruction-card p { margin: 8px 0 0; color: var(--ge-muted); }
+.role-predictions, .role-facts { display: grid; gap: 14px; margin-top: 20px; }
+.prediction-row, .fact-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 16px 18px;
+  border: 1px solid var(--ge-border);
+  background: var(--ge-panel);
+  border-radius: 10px;
+}
+.prediction-row > strong, .fact-row > strong { font-size: 1.05rem; }
+.role-choice-group { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.role-choice { min-height: 52px; text-align: left; padding: 10px 12px; }
+.role-choice[aria-pressed="true"] { border: 2px solid var(--ge-selected-border); background: var(--ge-selected); }
+.fact-copy { display: grid; gap: 3px; }
+.fact-copy span { color: var(--ge-muted); font-size: .84rem; }
+.fact-copy b { font-size: 1.05rem; font-weight: 650; }
+.fact-copy em { color: var(--ge-accent); font-style: normal; font-size: .86rem; }
+.role-board { margin-top: 24px; }
+#location-note { margin-top: 12px; }
+
+.ending-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 20px 0; }
+.ending-option { text-align: left; min-height: 68px; }
+.ending-option strong, .ending-option span { display: block; }
+.ending-option span { color: var(--ge-muted); font-size: .82rem; margin-top: 2px; }
+.ending-option[aria-pressed="true"] { border: 2px solid var(--ge-selected-border); background: var(--ge-selected); }
+.variation-grid { margin-top: 20px; }
+.transfer-change { margin: 0 0 24px; }
+.transfer-copy { display: grid; gap: 16px; }
+.transfer-copy > p { margin: 0; }
+.transfer-facts { display: grid; gap: 10px; }
+
+@media (max-width: 800px) {
+  .chord-sequence, .ending-options, .variation-grid, .role-choice-group { grid-template-columns: 1fr; }
+  .prediction-row, .fact-row { grid-template-columns: 1fr; }
+}
