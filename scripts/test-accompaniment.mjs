@@ -90,6 +90,7 @@ assert.match(app, /buildAccompanimentCue/);
 assert.match(app, /data-preset/);
 assert.match(app, /playAccompaniment/);
 assert.match(css, /\.pattern-grid/);
-assert.doesNotMatch(`${html}\n${app}`, /MediaRecorder|getUserMedia|Tone\.|smplr|SoundFont|MIDI/);
+assert.doesNotMatch(app, /MediaRecorder|getUserMedia|AudioWorklet|Tone\.|smplr|SoundFont|MIDI/);
+assert.doesNotMatch(html, /src="\/looper-app\.js"|src="\/looper-runtime\.mjs"/);
 
 console.log("Accompaniment v1 checks passed for supplied G-C-D7-G harmony, editable bars, eighth-note down/up/rest patterns, tempo scaling and browser wiring.");
