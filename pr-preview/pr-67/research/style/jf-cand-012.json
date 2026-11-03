@@ -1,0 +1,244 @@
+{
+  "schemaVersion": 1,
+  "id": "JF-CAND-012",
+  "workId": "work-cant-stop",
+  "arrangementId": "arr-2002-studio-riff",
+  "realizations": [
+    {
+      "id": "cs-studio",
+      "kind": "studio_recording",
+      "label": "2002 album riff"
+    },
+    {
+      "id": "cs-candidate",
+      "kind": "candidate_realization",
+      "label": "competing physical reconstructions"
+    }
+  ],
+  "sources": [
+    {
+      "id": "cs-audio",
+      "type": "studio_audio",
+      "reference": "Can't Stop, By the Way (2002)",
+      "locator": "0:21–0:39",
+      "realizationId": "cs-studio",
+      "scope": "sounding pitches and percussion"
+    },
+    {
+      "id": "cs-interview",
+      "type": "artist_interview",
+      "reference": "https://www.ultimate-guitar.com/news/interviews/from_the_archive_john_frusciante_talks_why_his_main_guitar_is_fender_strat__not_les_paul.html",
+      "locator": "Can't Stop technique answer",
+      "realizationId": null,
+      "scope": "artist-reported six-string striking and left-hand muting"
+    },
+    {
+      "id": "cs-specialist",
+      "type": "specialist_analysis",
+      "reference": "https://pauldavidsguitar.com/blog/why-this-is-red-hot-chili-peppers-hardest-guitar-riff/",
+      "locator": "D-root physical analysis",
+      "realizationId": null,
+      "scope": "candidate physical route, not studio proof"
+    },
+    {
+      "id": "cs-pilot",
+      "type": "research_pilot",
+      "reference": "Style Acquisition Pilot 01, JF-CAND-012",
+      "locator": "candidate 012",
+      "realizationId": null,
+      "scope": "alternative tab reading",
+      "derivationNote": "Selective normalization only"
+    }
+  ],
+  "observations": [
+    {
+      "id": "cs-studio-d",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-studio",
+      "sourceIds": [
+        "cs-audio",
+        "cs-pilot"
+      ],
+      "kind": "sounding_pitch",
+      "value": {
+        "pitch": "D3",
+        "atBeats": null
+      },
+      "status": "reported",
+      "confidence": "medium"
+    },
+    {
+      "id": "cs-studio-unknown",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-studio",
+      "sourceIds": [
+        "cs-audio"
+      ],
+      "kind": "physical_position",
+      "value": {
+        "stringIndex": null,
+        "fret": null
+      },
+      "status": "unknown",
+      "confidence": "unknown",
+      "unknownReason": "Audio cannot distinguish D string open from A string fret 5"
+    },
+    {
+      "id": "cs-open-d",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-candidate",
+      "sourceIds": [
+        "cs-specialist",
+        "cs-pilot"
+      ],
+      "kind": "physical_position",
+      "value": {
+        "stringIndex": 2,
+        "fret": 0
+      },
+      "status": "reported",
+      "confidence": "medium"
+    },
+    {
+      "id": "cs-a5",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-candidate",
+      "sourceIds": [
+        "cs-pilot"
+      ],
+      "kind": "physical_position",
+      "value": {
+        "stringIndex": 1,
+        "fret": 5
+      },
+      "status": "contested",
+      "confidence": "low"
+    },
+    {
+      "id": "cs-muted-stroke",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-candidate",
+      "sourceIds": [
+        "cs-interview",
+        "cs-pilot"
+      ],
+      "kind": "string_stroke",
+      "value": {
+        "atBeats": null,
+        "pitched": [
+          {
+            "stringIndex": 3,
+            "fret": 7
+          }
+        ],
+        "mutedStringIndices": [
+          0,
+          1,
+          2,
+          4,
+          5
+        ]
+      },
+      "status": "reported",
+      "confidence": "medium"
+    },
+    {
+      "id": "cs-upper-d",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-candidate",
+      "sourceIds": [
+        "cs-pilot"
+      ],
+      "kind": "sounding_pitch",
+      "value": {
+        "pitch": "D4",
+        "atBeats": null
+      },
+      "status": "reported",
+      "confidence": "medium"
+    },
+    {
+      "id": "cs-upper-e",
+      "fragmentId": "JF-CAND-012",
+      "realizationId": "cs-candidate",
+      "sourceIds": [
+        "cs-pilot"
+      ],
+      "kind": "sounding_pitch",
+      "value": {
+        "pitch": "E4",
+        "atBeats": null
+      },
+      "status": "reported",
+      "confidence": "medium"
+    }
+  ],
+  "assumptions": [
+    {
+      "id": "cs-standard",
+      "kind": "tuning",
+      "value": "standard",
+      "origin": "pilot's tuning reading"
+    },
+    {
+      "id": "cs-key-e",
+      "kind": "key",
+      "value": {
+        "tonic": "E",
+        "mode": "minor"
+      },
+      "origin": "analyst selected context"
+    },
+    {
+      "id": "cs-chord-em",
+      "kind": "chord",
+      "value": {
+        "root": "E",
+        "chordId": "minor"
+      },
+      "origin": "analyst selected context"
+    },
+    {
+      "id": "cs-chord-d",
+      "kind": "chord",
+      "value": { "root": "D", "chordId": "major" },
+      "origin": "analyst selected D-bar context"
+    }
+  ],
+  "derivations": [],
+  "interpretations": [
+    {
+      "id": "cs-lineage",
+      "supportIds": [
+        "cs-interview"
+      ],
+      "claim": "Artist connects the muted-strum idea to funk guitar; recurrence across his corpus is untested",
+      "confidence": "medium",
+      "author": "pilot analyst",
+      "deterministic": false
+    }
+  ],
+  "alternatives": [
+    {
+      "id": "cs-d-position",
+      "subject": "D3 physical position",
+      "status": "unresolved",
+      "options": [
+        {
+          "id": "open-d",
+          "supportIds": [
+            "cs-open-d"
+          ],
+          "description": "Open D string candidate"
+        },
+        {
+          "id": "a-five",
+          "supportIds": [
+            "cs-a5"
+          ],
+          "description": "A-string fret-5 transcription candidate"
+        }
+      ]
+    }
+  ]
+}
