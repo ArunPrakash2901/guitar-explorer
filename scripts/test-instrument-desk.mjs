@@ -17,11 +17,12 @@ const [desk, deskCss, deskApp, chordLab, sourceIndex, buildPreview, server] = aw
 ]);
 
 assert.match(desk, /Guitar Explorer · Instrument Desk/);
-assert.match(desk, /What do you want to look at\?/);
+assert.match(desk, /What do you want to work on\?/);
 assert.match(desk, /id="theme-light"/);
 assert.match(desk, /id="theme-dark"/);
 assert.match(desk, /id="desk-board"/);
 assert.match(desk, /id="my-music"/);
+assert.match(desk, /href="\/accompaniment\.html"[^>]*>[\s\S]*Apply/);
 
 for (const route of [
   "/chord-lab.html",
@@ -43,7 +44,7 @@ assert.match(deskApp, /createFretboard/);
 assert.match(deskApp, /positions: \[\]/);
 assert.match(deskApp, /connections: \[\]/);
 assert.match(deskApp, /guitar-explorer-theme/);
-assert.match(deskApp, /does not pretend song import is available yet/);
+assert.match(deskApp, /My music and Style Pack work are parked for now/);
 assert.doesNotMatch(deskApp, /src\/research|tests\/fixtures\/style|jf-cand/i);
 
 assert.match(deskCss, /--ge-canvas: #f7f3ea/);
@@ -64,4 +65,4 @@ assert.match(server, /"\/chord-lab\.html"/);
 assert.doesNotMatch(desk, /figma\.com\/api\/mcp\/asset/);
 assert.doesNotMatch(deskCss, /figma\.com\/api\/mcp\/asset/);
 
-console.log("Instrument Desk Practice Ready boundary checks passed.");
+console.log("Instrument Desk Practice Ready boundary checks passed with Apply enabled and My music parked.");
