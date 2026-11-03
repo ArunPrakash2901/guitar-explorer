@@ -20,7 +20,7 @@
     <nav class="intent-nav" aria-label="Workspace intention">
       <span class="intent-current"><span class="intent-icon" aria-hidden="true">♧</span>Explore</span>
       <a class="intent-link" href="/product-spine.html"><span class="intent-icon" aria-hidden="true">Ⅱ</span>Practice</a>
-      <span class="intent-disabled" aria-disabled="true" title="A unified Apply workspace is a later Practice Ready slice"><span class="intent-icon" aria-hidden="true">◇</span>Apply</span>
+      <a class="intent-link" href="/accompaniment.html"><span class="intent-icon" aria-hidden="true">◇</span>Apply</a>
     </nav>
 
     <div class="header-tools">
@@ -39,7 +39,7 @@
           <h1 class="panel-title" id="context-title">Musical Context</h1>
           <span aria-hidden="true">☷</span>
         </div>
-        <p class="context-note">The first Practice Ready slice keeps the accepted G-major context visible. Context editing is not faked here; each experience still owns the musical material it can actually support.</p>
+        <p class="context-note">Keep the musical situation visible while Explore, Practice and Apply ask different things of the same guitar.</p>
         <div class="context-list">
           <div class="context-row"><span class="context-label"><span aria-hidden="true">⌘</span>Key</span><span class="context-value">G major</span></div>
           <div class="context-row"><span class="context-label"><span aria-hidden="true">▦</span>Chord</span><span class="context-value">—</span></div>
@@ -60,15 +60,15 @@
           <button type="button" class="inlay-toggle" id="inlay-toggle" aria-label="Show fretboard inlays" aria-pressed="true"></button>
         </div>
         <div id="desk-board" class="desk-board"></div>
-        <p class="board-caption">This is the shared physical fretboard renderer, shown without hidden answers. Open a musical question below to put real engine-derived material on it.</p>
+        <p class="board-caption">The shared physical fretboard stays central while each workspace decides what should be disclosed.</p>
       </section>
     </section>
 
     <section class="panel questions-panel" aria-labelledby="questions-title">
       <div class="questions-head">
-        <h2 class="questions-title" id="questions-title">What do you want to look at?</h2>
+        <h2 class="questions-title" id="questions-title">What do you want to work on?</h2>
         <span class="spacer"></span>
-        <button type="button" class="my-music" id="my-music">▢ My music…</button>
+        <button type="button" class="my-music" id="my-music">▢ My music · later</button>
       </div>
       <p class="material-status" id="material-status" role="status" tabindex="-1"></p>
 
@@ -81,38 +81,38 @@
         </a>
 
         <a class="question-card" href="/product-spine.html">
-          <span class="question-kicker">Listen + practise</span>
+          <span class="question-kicker">Practice</span>
           <h3>Hear where harmony wants to move</h3>
           <p>Predict tension and resolution, notice the pull, then use the same relationship on your guitar.</p>
           <span class="question-footer"><span>Harmonic Gravity</span><span class="question-arrow" aria-hidden="true">→</span></span>
         </a>
 
         <a class="question-card" href="/role-lens.html">
-          <span class="question-kicker">Hear roles</span>
+          <span class="question-kicker">Practice</span>
           <h3>Hear one note change roles</h3>
           <p>Keep one note, change the harmony around it, then create and transfer from the role you hear.</p>
           <span class="question-footer"><span>Role Lens</span><span class="question-arrow" aria-hidden="true">→</span></span>
         </a>
 
         <a class="question-card" href="/melody.html">
-          <span class="question-kicker">Follow harmony</span>
+          <span class="question-kicker">Practice · legacy surface</span>
           <h3>Follow one note through changing chords</h3>
           <p>Stop asking only “what scale?” and see what a note is doing over each chord.</p>
           <span class="question-footer"><span>Melody Over Harmony</span><span class="question-arrow" aria-hidden="true">→</span></span>
         </a>
 
         <a class="question-card" href="/voice-leading.html">
-          <span class="question-kicker">Move efficiently</span>
+          <span class="question-kicker">Practice · legacy surface</span>
           <h3>Connect chords with less movement</h3>
           <p>Build nearby voicings and trace the small melodic movements hiding inside the chord change.</p>
           <span class="question-footer"><span>The Parsimonious Path</span><span class="question-arrow" aria-hidden="true">→</span></span>
         </a>
 
         <a class="question-card" href="/accompaniment.html">
-          <span class="question-kicker">Make rhythm</span>
+          <span class="question-kicker">Apply</span>
           <h3>Build the rhythm under the chords</h3>
-          <p>Change tempo, bars and down/up/rest slots on the accepted accompaniment and reproduce it physically.</p>
-          <span class="question-footer"><span>Accompaniment</span><span class="question-arrow" aria-hidden="true">→</span></span>
+          <p>Change tempo, bars and down/up/rest slots, reproduce the plan physically, then prepare to record and improvise over yourself.</p>
+          <span class="question-footer"><span>Accompaniment → Record/Loop</span><span class="question-arrow" aria-hidden="true">→</span></span>
         </a>
       </div>
     </section>
