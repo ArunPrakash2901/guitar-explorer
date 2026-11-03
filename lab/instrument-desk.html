@@ -34,9 +34,14 @@
           <p id="focus-description">Find two notes that belong together. Use them in a phrase, move register, then find the same relationship from a different root.</p>
           <label for="practice-focus">Today’s focus</label>
           <select id="practice-focus">
-            <option value="major">Major thirds</option>
-            <option value="minor">Minor thirds</option>
-            <option value="role">One pitch, changing chords</option>
+            <option value="major" id="focus-major-option">Major thirds</option>
+            <option value="minor" id="focus-minor-option">Minor thirds</option>
+            <option value="role" id="focus-role-option">One pitch, changing chords</option>
+          </select>
+          <label for="practice-challenge">Challenge</label>
+          <select id="practice-challenge">
+            <option value="foundation" selected>Foundation</option>
+            <option value="stretch">Stretch</option>
           </select>
           <p class="quiet" id="session-length">3 rounds · about 6–8 minutes · open strings to fret 3</p>
           <div class="button-row">
@@ -130,6 +135,38 @@
               <p class="quiet" id="role-use-note"></p>
             </div>
             <button type="button" class="primary" id="role-next" disabled>Keep my impression</button>
+          </section>
+          <section id="depth-controls" class="panel role-panel" hidden aria-label="Listen, reason and use">
+            <div id="depth-question">
+              <h2 id="depth-question-title"></h2>
+              <fieldset id="depth-feeling">
+                <legend id="depth-feeling-legend">How do you predict the anchor will feel?</legend>
+                <label><input type="radio" name="depth-feeling" id="depth-settled" value="settled"> Settled</label>
+                <label><input type="radio" name="depth-feeling" id="depth-tense" value="tense"> Tense</label>
+                <label><input type="radio" name="depth-feeling" id="depth-unsure" value="unsure"> Unsure</label>
+              </fieldset>
+              <fieldset id="depth-comparison" hidden>
+                <legend>How did the two pitches compare?</legend>
+                <label><input type="radio" name="depth-comparison" id="depth-compare-a" value="a"> A felt more settled</label>
+                <label><input type="radio" name="depth-comparison" id="depth-compare-b" value="b"> B felt more settled</label>
+                <label><input type="radio" name="depth-comparison" id="depth-compare-same" value="same"> No clear difference</label>
+                <label><input type="radio" name="depth-comparison" id="depth-compare-unsure" value="unsure"> Unsure</label>
+              </fieldset>
+              <p class="quiet" id="depth-question-note"></p>
+            </div>
+            <div id="depth-reveal" hidden><div id="depth-facts"></div></div>
+            <div id="depth-use" hidden>
+              <h2 id="depth-use-title"></h2>
+              <p class="physical-prompt" id="depth-use-copy"></p>
+              <label class="check-label"><input type="checkbox" id="depth-played"> I tried this musical problem on my guitar.</label>
+              <fieldset>
+                <legend>What changed through playing?</legend>
+                <label><input type="radio" name="depth-reflection" id="depth-reflect-clearer" value="clearer"> The connection became clearer</label>
+                <label><input type="radio" name="depth-reflection" id="depth-reflect-exploring" value="exploring"> I’m still exploring it</label>
+              </fieldset>
+              <p class="quiet" id="depth-use-note"></p>
+            </div>
+            <button type="button" class="primary" id="depth-next" disabled>Continue</button>
           </section>
           <p class="feedback" id="task-feedback" role="status"></p>
         </div>

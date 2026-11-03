@@ -14,4 +14,8 @@ export const STEEL_SAMPLES = Object.freeze([
   Object.freeze({ stringIndex: 5, fret: 0, note: "E4", file: "INSGuitarSteel_StringHighE_Vel02_E4_01.ogg", bytes: 60165, gitBlobSha: "c7e6cc936c1187823bec15c02c7b020178edd9c6" }),
   Object.freeze({ stringIndex: 3, fret: 2, note: "A3", file: "INSGuitarSteel_StringG_Vel02_A3_01.ogg", bytes: 82345, gitBlobSha: "a4c24b6c4fe0c52c7df1ac17686bf8503c4d96c5" }),
   Object.freeze({ stringIndex: 5, fret: 2, note: "F#4", file: "INSGuitarSteel_StringHighE_Vel02_Fs4_01.ogg", bytes: 46520, gitBlobSha: "8a46d4455118b1de120f732726f909517349235b" }),
+  Object.freeze({ stringIndex: 3, fret: 4, note: "B3", file: "INSGuitarSteel_StringG_Vel02_B3_01.ogg", bytes: 56417, gitBlobSha: "3e97c044c52809eb4dc5d3d77ed60a3f83691094" }),
+  Object.freeze({ stringIndex: 2, fret: 5, note: "G3", file: "INSGuitarSteel_StringD_Vel02_G3_01.ogg", bytes: 96456, gitBlobSha: "7f400cbeac23558e83e6915830bf261b686d134a" }),
+  Object.freeze({ stringIndex: 4, fret: 5, note: "E4", file: "INSGuitarSteel_StringB_Vel02_E4_01.ogg", bytes: 57408, gitBlobSha: "f7fbb91f03da53bfdfe414d73ceef0c0355d7628" }),
+  Object.freeze({ stringIndex: 3, fret: 5, note: "C4", file: "INSGuitarSteel_StringG_Vel02_C4_01.ogg", bytes: 74490, gitBlobSha: "d77560836da5c3ad4283989dddef4fe581e4c69f" }),
 ]);

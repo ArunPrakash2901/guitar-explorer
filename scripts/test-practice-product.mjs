@@ -41,8 +41,8 @@ assert.throws(() => prepare("dorian"), /major or minor/);
 assert.throws(() => prepare("major", -1), /seed/);
 
 // Asset integrity + engine-derived physical provenance. No pitch-shifting/mapping guess.
-assert.equal(STEEL_SAMPLES.length, 12);
-assert.equal(STEEL_SAMPLES.reduce((sum, sample) => sum + sample.bytes, 0), 1051631);
+assert.equal(STEEL_SAMPLES.length, 16);
+assert.equal(STEEL_SAMPLES.reduce((sum, sample) => sum + sample.bytes, 0), 1336402);
 for (const sample of STEEL_SAMPLES) {
   const location = engine.musicQueries.getNoteAtFret({ position: sample });
   assert.ok(location.ok);
@@ -70,11 +70,11 @@ const fetchSuccess = async (url) => {
 const events = plan.intervalCue(prepare().rounds[0].material, true);
 const player = createSampledGuitar({ AudioContextCtor: AudioContextFake, fetchAsset: fetchSuccess });
 assert.equal((await player.play(events)).voiceCount, 3);
-assert.equal(fetches, 12);
+assert.equal(fetches, 16);
 assert.ok(Math.abs(starts[1] - starts[0] - 1.05) < 1e-9, "audio clock preserves prepared offsets");
 assert.equal(player.stop(), 3);
 await player.play(events);
-assert.equal(fetches, 12, "decode/cache reused");
+assert.equal(fetches, 16, "decode/cache reused");
 assert.throws(() => sampleAttacks([{ ...events[0], at: -1 }]), /timing/);
 assert.throws(() => sampleAttacks([{ ...events[0], level: 5 }]), /bounded/);
 assert.throws(() => sampleAttacks([{ ...events[0], positions: [{ stringIndex: 5, fret: 9 }] }]), /No acoustic sample/);

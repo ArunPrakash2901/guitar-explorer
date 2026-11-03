@@ -9,6 +9,10 @@ import { composeRoleSession } from "/role-material.mjs";
 import { prepareRolePerformance, roleCue } from "/role-performance.mjs";
 import { beginRoleSession, advanceRoleSession } from "/role-plan.mjs";
 import { renderRoleTask } from "/role-view.mjs";
+import { composeIntervalDepth, composeRoleDepth } from "/practice-depth-material.mjs";
+import { beginDepthSession, advanceDepthSession } from "/practice-depth-plan.mjs";
+import { prepareDepthPerformance, depthCue } from "/practice-depth-audio.mjs";
+import { renderDepthTask } from "/practice-depth-view.mjs";
 
 const $ = (id) => document.getElementById(id);
 const audio = createSampledGuitar();
@@ -17,11 +21,13 @@ let view = "home";
 let nextSeed = 0;
 let audioTicket = 0;
 let rolePerformances = null;
+let depthPerformances = null;
 const isRole = () => session?.plan.family === "role-ear";
+const isStretch = () => session?.plan.challenge === "stretch";
 const board = createFretboard($("desk-board"), {
   onSelect(position) {
     if (!session || session.stage !== "find") return;
-    session = isRole() ? advanceRoleSession(session, { type: "select", position }) : advanceSession(session, { type: "select", position });
+    session = isStretch() ? advanceDepthSession(session, { type: "select", position }) : isRole() ? advanceRoleSession(session, { type: "select", position }) : advanceSession(session, { type: "select", position });
     $("task-feedback").textContent = "";
     render();
   },
@@ -44,18 +50,23 @@ function startPractice() {
   stopAudio();
   try {
     const role = $("practice-focus").value === "role";
-    const plan = role ? composeRoleSession({ seed: nextSeed, queries: musicQueries, formatNote }) : composeIntervalSession({
+    const stretch = $("practice-challenge").value === "stretch";
+    const plan = stretch ? (role ? composeRoleDepth({ seed: nextSeed, queries: musicQueries, formatNote }) : composeIntervalDepth({ quality: $("practice-focus").value, seed: nextSeed, queries: musicQueries, formatNote }))
+      : role ? composeRoleSession({ seed: nextSeed, queries: musicQueries, formatNote }) : composeIntervalSession({
       quality: $("practice-focus").value, seed: nextSeed,
       availablePositions: STEEL_SAMPLES, queries: musicQueries,
     });
-    const performances = role ? plan.rounds.map(({ material }) => prepareRolePerformance(material, { queries: musicQueries, availablePositions: STEEL_SAMPLES })) : null;
+    const performances = role && !stretch ? plan.rounds.map(({ material }) => prepareRolePerformance(material, { queries: musicQueries, availablePositions: STEEL_SAMPLES })) : null;
+    const depth = stretch ? prepareDepthPerformance(plan, { queries: musicQueries, availablePositions: STEEL_SAMPLES }) : null;
     nextSeed += 1;
-    session = role ? beginRoleSession(plan) : beginSession(plan);
+    session = stretch ? beginDepthSession(plan) : role ? beginRoleSession(plan) : beginSession(plan);
     rolePerformances = performances;
-    $("audio-status").textContent = role ? "Hear the chord with its anchor, then keep your impression." : "Play first, or hear the root as a reference.";
+    depthPerformances = depth;
+    $("audio-status").textContent = stretch && role ? "Make a prediction before audition. Unsure is a valid response." : role ? "Hear the chord with its anchor, then keep your impression." : "Play first, or hear the root as a reference.";
     view = "practice";
     $("home-error").textContent = "";
     $("task-feedback").textContent = "";
+    $("complete-rounds").replaceChildren();
     render();
     $("task-title").focus();
   } catch {
@@ -72,21 +83,25 @@ function continuePractice() {
 
 async function audition(pair) {
   if (view !== "practice" || !session || (pair && session.stage === "find")) return;
+  if (isStretch() && session.stage === "predict") return;
   stopAudio();
   const ticket = ++audioTicket;
   const material = session.plan.rounds[session.roundIndex].material;
   const role = isRole();
-  const mode = role ? (session.stage === "hear" ? "context" : session.stage === "reveal" ? "comparisons" : session.stage === "find" || pair ? "anchor" : "backing") : null;
-  const cue = role ? roleCue(material, rolePerformances[session.roundIndex], mode, session.contextIndex) : intervalCue(material, pair);
+  const stretch = isStretch();
+  const mode = stretch ? role && session.stage === "use" && !pair ? "depth-backing" : role && session.stage === "hear" ? "depth-hear" : null
+    : role ? (session.stage === "hear" ? "context" : session.stage === "reveal" ? "comparisons" : session.stage === "find" || pair ? "anchor" : "backing") : null;
+  const cue = stretch ? depthCue(session, depthPerformances[session.roundIndex], pair) : role ? roleCue(material, rolePerformances[session.roundIndex], mode, session.contextIndex) : intervalCue(material, pair);
   $("audio-status").textContent = "Loading recorded acoustic guitar…";
   try {
     const result = await audio.play(cue);
     if (ticket !== audioTicket || result.cancelled) return;
-    if (role && (mode === "context" || mode === "backing")) {
-      session = advanceRoleSession(session, { type: "audition" });
+    if (["context", "backing", "depth-hear", "depth-backing"].includes(mode)) {
+      session = stretch ? advanceDepthSession(session, { type: "audition" }) : advanceRoleSession(session, { type: "audition" });
       render();
     }
-    $("audio-status").textContent = mode === "backing"
+    $("audio-status").textContent = mode === "depth-backing" ? "Sampled harmony started. Play your retrieved pitches over it."
+      : mode === "backing"
       ? "Changing chords started. Two strums each; keep playing your same anchor pitch."
       : role ? "Recorded guitar cue started. Listen, then take your time on the guitar." : "Recorded guitar cue started. Repeat it on your guitar, then leave silence.";
   } catch {
@@ -97,6 +112,10 @@ async function audition(pair) {
 
 function renderHomeFocus() {
   const role = $("practice-focus").value === "role";
+  const stretch = $("practice-challenge").value === "stretch";
+  $("focus-major-option").textContent = stretch ? "Major intervals & chord tones" : "Major thirds";
+  $("focus-minor-option").textContent = stretch ? "Minor intervals & chord tones" : "Minor thirds";
+  $("focus-role-option").textContent = stretch ? "Ear & harmonic context" : "One pitch, changing chords";
   $("focus-kicker").textContent = role ? "Ear + context" : "Fretboard + theory";
   $("focus-title").textContent = role ? "Hear a note change roles" : "Get to know your thirds";
   $("home-intro").textContent = role ? "Keep a pitch in your ear while the harmony changes. Then find it on your acoustic guitar and hear the change through your own playing."
@@ -116,10 +135,22 @@ function renderHomeFocus() {
     $("outline-" + i + "-title").textContent = title;
     $("outline-" + i + "-copy").textContent = copy;
   }
+  if (stretch) {
+    $("focus-title").textContent = role ? "Predict. Compare. Hear a new context." : "One relationship. Different problems.";
+    $("focus-description").textContent = role ? "Predict before sound, compare two pitches over one chord, then carry the comparison into changed harmony."
+      : "Find another physical route, read a chord role, then reconstruct a root from its third. Search before the answers appear.";
+    $("home-intro").textContent = "Stretch a familiar relationship through a different musical problem. Bring your acoustic guitar; take the time to listen and play.";
+    $("session-length").textContent = "3 connected challenges · about 10–15 minutes · open through fret 5";
+    for (const [i, title, copy] of role ? [[1, "Predict", "Commit an expectation, then compare it with your hearing."], [2, "Compare", "Keep the chord. Hear two different pitches."], [3, "Transfer", "Keep the pitches. Change their surroundings."]]
+      : [[1, "Navigate", "Rebuild the interval using another physical route."], [2, "Read", "Translate a chord role into a note on your guitar."], [3, "Reverse", "Start from the third and reconstruct its root."]]) {
+      $("outline-" + i + "-title").textContent = title; $("outline-" + i + "-copy").textContent = copy;
+    }
+  }
   if (session && session.stage !== "complete") {
-    const pausedFocus = isRole() ? "ear practice" : session.plan.quality === "minor" ? "minor thirds" : "major thirds";
+    const pausedFocus = isStretch() ? "Stretch " + (isRole() ? "ear practice" : session.plan.quality + " interval practice")
+      : isRole() ? "ear practice" : session.plan.quality === "minor" ? "minor thirds" : "major thirds";
     $("continue-practice").textContent = "Continue " + pausedFocus;
-    $("continue-note").textContent = "Continue resumes your paused " + pausedFocus + ". Start fresh uses Today’s focus and replaces that session. Reloading starts fresh.";
+    $("continue-note").textContent = "Continue resumes your paused " + pausedFocus + ". Start fresh uses the selected focus and challenge, replacing that session. Reloading starts fresh.";
   }
 }
 
@@ -138,6 +169,16 @@ function render() {
   $("start-practice").textContent = active ? "Start fresh" : "Start practice";
   if (!session) return;
   if (view === "complete") {
+    if (isStretch()) {
+      $("complete-title").textContent = "Different questions. Connected music.";
+      $("complete-intro").textContent = "You reached the end of three connected musical problems. Repeat a phrase you liked with the screen out of sight.";
+      $("complete-relationship").textContent = isRole() ? "Prediction, comparison and a changed context" : "Routes, chord roles and a search in reverse";
+      $("complete-next-copy").textContent = "Another Stretch session changes the material and the constraints. Foundation remains available whenever you want a smaller step.";
+      $("complete-rounds").replaceChildren(...session.plan.rounds.map(({ purpose, material: m }) => {
+        const li = document.createElement("li"); li.textContent = purpose + ": " + (isRole() ? m.anchors.map((n) => n.name).join(" / ") + " over " + [...new Set(m.comparisons.map((c) => c.context.symbol))].join(" → ") : m.root.name + " → " + m.target.name); return li;
+      }));
+      return;
+    }
     $("complete-title").replaceChildren(isRole() ? "One pitch." : "One relationship.", document.createElement("br"), isRole() ? "Different roles." : "More than one place.");
     $("complete-intro").textContent = isRole()
       ? "You compared two anchors against changing harmony, then put the comparison on your guitar. Keep noticing how the same pitch feels in different surroundings."
@@ -155,6 +196,15 @@ function render() {
     return;
   }
   if (view !== "practice") return;
+  if (isStretch()) {
+    renderDepthTask(session, { $, document, board, formatNote });
+    return;
+  }
+  $("depth-controls").hidden = true;
+  $("depth-facts").replaceChildren();
+  for (const id of ["depth-question-title", "depth-question-note", "depth-use-copy"]) $(id).textContent = "";
+  $("hear-root").disabled = false;
+  $("check-position").textContent = "Check this position";
   if (isRole()) {
     renderRoleTask(session, { $, document, board });
     return;
@@ -222,12 +272,13 @@ $("hear-root").addEventListener("click", () => audition(false));
 $("hear-pair").addEventListener("click", () => audition(true));
 $("stop-sound").addEventListener("click", stopAudio);
 $("check-position").addEventListener("click", () => {
-  session = isRole() ? advanceRoleSession(session, { type: "commit-position" }) : advanceSession(session, { type: "commit" });
+  session = isStretch() ? advanceDepthSession(session, { type: "commit-position" }) : isRole() ? advanceRoleSession(session, { type: "commit-position" }) : advanceSession(session, { type: "commit" });
   if (session.stage === "use") {
     stopAudio();
     $("task-feedback").textContent = "";
   } else {
-    $("task-feedback").textContent = isRole() ? "That screen position is not this registered anchor yet. Listen again and try another position, or reveal with help."
+    $("task-feedback").textContent = isStretch() ? "Those choices do not yet complete this challenge. Check the required count and constraint, try another route, or reveal with help."
+      : isRole() ? "That screen position is not this registered anchor yet. Listen again and try another position, or reveal with help."
       : "That screen position does not match this interval yet. Play the root again and try another position, or reveal with help.";
   }
   render();
@@ -235,7 +286,7 @@ $("check-position").addEventListener("click", () => {
 });
 $("help-reveal").addEventListener("click", () => {
   stopAudio();
-  session = isRole() ? advanceRoleSession(session, { type: "help" }) : advanceSession(session, { type: "help" });
+  session = isStretch() ? advanceDepthSession(session, { type: "help" }) : isRole() ? advanceRoleSession(session, { type: "help" }) : advanceSession(session, { type: "help" });
   $("task-feedback").textContent = "";
   render();
   $("task-title").focus();
@@ -260,6 +311,32 @@ $("next-round").addEventListener("click", () => {
   $(view === "complete" ? "complete-title" : "task-title").focus();
 });
 $("practice-focus").addEventListener("change", renderHomeFocus);
+$("practice-challenge").addEventListener("change", renderHomeFocus);
+for (const v of ["settled", "tense", "unsure"]) $("depth-" + v).addEventListener("change", () => {
+  if (!isStretch()) return;
+  session = advanceDepthSession(session, { type: "response", value: v }); render();
+});
+for (const v of ["a", "b", "same", "unsure"]) $("depth-compare-" + v).addEventListener("change", () => {
+  if (!isStretch()) return;
+  session = advanceDepthSession(session, { type: "response", value: v }); render();
+});
+$("depth-played").addEventListener("change", () => {
+  if (!isStretch()) return;
+  session = advanceDepthSession(session, { type: "played", value: $("depth-played").checked }); render();
+});
+for (const v of ["clearer", "exploring"]) $("depth-reflect-" + v).addEventListener("change", () => {
+  if (!isStretch()) return;
+  session = advanceDepthSession(session, { type: "reflect", value: v }); render();
+});
+$("depth-next").addEventListener("click", () => {
+  if (!isStretch()) return;
+  const next = advanceDepthSession(session, { type: ["predict", "hear"].includes(session.stage) ? "commit-response" : "next" });
+  if (next === session) return;
+  stopAudio(); session = next;
+  view = session.stage === "complete" ? "complete" : "practice";
+  $("task-feedback").textContent = "";
+  render(); $(view === "complete" ? "complete-title" : "task-title").focus();
+});
 for (const value of ["settled", "tense", "unsure"]) $("role-" + value).addEventListener("change", () => {
   if (!isRole()) return;
   session = advanceRoleSession(session, { type: "impression", value });

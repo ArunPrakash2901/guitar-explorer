@@ -1,8 +1,10 @@
-// Curated placements from closed reference #56, not a voicing search/theory table.
+// G/C/D7 placements from closed #56; the bounded depth task adds Am7/E.
+// These are performance choices, not a voicing search or theory table.
 const VOICINGS = Object.freeze({
   "G:major": Object.freeze([3, 2, 0, 0, 0, 3]),
   "C:major": Object.freeze([null, 3, 2, 0, 1, 0]),
   "D:dominant7": Object.freeze([null, null, 0, 2, 1, 2]),
+  "A:minor7": Object.freeze([null, null, 2, 2, 1, 3]),
 });
 const key = ({ stringIndex, fret }) => stringIndex + ":" + fret;
 const unwrap = (result) => {

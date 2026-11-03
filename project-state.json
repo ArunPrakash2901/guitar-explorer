@@ -2,17 +2,19 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-04",
-  "stage": "Productization 1 / Practice Session v0 (#70), two accepted families; Target Landing child #75 scoped",
+  "stage": "Productization 1 / Practice Session v0 (#70), Practice Depth milestone #77 / child #78",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "merged Productization 1A (#72) and 1B (#74): one Home/Practice Runtime with Interval Hunt and Role Ear, sampled guitar, physical use and transfer",
+    "runtime": "merged #72/#74 provide Interval Hunt and Role Ear in one sampled-guitar runtime; unmerged #78 stretches those same families while retaining Foundation",
     "learningValidation": "accepted legacy experiences, Productization 1A and 1B; Arun explicitly approved #74 head c70c740 on 4 November 2026 without a more detailed verdict; no mastery inference"
   },
   "activeWork": {
-    "issue": 75,
+    "issue": 78,
     "pullRequest": null,
     "kind": "learner-facing-implementation",
-    "summary": "Third bounded child of #70: Target Landing inside the accepted shared runtime. Issue #75 is scoped; preserve Interval Hunt and Role Ear, sampled audio and independent exact-head learner review. No Target Landing code is added by the #74 acceptance update."
+    "parentIssue": 77,
+    "milestoneIssue": 70,
+    "summary": "First bounded Practice Depth slice: alternate routes, chord-role and reverse search for Interval; prediction and fixed-chord pitch comparison/transfer for Role Ear. Foundation retained. #75 is deferred."
   },
   "evidence": {
     "issue": 15,
@@ -32,9 +34,9 @@
     "status": "accepted legacy experiences, Productization 1A and 1B; approval is descriptive evidence, not an automatic learning or mastery assessment"
   },
   "gate": {
-    "issue": 75,
-    "status": "implementation-and-exact-head-review-required",
-    "statement": "#73 completed; #74 approved at c70c740 and merged as e323d1c466288fc656ab20b68cdb8b35db00c17d. #70 remains incomplete. Follow scoped #75; its learner-facing changes require their own verify, exact-head preview, browser/physical review and explicit approval before merge."
+    "issue": 78,
+    "status": "exact-head-repeated-session-review-required-before-merge",
+    "statement": "#77 requires depth in the first two accepted families before another family. Child #78 needs focused/full verify, exact-head preview, desktop/narrow/light/dark review and Arun repeated-session acoustic-guitar acceptance. #77/#70 stay open. #75 is deferred/not-planned."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,7 +45,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "Latest learner child #74 passed full verify, exact-head preview and browser review, then Arun explicitly approved c70c740 before merge; PR preview is ephemeral after closure",
+    "previewReadiness": "Practice Depth child #78 requires full verify and exact-head Pages preview, then repeated Foundation/Stretch listening and physical-guitar review",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -162,10 +164,10 @@
   },
   "plannedSequence": {
     "productization": [
-      "Read scoped Target Landing Issue #75 and inspect live master/shared runtime before its bounded implementation",
-      "Implement only the separately authorized Target Landing child and return for its own exact-head listening/physical review",
-      "Only then decide the smallest mixed-family session composition for #70",
-      "Later Apply/Jam, precise looper, breadth, songs/tone and Style remain separately authorized"
+      "Review bounded Practice Depth child #78 under #77 in both accepted families",
+      "Scope further depth only if #77 repeated-session and task-variety acceptance still needs it; do not build all candidate tasks automatically",
+      "Return to deferred Target Landing #75 only after Arun accepts the first two families are substantially less primitive",
+      "Mixed-family composition, Apply/Jam, precise looper, breadth, songs/tone and Style remain later separately authorized"
     ]
   },
   "deferred": [
@@ -187,8 +189,8 @@
     "production deployment or paid/external preview infrastructure",
     "GX-10/rig control and broad AI-agent integration",
     "curriculum graphs and large random-content generators",
-    "Target Landing and mixed-family composition remain later separate children of #70, not #73",
     "Looper, songs/tone, Style, AI, backend, grading and learner adaptation remain parked by the Productization reset",
-    "Universal learning DSL, curriculum graph or mastery engine"
+    "Universal learning DSL, curriculum graph or mastery engine",
+    "Target Landing #75 is deferred/not-planned until Arun accepts Practice Depth #77; no full mixed-family composer, new theory, adaptation/mastery or universal DSL in #78"
   ]
 }

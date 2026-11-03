@@ -34,11 +34,21 @@ The accepted child adds one real Ear/context focus: hear an unchanged anchor aga
 
 The musical generator derives valid contrasting roles without reading sample coverage. A separate adapter validates curated G/C/D7 placements against engine chord tones, then checks audio support. Only the F#4 attack from closed #58 is added to the existing renderer; no branch reopen/merge or synth default.
 
-#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete: two distinct families exist; the third family is now scoped in Issue #75 — Productization 1C / Target Landing inside the shared Practice Runtime. Read that live issue and inspect current master before implementation. #74's approval adds no Target Landing code, mixed-family composer or parked work, and does not approve any future child for merge.
+#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete. Arun has explicitly changed the next priority to depth in these first two families: Issue #77 supersedes Target Landing as immediate work. #75 is closed not-planned/deferred until Arun accepts substantially less primitive practice. Prior #74 approval does not approve depth work or any future child for merge.
 
 Read docs/ROLE_EAR_PRACTICE_V0.md for the bounded sequence, material/audio boundary and review path.
 
 Read docs/PRODUCTIZATION_1_BLUEPRINT.md for the current flow audit, minimal state model, reuse/removal decisions and audio path.
+
+## Current Practice Depth child
+
+Issue #77 is the depth acceptance target; bounded child #78 is the current unmerged implementation. Read docs/PRACTICE_DEPTH_MATRIX.md for the engine/audio inventory, selected tasks, exclusions and review examples. Existing queries already supply the facts; no Music Engine expansion.
+
+Foundation remains unchanged. One Foundation/Stretch choice stays inside Home and the same runtime. Interval Stretch: alternate physical routes/fretted targets → chord-role translation → reconstruct a new root from a given third. Role Stretch: predict before hearing → compare two pitches over one chord → transfer that comparison to changed harmony. Subjective expectations, hearing and A/B preferences remain ungraded.
+
+Material generation does not read sample coverage. A separate performance adapter checks support after facts/answers exist. Four CC0 alternate-string attacks at frets 4–5 support physical routes without changing the original 0–3 Foundation pool; the sampled renderer is unchanged. A bounded engine-validated Am7/E placement uses existing attacks.
+
+#78 must reach full verify, exact-head preview and desktop/narrow/light/dark review, then Arun's repeated-session listening/acoustic-guitar review. #77 remains open: do not equate more parameters or passing checks with useful musician practice. No Target Landing, full mixed-family composer, history/mastery/adaptation, looper, songs/Style/tone, AI grading, backend or universal DSL.
 
 Required before any future learner-facing merge: focused tests, full npm run verify, exact-head Pages preview, browser review, Arun's acoustic-guitar/listening trial and explicit approval of that exact head. #74's approval applies only to its reviewed head. Stable publication is still reserved and explicitly controlled; PR previews may be removed automatically after merge.
 
