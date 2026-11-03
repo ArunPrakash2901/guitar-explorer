@@ -10,7 +10,8 @@ const app = await readFile(new URL("../lab/role-lens-app.js", import.meta.url), 
 
 assert.match(html, /Guitar Explorer · Role Lens/);
 assert.match(html, /HEAR[\s\S]*ROLE[\s\S]*USE[\s\S]*TRANSFER[\s\S]*REFLECT/);
-assert.match(html, /href="\/product-spine\.html"/);
+assert.match(html, /aria-pressed="true">Ⅱ Practice/);
+assert.match(html, /href="\/accompaniment\.html">◇ Apply/);
 assert.doesNotMatch(html, /m3[^<]*chord tone|m7[^<]*chord tone|P4[^<]*non-chord/);
 assert.doesNotMatch(app, /AudioContext|localStorage|indexedDB|fetch\(|setInterval/);
 assert.doesNotMatch(app, /ExerciseRecipe|ContextLayer|LearningEngine/);
