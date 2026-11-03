@@ -2,17 +2,17 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-04",
-  "stage": "Productization 1 / Practice Session v0 (#70), two accepted families; next child to be scoped",
+  "stage": "Productization 1 / Practice Session v0 (#70), two accepted families; Target Landing child #75 scoped",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
     "runtime": "merged Productization 1A (#72) and 1B (#74): one Home/Practice Runtime with Interval Hunt and Role Ear, sampled guitar, physical use and transfer",
     "learningValidation": "accepted legacy experiences, Productization 1A and 1B; Arun explicitly approved #74 head c70c740 on 4 November 2026 without a more detailed verdict; no mastery inference"
   },
   "activeWork": {
-    "issue": 70,
+    "issue": 75,
     "pullRequest": null,
-    "kind": "milestone-planning",
-    "summary": "Interval Hunt (#71/#72) and Role Ear (#73/#74) accepted and merged. Next: separately scope the smallest Target Landing child inside the same runtime. No new implementation has begun."
+    "kind": "learner-facing-implementation",
+    "summary": "Third bounded child of #70: Target Landing inside the accepted shared runtime. Issue #75 is scoped; preserve Interval Hunt and Role Ear, sampled audio and independent exact-head learner review. No Target Landing code is added by the #74 acceptance update."
   },
   "evidence": {
     "issue": 15,
@@ -32,9 +32,9 @@
     "status": "accepted legacy experiences, Productization 1A and 1B; approval is descriptive evidence, not an automatic learning or mastery assessment"
   },
   "gate": {
-    "issue": 70,
-    "status": "next-child-scoping-required",
-    "statement": "#73 completed; #74 approved at c70c740 and merged as e323d1c466288fc656ab20b68cdb8b35db00c17d. #70 remains incomplete. Scope Target Landing separately; future learner-facing changes require their own exact-head review and explicit approval."
+    "issue": 75,
+    "status": "implementation-and-exact-head-review-required",
+    "statement": "#73 completed; #74 approved at c70c740 and merged as e323d1c466288fc656ab20b68cdb8b35db00c17d. #70 remains incomplete. Follow scoped #75; its learner-facing changes require their own verify, exact-head preview, browser/physical review and explicit approval before merge."
   },
   "verification": {
     "command": "npm run verify",
@@ -162,7 +162,7 @@
   },
   "plannedSequence": {
     "productization": [
-      "Scope the smallest Target Landing child inside the accepted shared runtime, using sampled backing",
+      "Read scoped Target Landing Issue #75 and inspect live master/shared runtime before its bounded implementation",
       "Implement only the separately authorized Target Landing child and return for its own exact-head listening/physical review",
       "Only then decide the smallest mixed-family session composition for #70",
       "Later Apply/Jam, precise looper, breadth, songs/tone and Style remain separately authorized"

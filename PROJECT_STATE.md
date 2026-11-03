@@ -34,7 +34,7 @@ The accepted child adds one real Ear/context focus: hear an unchanged anchor aga
 
 The musical generator derives valid contrasting roles without reading sample coverage. A separate adapter validates curated G/C/D7 placements against engine chord tones, then checks audio support. Only the F#4 attack from closed #58 is added to the existing renderer; no branch reopen/merge or synth default.
 
-#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete: two distinct families exist, but Target Landing and a coherent mixed-family session have not been implemented. Next action is to scope the smallest Target Landing child inside this runtime. This approval does not start its implementation, a mixed-family composer or any parked lane.
+#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete: two distinct families exist; the third family is now scoped in Issue #75 — Productization 1C / Target Landing inside the shared Practice Runtime. Read that live issue and inspect current master before implementation. #74's approval adds no Target Landing code, mixed-family composer or parked work, and does not approve any future child for merge.
 
 Read docs/ROLE_EAR_PRACTICE_V0.md for the bounded sequence, material/audio boundary and review path.
 
