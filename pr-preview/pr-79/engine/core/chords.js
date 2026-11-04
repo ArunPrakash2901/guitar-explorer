@@ -1,4 +1,4 @@
-import { CHORD_FORMULAS } from "./collections.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { CHORD_FORMULAS } from "./collections.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 const CHORD_FAMILY_METADATA = Object.freeze([
     Object.freeze({ id: "triads", displayName: "Triads" }),
     Object.freeze({ id: "suspended", displayName: "Suspended" }),

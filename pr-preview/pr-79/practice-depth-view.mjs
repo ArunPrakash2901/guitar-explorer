@@ -1,6 +1,6 @@
-import { depthBoard } from "./practice-depth-plan.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { depthPositionKey as key } from "./practice-depth-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { stringName } from "./practice-plan.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { depthBoard, depthSelectionValid } from "./practice-depth-plan.mjs?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { depthPositionKey as key } from "./practice-depth-material.mjs?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { stringName } from "./practice-plan.mjs?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 
 const ordinal = (n) => n === 5 ? "5th" : "7th";
 const place = (n) => n.name + ": " + stringName(n.position.stringIndex) + " string, " + (n.position.fret ? "fret " + n.position.fret : "open");
@@ -119,5 +119,6 @@ export function renderDepthTask(s, { $, document, board, formatNote }) {
   $("depth-use-note").textContent = ear && !s.backingAuditioned ? "Start the supplied harmony, then play your retrieved notes over it." : "Your reflection is ungraded. Replay and take the time you need.";
   $("depth-next").disabled = predicting ? !s.draft : hearing ? !s.draft || !s.auditioned : using ? !s.played || !s.reflection || (ear && !s.backingAuditioned) : false;
   $("depth-next").textContent = predicting ? "Keep prediction · then listen" : hearing ? m.kind === "predict" && s.comparisonIndex < comparisons.length - 1 ? "Keep hearing · next context" : "Keep response · reveal facts"
-    : revealing ? "Find and play the pitches" : s.roundIndex === s.plan.rounds.length - 1 ? "Finish session" : "Try the next musical problem";
+    : revealing ? depthSelectionValid(m, s.selectedPositions) ? "Keep these positions · play the new chord" : "Find and play the pitches"
+      : s.roundIndex === s.plan.rounds.length - 1 ? "Finish session" : "Try the next musical problem";
 }

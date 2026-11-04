@@ -1,6 +1,6 @@
-import { buildChord, buildScale, CHORD_FORMULAS } from "./collections.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { assertRecord, MusicError } from "./errors.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { validateKey } from "./keys.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { buildChord, buildScale, CHORD_FORMULAS } from "./collections.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { assertRecord, MusicError } from "./errors.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { validateKey } from "./keys.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 const ROMAN_DEGREES = ["I", "II", "III", "IV", "V", "VI", "VII"];
 function sameNote(left, right) {
     return left.letter === right.letter && left.accidental === right.accidental;

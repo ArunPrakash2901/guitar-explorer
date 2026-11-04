@@ -1,4 +1,4 @@
-import { chordRole, pathConnections } from "./phrase-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { chordRole, pathConnections } from "./phrase-material.mjs?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 
 // Rise–return is the current teaching procedure. Its notes and harmonic surface
 // are supplied by a validated scenario; no motif pitches live in this module.

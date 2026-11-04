@@ -1,6 +1,6 @@
-import { assertRecord, MusicError } from "./errors.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { describeInterval, transposeNote } from "./intervals.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { validateNote } from "./pitch.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { assertRecord, MusicError } from "./errors.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { describeInterval, transposeNote } from "./intervals.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { validateNote } from "./pitch.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 const PERFECT_FIFTH = describeInterval({ diatonicSteps: 4, semitones: 7 });
 const DESCENDING_PERFECT_FIFTH = describeInterval({ diatonicSteps: -4, semitones: -7 });
 const RELATIVE_MINOR_INTERVAL = describeInterval({ diatonicSteps: 5, semitones: 9 });

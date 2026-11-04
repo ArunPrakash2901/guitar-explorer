@@ -1,5 +1,5 @@
-import { assertInteger, assertRecord, MusicError } from "../core/errors.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { mod12, toSemitone, validatePitch } from "../core/pitch.js?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { assertInteger, assertRecord, MusicError } from "../core/errors.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { mod12, toSemitone, validatePitch } from "../core/pitch.js?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 /** Budget counts candidate positions before filtering by pitch class. */
 export const MAX_ENUMERATED_LOCATIONS = 10_000;
 function openPitch(letter, octave) {

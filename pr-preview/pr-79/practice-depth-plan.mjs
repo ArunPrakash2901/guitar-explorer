@@ -1,5 +1,5 @@
-import { depthPositionKey as key } from "./practice-depth-material.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
-import { stringName } from "./practice-plan.mjs?ge-revision=f4e4f463a972c3e522b1f45c8654aef5d545c5eb";
+import { depthPositionKey as key } from "./practice-depth-material.mjs?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
+import { stringName } from "./practice-plan.mjs?ge-revision=4f380850e03779b677d274444a409c90cbf769fc";
 
 export const DEPTH_IMPRESSIONS = Object.freeze(["settled", "tense", "unsure"]);
 export const DEPTH_COMPARISONS = Object.freeze(["a", "b", "same", "unsure"]);
@@ -59,13 +59,18 @@ export function advanceDepthSession(s, action) {
     case "played": return s.stage === "use" ? Object.freeze({ ...s, played: action.value === true }) : s;
     case "reflect": return s.stage === "use" && ["clearer", "exploring"].includes(action.value) ? Object.freeze({ ...s, reflection: action.value }) : s;
     case "next": {
-      if (s.stage === "reveal") return Object.freeze({ ...s, stage: "find" });
+      if (s.stage === "reveal") return Object.freeze({ ...s, stage: depthSelectionValid(m, s.selectedPositions) ? "use" : "find" });
       const ear = s.plan.family === "role-ear";
       if (s.stage !== "use" || !s.played || !s.reflection || (ear && !s.backingAuditioned)) return s;
       if (s.roundIndex === s.plan.rounds.length - 1) return Object.freeze({ ...s, stage: "complete" });
       const nextIndex = s.roundIndex + 1;
       const nextMaterial = s.plan.rounds[nextIndex].material;
+      // This comparison transfer changes harmony, not the learner's pitches.
+      // Retain a proven physical route only while it is valid for the new task.
+      const keepPositions = m.kind === "compare" && nextMaterial.kind === "compare" && depthSelectionValid(nextMaterial, s.selectedPositions);
       return Object.freeze({ ...beginDepthSession(s.plan), roundIndex: nextIndex,
+        selectedPositions: keepPositions ? s.selectedPositions : Object.freeze([]),
+        assisted: keepPositions && s.assisted,
         stage: nextMaterial.kind === "predict" ? "predict" : nextMaterial.kind === "compare" ? "hear" : "find" });
     }
     default: throw new RangeError("Unknown depth action");
