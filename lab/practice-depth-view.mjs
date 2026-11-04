@@ -1,4 +1,4 @@
-import { depthBoard } from "./practice-depth-plan.mjs";
+import { depthBoard, depthSelectionValid } from "./practice-depth-plan.mjs";
 import { depthPositionKey as key } from "./practice-depth-material.mjs";
 import { stringName } from "./practice-plan.mjs";
 
@@ -119,5 +119,6 @@ export function renderDepthTask(s, { $, document, board, formatNote }) {
   $("depth-use-note").textContent = ear && !s.backingAuditioned ? "Start the supplied harmony, then play your retrieved notes over it." : "Your reflection is ungraded. Replay and take the time you need.";
   $("depth-next").disabled = predicting ? !s.draft : hearing ? !s.draft || !s.auditioned : using ? !s.played || !s.reflection || (ear && !s.backingAuditioned) : false;
   $("depth-next").textContent = predicting ? "Keep prediction · then listen" : hearing ? m.kind === "predict" && s.comparisonIndex < comparisons.length - 1 ? "Keep hearing · next context" : "Keep response · reveal facts"
-    : revealing ? "Find and play the pitches" : s.roundIndex === s.plan.rounds.length - 1 ? "Finish session" : "Try the next musical problem";
+    : revealing ? depthSelectionValid(m, s.selectedPositions) ? "Keep these positions · play the new chord" : "Find and play the pitches"
+      : s.roundIndex === s.plan.rounds.length - 1 ? "Finish session" : "Try the next musical problem";
 }

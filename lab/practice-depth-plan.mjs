@@ -59,13 +59,18 @@ export function advanceDepthSession(s, action) {
     case "played": return s.stage === "use" ? Object.freeze({ ...s, played: action.value === true }) : s;
     case "reflect": return s.stage === "use" && ["clearer", "exploring"].includes(action.value) ? Object.freeze({ ...s, reflection: action.value }) : s;
     case "next": {
-      if (s.stage === "reveal") return Object.freeze({ ...s, stage: "find" });
+      if (s.stage === "reveal") return Object.freeze({ ...s, stage: depthSelectionValid(m, s.selectedPositions) ? "use" : "find" });
       const ear = s.plan.family === "role-ear";
       if (s.stage !== "use" || !s.played || !s.reflection || (ear && !s.backingAuditioned)) return s;
       if (s.roundIndex === s.plan.rounds.length - 1) return Object.freeze({ ...s, stage: "complete" });
       const nextIndex = s.roundIndex + 1;
       const nextMaterial = s.plan.rounds[nextIndex].material;
+      // This comparison transfer changes harmony, not the learner's pitches.
+      // Retain a proven physical route only while it is valid for the new task.
+      const keepPositions = m.kind === "compare" && nextMaterial.kind === "compare" && depthSelectionValid(nextMaterial, s.selectedPositions);
       return Object.freeze({ ...beginDepthSession(s.plan), roundIndex: nextIndex,
+        selectedPositions: keepPositions ? s.selectedPositions : Object.freeze([]),
+        assisted: keepPositions && s.assisted,
         stage: nextMaterial.kind === "predict" ? "predict" : nextMaterial.kind === "compare" ? "hear" : "find" });
     }
     default: throw new RangeError("Unknown depth action");

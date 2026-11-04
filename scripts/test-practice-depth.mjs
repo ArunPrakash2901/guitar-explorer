@@ -195,8 +195,17 @@ for (const seed of [0, 3]) {
     const cue = await audition(p); assert.equal(cue.length, 4);
     p.$("depth-compare-unsure").dispatch("change"); p.$("depth-next").click();
     assert.equal(p.read("session.stage"), "reveal"); assert.match(p.$("depth-facts").textContent, /Your comparison: Unsure/);
-    p.$("depth-next").click(); selectAnswers(p);
-    reflect(p); const backing = await audition(p); assert.ok(backing.every((e) => e.gesture === "strum"));
+    const retained = JSON.stringify(p.read("session.selectedPositions"));
+    p.$("depth-next").click();
+    if (round === 1) selectAnswers(p);
+    else {
+      assert.equal(p.read("session.stage"), "use", "same-pitch harmony transfer does not repeat fretboard retrieval");
+      assert.equal(JSON.stringify(p.read("session.selectedPositions")), retained, "the learner's actual string choices stay fixed");
+      assert.equal(p.read("session.backingAuditioned"), false); assert.equal(p.read("session.played"), false);
+      assert.equal(p.read("session.reflection"), null);
+    }
+    reflect(p); assert.equal(p.$("depth-next").disabled, true, "old harmony playback cannot authorize the new physical comparison");
+    const backing = await audition(p); assert.ok(backing.every((e) => e.gesture === "strum"));
     p.$("depth-next").click();
   }
   assert.equal(p.read("view"), "complete"); assert.equal(p.$("complete-rounds").children.length, 3);

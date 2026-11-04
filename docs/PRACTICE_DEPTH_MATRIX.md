@@ -32,6 +32,8 @@ Interval Stretch orders three connected problems: find another physical route (o
 
 Role Stretch orders prediction before audition, A/B pitch comparison over one chord, then a comparison transfer to changed harmony. Context count, visible pitch information, comparison direction and physical retrieval vary independently. All predictions, settled/tense/unsure and A/B listening preferences are ungraded. A successful audition request is not proof of hearing; a checkbox is not proof of guitar performance.
 
+For the changed-chord comparison transfer, retain the learner's already-retrieved physical positions while they remain valid. Do not make the learner find the same two pitches again. Keep help provenance, but reset listening/playback/physical-use acknowledgements: the new harmonic context still needs a fresh attempt.
+
 The material generator never imports the sample manifest. Bounded root, pitch and chord requests are pedagogy; engine queries derive every fact and valid answer. The performance adapter checks the prepared material against the existing curated chord placements and recorded coverage, failing explicitly rather than selecting a different answer.
 
 Four additional CC0 attacks are needed only to hear the physical alternatives: B3 on G-string fret 4, G3 on D-string fret 5, E4 on B-string fret 5 and C4 on G-string fret 5. They all lie outside Foundation's 0–3 region, so its material/replay pool is unchanged. No pitch shift, generic sampler, new renderer or synth default.
