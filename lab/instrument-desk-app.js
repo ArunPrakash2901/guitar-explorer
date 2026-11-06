@@ -13,7 +13,7 @@ import { createMusicalWorlds } from "/musical-worlds-app.mjs";
 
 const $ = (id) => document.getElementById(id);
 const audio = createSampledGuitar();
-const worlds = createMusicalWorlds(document.getElementById("worlds-root"));
+let worlds;
 let session = null;
 let view = "home";
 let nextSeed = 0;
@@ -32,7 +32,7 @@ const board = createFretboard($("desk-board"), {
 function stopAudio() {
   audioTicket += 1;
   audio.stop();
-  worlds.stop();
+  worlds?.stop();
   $("audio-status").textContent = "Sound stopped. Take your time on the guitar.";
 }
 
@@ -45,6 +45,15 @@ function showHome() {
 
 function showWorlds() {
   stopAudio();
+  try {
+    worlds ??= createMusicalWorlds($("worlds-root"));
+  } catch {
+    view = "home";
+    render();
+    $("home-error").textContent = "Musical Worlds could not open. Try again, or start Practice.";
+    return;
+  }
+  $("home-error").textContent = "";
   view = "worlds";
   render();
   worlds.focus();
@@ -75,6 +84,7 @@ function startPractice() {
 
 function continuePractice() {
   if (!session || session.stage === "complete") return;
+  if (view === "worlds") stopAudio();
   view = "practice";
   render();
   $("task-title").focus();

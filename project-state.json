@@ -1,18 +1,18 @@
 {
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
-  "updatedAt": "2026-11-04",
-  "stage": "Productization 1 / Practice Session v0 (#70), two accepted families; Target Landing child #75 scoped",
+  "updatedAt": "2026-11-06",
+  "stage": "Productization 1 / Practice Session v0 (#70): accepted Foundation, draft Musical Worlds review",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
     "runtime": "merged Productization 1A (#72) and 1B (#74): one Home/Practice Runtime with Interval Hunt and Role Ear, sampled guitar, physical use and transfer",
     "learningValidation": "accepted legacy experiences, Productization 1A and 1B; Arun explicitly approved #74 head c70c740 on 4 November 2026 without a more detailed verdict; no mastery inference"
   },
   "activeWork": {
-    "issue": 75,
-    "pullRequest": null,
+    "issue": 70,
+    "pullRequest": 81,
     "kind": "learner-facing-implementation",
-    "summary": "Third bounded child of #70: Target Landing inside the accepted shared runtime. Issue #75 is scoped; preserve Interval Hunt and Role Ear, sampled audio and independent exact-head learner review. No Target Landing code is added by the #74 acceptance update."
+    "summary": "Complete the existing Musical Worlds branch: seven playable creative situations, repeatable sampled-guitar and ensemble backing, and distinct musical decisions. Accepted Practice stays available. #79 is rejected and separate."
   },
   "evidence": {
     "issue": 15,
@@ -32,9 +32,9 @@
     "status": "accepted legacy experiences, Productization 1A and 1B; approval is descriptive evidence, not an automatic learning or mastery assessment"
   },
   "gate": {
-    "issue": 75,
-    "status": "implementation-and-exact-head-review-required",
-    "statement": "#73 completed; #74 approved at c70c740 and merged as e323d1c466288fc656ab20b68cdb8b35db00c17d. #70 remains incomplete. Follow scoped #75; its learner-facing changes require their own verify, exact-head preview, browser/physical review and explicit approval before merge."
+    "issue": 70,
+    "status": "exact-head-preview-and-learner-review-required",
+    "statement": "PR #81 stays draft until verification and published exact-head browser/real-guitar review, followed by Arun's explicit approval. #77/#78 remain open and unaccepted; #79 is unmerged and rejected. #75 remains deferred."
   },
   "verification": {
     "command": "npm run verify",
@@ -43,7 +43,7 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "Latest learner child #74 passed full verify, exact-head preview and browser review, then Arun explicitly approved c70c740 before merge; PR preview is ephemeral after closure",
+    "previewReadiness": "Run full verify and validate the published exact-head #81 preview. An Actions startup failure with zero jobs blocks publication; local verification is independent evidence, not a successful CI run.",
     "reviewSurface": "github-pages-pr-preview",
     "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-audio-and-physical-guitar-review"
   },
@@ -162,9 +162,9 @@
   },
   "plannedSequence": {
     "productization": [
-      "Read scoped Target Landing Issue #75 and inspect live master/shared runtime before its bounded implementation",
-      "Implement only the separately authorized Target Landing child and return for its own exact-head listening/physical review",
-      "Only then decide the smallest mixed-family session composition for #70",
+      "Complete and verify draft PR #81 on its existing branch, preserving the accepted Foundation and keeping #79 separate",
+      "Review all seven worlds with the browser and a real guitar; require explicit approval of the exact published head before any merge",
+      "Keep #75 deferred, #77 open and unaccepted, and future song material #80 separate",
       "Later Apply/Jam, precise looper, breadth, songs/tone and Style remain separately authorized"
     ]
   },

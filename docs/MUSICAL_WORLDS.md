@@ -1,45 +1,35 @@
-# Musical Worlds — expansive creative workspace (implementation review)
+# Musical Worlds
 
-## Purpose
+Musical Worlds gives the guitarist seven different jobs inside Instrument Desk. Start by listening or playing along. Open the part editor only when changing a written part helps the musical decision. The accepted Interval Hunt and Role Ear sessions are still available from Home; their session state survives a visit to Worlds.
 
-This expands the Instrument Desk beyond interval/role retrieval. The five research missions inform *distinct musical responsibilities*, not a universal learning taxonomy or an implication that teaching effectiveness is established.
+## Play the seven worlds
 
-The new multi-experience workspace is integrated into Home beside the accepted Practice Runtime, without changing draft PR #79 or the existing deterministic music engine.
-
-## Seven experiences
-
-| Situation | Learner responsibility | Audible consequences |
+| World | Try it with your guitar | Listen for the consequence |
 |---|---|---|
-| The band's empty space | Compose a supportive guitar part; leave space and adapt across arrangements | Compare ensemble, backing only and isolated guitar |
-| Inside the groove | Write rests, ghost strokes and pitched offbeat figures | Hear new patterns against original drums and bass |
-| The missing musician | Reconstruct a line by ear before revealing one interpretation | Remove and restore the reference guitar |
-| Harmony detective | Hold one pitch while the underlying chord changes; defend an interpretation | Compare G/C/D7 bass contexts with conditional engine facts |
-| Musical dialogue | Invent an answer to an authored call | Four-bar alternating call and response |
-| A phrase becomes a piece | Write A/B phrases and choose a formal return | AABA / ABAB / ABBA over changing original accompaniment |
-| The same notes, four voices | Hear contrasting attack/duration placements and perform your own | Elementary expressive comparisons, not stylistic grading |
+| The band's empty space | Start **Play with the band**. Answer a bass accent once with open B or G, then leave a gap. Hear your edited part with the band and alone. | Move one note into the gap between bass attacks. Try the same supporting role in Room to breathe. |
+| Inside the groove | Play pitched notes and lightly muted strokes on one string. In the optional editor, move one accent and replay. | Keep the rhythm and hear how one stronger offbeat changes the pocket. Move that right-hand pattern to another backing. |
+| The missing musician | Hear the original in bars 1 and 3. Play in the gap, then sketch or perform your own answer. | Alternate the authored lead, the gap, and your reconstruction. Try a different ending before looking at the source frets. |
+| Harmony detective | Hear C4 against G, C, D7 and G. Use **Play over the chords** and repeat C at fret 1 on the B string. | Keep the backing and try B on the open string. Compare the two endings on the last G. Reveal the engine's explanation after playing or hearing the comparison. |
+| Musical dialogue | Start **Play call and reply live**. Listen in bars 1 and 3; answer in bars 2 and 4. | Change your response's timing on the next pass. Write one reply and hear it between the calls, then try another backing and its different call. |
+| A phrase becomes a piece | Hear the piece, then play the A/B parts over the backing. Give B a different ending. | Compare AABA and ABAB. Hear the same A return at a different point in the harmony. |
+| The same notes, four voices | Hear the plain phrase and an interpretation. Play the same frets with a different attack, length or placement. | Try the same touch on the phrase in another backing. Judge whether it says something different to you. |
 
-This is broad experience coverage, **not** a claim of unlimited repertoire, culturally authenticated style packs, or completed expert-level pedagogy.
+Repeat is on by default. Play-along has a four-beat count-in, and the current bar and beat follow the audio clock. Stop cancels active and pending sound. Switch arrangements to change the backing and the authored references while keeping your own part. The optional editor supports rests, notes, muted strokes, accents, longer notes and one undo per part. An edit is heard when you audition again.
 
-## Ownership and privacy
+## Boundaries and reuse
 
-- Engine facts come from musicQueries.getNoteAtFret and (given an explicit chord context) musicQueries.analyseNotes; no new engine facts or public theory contracts.
-- Authored material and bounded editorial choices live in lab/musical-worlds-material.mjs.
-- The sample-backed guitar uses the existing verified CC0 manifest with byte-size checks; bass and drums are original synthesised accompaniment, not oscillator substitutes for missing guitar recordings. All sound events share one native Web Audio clock.
-- Local user input is held in this browser tab; there is no account, telemetry, mastery model or backend.
-- Microphone recording is optional and explicitly local-only, using MediaRecorder for personal replay and saving, not a musically precise looper or automatic grading.
-- Disclosures do not turn subjective impressions into correct/incorrect judgments.
-- No copyrighted song tabs, commercial recordings or bulk source acquisition were added.
+- Music Engine supplies pitch, chord construction and contextual relationships. Existing validated G/C/D7 guitar placements are reused for actual sampled chord playback; the backing is separate from those facts. Band and Groove leave the guitar space open over bass and drums.
+- The arrangement score, sound rendering and interaction remain separate. The ensemble uses one AudioContext clock, existing verified CC0 steel recordings with the shared decoder, and original synth bass/percussion. No new sample assets or engine API.
+- An optional take captures up to 30 seconds after a microphone click. It stays in the tab unless saved to the device. Leaving the workbench stops the mic and audio, including permission requests that complete late. A take is for listening, with no scoring or timing correction.
+- Three authored 4/4 arrangements, small registered fretboard regions and one-bar edit patterns bound the material. Four-bar form is intentional. There is no song import, broad style catalogue, multitrack editing, automated grading or precise recording looper.
+- PR #79 is rejected, separate and unmerged. #81 uses the accepted sample set and has no dependency on #79. Both diffs touch the Instrument Desk, Practice regression, preview wiring and operational state; any future integration would need an explicit scope and conflict review.
 
-## Scope and limitations
+## Verify and review
 
-1. Three original arrangements and two original reference phrases still bound the musical palette; the app does not yet offer rich cross-cultural repertoire or licensed real songs.
-2. The beat editor uses sixteen subdivisions in a 4/4 bar. It is not a general metre, swing or complex groove engine.
-3. Composition uses 1-bar A/B phrases combined into four bars. It does not provide an unrestricted multitrack, polyphonic DAW.
-4. Microtiming controls are intentionally simple and do not claim authentic style or an emotion score.
-5. Seven experiences and passing technical checks do not establish musical depth, retention or transfer.
+Use Node 22.17 or newer on the PR's exact commit:
 
-## Verification and learner gate
+1. Run npm ci, then npm run verify. This includes accepted Practice and legacy regressions, musical score differences, sampled voicing preparation, count-in/repeat and stop, load failure/retry, and local-take lifecycle.
+2. Run npm run lab and open its loopback URL for an independent local review. Use the GitHub Pages exact-head PR preview when Actions has published it. Do not publish to stable for review.
+3. Try the seven actions above with a real guitar. Compare before and after, and ask whether each activity makes you listen or play differently. Prefer headphones when making an optional take.
 
-Run npm run verify, which includes npm run test:worlds. Review all seven modes with the real guitar and headphones, including the hidden-answer and self-recording flows, on a desktop and narrow viewport in light and dark themes. Confirm the existing Home/Practice experience continues to work. The exact-head PR preview must be published and manually approved before a learner-facing merge.
-
-No automated workflow or generated report can replace the learner's verdict about musical usefulness.
+Browser QA can verify live output from the audio graph, layout and interactions. Your speakers, touch, timing, musical judgement and transfer need real listening and playing. Keep the PR draft until explicit approval of the reviewed head.

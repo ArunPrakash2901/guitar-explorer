@@ -4,6 +4,17 @@ const sampleByPosition = new Map(STEEL_SAMPLES.map((sample) => [
   `${sample.stringIndex}:${sample.fret}`, sample,
 ]));
 
+// Shared by Practice and the ensemble renderer. The caller owns its audio
+// clock and cache; the recording identity and load checks stay in one place.
+export async function decodeSteelSample(sample, audio, fetchAsset) {
+  const url = new URL("./samples/steel/" + sample.file, import.meta.url);
+  const response = await fetchAsset(url);
+  if (!response.ok) throw new Error("Acoustic sample unavailable: " + sample.note + " on string " + sample.stringIndex);
+  const bytes = await response.arrayBuffer();
+  if (bytes.byteLength !== sample.bytes) throw new Error("Acoustic sample size mismatch: " + sample.file);
+  return audio.decodeAudioData(bytes);
+}
+
 // Performance events retain the engine-derived pitches and physical positions.
 // This adapter selects recorded attacks; it never derives chord or scale truth.
 export function sampleAttacks(events) {
@@ -57,12 +68,7 @@ export function createSampledGuitar({
       loading = (async () => {
         const audio = await ensureContext();
         const entries = await Promise.all(STEEL_SAMPLES.map(async (sample) => {
-          const url = new URL(`./samples/steel/${sample.file}`, import.meta.url);
-          const response = await fetchAsset(url);
-          if (!response.ok) throw new Error(`Acoustic sample unavailable: ${sample.note} on string ${sample.stringIndex}`);
-          const bytes = await response.arrayBuffer();
-          if (bytes.byteLength !== sample.bytes) throw new Error(`Acoustic sample size mismatch: ${sample.file}`);
-          return [sample.file, await audio.decodeAudioData(bytes)];
+          return [sample.file, await decodeSteelSample(sample, audio, fetchAsset)];
         }));
         buffers = new Map(entries);
         return buffers;

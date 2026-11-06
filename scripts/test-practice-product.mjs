@@ -99,10 +99,17 @@ const app = await readFile(new URL("../lab/instrument-desk-app.js", import.meta.
 const { document, root, $ } = createTestDOM(html);
 $("practice-focus").value = "major";
 let stopped = 0;
+let worldsMounted = 0;
+let worldsStopped = 0;
 const context = vm.createContext({
   ...engine, ...plan, composeIntervalSession, STEEL_SAMPLES,
   document, console, addEventListener() {},
   createSampledGuitar: () => ({ stop() { stopped += 1; }, play: async () => ({ durationSeconds: 3 }) }),
+  createMusicalWorlds(container) {
+    assert.equal(container, $("worlds-root"));
+    worldsMounted += 1;
+    return { stop() { worldsStopped += 1; }, focus() {} };
+  },
 });
 installRenderer(context);
 vm.runInContext(app.replace(/^import\s+\{[^}]+\}\s+from\s+"[^"]+";\s*/gm, ""), context);
@@ -117,6 +124,13 @@ assert.equal($("check-position").disabled, true);
 assert.equal($("help-reveal").hidden, true);
 assert.equal($("hear-pair").hidden, true);
 const firstState = read("session");
+assert.equal(worldsMounted, 0, "Accepted Practice does not mount the creative workbench");
+$("nav-worlds").click();
+assert.equal(read("view"), "worlds");
+assert.equal(worldsMounted, 1);
+$("nav-practice").click();
+assert.equal(worldsStopped, 1, "Returning to Practice stops the Worlds transport and capture");
+assert.equal(read("session"), firstState, "Worlds navigation preserves the accepted Practice session");
 $("pause-practice").click();
 assert.equal($("continue-practice").hidden, false);
 $("continue-practice").click();

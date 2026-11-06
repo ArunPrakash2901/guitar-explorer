@@ -30,6 +30,7 @@ const requiredPaths = [
   "musical-worlds-app.mjs",
   "musical-worlds-audio.mjs",
   "musical-worlds-material.mjs",
+  "musical-worlds-takes.mjs",
   "musical-worlds.css",
   "product-theme.js",
   "practice-material.mjs",

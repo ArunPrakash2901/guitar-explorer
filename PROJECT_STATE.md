@@ -1,6 +1,6 @@
 # Guitar Explorer — Project State
 
-Last updated: 2026-11-04 (Australia/Sydney). Productization reset from Arun's current request and Issue #70 supersedes the former feature-by-feature queue.
+Last updated: 2026-11-06 (Australia/Sydney). This branch records the current Musical Worlds review under Issue #70.
 
 ## North star and product test
 
@@ -24,7 +24,7 @@ Thin responsibilities: Music Engine truth → Material Generator → local Exerc
 
 The milestone eventually proves Interval Hunt, Role Ear → Fretboard and Target Landing in the same runtime, with sampled guitar audio and a coherent 10–15 minute session. No later child is automatic.
 
-## Latest accepted child and next scope
+## Latest accepted child
 
 Issue #73 is closed completed. PR #74: Productization 1B — Role Ear → Fretboard inside the same root Practice Runtime, merged as e323d1c466288fc656ab20b68cdb8b35db00c17d.
 
@@ -34,7 +34,13 @@ The accepted child adds one real Ear/context focus: hear an unchanged anchor aga
 
 The musical generator derives valid contrasting roles without reading sample coverage. A separate adapter validates curated G/C/D7 placements against engine chord tones, then checks audio support. Only the F#4 attack from closed #58 is added to the existing renderer; no branch reopen/merge or synth default.
 
-#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete: two distinct families exist; the third family is now scoped in Issue #75 — Productization 1C / Target Landing inside the shared Practice Runtime. Read that live issue and inspect current master before implementation. #74's approval adds no Target Landing code, mixed-family composer or parked work, and does not approve any future child for merge.
+#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete. #75 Target Landing is closed not-planned and stays deferred.
+
+## Current unmerged work
+
+- **Draft PR #81: Musical Worlds.** Continue the existing branch from the live master baseline. Seven creative situations share the Instrument Desk with the accepted Practice Runtime. Current work focuses on playable recurring backing, musical decisions and audible consequences. See docs/MUSICAL_WORLDS.md for the learner review.
+- **PR #79: rejected learner review.** Keep it separate and unmerged; #77/#78 remain open and unaccepted. More puzzle shapes did not give Arun satisfying musical application. Preserve the blocking review as evidence.
+- **Review gate:** authoritative full verify, exact-head Pages preview, browser audio and layout checks, then Arun's listening and physical-guitar review. Do not merge without explicit approval of the reviewed head. A GitHub Actions startup failure with no jobs is an infrastructure blocker, not a passing or failing test result.
 
 Read docs/ROLE_EAR_PRACTICE_V0.md for the bounded sequence, material/audio boundary and review path.
 
