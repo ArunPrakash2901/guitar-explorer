@@ -84,3 +84,38 @@ assert.match(worldApp,/getUserMedia/);
 assert.match(worldApp,/reflections/);
 assert.match(style,/var\(--ge-panel\)/);
 console.log("Musical Worlds: seven distinct actions, all arrangements/mixes, sample mapping, engine facts, privacy and deployment paths validated.");
+
+
+import { createWorldAudio } from "../lab/musical-worlds-audio.mjs";
+
+class FakeAudioNode {
+  constructor(){this.frequency={value:0,setValueAtTime(){},exponentialRampToValueAtTime(){}};
+    this.gain={setValueAtTime(){},linearRampToValueAtTime(){},exponentialRampToValueAtTime(){}};}
+  connect(){} disconnect(){} start(){} stop(){}
+}
+class FakeAudioContext {
+  constructor(){this.currentTime=0;this.sampleRate=44100;this.state="running";this.destination=new FakeAudioNode();}
+  async resume(){}
+  createGain(){return new FakeAudioNode();}
+  createOscillator(){return new FakeAudioNode();}
+  createBufferSource(){return new FakeAudioNode();}
+  createBiquadFilter(){return new FakeAudioNode();}
+  createBuffer(channels,length){return {getChannelData:()=>new Float32Array(length)};}
+  async decodeAudioData(){return {duration:2};}
+}
+const fakeFetch=async url=>{
+  const entry=STEEL_SAMPLES.find(sample=>String(url).endsWith(sample.file));
+  assert.ok(entry,"Only verified asset URLs may be requested");
+  return {ok:true,arrayBuffer:async()=>new Uint8Array(entry.bytes).buffer};
+};
+const playback=createWorldAudio({
+  queries:musicQueries,toSemitone,AudioContextCtor:FakeAudioContext,fetchAsset:fakeFetch,
+});
+for(const world of WORLD_DEFINITIONS)for(const arrangement of ARRANGEMENTS)for(const mode of ["full","backing","solo"]){
+  const score=buildWorldScore({...state,world:world.id,arrangement:arrangement.id},{mode});
+  const result=await playback.play(score);
+  assert.equal(result.cancelled,false);
+  assert.equal(result.eventCount,score.events.length);
+  playback.stop();
+}
+console.log("Musical Worlds: all 63 authored playback combinations scheduled on the shared clock.");
