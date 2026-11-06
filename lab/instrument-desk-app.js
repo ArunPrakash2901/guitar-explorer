@@ -9,9 +9,11 @@ import { composeRoleSession } from "/role-material.mjs";
 import { prepareRolePerformance, roleCue } from "/role-performance.mjs";
 import { beginRoleSession, advanceRoleSession } from "/role-plan.mjs";
 import { renderRoleTask } from "/role-view.mjs";
+import { createMusicalWorlds } from "/musical-worlds-app.mjs";
 
 const $ = (id) => document.getElementById(id);
 const audio = createSampledGuitar();
+const worlds = createMusicalWorlds(document.getElementById("worlds-root"));
 let session = null;
 let view = "home";
 let nextSeed = 0;
@@ -30,6 +32,7 @@ const board = createFretboard($("desk-board"), {
 function stopAudio() {
   audioTicket += 1;
   audio.stop();
+  worlds.stop();
   $("audio-status").textContent = "Sound stopped. Take your time on the guitar.";
 }
 
@@ -38,6 +41,13 @@ function showHome() {
   view = "home";
   render();
   $("home-title").focus();
+}
+
+function showWorlds() {
+  stopAudio();
+  view = "worlds";
+  render();
+  worlds.focus();
 }
 
 function startPractice() {
@@ -129,6 +139,8 @@ function render() {
   $("home-view").hidden = view !== "home";
   $("runtime-view").hidden = view !== "practice";
   $("complete-view").hidden = view !== "complete";
+  $("worlds-view").hidden = view !== "worlds";
+  $("nav-worlds").setAttribute("aria-current", view === "worlds" ? "page" : "false");
   $("nav-home").setAttribute("aria-current", view === "home" ? "page" : "false");
   $("nav-practice").hidden = !active;
   $("nav-practice").setAttribute("aria-current", view === "practice" ? "page" : "false");
@@ -215,7 +227,8 @@ function render() {
   }
 }
 
-for (const id of ["brand-home", "nav-home", "pause-practice", "finish-home"]) $(id).addEventListener("click", showHome);
+for (const id of ["brand-home", "nav-home", "pause-practice", "finish-home", "worlds-back"]) $(id).addEventListener("click", showHome);
+for (const id of ["nav-worlds", "open-worlds"]) $(id).addEventListener("click", showWorlds);
 for (const id of ["continue-practice", "nav-practice"]) $(id).addEventListener("click", continuePractice);
 for (const id of ["start-practice", "another-session"]) $(id).addEventListener("click", startPractice);
 $("hear-root").addEventListener("click", () => audition(false));

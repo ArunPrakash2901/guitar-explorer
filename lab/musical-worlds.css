@@ -1,0 +1,53 @@
+/* Musical Worlds shares the approved warm Instrument Desk tokens and fretboard. */
+.worlds-heading { margin: 4px 0 26px; }
+.worlds-layout { display:grid; grid-template-columns:260px minmax(0,1fr); gap:24px; align-items:start; }
+.worlds-workspace { display:grid; gap:18px; min-width:0; }
+.worlds-list { padding:20px 12px; position:sticky; top:16px; }
+.worlds-list h2 { font-size:20px; margin:4px 10px 16px; }
+#worlds-choices { display:grid; gap:7px; }
+#worlds-choices button { display:flex; flex-direction:column; align-items:flex-start; text-align:left;
+  background:transparent; border:1px solid transparent; gap:4px; padding:12px; min-height:66px; width:100%; }
+#worlds-choices button span { font-size:12px; font-weight:400; color:var(--ge-muted); }
+#worlds-choices button.is-current { background:var(--ge-selected); border-color:var(--ge-selected-border); }
+.worlds-context,.worlds-canvas,.worlds-reflect { padding:26px; }
+.worlds-context h2 { font-size:clamp(23px,2.3vw,32px); margin:6px 0 10px; }
+.worlds-context > p:not(.eyebrow) { color:var(--ge-muted); }
+.worlds-workspace label { display:block; font-weight:650; font-size:14px; margin:12px 0 6px; }
+.worlds-workspace select { width:100%; max-width:420px; }
+.worlds-transport { display:flex; flex-wrap:wrap; gap:9px; margin:17px 0 12px; align-items:center; }
+.worlds-transport button { min-height:42px; }
+.worlds-canvas h3 { font:650 19px/1.3 Georgia,serif; margin:12px 0 8px; }
+.worlds-canvas p { max-width:75ch; }
+.worlds-settings { display:flex; align-items:end; gap:12px; flex-wrap:wrap; margin-bottom:18px; }
+.worlds-settings label { flex-basis:100%; margin-bottom:0; }
+.worlds-settings select { flex:1 1 180px; }
+.worlds-facts { border-left:3px solid var(--ge-selected-border); padding:12px 14px;
+  border-radius:0 8px 8px 0; background:var(--ge-hover); margin:14px 0; }
+.worlds-steps { display:grid; grid-template-columns:repeat(8,minmax(0,1fr)); gap:5px; margin:20px 0; }
+.worlds-step { min-width:0; padding:7px 3px; display:flex; flex-direction:column; align-items:center;
+  gap:5px; border:1px solid var(--ge-border); background:var(--ge-panel); border-radius:8px; }
+.worlds-step.is-active { border-color:var(--ge-selected-border); outline:2px solid var(--ge-selected-border);
+  background:var(--ge-selected); }
+.worlds-step .worlds-count { font-size:10px; color:var(--ge-muted); }
+.worlds-step strong { font-size:12px; white-space:nowrap; }
+.worlds-note-actions { display:flex; flex-wrap:wrap; gap:9px; align-items:center; margin-bottom:20px; }
+.worlds-note-actions span { min-width:110px; color:var(--ge-muted); font-size:14px; }
+#world-neck-panel { border-top:1px solid var(--ge-border); padding-top:12px; margin-top:10px; }
+#world-neck { max-width:100%; }
+#world-neck .fb-viewport { overflow-x:auto; }
+#world-transfer { margin:24px 0 0; }
+.worlds-reflect textarea { display:block; width:100%; resize:vertical; min-height:88px; padding:12px;
+  border:1px solid var(--ge-border); background:var(--ge-panel); color:var(--ge-text); border-radius:8px; font:inherit; }
+.worlds-reflect textarea:focus-visible { outline:3px solid var(--ge-focus); outline-offset:3px; }
+#world-save-recording { padding:10px 8px; }
+@media (max-width:850px) {
+  .worlds-layout { grid-template-columns:1fr; }
+  .worlds-list { position:static; }
+  #worlds-choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .worlds-context,.worlds-canvas,.worlds-reflect { padding:19px; }
+}
+@media (max-width:460px) {
+  #worlds-choices { grid-template-columns:1fr; }
+  .worlds-steps { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .worlds-workspace select { max-width:100%; }
+}

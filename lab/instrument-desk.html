@@ -7,6 +7,7 @@
   <meta name="description" content="Hear a relationship, find it on your guitar, make a phrase and move it somewhere new. A short, generated guitar practice session.">
   <link rel="stylesheet" href="/fretboard.css">
   <link rel="stylesheet" href="/instrument-desk.css">
+  <link rel="stylesheet" href="/musical-worlds.css">
 </head>
 <body class="instrument-desk practice-product">
   <a class="skip-link" href="#main">Skip to practice</a>
@@ -15,6 +16,7 @@
     <nav aria-label="Main">
       <button type="button" id="nav-home" aria-current="page">Home</button>
       <button type="button" id="nav-practice" hidden>Practice</button>
+      <button type="button" id="nav-worlds">Musical worlds</button>
     </nav>
     <div class="theme-toggle" aria-label="Appearance">
       <button type="button" id="theme-light" aria-pressed="true">Light</button>
@@ -54,6 +56,11 @@
             <li><strong id="outline-3-title">Transfer</strong><span id="outline-3-copy">Change the root. Turn the same relationship into a phrase.</span></li>
           </ol>
           <p class="quiet">Standard tuning: E A D G B E.<br>Recorded acoustic guitar is there when you want a reference.</p>
+          <div class="worlds-invite">
+            <h2>Beyond exercises</h2>
+            <p>Arrange with a band, reconstruct a missing part, invent a phrase, build a groove or interpret real musical consequences.</p>
+            <button type="button" id="open-worlds">Enter Musical Worlds</button>
+          </div>
         </aside>
       </div>
     </section>
@@ -136,6 +143,11 @@
       </div>
     </section>
 
+    <section id="worlds-view" hidden aria-labelledby="worlds-title">
+      <div class="session-topline"><p class="eyebrow">Your music-making workspace</p>
+        <button type="button" class="text-button" id="worlds-back">Return Home</button></div>
+      <div id="worlds-root"></div>
+    </section>
     <section id="complete-view" hidden aria-labelledby="complete-title">
       <p class="eyebrow">Session complete</p>
       <h1 id="complete-title" tabindex="-1">One relationship.<br>More than one place.</h1>
