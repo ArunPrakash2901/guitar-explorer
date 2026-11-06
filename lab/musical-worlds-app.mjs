@@ -249,7 +249,7 @@ export function createMusicalWorlds(container) {
       paintPlayhead();
     } catch (error) {
       if (ticket !== request) return;
-      stopSound("Couldn’t play the sound. " + (error?.message || "Try a playback button again."));
+      stopSound("Couldn’t play the sound. " + (error?.message || "") + " Try the playback button again.");
     }
   }
   function drawNeck() {

@@ -21,7 +21,7 @@ Repeat is on by default. Play-along has a four-beat count-in, and the current ba
 - Music Engine supplies pitch, chord construction and contextual relationships. Existing validated G/C/D7 guitar placements are reused for actual sampled chord playback; the backing is separate from those facts. Band and Groove leave the guitar space open over bass and drums.
 - The arrangement score, sound rendering and interaction remain separate. The ensemble uses one AudioContext clock, existing verified CC0 steel recordings with the shared decoder, and original synth bass/percussion. No new sample assets or engine API.
 - An optional take captures up to 30 seconds after a microphone click. It stays in the tab unless saved to the device. Leaving the workbench stops the mic and audio, including permission requests that complete late. A take is for listening, with no scoring or timing correction.
-- Three authored 4/4 arrangements, small registered fretboard regions and one-bar edit patterns bound the material. Four-bar form is intentional. There is no song import, broad style catalogue, multitrack editing, automated grading or precise recording looper.
+- Three authored 4/4 arrangements, small registered fretboard regions and one-bar edit patterns bound the material. Four-bar form is intentional. Muted strokes are percussive approximations. There is no song import, broad style catalogue, multitrack editing, automated grading or precise recording looper.
 - PR #79 is rejected, separate and unmerged. #81 uses the accepted sample set and has no dependency on #79. Both diffs touch the Instrument Desk, Practice regression, preview wiring and operational state; any future integration would need an explicit scope and conflict review.
 
 ## Verify and review

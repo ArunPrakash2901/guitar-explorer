@@ -9,7 +9,7 @@ const sampleByPosition = new Map(STEEL_SAMPLES.map((sample) => [
 export async function decodeSteelSample(sample, audio, fetchAsset) {
   const url = new URL("./samples/steel/" + sample.file, import.meta.url);
   const response = await fetchAsset(url);
-  if (!response.ok) throw new Error("Acoustic sample unavailable: " + sample.note + " on string " + sample.stringIndex);
+  if (!response.ok) throw new Error("Acoustic sample unavailable: " + sample.note + " (string " + (6 - sample.stringIndex) + ").");
   const bytes = await response.arrayBuffer();
   if (bytes.byteLength !== sample.bytes) throw new Error("Acoustic sample size mismatch: " + sample.file);
   return audio.decodeAudioData(bytes);
