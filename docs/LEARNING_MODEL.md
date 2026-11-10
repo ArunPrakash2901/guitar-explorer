@@ -1,9 +1,8 @@
 # Learning Model
 
-This is current product guidance. [ARCHITECTURE.md](ARCHITECTURE.md) is the
-canonical source for Product Spine ownership, current capabilities, migration
-direction and deferred scope. This document explains the learning rationale;
-it does not authorize new runtime features.
+This document records learning principles and lessons from earlier experiments.
+See [architecture](ARCHITECTURE.md) and [project state](../PROJECT_STATE.md) for
+the implemented baseline and current scope.
 
 ## Product purpose and learner problem
 
@@ -21,10 +20,10 @@ Diagram inspection can open that view. Deliberate retrieval and transfer can tes
 whether the relationship remains available when cues disappear. Both belong in
 the product; neither requires every interaction to become a lesson or assessment.
 
-## One workspace, three intentions
+## Three learning intentions from the earlier workspace design
 
-The same selected musical context, material, region and focus should be usable
-across three intentions within one application:
+The previous workspace design distinguished three learner questions within a
+shared musical context.
 
 | Intention | Learner question | Learning behavior |
 |---|---|---|
@@ -32,10 +31,8 @@ across three intentions within one application:
 | **Practice** | Can I retrieve and use this relationship independently? | Apply deliberate constraints, withhold answers, offer support, repeat, remediate and transfer. |
 | **Apply** | What can I understand and do with this musical material? | Start from selected material and expose useful chord tones, connections and target-note paths. Broader progression/song input remains future scope. |
 
-Explore and Apply remain accessible. Either may offer an explicit handoff to
-Practice for a selected relationship, preserving the relevant context. Practice
-Policy then governs that activity; it is not an application-wide gatekeeper.
-Its ownership and limits are defined in [ARCHITECTURE.md](ARCHITECTURE.md).
+These questions can help scope future experiences. Issue #83 will define the
+Song Study requirements. [Song Study requirements](https://github.com/ArunPrakash2901/guitar-explorer/issues/83)
 
 ## North-star capability
 
@@ -62,11 +59,10 @@ find it in another region, change the chord beneath it, then practice retrieving
 its new role. Another guitarist may begin with a progression and work backward
 from a sound they want to understand.
 
-The current Labs ask the guitarist to supply sound and physical action. They can
-check selected fret data, but cannot verify what was heard, sung or played.
-Future visual and audio presentation should consume the same prepared musical
-material, as defined in the architecture. Audio is not a final stage after a
-fretboard lesson.
+The earlier Labs asked the guitarist to supply sound and physical action. They
+could check the selected fret data. Direct evidence of what the learner heard,
+sang or played would require a separate method. Future visual and audio
+presentation should consume the same prepared musical material.
 
 ## Principles for explicit Practice
 
@@ -127,16 +123,14 @@ direction.
 
 ## Evidence and its limits
 
-Current Lab evidence is temporary and descriptive. Keep these observations
-separate; these are evidence categories, not a claim that every current activity
-records every field:
+Keep evidence categories distinct when designing or reviewing a learner task.
 
 | Observation | What it supports |
 |---|---|
 | Objective screen correctness | A selected string/fret or note sequence meets the activity's engine-derived check. |
 | Assistance and answer exposure | The conditions under which the selection was made, including hints or revealed labels. |
 | Self-report and reflection | What the guitarist says they played, heard, intended or felt. These are not objective performance checks. |
-| Future performed/audio evidence | A separately defined observation of actual sound or performance, requiring its own validation; it does not exist in the current Labs. |
+| Future performed/audio evidence | A separately defined observation of actual sound or performance with its own validation. |
 
 Elapsed time can include reading, thinking, guitar action and UI interaction.
 It is not a pure measure of retrieval latency. Candidate-generation scores rank
@@ -147,7 +141,7 @@ correctness justify mastery inference, automatic advancement or adaptation.
 
 The [Musicianship System Design Plan](https://docs.google.com/document/d/1g-JKOfo8XT712UJ-Cahpvx3p2yAaYXa5KiUURfodj_8/edit?usp=drivesdk)
 informs the iterative spiral, physical action and constrained creativity. Read it
-alongside the current implementation with these qualifications:
+with these qualifications.
 
 - Singing is a useful Practice mechanism, not an application-wide prerequisite.
 - Exact latency thresholds such as 800 ms must not become product rules without
@@ -157,27 +151,15 @@ alongside the current implementation with these qualifications:
 - Minimum movement is an exercise constraint, not a universal measure of musical
   quality.
 - Prose research examples never override engine-verified musical facts.
-- Claims that motif work is “missing” are historical: Develop the Idea already
-  provides a bounded motif activity.
+- Develop the Idea historically provided a bounded motif activity. Its implementation
+  is recoverable from Git history.
 
 These cautions interpret the report for this product; they do not rewrite the
 research report or establish its proposals as implemented capabilities.
 
-## Current experiments and later learning layers
+## Historical experiments
 
-Current Labs already contain deliberate chord retrieval/reconstruction/transfer,
-Harmonic Gravity, bounded same-string movement comparison, Melody targeting, and
-Motif adaptation, sequencing, fragmentation and response. Their existence does
-not imply general voice-leading, composition, performance assessment or a
-Learning Engine.
-
-The Product Spine must be proven before expanding into a Motif Generator,
-Style Packs, full audio, learner modelling, adaptive scheduling or broader
-voice-leading infrastructure. Ear-to-fretboard tasks, general musical-material
-import and personalised evidence histories also require later authorization and
-appropriate contracts. See [ARCHITECTURE.md](ARCHITECTURE.md) for the complete
-deferred scope.
-
-Avoid passive walls of dots, disconnected shape memorisation, activity dashboards
-presented as knowledge, and feature breadth that obscures the musical question.
-Preserve useful experiments while connecting them through the shared workspace.
+The retired experiments covered chord retrieval and transfer, harmonic
+resolution, same-string movement, melodic targeting and motif variation.
+Their observations can inform future work within its approved scope. See
+[historical material](history/README.md) for references.

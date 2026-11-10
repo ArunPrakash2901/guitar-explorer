@@ -1,90 +1,43 @@
 # Pull-request previews
 
-Guitar Explorer can build a self-contained static Lab and deploy one preview per pull
-request under GitHub Pages. This is the `preview` deployment channel; the full
-stable/preview/experimental contract is documented in
-[`DEPLOYMENT_CHANNELS.md`](DEPLOYMENT_CHANNELS.md).
+The `preview` channel publishes the engine-first entrypoint and compiled engine
+on GitHub Pages. See [deployment channels](DEPLOYMENT_CHANNELS.md) for the
+stable and experimental build policies.
 
-## What the workflow does
+## Exact-head review
 
-For same-repository pull requests, `.github/workflows/pr-preview.yml`:
+For same-repository pull requests, `.github/workflows/pr-preview.yml` checks out
+the exact head SHA, installs dependencies, builds with `npm run preview:build`
+and publishes the output under `pr-preview/pr-<number>/` on `gh-pages`. It
+comments the preview URL on the PR, checks that the live page contains the head
+revision and removes the preview after the PR closes.
 
-1. checks out the exact pull-request head SHA rather than a synthetic merge commit
-2. installs dependencies
-3. runs `npm run preview:build`
-4. writes only generated browser-preview output to the dedicated `gh-pages` branch
-   under `pr-preview/pr-<number>/`
-5. comments the preview URL on the pull request
-6. removes that preview when the pull request closes
+Open the URL from the PR and compare the `guitar-explorer-revision` meta tag in
+the page source with the PR head SHA. Check the welcome page at desktop and
+narrow widths. The page should identify the Music Engine and the upcoming Song
+Study direction. Old activity URLs should return 404.
 
-The workflow sets the build channel to `preview`, the deployment label to
-`pr-<number>`, the PR number, and the exact tested head revision. Those values are
-embedded in the static HTML and become Session Evidence provenance when the recorder
-is used.
+If the workflow fails to start or Pages does not publish, record the hosted
+status separately. The static site can still be built locally from the same
+head. Exact-head preview publication remains a merge gate.
 
-The preview output contains the browser Lab files and compiled engine files required
-by the app. Repository docs, tests, references and unrelated source files are not
-published. Browser JavaScript used by the Lab is necessarily visible to anyone who
-can access the Pages site, and source maps are intentionally omitted.
+## Static build
 
-## One-time repository setup
+Run `npm run preview:build` from the repository root. The build writes the
+welcome page, compiled engine modules and `.nojekyll` to `.preview-dist/`. It
+injects revision, PR and channel metadata in the page. The output supports PR
+subpaths and excludes source maps, TypeScript source, exercise files, tests,
+documents and reference assets.
 
-The workflow can create/update the `gh-pages` deployment branch, but GitHub Pages must
-still be configured once in repository settings.
+For local browser review, run `npm run lab` and open
+[http://127.0.0.1:4173/](http://127.0.0.1:4173/).
 
-After the first preview workflow has created `gh-pages`:
+## Repository setup
 
-1. open **Settings → Pages**
-2. under **Build and deployment**, choose **Deploy from a branch**
-3. select branch **`gh-pages`** and folder **`/(root)`**
-4. save
+GitHub Pages uses **Settings → Pages → Deploy from a branch** with branch
+`gh-pages` and folder `/(root)`. The workflow needs write access to update the
+dedicated preview branch and comment on PRs. Arun enabled this preview path
+on 25 October 2026. Publication approval applies to the preview channel.
 
-If repository policy prevents the workflow token from writing, also check
-**Settings → Actions → General → Workflow permissions** and allow the workflow the
-write permissions requested in the workflow file.
-
-Arun enabled this Pages publication path on 2026-10-25. That approval applies to the
-existing PR-preview channel only; it is not permission to publish a stable release,
-an experimental channel, or private learner evidence.
-
-## Privacy note
-
-GitHub Pages sites are web-published content, including when the source repository is
-private on plans that allow private-repository Pages. Do not put secrets, private
-learner records or exported session-evidence JSON into the preview build.
-
-The evidence recorder itself stays local in the browser and exports a file only when
-the learner chooses to do so. The preview workflow does not upload that exported
-JSON. Longitudinal timeline files live under the gitignored `.evidence-local/`
-directory by default and are likewise never published by this workflow.
-
-For private repositories, Pages availability depends on the GitHub plan/account
-configuration. If Pages is unavailable or public preview publication is not desired,
-`npm run preview:build` still produces the same static output locally; a different
-preview host can be added later only with explicit authorization.
-
-## Static build contract
-
-Run:
-
-```text
-npm run preview:build
-```
-
-Output is written to `.preview-dist/` and is ignored by Git.
-
-The build:
-
-- compiles the current engine with the existing Lab TypeScript configuration
-- copies the Lab and compiled engine into one static directory
-- creates a real `harmony.html` alias for the local-server route
-- rewrites only local root-absolute `src`, `href` and ES-module import references so
-  the site works below a PR-specific subpath
-- adjusts the generated Harmony route check for the PR-specific path prefix without
-  changing the source Lab behaviour
-- injects revision, PR, deployment-channel and deployment-label metadata plus the
-  local-only Session Evidence recorder
-- omits source maps from published preview output
-- fails if required entry files are missing or root-absolute local references remain
-
-It does not rewrite musical data or exercise logic.
+GitHub Pages availability depends on the repository and account configuration.
+Keep secrets, private evidence and learner records out of published output.

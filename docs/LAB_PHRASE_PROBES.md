@@ -1,5 +1,8 @@
 # Melody and motif Lab probes
 
+> Historical reference. These probes and routes are archived in pre-reset Git history.
+> See [project state](../PROJECT_STATE.md) for the active application.
+
 These are bounded, disposable physical-guitar experiments at `/melody.html` and
 `/motif.html`. They use Music Engine queries for chord identity, written tones,
 key degrees, contextual chord relations, intervals and playable fret positions.

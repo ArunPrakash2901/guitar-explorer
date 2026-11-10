@@ -25,16 +25,15 @@ architecture/decisions until it is explicitly promoted into the current queue.
 
 `npm run verify` is the authoritative full-repository verification command. CI should
 call that command rather than re-declaring its subcommands. Narrower scripts such as
-`npm test`, `npm run test:lab`, `npm run test:identity` and `npm run preview:build`
+`npm test`, `npm run test:lab`, `npm run test:deployments` and `npm run preview:build`
 remain useful for focused diagnosis, but they do not replace the full gate.
 
 ## Physical evidence
 
 Learning experiences cannot be validated by unit tests alone. Use
 `docs/PHYSICAL_VALIDATION_PROTOCOL.md` as the current versioned real-guitar method
-before promoting new experimental Lab behaviour into permanent architecture.
-Issue #15's four current experiences are already accepted; preserve its recorded
-confirmation and use this protocol for new behaviour, not to reopen old trials.
+when a new learner experience requires a real-guitar trial. Preserve the recorded
+confirmation for Issue #15's former exercises as historical evidence.
 
 Protocol v1 requires this order:
 
@@ -52,11 +51,8 @@ Important evidence includes:
 - whether assistance timing helped or simply revealed the answer
 - whether the idea transferred to another key, position or context
 
-The Lab's session-evidence recorder may be used to export a versioned JSON snapshot
-for a trial. That export is local-only until Arun deliberately shares it. Evidence
-schema v3 records the physical-validation protocol version and, for ScenarioV1
-Melody/Motif material, the active stable scenario ID/source. It is supporting
-evidence, not a mastery score or automatic promotion decision.
+Record the experience and exact revision with the trial observations. Existing
+learner records stay local until Arun chooses to share them.
 
 A physical-validation issue may recommend keep/change/remove/promotion, but it does
 not itself authorize new capability breadth.
@@ -80,11 +76,9 @@ Research artifacts inform proposals and do not authorize implementation. Add no
 other planning system.
 
 Start substantial work with the learner action and benefit. Only a demonstrated
-missing deterministic fact justifies the smallest engine addition; otherwise reuse
-existing facts. Product Spine v1 is the primary learner-facing milestone, with its
-approved Figma direction and bounded Issue #43. Its simple examples are a vertical
-proof, not a universal exercise model. Exact-head preview and new physical/browser
-review still precede learner-facing merge. See `PROJECT_STATE.md` for current status.
+missing deterministic fact justifies the smallest engine addition. Use existing
+facts where they suffice. See [project state](../PROJECT_STATE.md) for the current
+slice and [the autonomy contract](AUTONOMY_CONTRACT.md) for the review gates.
 
 ## Updating project state
 

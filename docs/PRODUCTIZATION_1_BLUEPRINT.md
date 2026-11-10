@@ -1,5 +1,8 @@
 # Productization 1 blueprint
 
+> Historical reference. The reset supersedes this plan and retires its runtime.
+> See [project state](../PROJECT_STATE.md) for the active application.
+
 Issue #70 is the primary milestone. First child: #71. Baseline: master b495276, inspected 3 November 2026. No claim of learner usefulness is inferred from this audit or automated checks.
 
 ## Current product-flow audit

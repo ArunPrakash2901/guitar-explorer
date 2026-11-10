@@ -19,7 +19,7 @@ A lower-level source must never broaden work beyond a higher-level one.
 
 ## Product north star
 
-Guitar Explorer is a fretboard-first musical reasoning and practice environment. Work should help the learner hear, understand, locate, play, manipulate, create, improvise or transfer musical relationships more reliably on a real guitar.
+Guitar Explorer connects musical understanding with action on a real guitar. The song-led direction starts from what the learner hears in a specific song and helps them understand, locate, play, vary or transfer the relationship.
 
 Physical usefulness is the product signal. Repository activity, architectural completeness and feature count are not learner mastery.
 
@@ -32,7 +32,7 @@ Keep these responsibilities separate:
 - **Music Core:** spelling-aware notes/pitches, intervals, collections, harmony primitives, exact musical time and pure phrase operations. Pure and instrument-independent.
 - **Guitar:** standard tuning, physical string/fret geometry and other explicitly authorized instrument facts over Core.
 - **Musical Query Interface:** validated deterministic facts from Core + Guitar. No learner state, playback commands or subjective judgment.
-- **Material / activity preparation:** supplied or generated musical material for a bounded learner action. Existing local contracts may remain local; do not invent a universal Material/Context/Recipe DSL without repeated need.
+- **Material / activity preparation:** supplied musical material for a bounded learner action. Repeated needs must justify shared material contracts.
 - **Learner action / experience:** teaching sequence, answer withholding, physical-use instructions, transfer and reflection. Musical validity, task compliance and subjective musical quality are distinct.
 - **Guitar performance:** optional physical placement/attack choices above musical truth. A playable voicing does not redefine the chord.
 - **Accompaniment:** tempo, meter/bar policy and strumming choices over supplied harmony. These are performance/practice choices, not deterministic theory truth.
@@ -50,7 +50,7 @@ For learner-facing, audio-facing, new-phase or otherwise manually validated work
 1. satisfy the bounded issue acceptance criteria;
 2. run the authoritative `npm run verify` gate;
 3. publish and verify the exact-head GitHub Pages PR preview;
-4. give Arun the exact preview and physical/browser test path;
+4. give Arun the exact preview and browser test path, with physical-guitar steps when the issue calls for them;
 5. wait for Arun's explicit approval of that exact head before merge.
 
 Do not infer physical success from browser automation, CI, screenshots or code review.
@@ -80,7 +80,7 @@ It does **not** justify:
 - a general Learning Engine/curriculum graph/router;
 - global mastery scoring or adaptive scheduling.
 
-Practice Policy applies only where an explicit Practice experience needs it. Explore and Apply must not acquire global curriculum locks by default.
+Keep future learning sequences bounded to the musical material and action under study.
 
 ## Audio and accompaniment rule
 
@@ -106,7 +106,7 @@ Do not build weighted artist generators, automatic style scoring or a copied-lic
 
 ## Evidence, privacy and persistence
 
-Session Evidence and local evidence timelines are validation tooling, not a learner model.
+The physical validation protocol remains available for future learner experiences. Historical Session Evidence and timeline tooling are recoverable from Git history.
 
 Keep evidence local-only unless explicitly authorized otherwise. Do not add telemetry, accounts, backend persistence, mastery inference or learner scoring without a new product decision.
 
@@ -126,7 +126,7 @@ Update existing Trello cards instead of creating a parallel planning system.
 
 ## Development infrastructure
 
-Existing standing infrastructure includes exact-head PR previews, authoritative `npm run verify`, stable ScenarioV1 identity, Session Evidence v3, Physical Validation Protocol v1, local evidence timeline tooling and explicit deployment-channel provenance.
+Standing infrastructure includes exact-head PR previews, authoritative `npm run verify`, Physical Validation Protocol v1 and explicit deployment-channel provenance. The current application has a single static entrypoint and compiled engine modules. Retain engine tests and keep retired practice code outside the active build.
 
 Preserve these gates. Do not weaken tests or review boundaries merely to make work mergeable.
 
@@ -134,4 +134,4 @@ Preview is the only automatically published channel. Stable remains explicitly c
 
 ## Historical references
 
-Historical v0.2 instructions live in `docs/history/AGENTS_V0_2.md`. `CODEX_KICKOFF.md`, historical product plans and superseded roadmap material are reference only and must not override the current control plane.
+Use [the historical index](docs/history/README.md) to recover superseded implementation and product references. The current control plane governs implementation.

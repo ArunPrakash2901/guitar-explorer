@@ -1,5 +1,8 @@
 # Scenario V1 Contract & Resolver
 
+> Historical reference. The reset retires the Melody/Motif runtime and its local contract.
+> See [project state](../PROJECT_STATE.md) for the active application.
+
 ## 1. Architectural Purpose
 
 `ScenarioV1` separates the **fixed teaching procedure** of compatible Melody/Motif

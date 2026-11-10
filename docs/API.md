@@ -1,8 +1,8 @@
 # Musical API — Phase 1 through Phase 2D and Phrase Foundation PR 1
 
-Import the pure public surface from `src/engine/index.ts`. Source uses ESM syntax
-and .js import specifiers for TypeScript bundlers; the preserved prototype remains
-CommonJS-compatible. This private package is source-only, not a published build.
+Import the public surface from `src/engine/index.ts`. The source uses ESM
+syntax and `.js` import specifiers. The private package compiles the engine for
+local serving and static preview builds.
 
 ## Musical queries
 
