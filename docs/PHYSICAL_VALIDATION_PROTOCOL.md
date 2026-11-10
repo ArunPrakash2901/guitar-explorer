@@ -22,12 +22,10 @@ are evidence about friction, not automatic evidence of ability or mastery.
 ## Before the trial
 
 1. Use the exact revision under review, preferably its PR preview.
-2. Choose one experience and, where applicable, one ScenarioV1 scenario.
-3. Reset the **Session evidence** recorder after choosing the material so the export
-   describes one focused trial.
-4. Have the physical guitar ready. The browser establishes context and musical truth;
-   the guitar supplies the physical action and sound.
-5. Do not open answers, theory reveals or hints before the first honest attempt.
+2. Choose one experience and note the material and exact revision in your trial notes.
+3. Have the physical guitar ready. The browser supplies the musical context and the
+   guitar supplies the physical action and sound.
+4. Attempt the task before opening answers, theory reveals or hints.
 
 ## Trial sequence
 
@@ -85,10 +83,10 @@ Choose one provisional disposition:
 - **Promotion candidate** — still requires the separate architecture/capability gate
 - **Inconclusive**
 
-## Evidence export
+## Historical evidence format
 
-The Session Evidence JSON is supporting evidence for this protocol. Version-3 exports
-record:
+Earlier trials used the Session Evidence recorder. It was retired with the exercise
+runtime. Version-3 exports from that runtime recorded:
 
 - evidence schema/version and stable `trialId`
 - physical-validation protocol ID/version
@@ -99,8 +97,7 @@ record:
 - low-risk UI interaction events with elapsed time
 - learner-authored reflection fields
 
-Nothing is uploaded automatically. Exported evidence should be attached to the
-relevant validation issue or shared deliberately in chat only when useful.
+Keep learner evidence local until the learner chooses to share it.
 
 ## What may be concluded
 
@@ -121,7 +118,7 @@ It may **not** by itself support claims such as:
 
 Those require separate evidence or an explicitly authorized future model.
 
-## Completed current cohort — Issue #15
+## Completed historical cohort — Issue #15
 
 Issue #15 is closed. Arun's [recorded confirmation](https://github.com/ArunPrakash2901/guitar-explorer/issues/15#issuecomment-6494414657)
 accepts all four experiences, including PR #37's transfer regression. Do not repeat
@@ -130,9 +127,8 @@ cohort's historical evidence; new learner-facing behaviour needs its own trial.
 
 ### Original completion rule
 
-Each of the four current experiences needs at least one focused trial following this
-protocol with enough evidence to make a provisional keep/change/remove/promotion/
-inconclusive recommendation.
+The original cohort required at least one focused trial per experience with enough
+evidence to propose a provisional disposition.
 
 Completing this protocol does not itself authorize Phase 2E, CAGED, audio, a Learning
 Engine or any other deferred capability. Issue #16 remains the capability decision

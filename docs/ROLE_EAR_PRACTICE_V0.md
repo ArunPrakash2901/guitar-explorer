@@ -1,5 +1,8 @@
 # Role Ear → Fretboard v0
 
+> Historical reference. The reset retires this exercise and its shared runtime.
+> See [project state](../PROJECT_STATE.md) for the active application.
+
 Issue #73 is the second bounded child of #70. It extends the root Practice Runtime accepted in #72, merge d2db197. Arun's verdict that 1A felt like practicing approves that concept; it does not establish sufficient depth or completion of #70.
 
 ## Small interaction inside the existing shell

@@ -31,7 +31,7 @@ jobs:
       - run: npm ci
         if: github.event.action != 'closed'
 
-      - name: Build static Lab preview
+      - name: Build engine-first static preview
         if: github.event.action != 'closed'
         run: npm run preview:build
         env:
@@ -60,7 +60,7 @@ jobs:
 
           for attempt in {1..60}; do
             body="$(curl --fail --silent --show-error --location --max-time 10 "$preview_url" 2>/dev/null || true)"
-            if grep -Fq "guitar-explorer-revision" <<<"$body" && grep -Fq "$expected_revision" <<<"$body"; then
+            if grep -Fq "name=\"guitar-explorer-revision\" content=\"$expected_revision\"" <<<"$body"; then
               echo "Exact-head preview is live: $preview_url"
               exit 0
             fi

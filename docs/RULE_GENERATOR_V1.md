@@ -1,5 +1,8 @@
 # Rule Generator V1 — Deterministic Melody Scenario Generation
 
+> Historical reference. The reset retires the Melody generator and its active tests.
+> See [project state](../PROJECT_STATE.md) for the active application.
+
 ## 1. Architectural Purpose
 
 Rule Generator V1 solves the authoring bottleneck for the *Melody Over Harmony* Lab. Instead of requiring every educational practice scenario to be manually written by hand into a static catalogue, the generator deterministically constructs valid, playable `ScenarioV1` Melody scenarios from declarative educational rules.

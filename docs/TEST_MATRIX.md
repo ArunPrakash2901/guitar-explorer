@@ -1,72 +1,24 @@
 # Test Matrix
 
-> **Current status:** automated coverage includes Music Engine Phase 1 through
-> Phase 2D plus Phrase Foundation PR 1, the existing Lab activities, ScenarioV1, and Rule Generator V1 using
-> generator algorithm/provenance version 2. The current Product Spine architecture
-> is defined in [ARCHITECTURE.md](ARCHITECTURE.md); its consolidation is
-> documentation only. Historical v0.2 acceptance examples are preserved separately
-> below and do not imply implemented CAGED, telemetry, PWA, or Playwright features.
+The active tests cover the deterministic Music Engine, the source-provenance
+research contract and the small static application. See [verification](VERIFY.md)
+for commands.
 
-The app teaches musical facts. A plausible-looking wrong answer is worse than an obvious UI failure, so domain tests are mandatory.
-
-## Current automated verification
-
-Run the established suite from the repository root:
-
-```text
-npm run typecheck
-npm test
-npm run test:prototype
-npm run test:lab
-```
-
-`typecheck` checks engine/TypeScript contracts; `test` runs the domain and contract
-tests under `tests/domain` and `tests/contracts`. `test:prototype` preserves the
-standalone reference checks. `test:lab` builds the engine consumer, checks Lab
-JavaScript syntax, and runs the shared-fretboard, Chord, Practice, Parsimonious
-Path, phrase, and generator suites. Lab behavior checks use custom DOM/VM
-harnesses; they are not Playwright or real-browser layout tests. Software checks
-do not establish physical playability or pedagogical effectiveness.
-
-### Current engine, Lab, and generator coverage
-
-- foundational note spelling, registered pitches, intervals, transposition, tuning, note-at-fret, and bounded fretboard enumeration
-- conventional key signatures, relative keys, and fifths relationships with explicit display limits
-- broader scale formulas and selected-scale analysis separating written-degree references from sounding membership
-- explicit major/natural-minor diatonic triads and sevenths, structural Roman identities, and engine/query dependency boundaries
-- all 35 chord formulas across natural, sharp, flat and double-accidental roots
-- formula length, degree/alteration identity, spelling, pitch class and interval number
-- catalogue order, deep freezing, JSON serialization and version-1 query envelopes
-- exact formula object identity between catalogue entries and `CHORD_FORMULAS`
-- add9 versus sus2, 13 versus 6, diminished-seventh and named spelling fixtures
-- canonical M13 versus the registered C3→A3 played M6
-- Lab family/quality selection, select-all, clear-all and empty-selection rejection
-- engine-derived anchors, targets, windows, reconstructions and transfers across the catalogue
-- exact transfer role identity, stable frozen plans and changed consecutive variations
-- complete reconstruction through four tones and bounded compound-role reconstruction above four
-- delayed reveal labels, wrong-fret chord analysis, timer/reset behavior and static answer-leakage checks
-- engine-derived G–C–D7–G and A–D–E7–A four-string candidates
-- structural-tone completeness and non-chord-tone rejection for every enumerated candidate
-- deterministic nearest-movement scoring, common tones, per-string direction and distance labels
-- separate invalid-chord, valid-distant and valid-nearest outcomes
-- F#–G and C–B resolution roles/degrees plus transferred G#–A
-- progressive hint disclosure, assisted-state cleanup and no answer leakage on replay/back
-- physical two-voice deconstruction, A-major transfer, reflection and full restart behavior
-- native button keyboard semantics and explicit selected-state accessibility labels
-- melody target roles, key degrees, same-pitch chord reinterpretation, approach and phrase paths, A-major transfer and withheld answers
-- motif source/adaptation, one-variable changes, intervallic sequence, fragmentation, response, target transfer and ungraded reflections
-- ScenarioV1 contract validation (version, schema, keys, chords, bounds), deterministic musical derivation across 6 catalogue entries, UI switching, surprise selection, state cleanup, and answer withholding
-- Rule Generator V1 high-volume seed verification (300+ generations), key/fret diversity, quality invariants, negative failure modes, and interactive UI generation controls
-- fixed generator string/window policy for every main and transfer region across all difficulties, independently derived target windows, and absence of unsupported region-pool declarations
-- generator-version-2 pinned seeded fixtures, fixed-order Fisher–Yates selection, unchanged seed normalization, and exact reproducibility under unchanged engine/query facts
-- exhausted distinct-generation UI search preserves accepted material, session progress, selections, and evidence; a recoverable message appears without an unrestricted fallback or answer leakage
-- Melody preparation seam verification (`scripts/test-melody-experience.mjs`): DOM-free execution without browser/DOM globals, catalogue preparation across all 3 approved entries, generated scenario preparation determinism and version-2 replay, distinct generation, source convergence to identical PreparedMelodyExperience shape, explicit error semantics (INVALID_REQUEST, UNKNOWN_CATALOGUE_SCENARIO, UNKNOWN_RULE, UNKNOWN_DIFFICULTY, RESOLUTION_FAILURE, GENERATION_FAILURE), no silent fallback between material authorities, and shared query adapter (`createPhraseQueries`) verification
+| Area | Automated coverage |
+| --- | --- |
+| Pitch and intervals | Spelling, registered pitches, sounding equivalence, signed intervals and transposition. |
+| Collections and harmony | Scale formulas, contextual membership, all 35 chord formulas, diatonic triads and sevenths, key signatures, relative keys and fifths relationships. |
+| Guitar | Standard tuning, string and fret geometry, note-at-position and bounded location enumeration. |
+| Queries and boundaries | Public exports, query envelopes and errors, deterministic serialization, and the dependency boundary around the engine. |
+| Source-provenance research | Validation and traceability of source observations, analytical assumptions and engine-derived facts. |
+| Local application | HTTP smoke tests for the welcome page and compiled engine, plus 404s for retired exercise routes. |
+| Static output | Entry files, compiled engine imports, absence of exercise pages and revision/channel metadata for preview, experimental and stable builds. |
 
 ## Phrase Foundation PR 1 — executable acceptance coverage
 
 The normative contract is [PHRASE_FOUNDATION_V1.md](PHRASE_FOUNDATION_V1.md).
-These checks exercise the new time/Phrase slice, not Product Spine UI or the
-dependent harmony timeline/analysis slice. Full repository gate: `npm run verify`.
+These checks exercise the exact-time and Phrase contracts. Run `npm run verify`
+for the full repository gate.
 
 | File | Implemented gates |
 |---|---|
@@ -76,32 +28,8 @@ dependent harmony timeline/analysis slice. Full repository gate: `npm run verify
 | `tests/fixtures/phrases.ts` | Hand-authored six-note phrase, interval/contour/transposition/crop expectations and two external placement sidecars. No timeline/analysis or API-derived expected fractions. |
 | `tests/contracts/query.test.ts`, `boundaries.test.ts` | Exact 23-method facade and 24 named runtime query exports including `musicQueries`; browser globals trapped for every new wrapper; existing local-only import graph/dependency direction retained. |
 
-A10–A12 and harmonic T08–T10/T16 are reserved for dependent PR 2 and are not
-reported as implemented here. Existing Lab, generator-version-2 replay, evidence,
-identity, deployment and prototype checks remain regression gates. These automated
-checks establish musical/numeric contracts; they do not claim new physical teaching
-success. Issue #15's completed four-Lab validation remains accepted.
-
-## Historical Product Spine documentation acceptance — manual checks only
-
-The consolidation adds no runtime behavior or application architecture code and
-introduces no new test framework. Its acceptance review must confirm:
-
-- `git diff` contains documentation changes only; existing runtime, tests, and musical capabilities remain intact.
-- The canonical architecture distinguishes current implementation from future direction, with explicit Explore/Practice/Apply responsibilities, Experience Router ownership/non-ownership, and context-preserving handoffs.
-- Practice Policy governs only explicit Practice; Explore and Apply have no curriculum gates. ScenarioV1 is bounded rather than universal.
-- Feature migration, the deferred capability list, and historical-document precedence agree across current guidance.
-- The four existing verification commands remain green on the documentation branch.
-
-These are documentation/manual acceptance checks, not newly implemented automated
-Product Spine tests. No router, shared workspace state, or new three-intention UI
-is claimed to exist.
-
-When later runtime slices are separately authorized, add targeted checks for
-supported context/region/focus handoffs, unsupported requests, invalid material,
-generation failure recovery, and answer disclosure before/after commitment and
-assistance. Reuse existing regression coverage; these future checks are described
-here as requirements, not reported as passing tests today.
+A10–A12 and harmonic T08–T10/T16 remain reserved for a separately scoped
+harmony timeline and analysis slice.
 
 ## Historical v0.2 acceptance examples — reference only
 
@@ -109,9 +37,8 @@ The following examples preserve the original product matrix. Sections 1–4 over
 current engine facts, but this historical list is not the inventory of executable
 tests. CAGED, generic progression handling, the original Explore/Navigate/Harmony
 UI, persistent telemetry, PWA/offline behavior, and critical Playwright flows were
-historical targets. Bounded current Lab activities and diatonic harmony do not
-establish those broader features. Prototype success does not establish legacy UI
-correctness or authorize production implementation.
+historical targets. The old prototype and its tests remain available from the original handoff and
+Git history.
 
 ### 1. Note-at-fret tests
 

@@ -1,65 +1,32 @@
-# Deployment channels and evidence provenance
+# Deployment channels and provenance
 
-Guitar Explorer uses three explicit static-build channels so validation evidence can say exactly what code was tested without treating every build as a release.
+All three channels build the same static application with explicit provenance.
 
-## Channel contract
+| Channel | Source identity | Publication |
+| --- | --- | --- |
+| `preview` | Exact pull-request head SHA in GitHub Actions | Automatic for same-repository PRs under `pr-preview/pr-<number>/`. |
+| `experimental` | Explicitly chosen ref or SHA | Opt-in local build. |
+| `stable` | `master` or an explicitly approved release revision | Reserved for deliberate releases. The command builds locally. |
 
-| Channel | Source identity | Publication | Intended use |
-| --- | --- | --- | --- |
-| `preview` | exact pull-request head SHA | automatic for same-repository PRs under `pr-preview/pr-<number>/` | review and physical validation of a proposed change |
-| `experimental` | an explicitly chosen ref/SHA | build only by explicit opt-in; no automatic publication | temporary experiments that must not be confused with stable behavior |
-| `stable` | `master` / an explicitly approved release revision | reserved; publication requires a separate explicit release decision | future deliberate stable releases |
+```sh
+npm run preview:build
+npm run experimental:build
+npm run stable:build
+```
 
-Issue #32 does not create a production deployment. `stable:build` only produces local static output; it does not publish it. `experimental:build` is likewise local unless a separately authorized publication workflow is added later.
-
-All channel builds use the same static builder and inject provenance into the HTML:
+Set `GE_REVISION` and `GE_DEPLOYMENT_LABEL` in the environment when recording a
+specific non-PR build. The builder rejects unknown channels and embeds these
+metadata fields in the HTML:
 
 - `guitar-explorer-revision`
 - `guitar-explorer-preview-pr`
 - `guitar-explorer-deployment-channel`
 - `guitar-explorer-deployment-label`
 
-The PR workflow checks out `github.event.pull_request.head.sha` directly, so preview evidence identifies the exact proposed revision rather than GitHub's synthetic merge commit.
+`npm run test:deployments` verifies channel metadata and the static output.
+See [PR previews](PR_PREVIEWS.md) for the published review path.
 
-## Commands
-
-```text
-npm run preview:build
-npm run experimental:build
-npm run stable:build
-```
-
-For non-PR builds, set provenance explicitly when useful:
-
-```text
-GE_REVISION=<sha> GE_DEPLOYMENT_LABEL=<label> npm run experimental:build
-```
-
-Unknown channels are rejected. `npm run test:deployments` verifies channel metadata and the static-build contract. The authoritative repository gate remains `npm run verify`.
-
-## Evidence provenance
-
-Session Evidence schema v3 adds deployment provenance while preserving the Protocol v1 and ScenarioV1 fields already used for physical validation:
-
-- `trialId`
-- `revision`
-- `previewPr`
-- `deploymentChannel`
-- `deploymentLabel`
-- scenario ID/source/contract version when applicable
-
-This metadata is descriptive traceability only. It must not be interpreted as mastery, scoring, adaptation, or learner state.
-
-## Local longitudinal timeline
-
-Evidence exports remain user-triggered JSON files. To build a local descriptive timeline, place exports under `.evidence-local/exports/` and run:
-
-```text
-npm run evidence:timeline
-```
-
-The default output is `.evidence-local/timeline.json`. You may also supply one or more files/directories, or add `--stdout` to print the generated timeline instead of writing the default file.
-
-The timeline validates supported evidence schemas, preserves individual trial identity, and groups trials descriptively by revision while retaining channel, scenario, experience and disposition metadata. It does not infer progress or mastery from duration, interaction counts, assistance, dispositions or any other signal.
-
-`.evidence-local/` is gitignored. Neither PR previews nor CI upload these learner evidence files. Do not commit exported evidence, place it in preview assets, or add an automatic evidence backend without separate explicit authorization.
+The preview build contains the entrypoint and compiled engine. Keep private
+records and any historical learner evidence local unless explicitly authorized
+for sharing. The former evidence recorder and timeline tooling are archived in
+Git history.

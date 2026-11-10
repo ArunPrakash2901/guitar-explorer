@@ -1,66 +1,36 @@
-# Guitar Explorer — Project State
+# Guitar Explorer project state
 
-Last updated: 2026-11-04 (Australia/Sydney). Productization reset from Arun's current request and Issue #70 supersedes the former feature-by-feature queue.
+Updated 11 November 2026 (Australia/Sydney).
 
-## North star and product test
+## Current work
 
-Help Arun see the fretboard, hear relationships, follow harmony, develop phrases, improvise and transfer on his guitar.
+Issue #82 resets Guitar Explorer to the deterministic Music Engine and a minimal
+browser entrypoint. It retires the exercise catalogue, session runtime, activity
+routes and practice-specific tooling from the active project. The starting
+`master` revision is `a1a76f4a2daadf0df80c47231877ef414c60d22d`.
+[Product reset](https://github.com/ArunPrakash2901/guitar-explorer/issues/82)
 
-Can he open Guitar Explorer, begin playing in a couple of actions, finish a useful 10–15 minute session and receive meaningful variation without ChatGPT designing it? Repository activity and screen completion are not musical mastery.
+The proposed baseline retains the public query contracts, Core and Guitar
+geometry, Phrase Foundation, engine correctness tests and independent
+source-provenance research. Prior experiments and approval records remain in
+Git history and the [historical references](docs/history/README.md).
 
-## Merged baseline
+## Review gate
 
-Master contains deterministic Music Engine through Phase 2D, Phrase Foundation #41, Product Spine/Harmonic Gravity #44, Role Lens #46, Audio Out v0.5 #48, Accompaniment v1 #52, control-plane reconciliation #61, research-only Style Foundation #63, Instrument Desk Home #65, Productization 1A #72 (merge d2db197) and Productization 1B #74 (merge e323d1c). Legacy experience behavior remains available and regression-tested.
+Run `npm run verify`, then review the welcome page and verify the exact-head
+[PR preview](docs/PR_PREVIEWS.md) once GitHub publishes it. Local verification,
+hosted CI execution and live preview publication are distinct results. Arun's
+explicit approval of the exact reviewed head is required before merge.
 
-Merged Productization 1A replaces the Home catalogue with a functional Start/Continue path and one sampled-guitar Practice Runtime. Arun accepted that it felt like practicing while deliberately primitive/simple. This is not approval of sufficient exercise depth. Legacy Labs remain reference/regression surfaces, not primary navigation.
+## Next separately scoped work
 
-## One primary milestone
+Issue #83 is the requirements and source audit for Song Study Pilot 001, a
+whole-song study of Led Zeppelin's *Black Dog*. Its requirements must be reviewed
+after this reset and before Song Study implementation begins.
+[Song Study requirements](https://github.com/ArunPrakash2901/guitar-explorer/issues/83)
 
-Issue #70: Productization 1 — Practice Session v0.
+## Operational references
 
-Home → focus/start/continue → generated session → ONE Practice Runtime → physical actions → variation → transfer → completion.
-
-Thin responsibilities: Music Engine truth → Material Generator → local Exercise Recipe → simple Session Composer → Practice Runtime → reusable fretboard/audio/backing tools. No universal learning DSL, curriculum graph or mastery engine.
-
-The milestone eventually proves Interval Hunt, Role Ear → Fretboard and Target Landing in the same runtime, with sampled guitar audio and a coherent 10–15 minute session. No later child is automatic.
-
-## Latest accepted child and next scope
-
-Issue #73 is closed completed. PR #74: Productization 1B — Role Ear → Fretboard inside the same root Practice Runtime, merged as e323d1c466288fc656ab20b68cdb8b35db00c17d.
-
-Arun explicitly approved reviewed head c70c74007e5e75a9789ead40c6c7382eeb951a5e on 4 November 2026: “Approved.” Full verify, exact-head preview and desktop/narrow/light/dark review passed before merge. Record that approval without inventing a more detailed listening, physical-guitar or learning verdict.
-
-The accepted child adds one real Ear/context focus: hear an unchanged anchor against three chords → commit ungraded impressions → reveal engine role facts → locate/play the anchor → play that same pitch against changing sampled harmony → transfer to another anchor/context order → complete. Interval Hunt stays available and unchanged.
-
-The musical generator derives valid contrasting roles without reading sample coverage. A separate adapter validates curated G/C/D7 placements against engine chord tones, then checks audio support. Only the F#4 attack from closed #58 is added to the existing renderer; no branch reopen/merge or synth default.
-
-#71/#72 and #73/#74 are completed and accepted. #70 remains incomplete: two distinct families exist; the third family is now scoped in Issue #75 — Productization 1C / Target Landing inside the shared Practice Runtime. Read that live issue and inspect current master before implementation. #74's approval adds no Target Landing code, mixed-family composer or parked work, and does not approve any future child for merge.
-
-Read docs/ROLE_EAR_PRACTICE_V0.md for the bounded sequence, material/audio boundary and review path.
-
-Read docs/PRODUCTIZATION_1_BLUEPRINT.md for the current flow audit, minimal state model, reuse/removal decisions and audio path.
-
-Required before any future learner-facing merge: focused tests, full npm run verify, exact-head Pages preview, browser review, Arun's acoustic-guitar/listening trial and explicit approval of that exact head. #74's approval applies only to its reviewed head. Stable publication is still reserved and explicitly controlled; PR previews may be removed automatically after merge.
-
-## Closed unmerged references
-
-- #56 / Issue #55: curated G/C/D7 physical placement. Do not reopen or merge.
-- #58 / Issue #57: sampled acoustic feasibility, 12 attacks/provenance. Extract only needed pieces on fresh Productization branches; do not revive the stacked branch.
-- #69 / Issue #68: warm visual consolidation/Figma extensions. Useful tokens/reference, superseded as product flow.
-- #67 / Issue #66: Interesting Material. Parked with Style/song work.
-- #54 / Issue #53: MediaRecorder looper UX only. Not the future precise PCM architecture.
-- #50 / Issue #49: superseded UI reference.
-
-## Retained infrastructure and parked work
-
-Retain deterministic truth, shared fretboard, bounded Melody generator/resolver, accompaniment plan/Web Audio clock, exact-head previews and local-only validation/evidence tools. Legacy routes remain reference/testing surfaces rather than the new learner navigation.
-
-Accompaniment later enters Practice with strong defaults, progression, tempo, simple groove and play/stop. Per-chord structure editing is secondary. Target Navigation is a recipe inside Practice, not a new destination.
-
-Do not implement or display unfinished controls for looper, Style, songs, tone/amp support, AI tutor, automatic transcription/grading, backend/accounts, learner adaptation/mastery or DAW/multitrack. Style research is parked; #63's merged contract is not a runtime roadmap.
-
-Later looper remains separately scoped: one AudioContext clock, count-in, AudioWorklet fixed-frame PCM capture and AudioBuffer looping, with seam/real-device latency tests.
-
-## Authority
-
-Master = merged capability; Issue/PR = bounded execution; PROJECT_STATE/project-state.json = operational handoff; AGENTS + AUTONOMY_CONTRACT = execution boundaries; ARCHITECTURE = durable ownership; Trello = cross-chat priorities/navigation; Figma = reviewed visual direction; research/closed PRs = evidence only.
+- [Machine-readable state](project-state.json), also available via `npm run context`
+- [Execution rules](AGENTS.md) and [approval boundaries](docs/AUTONOMY_CONTRACT.md)
+- [Architecture](docs/ARCHITECTURE.md) and [verification](docs/VERIFY.md)

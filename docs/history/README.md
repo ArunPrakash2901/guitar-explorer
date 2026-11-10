@@ -19,6 +19,7 @@ Historical material in or referenced by this directory:
 - `../PRODUCT_SPEC.md` — historical v0.2 product specification retained at its original path
 - `../V0_2_PLAN.md` — historical v0.2 implementation plan retained at its original path
 - `../../references/approved-v0.2-handoff.zip` — byte-for-byte original handoff package
+- [Steel guitar sample credits](steel-guitar/PROVENANCE.md) — provenance and CC0 license for the retired Practice audio
 
 Keeping several historical files at their original paths is intentional: existing
 links remain valid while their headers clearly mark them non-operative.

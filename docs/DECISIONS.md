@@ -1,12 +1,9 @@
 # Architecture and Product Decisions
 
-> **Current guidance:** [ARCHITECTURE.md](ARCHITECTURE.md) is the canonical
-> Product Spine architecture and distinguishes implemented capabilities from
-> future direction. D023–D028 record the current consolidation decisions and take
-> precedence where earlier entries conflict. Earlier entries preserve the reasons
-> and scope of their original decisions; they do not authorize deferred work.
-> The later explicitly approved D030 adds the bounded Phrase Foundation. It does
-> not authorize Product Spine runtime/UI work or other deferred capabilities.
+> This record preserves decisions in the context in which they were made. D031
+> supersedes earlier decisions about the active learner runtime. See
+> [architecture](ARCHITECTURE.md) for current boundaries and
+> [project state](../PROJECT_STATE.md) for active scope.
 
 ## D001 — Build a web/PWA, not a native mobile app
 
@@ -381,3 +378,15 @@ PR #37's transfer regression. Preserve that physical approval without rerunning 
 trials. The exact-head automated proof is the review evidence for this pure Core
 slice; its unchanged Lab preview makes no new educational/physical claim. Wait for
 Arun's review before merge or the next implementation slice.
+
+## D031 — Reset to an engine-first baseline
+
+On 11 November 2026 Arun directed Guitar Explorer toward song-led musical
+discovery and authorized retirement of the previous exercises. The reset
+retains the Music Engine and its correctness tests, the source-provenance
+research proof and the exact-head review path. Git history preserves the old
+experiments. [Issue #82](https://github.com/ArunPrakash2901/guitar-explorer/issues/82)
+
+The next work item is a requirements and source audit for a whole-song study of
+*Black Dog*. Its requirements need review before implementation.
+[Issue #83](https://github.com/ArunPrakash2901/guitar-explorer/issues/83)

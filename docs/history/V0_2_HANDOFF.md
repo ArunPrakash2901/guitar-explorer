@@ -1,5 +1,8 @@
 # Historical v0.2 handoff
 
+> Historical reference. This handoff describes the original prototype. Its files and tests are available in the original handoff archive or pre-reset Git history.
+> See [project state](../../PROJECT_STATE.md) for the active application.
+
 This document preserves the original UI-first Guitar Explorer handoff for product context and behavioural reference. It no longer defines the current implementation order.
 
 A long-term fretboard and musicianship trainer designed around one core problem: being able to physically learn guitar shapes without becoming dependent on those shapes.

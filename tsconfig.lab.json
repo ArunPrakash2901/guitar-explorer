@@ -8,6 +8,5 @@
     "sourceMap": true,
     "types": []
   },
-  "include": ["src/engine/**/*.ts"],
-  "exclude": ["tests", "prototype", "lab"]
+  "include": ["src/engine/**/*.ts"]
 }

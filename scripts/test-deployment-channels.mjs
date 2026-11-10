@@ -1,75 +1,94 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
-import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { fileURLToPath } from "node:url";
+import { readFile, readdir } from "node:fs/promises";
+import { join, relative, resolve } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
-const indexPath = resolve(projectRoot, ".preview-dist", "index.html");
+const projectRoot = fileURLToPath(new URL("..", import.meta.url));
+const sourceRoot = resolve(projectRoot, "src", "engine");
+const outputRoot = resolve(projectRoot, ".preview-dist");
+const indexPath = join(outputRoot, "index.html");
 
-function runBuild(channel, extraEnv = {}) {
-  const result = spawnSync(process.execPath, ["scripts/build-preview.mjs", "--channel", channel], {
+function build(args, extraEnv = {}) {
+  return spawnSync(process.execPath, ["scripts/build-preview.mjs", ...args], {
     cwd: projectRoot,
     env: {
       ...process.env,
-      GE_REVISION: `${channel}-revision`,
-      GE_DEPLOYMENT_LABEL: `${channel}-test`,
-      GE_PREVIEW_PR: channel === "preview" ? "99" : "",
+      GE_REVISION: "default-revision",
+      GE_DEPLOYMENT_CHANNEL: "",
+      GE_DEPLOYMENT_LABEL: "",
+      GE_PREVIEW_PR: "",
       ...extraEnv,
     },
     encoding: "utf8",
   });
-  assert.equal(result.status, 0, `${channel} build failed:\n${result.stderr || result.stdout}`);
 }
+
+function assertBuildSucceeded(result) {
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+}
+
+async function filesUnder(directory) {
+  const files = await readdir(directory, { recursive: true, withFileTypes: true });
+  return files.filter((file) => file.isFile())
+    .map((file) => relative(directory, join(file.parentPath, file.name)).replaceAll("\\", "/"));
+}
+
+const expectedOutput = [
+  ".nojekyll",
+  "index.html",
+  ...(await filesUnder(sourceRoot))
+    .filter((file) => file.endsWith(".ts") && !file.endsWith(".d.ts"))
+    .map((file) => "engine/" + file.replace(/\.ts$/, ".js")),
+].sort();
 
 for (const channel of ["stable", "experimental", "preview"]) {
-  runBuild(channel);
+  const revision = channel + "-revision";
+  const pr = channel === "preview" ? "99" : "";
+  assertBuildSucceeded(build(["--channel", channel], {
+    GE_REVISION: revision,
+    GE_DEPLOYMENT_LABEL: channel + "-test",
+    GE_PREVIEW_PR: pr,
+  }));
+
+  assert.deepEqual((await filesUnder(outputRoot)).sort(), expectedOutput);
   const html = await readFile(indexPath, "utf8");
-  assert.match(html, new RegExp(`name="guitar-explorer-deployment-channel" content="${channel}"`));
-  assert.match(html, new RegExp(`name="guitar-explorer-deployment-label" content="${channel}-test"`));
-  assert.match(html, new RegExp(`name="guitar-explorer-revision" content="${channel}-revision"`));
-  assert.ok(html.includes(`src="./instrument-desk-app.js?ge-revision=${channel}-revision"`));
-  assert.ok(html.includes(`href="./instrument-desk.css?ge-revision=${channel}-revision"`));
-  const app = await readFile(resolve(projectRoot, ".preview-dist", "instrument-desk-app.js"), "utf8");
-  assert.ok(app.includes(`from "./role-view.mjs?ge-revision=${channel}-revision"`), "entry code imports the advertised revision");
-  const roleView = await readFile(resolve(projectRoot, ".preview-dist", "role-view.mjs"), "utf8");
-  assert.ok(roleView.includes(`from "./role-plan.mjs?ge-revision=${channel}-revision"`), "relative transitive imports share the same revision");
+  assert.match(html, /<h1>Guitar Explorer<\/h1>/);
+  assert.match(html, /Song Study is being designed\./);
+  assert.doesNotMatch(html, /<(?:button|form|script)\b/i);
+  assert.ok(html.includes(`name="guitar-explorer-deployment-channel" content="${channel}"`));
+  assert.ok(html.includes(`name="guitar-explorer-deployment-label" content="${channel}-test"`));
+  assert.ok(html.includes(`name="guitar-explorer-revision" content="${revision}"`));
+  assert.ok(html.includes(`name="guitar-explorer-preview-pr" content="${pr}"`));
+
+  const entry = await readFile(join(outputRoot, "engine", "index.js"), "utf8");
+  const queries = await readFile(join(outputRoot, "engine", "query", "index.js"), "utf8");
+  assert.ok(entry.includes(`"./query/index.js?ge-revision=${revision}"`), "entry imports carry the advertised revision");
+  assert.ok(queries.includes(`"../core/pitch.js?ge-revision=${revision}"`), "transitive imports carry the advertised revision");
+  assert.doesNotMatch(entry + queries, /sourceMappingURL=/);
 }
 
-const envFallback = spawnSync(process.execPath, ["scripts/build-preview.mjs"], {
-  cwd: projectRoot,
-  env: {
-    ...process.env,
-    GE_REVISION: "env-revision",
-    GE_DEPLOYMENT_CHANNEL: "experimental",
-    GE_DEPLOYMENT_LABEL: "env-experimental",
-  },
-  encoding: "utf8",
-});
-assert.equal(envFallback.status, 0, `environment fallback build failed:\n${envFallback.stderr || envFallback.stdout}`);
+const engine = await import(pathToFileURL(join(outputRoot, "engine", "index.js")).href);
+const lowE = engine.musicQueries.getNoteAtFret({ position: { stringIndex: 0, fret: 0 } });
+assert.equal(lowE.ok, true);
+assert.equal(lowE.data.name, "E2");
+
+assertBuildSucceeded(build([], {
+  GE_REVISION: "env-revision",
+  GE_DEPLOYMENT_CHANNEL: "experimental",
+  GE_DEPLOYMENT_LABEL: "env-experimental",
+}));
 let html = await readFile(indexPath, "utf8");
 assert.match(html, /name="guitar-explorer-deployment-channel" content="experimental"/);
 assert.match(html, /name="guitar-explorer-deployment-label" content="env-experimental"/);
 
-const defaultFallback = spawnSync(process.execPath, ["scripts/build-preview.mjs"], {
-  cwd: projectRoot,
-  env: {
-    ...process.env,
-    GE_REVISION: "default-revision",
-    GE_DEPLOYMENT_CHANNEL: "",
-    GE_DEPLOYMENT_LABEL: "",
-  },
-  encoding: "utf8",
-});
-assert.equal(defaultFallback.status, 0, `default fallback build failed:\n${defaultFallback.stderr || defaultFallback.stdout}`);
+assertBuildSucceeded(build([], { GE_PREVIEW_PR: "101" }));
 html = await readFile(indexPath, "utf8");
 assert.match(html, /name="guitar-explorer-deployment-channel" content="preview"/);
+assert.match(html, /name="guitar-explorer-deployment-label" content="pr-101"/);
 
-const bad = spawnSync(process.execPath, ["scripts/build-preview.mjs", "--channel", "production-ish"], {
-  cwd: projectRoot,
-  encoding: "utf8",
-});
+const bad = build(["--channel", "production-ish"]);
 assert.notEqual(bad.status, 0);
-assert.match(`${bad.stderr}${bad.stdout}`, /Unknown deployment channel/);
+assert.match(bad.stderr + bad.stdout, /Unknown deployment channel/);
 
-console.log("deployment channel metadata checks passed");
+console.log("deployment provenance, preview manifest and compiled engine checks passed");

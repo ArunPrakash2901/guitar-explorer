@@ -1,34 +1,26 @@
 # Repository verification
 
-The authoritative full-repository verification command is:
+Run the authoritative full gate from the repository root:
 
-```text
+```sh
+npm ci
 npm run verify
 ```
 
-CI runs `npm ci` followed by that command. A change is not repository-verified merely
-because one narrower command passed.
+| Command | Coverage |
+| --- | --- |
+| `npm run context:check` | Validate the machine-readable project state. |
+| `npm run typecheck` | Type-check the engine, research code and TypeScript tests. |
+| `npm test` | Run the engine domain and public-contract suites and the provenance research tests. |
+| `npm run test:lab` | Serve the minimal app and check the entrypoint, compiled engine and retired routes over HTTP. |
+| `npm run test:deployments` | Check static output and channel provenance. |
+| `npm run preview:build` | Compile the engine and package the static review site. |
 
-`npm run verify` currently composes:
+These commands also run individually for diagnosis. `npm run context` prints
+project state and any revision, PR and deployment metadata supplied in the
+environment. See the [test matrix](TEST_MATRIX.md) and [PR preview guide](PR_PREVIEWS.md).
 
-- `npm run context:check` — validates the versioned machine-readable project snapshot
-- `npm run typecheck` — TypeScript contracts
-- `npm test` — domain and contract tests
-- `npm run test:prototype` — preserved prototype regression
-- `npm run test:lab` — Lab syntax/behaviour plus session-evidence and timeline checks
-- `npm run test:identity` — stable ScenarioV1 identity and active-scenario traceability
-- `npm run test:deployments` — stable/preview/experimental channel metadata contracts
-- `npm run preview:build` — static exact-head PR-preview build contract
-
-Those component commands remain intentionally available for focused diagnosis and
-fast local iteration. They are not competing full verification entry points.
-
-`npm run context` prints the validated project snapshot plus runtime revision/PR/channel
-metadata when supplied through the environment. Deployment-channel and evidence
-privacy boundaries are documented in
-[`DEPLOYMENT_CHANNELS.md`](DEPLOYMENT_CHANNELS.md).
-
-Physical-guitar usefulness is a separate gate. When physical review is required,
-run the software gate above and then follow
-[`PHYSICAL_VALIDATION_PROTOCOL.md`](PHYSICAL_VALIDATION_PROTOCOL.md); automated tests
-must not be treated as evidence of pedagogical effectiveness.
+GitHub Actions runs `npm ci` and `npm run verify`. Record local results separately
+from jobs that actually execute on GitHub. The exact-head browser review checks the
+cleanup page. Any future physical-guitar review follows the
+[Physical Validation Protocol](PHYSICAL_VALIDATION_PROTOCOL.md).
