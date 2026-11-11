@@ -126,7 +126,7 @@ Update existing Trello cards instead of creating a parallel planning system.
 
 ## Development infrastructure
 
-Standing infrastructure includes exact-head PR previews, authoritative `npm run verify`, Physical Validation Protocol v1 and explicit deployment-channel provenance. The current application has a single static entrypoint and compiled engine modules. Retain engine tests and keep retired practice code outside the active build.
+Standing infrastructure includes exact-head PR previews, authoritative `npm run verify`, Physical Validation Protocol v1 and explicit deployment-channel provenance. The current application serves the Black Dog overview and section workbench using the deterministic engine. Retain engine tests and keep retired practice code outside the active build.
 
 Preserve these gates. Do not weaken tests or review boundaries merely to make work mergeable.
 

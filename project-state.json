@@ -2,17 +2,19 @@
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
   "updatedAt": "2026-11-11",
-  "stage": "Engine-first reset under Issue #82",
+  "stage": "Black Dog Song Study under Issue #83",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
-    "runtime": "Single static welcome page and compiled Music Engine. Previous exercises and runtime are retired.",
-    "learningValidation": "Historical approvals are recorded in acceptedSlices. Review the exact cleanup head in the browser."
+    "runtime": "Black Dog song overview and section workbench. Eleven sections and 31 provisional recording anchors.",
+    "learningValidation": "Owner listening and guitar-in-hand review of the proposed Song Study revision is pending."
   },
   "activeWork": {
-    "issue": 82,
+    "issue": 83,
     "pullRequest": null,
-    "kind": "product-reset",
-    "summary": "Retire learner exercises and their runtime. Preserve the deterministic Music Engine, its correctness tests and the exact-head review path."
+    "kind": "song-study",
+    "summary": "Implement the full Black Dog Song Study under the owner's requirements amendment.",
+    "basePullRequest": 84,
+    "baseRevision": "8a779419808fb94317ca83ad454fd548887094d8"
   },
   "evidence": {
     "issue": 15,
@@ -27,9 +29,9 @@
     "status": "Historical format from the retired recorder. Existing learner evidence remains local."
   },
   "gate": {
-    "issue": 82,
+    "issue": 83,
     "status": "exact-head-review-and-owner-approval-required",
-    "statement": "Run npm run verify and verify the exact-head PR preview. Record hosted execution separately. Wait for explicit owner approval of the exact head before merge."
+    "statement": "Run npm run verify and review the full song on guitar against the exact proposed revision. Record hosted Actions and Pages results separately. Obtain explicit owner approval before merging."
   },
   "verification": {
     "command": "npm run verify",
@@ -38,9 +40,9 @@
   },
   "reviewWorkflow": {
     "implementationPreview": "required-before-merge",
-    "previewReadiness": "Verify hosted publication against the reset PR head.",
+    "previewReadiness": "Verify Pages publication against the Song Study PR head when the workflow can run.",
     "reviewSurface": "github-pages-pr-preview",
-    "learnerFacingApproval": "explicit-arun-go-ahead-after-exact-head-browser-review"
+    "learnerFacingApproval": "explicit-arun-go-ahead-after-browser-and-guitar-review"
   },
   "deployments": {
     "stable": {
@@ -157,15 +159,15 @@
   },
   "plannedSequence": {
     "songStudy": [
-      "Complete the reset review under Issue #82.",
-      "Review the whole-song requirements and source audit for Black Dog under Issue #83.",
-      "Begin Song Study implementation only after the requirements are reviewed and implementation is authorized."
+      "Review the cleanup dependency under Issue #82.",
+      "Review the proposed whole-song experience and source claims under Issue #83.",
+      "Record owner acceptance against the reviewed revision before merging."
     ]
   },
   "deferred": [
-    "Song Study implementation pending requirements review and authorization",
+    "Persistent musical principle library and microphone capture",
     "Song import and TAB or PDF parsing",
     "Engine expansion beyond demonstrated requirements",
-    "New audio infrastructure, Style Packs, AI tutoring, learner models and backend persistence"
+    "General audio production tooling, Style Packs, AI tutoring, learner models and backend persistence"
   ]
 }

@@ -1,8 +1,7 @@
 # Test Matrix
 
 The active tests cover the deterministic Music Engine, the source-provenance
-research contract and the small static application. See [verification](VERIFY.md)
-for commands.
+research contract and the Black Dog Song Study. [Verification commands](VERIFY.md)
 
 | Area | Automated coverage |
 | --- | --- |
@@ -11,8 +10,13 @@ for commands.
 | Guitar | Standard tuning, string and fret geometry, note-at-position and bounded location enumeration. |
 | Queries and boundaries | Public exports, query envelopes and errors, deterministic serialization, and the dependency boundary around the engine. |
 | Source-provenance research | Validation and traceability of source observations, analytical assumptions and engine-derived facts. |
-| Local application | HTTP smoke tests for the welcome page and compiled engine, plus 404s for retired exercise routes. |
-| Static output | Entry files, compiled engine imports, absence of exercise pages and revision/channel metadata for preview, experimental and stable builds. |
+| Black Dog model | Section order and occurrence references, authored pitch and fretboard facts, interval and chord relationships, rational rhythm, and prepared examples. |
+| Local application | HTTP smoke tests for the Song Study entrypoint and its browser and compiled modules, plus 404s for retired exercise routes. |
+| Static output | Entry files, browser and compiled module imports, revision and channel metadata, and allowed output for preview, experimental and stable builds. |
+
+The [Black Dog traceability matrix](BLACK_DOG_REQUIREMENTS.md) ties these checks
+and the listening and physical-guitar acceptance work to individual
+requirements.
 
 ## Phrase Foundation PR 1 — executable acceptance coverage
 

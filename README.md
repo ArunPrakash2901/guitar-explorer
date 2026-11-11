@@ -1,9 +1,10 @@
 # Guitar Explorer
 
-Guitar Explorer is a fretboard-first project for discovering how music works on a
-real guitar. Its current baseline is a deterministic Music Engine and a small
-browser entrypoint that describes it. The next direction is song-led musical
-discovery. Song Study Pilot 001 is tracked separately. [Issue #83](https://github.com/ArunPrakash2901/guitar-explorer/issues/83)
+Guitar Explorer connects close listening with playing a real guitar. Its first
+Song Study follows Led Zeppelin's *Black Dog* through eleven sections and 31
+provisional recording anchors. The section workbench pairs musical questions
+with reference listening, original audio comparisons, fretboard exploration
+and guitar-in-hand transfer prompts. [Issue #83](https://github.com/ArunPrakash2901/guitar-explorer/issues/83)
 
 ## Open locally
 
@@ -14,9 +15,16 @@ npm ci
 npm run lab
 ```
 
-Open [http://127.0.0.1:4173/](http://127.0.0.1:4173/). The server compiles the
-engine and serves the welcome page at the root. The former exercise URLs return
-404. For an exact-head hosted review, see [PR previews](docs/PR_PREVIEWS.md).
+Open the song overview, choose a section, and open the studio recording link
+to hear the passage. Its time link is an approximate listening cue. Compare the
+study examples, select a fret to hear its pitch, and try the playing or transfer
+prompt on guitar. Your section, reflection, and self-reported playing attempt
+are saved in this browser when local storage is available. [Open Guitar Explorer](http://127.0.0.1:4173/)
+
+The [Black Dog requirements and traceability](docs/BLACK_DOG_REQUIREMENTS.md)
+document includes the full-song coverage, evidence for each study, and a
+guitar-in-hand review route. See [PR previews](docs/PR_PREVIEWS.md) for hosted
+review.
 
 ## Music Engine
 
@@ -25,10 +33,9 @@ engine and serves the welcome page at the root. The former exercise URLs return
 - **Guitar** handles tuning, string and fret geometry, and pitch locations.
 - **Queries** expose validated, serializable facts through `musicQueries`.
 
-See the [public API](docs/API.md), [architecture](docs/ARCHITECTURE.md) and
-[Phrase Foundation contract](docs/PHRASE_FOUNDATION_V1.md). The source-provenance
-research in `src/research/` is covered by its own tests and is outside the browser
-build. [Research contract](docs/STYLE_RESEARCH_V0.md)
+The workbench uses the engine for the facts behind its examples. The independent
+source-provenance research in `src/research/` has its own tests and stays outside
+the browser build. [Public API](docs/API.md) · [Architecture](docs/ARCHITECTURE.md) · [Phrase Foundation](docs/PHRASE_FOUNDATION_V1.md)
 
 ## Verify and build
 
@@ -39,10 +46,8 @@ npm run verify
 npm run preview:build
 ```
 
-`npm run verify` runs the repository gate, including engine tests, HTTP smoke
-tests and the static packaging checks. The preview build is written to
-`.preview-dist/`. See [verification](docs/VERIFY.md) for focused commands and
-[test coverage](docs/TEST_MATRIX.md) for the checks they run.
+`npm run verify` covers the engine, Song Study, HTTP and static packaging. The
+preview build is written to `.preview-dist/`. [Verification](docs/VERIFY.md) · [Test coverage](docs/TEST_MATRIX.md)
 
 [Project state](PROJECT_STATE.md) records the current scope and review gate.
 The previous learner experiences are recoverable from Git history. The

@@ -5,7 +5,7 @@ import { join, relative, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
-const sourceRoot = resolve(projectRoot, "src", "engine");
+const sourceRoot = resolve(projectRoot, "src");
 const outputRoot = resolve(projectRoot, ".preview-dist");
 const indexPath = join(outputRoot, "index.html");
 
@@ -37,9 +37,13 @@ async function filesUnder(directory) {
 const expectedOutput = [
   ".nojekyll",
   "index.html",
+  "song-study.css",
+  "song-study.mjs",
+  "song-view.mjs",
+  "song-audio.mjs",
   ...(await filesUnder(sourceRoot))
-    .filter((file) => file.endsWith(".ts") && !file.endsWith(".d.ts"))
-    .map((file) => "engine/" + file.replace(/\.ts$/, ".js")),
+    .filter((file) => /^(engine|song-study)\//.test(file) && file.endsWith(".ts") && !file.endsWith(".d.ts"))
+    .map((file) => file.replace(/\.ts$/, ".js")),
 ].sort();
 
 for (const channel of ["stable", "experimental", "preview"]) {
@@ -53,14 +57,20 @@ for (const channel of ["stable", "experimental", "preview"]) {
 
   assert.deepEqual((await filesUnder(outputRoot)).sort(), expectedOutput);
   const html = await readFile(indexPath, "utf8");
-  assert.match(html, /<h1>Guitar Explorer<\/h1>/);
-  assert.match(html, /Song Study is being designed\./);
-  assert.doesNotMatch(html, /<(?:button|form|script)\b/i);
+  assert.match(html, /<h1>Black Dog<\/h1>/);
+  assert.ok(html.includes(`href="./song-study.css?ge-revision=${revision}"`));
+  assert.ok(html.includes(`src="./song-study.mjs?ge-revision=${revision}"`));
   assert.ok(html.includes(`name="guitar-explorer-deployment-channel" content="${channel}"`));
   assert.ok(html.includes(`name="guitar-explorer-deployment-label" content="${channel}-test"`));
   assert.ok(html.includes(`name="guitar-explorer-revision" content="${revision}"`));
   assert.ok(html.includes(`name="guitar-explorer-preview-pr" content="${pr}"`));
 
+  const app = await readFile(join(outputRoot, "song-study.mjs"), "utf8");
+  for (const modulePath of ["./song-study/arrangement.js", "./song-view.mjs", "./song-audio.mjs"]) {
+    assert.ok(app.includes(`${modulePath}?ge-revision=${revision}`), `${modulePath} carries the advertised revision`);
+  }
+  const model = await readFile(join(outputRoot, "song-study", "model.js"), "utf8");
+  assert.ok(model.includes(`"../engine/index.js?ge-revision=${revision}"`), "Song Study and the engine share a revision");
   const entry = await readFile(join(outputRoot, "engine", "index.js"), "utf8");
   const queries = await readFile(join(outputRoot, "engine", "query", "index.js"), "utf8");
   assert.ok(entry.includes(`"./query/index.js?ge-revision=${revision}"`), "entry imports carry the advertised revision");
@@ -72,6 +82,15 @@ const engine = await import(pathToFileURL(join(outputRoot, "engine", "index.js")
 const lowE = engine.musicQueries.getNoteAtFret({ position: { stringIndex: 0, fret: 0 } });
 assert.equal(lowE.ok, true);
 assert.equal(lowE.data.name, "E2");
+
+const { sections } = await import(pathToFileURL(join(outputRoot, "song-study", "arrangement.js")).href);
+assert.equal(sections.length, 11);
+assert.equal(sections[0].id, "SEC-01");
+assert.equal(sections.at(-1).id, "SEC-11");
+const { studies } = await import(pathToFileURL(join(outputRoot, "song-study", "studies.js")).href);
+const { prepareExample } = await import(pathToFileURL(join(outputRoot, "song-study", "model.js")).href);
+const example = prepareExample(studies["SEC-02"][0].examples[0]);
+assert.ok(example.events.some((event) => event.semitones.length > 0), "Published examples prepare audio pitches");
 
 assertBuildSucceeded(build([], {
   GE_REVISION: "env-revision",
@@ -91,4 +110,4 @@ const bad = build(["--channel", "production-ish"]);
 assert.notEqual(bad.status, 0);
 assert.match(bad.stderr + bad.stdout, /Unknown deployment channel/);
 
-console.log("deployment provenance, preview manifest and compiled engine checks passed");
+console.log("deployment provenance, preview manifest, compiled engine and arrangement checks passed");

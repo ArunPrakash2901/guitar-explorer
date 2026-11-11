@@ -13,14 +13,26 @@ try {
   assert.equal(home.status, 200);
   assert.match(home.headers.get("content-type"), /^text\/html\b/);
   const html = await home.text();
-  assert.match(html, /<h1>Guitar Explorer<\/h1>/);
-  assert.match(html, /<h2>Music Engine<\/h2>/);
-  assert.match(html, /Song Study is being designed\./);
-  assert.doesNotMatch(html, /<(?:button|form|script)\b/i);
+  assert.match(html, /<h1>Black Dog<\/h1>/);
+  assert.match(html, /href=["']\.\/song-study\.css["']/);
+  assert.match(html, /src=["']\.\/song-study\.mjs["']/);
 
   const index = await request("/index.html");
   assert.equal(index.status, 200);
   assert.equal(await index.text(), html);
+
+  for (const [path, contentType] of [
+    ["/song-study.css", /^text\/css\b/],
+    ["/song-study.mjs", /^text\/javascript\b/],
+    ["/song-view.mjs", /^text\/javascript\b/],
+    ["/song-audio.mjs", /^text\/javascript\b/],
+    ["/song-study/arrangement.js", /^text\/javascript\b/],
+  ]) {
+    const response = await request(path);
+    assert.equal(response.status, 200, path);
+    assert.match(response.headers.get("content-type"), contentType, path);
+    assert.ok((await response.text()).length > 0, path);
+  }
 
   const engine = await request("/engine/index.js");
   assert.equal(engine.status, 200);
@@ -42,6 +54,7 @@ try {
   for (const path of [
     "/engine/missing.js", "/engine/%2e%2e%2fpackage.json", "/src/engine/index.ts",
     "/lab/index.html", "/instrument-desk-app.js", "/session-evidence.mjs", "/samples/steel/LICENSE",
+    "/song-study/arrangement.ts", "/song-study/missing.js", "/research/types.js",
   ]) {
     const response = await request(path);
     assert.equal(response.status, 404, path);
@@ -52,4 +65,4 @@ try {
   await once(server, "close");
 }
 
-console.log("local entrypoint, engine module and retired route checks passed");
+console.log("local Song Study, engine module and retired route checks passed");

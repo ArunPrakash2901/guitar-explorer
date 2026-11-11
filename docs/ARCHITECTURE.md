@@ -5,23 +5,30 @@ This document defines the **durable product and software boundaries** for Guitar
 ## Current baseline
 
 Guitar Explorer connects musical understanding with playing a real guitar.
-The engine-first application consists of one static welcome page and compiled
-Music Engine modules. The page describes the engine and the direction toward
-song-led musical discovery. See [project state](../PROJECT_STATE.md) for scope
-and review gates.
+The Black Dog Song Study uses a recording-order song overview and section
+workbench. The browser loads the authored song model and asks the Music Engine
+for facts about its examples. [Project state](../PROJECT_STATE.md)
 
 | Area | Responsibility |
 | --- | --- |
 | `src/engine/core/` | Deterministic pitch, spelling, intervals, collections, chords, keys, harmony, exact musical time and Phrase operations. |
-| `src/engine/guitar/` | Tuning, string/fret geometry and pitch locations over Core. |
+| `src/engine/guitar/` | Tuning, string and fret geometry, and pitch locations over Core. |
 | `src/engine/query/` | Validated, serializable musical facts over Core and Guitar. |
-| `src/research/` | A tested source-provenance research contract consuming engine queries, outside the browser build. |
-| `lab/index.html` | Self-contained welcome page shared by local serving and static builds. |
+| `src/research/` | Tested source-provenance research contract consuming engine queries, outside the browser build. |
+| `src/song-study/arrangement.ts` | Provisional recording map, section relationships, individual occurrences and reference sources. |
+| `src/song-study/studies.ts` | Section questions, source observations, original examples and playing prompts. |
+| `src/song-study/model.ts` | Engine-backed preparation of pitches, timing, harmony and fretboard facts for the authored examples. |
+| `lab/index.html`, `lab/song-study.css` and `lab/song-view.mjs` | Static entrypoint and styling, overview and workbench rendering. |
+| `lab/song-study.mjs` | Section and occurrence navigation, workbench interactions, and browser-local resume and reflection. |
+| `lab/song-audio.mjs` | Web Audio scheduling for educational synthesis and note audition. |
 | `scripts/serve-lab.mjs` and `scripts/build-preview.mjs` | Local HTTP serving and static packaging with revision and channel provenance. |
 
-The entrypoint has no client runtime dependency. The local server and preview
-builder make the compiled public engine available under `engine/`. The preview packages the same welcome page. See [PR previews](PR_PREVIEWS.md) for the build and
-publication contract.
+The local server and preview builder expose compiled engine modules under
+`engine/` and compiled model modules under `song-study/`. The original
+recording and tutorial realizations are accessed through attributed links.
+Approximate recording positions are maintained separately from the exact
+musical time used in original examples. Technique cues stay with the study
+material. [PR previews](PR_PREVIEWS.md) · [Sources and traceability](BLACK_DOG_REQUIREMENTS.md)
 
 ## Dependency direction
 
