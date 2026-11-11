@@ -1,0 +1,139 @@
+import { describe, expect, it } from "vitest";
+import { formatNote, parseNote } from "../../src/engine/core/pitch.js";
+import { generateProgression } from "../../src/progression/generator.js";
+import type { GeneratedProgression, ProgressionRequest } from "../../src/progression/generator.js";
+
+const request = (overrides: Partial<ProgressionRequest> = {}): ProgressionRequest => ({
+  tonic: parseNote("C"),
+  mode: "major",
+  seed: 42,
+  ...overrides,
+});
+
+function generated(input: ProgressionRequest): GeneratedProgression {
+  const result = generateProgression(input);
+  if (!result.ok) throw new Error(result.error.message);
+  return result.data;
+}
+
+describe("bounded four-chord progression generation", () => {
+  it("reuses existing major harmony and returns Roman identities", () => {
+    const result = generated(request());
+    expect(result.slots).toHaveLength(4);
+    for (const slot of result.slots) {
+      expect(slot.degree).toBeGreaterThanOrEqual(1);
+      expect(slot.degree).toBeLessThanOrEqual(7);
+      expect(slot.chord.tones).toHaveLength(3);
+      expect(slot.chord.tones[0]!.note).toEqual(slot.chord.root);
+      expect(slot.romanNumeral).not.toBe("");
+      expect(slot.symbol.startsWith(formatNote(slot.chord.root))).toBe(true);
+    }
+  });
+
+  it("produces identical results for identical seed and request", () => {
+    const input = request({ seed: 123456789 });
+    expect(generated(input)).toEqual(generated(input));
+  });
+
+  it("offers different valid template sequences across seeds", () => {
+    const variants = new Set(Array.from({ length: 32 }, (_, seed) =>
+      generated(request({ seed })).slots.map((slot) => slot.symbol).join(" - ")));
+    expect(variants.size).toBeGreaterThan(1);
+  });
+
+  it("preserves natural minor rather than silently raising the leading tone", () => {
+    const result = generated(request({ tonic: parseNote("A"), mode: "naturalMinor" }));
+    const symbols = result.slots.map((slot) => slot.symbol);
+    expect(symbols[0]).toBe("Am");
+    expect(symbols).not.toContain("E7");
+    for (const slot of result.slots) {
+      if (slot.degree === 5) expect(slot.symbol).toBe("Em");
+    }
+  });
+
+  it("spells D-flat Mixolydian v as A-flat minor with C-flat", () => {
+    const result = generated(request({
+      tonic: parseNote("Db"),
+      mode: "mixolydian",
+      seed: 23,
+      lockedSlots: [
+        { slotIndex: 1, root: parseNote("Ab"), chordId: "minor" },
+        { slotIndex: 3, root: parseNote("Db"), chordId: "major" },
+      ],
+    }));
+    expect(result.selection).toBe("template");
+    expect(result.slots.map((slot) => slot.symbol)).toEqual(["Db", "Abm", "Gb", "Db"]);
+    expect(result.slots.map((slot) => slot.romanNumeral)).toEqual(["I", "v", "IV", "I"]);
+    expect(result.slots[1]!.chord.tones.map(({ note }) => formatNote(note)))
+      .toEqual(["Ab", "Cb", "Eb"]);
+    expect(result.slots.map((slot) => slot.isLocked)).toEqual([false, true, false, true]);
+  });
+
+  it("uses flat-seven C-flat, not B, as the modal subtonic root", () => {
+    const result = generated(request({
+      tonic: parseNote("Db"),
+      mode: "mixolydian",
+      lockedSlots: [{ slotIndex: 1, root: parseNote("Cb"), chordId: "major" }],
+    }));
+    expect(result.slots[1]!.symbol).toBe("Cb");
+    expect(result.slots[1]!.romanNumeral).toBe("♭VII");
+    expect(result.slots[1]!.chord.tones.map(({ note }) => formatNote(note)))
+      .toEqual(["Cb", "Eb", "Gb"]);
+  });
+
+  it("preserves an unusual diatonic locked chord through constrained fallback", () => {
+    const result = generated(request({
+      tonic: parseNote("Db"),
+      mode: "mixolydian",
+      lockedSlots: [{ slotIndex: 0, root: parseNote("F"), chordId: "diminished" }],
+    }));
+    expect(result.selection).toBe("constrained");
+    expect(result.slots[0]).toMatchObject({ symbol: "Fdim", isLocked: true, romanNumeral: "iii°" });
+  });
+
+  it("retains all four locked slots unchanged", () => {
+    const original = generated(request());
+    const locks = original.slots.map(({ slotIndex, chord }) => ({
+      slotIndex,
+      root: chord.root,
+      chordId: chord.chordId,
+    }));
+    const regenerated = generated(request({ seed: 2, lockedSlots: locks }));
+    expect(regenerated.slots.map(({ symbol }) => symbol))
+      .toEqual(original.slots.map(({ symbol }) => symbol));
+    expect(regenerated.slots.every(({ isLocked }) => isLocked)).toBe(true);
+  });
+
+  it("returns a conflict instead of silently changing an out-of-mode lock", () => {
+    const result = generateProgression(request({
+      lockedSlots: [{ slotIndex: 2, root: parseNote("Db"), chordId: "major" }],
+    }));
+    expect(result).toMatchObject({ ok: false, error: { code: "LOCK_OUT_OF_MODE" } });
+  });
+
+  it("rejects duplicate slots, invalid indices and invalid seeds", () => {
+    const chord = { root: parseNote("C"), chordId: "major" } as const;
+    const invalid = [
+      request({ lockedSlots: [{ slotIndex: 0, ...chord }, { slotIndex: 0, ...chord }] }),
+      request({ lockedSlots: [{ slotIndex: 4, ...chord }] }),
+      request({ seed: -1 }),
+      request({ seed: 2 ** 32 }),
+      request({ seed: 0.5 }),
+    ];
+    for (const input of invalid) {
+      expect(generateProgression(input)).toMatchObject({ ok: false, error: { code: "INVALID_INPUT" } });
+    }
+  });
+
+  it("rejects unsupported mode requests without expanding the core", () => {
+    const result = generateProgression(request({ mode: "dorian" as ProgressionRequest["mode"] }));
+    expect(result).toMatchObject({ ok: false, error: { code: "UNSUPPORTED_MODE" } });
+  });
+
+  it("returns immutable progression and chord values", () => {
+    const result = generated(request());
+    expect(Object.isFrozen(result)).toBe(true);
+    expect(Object.isFrozen(result.slots)).toBe(true);
+    expect(result.slots.every((slot) => Object.isFrozen(slot) && Object.isFrozen(slot.chord))).toBe(true);
+  });
+});
