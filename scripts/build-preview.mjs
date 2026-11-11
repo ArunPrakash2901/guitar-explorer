@@ -68,6 +68,7 @@ const requiredPaths = [
   "progression.css",
   "progression-workspace.mjs",
   "progression-diagram.mjs",
+  "progression-audio.mjs",
   "progression/generator.js",
   "progression/voicings.js",
   "progression/workspace.js",

@@ -22,7 +22,7 @@ try {
   assert.doesNotMatch(page, /session-evidence\.mjs/);
   await get("/progression.css", /^text\/css/);
   for (const asset of [
-    "/progression-workspace.mjs", "/progression-diagram.mjs",
+    "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs",
     "/progression/generator.js", "/progression/voicings.js", "/progression/workspace.js", "/engine/index.js",
   ]) {
     assert.ok((await get(asset, /^text\/javascript/)).trim().length, asset);
@@ -44,6 +44,7 @@ assert.ok(previewPage.includes('href="./progression.css?ge-revision=' + stamp + 
 assert.doesNotMatch(previewPage, /session-evidence\.mjs/);
 const previewEntry = await readFile(new URL("progression-workspace.mjs", outputRoot), "utf8");
 assert.match(previewEntry, /\.\/progression-diagram\.mjs\?ge-revision=/);
+assert.match(previewEntry, /\.\/progression-audio\.mjs\?ge-revision=/);
 const generatorFile = new URL("progression/generator.js", outputRoot);
 const voicingsFile = new URL("progression/voicings.js", outputRoot);
 const { parseNote, formatNote } = await import(new URL("engine/index.js", outputRoot));

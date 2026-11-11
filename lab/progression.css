@@ -381,3 +381,49 @@ button.primary:hover, .generation-actions button[type="submit"]:hover { opacity:
   .generation-actions { flex-basis: 100%; }
   .generation-actions button { flex: 1 1 auto; }
 }
+
+.transport {
+  margin-block: 1rem 1.4rem;
+  padding: 1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--panel);
+}
+
+.transport h2 {
+  font-size: 1.35rem;
+  margin-block-end: 0.65rem;
+}
+
+.transport-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: 0.65rem;
+}
+
+.transport-controls .field { flex: 0 1 7rem; }
+
+.loop-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-block-size: 44px;
+  padding-inline: 0.3rem;
+}
+
+#loop { min-block-size: 0; }
+
+#playback-status {
+  margin-block: 0.65rem 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.chord-card.is-playing {
+  border-color: var(--forest);
+  box-shadow: inset 0 0 0 2px var(--forest);
+  background: var(--olive);
+}
+
+.play-chord { inline-size: 100%; }
