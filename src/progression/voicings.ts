@@ -1,4 +1,4 @@
-import { formatNote, pitchClass } from "../engine/core/pitch.js";
+import { formatNote, parseNote, pitchClass } from "../engine/core/pitch.js";
 import { getNoteAt, STANDARD_FRETBOARD } from "../engine/guitar/fretboard.js";
 import type { Chord, PitchClass } from "../engine/core/types.js";
 
@@ -44,15 +44,20 @@ type ShapeDefinition = Readonly<{
   frets: readonly StringFret[];
 }>;
 
+function openShapeKey(rootClass: PitchClass, quality: "major" | "minor"): string {
+  return rootClass + ":" + quality;
+}
+
+// The physical grip depends on the sounding root. The chord retains its written spelling.
 const OPEN_SHAPES: Readonly<Record<string, readonly StringFret[]>> = Object.freeze({
-  "C:major": Object.freeze([null, 3, 2, 0, 1, 0]),
-  "A:major": Object.freeze([null, 0, 2, 2, 2, 0]),
-  "G:major": Object.freeze([3, 2, 0, 0, 0, 3]),
-  "E:major": Object.freeze([0, 2, 2, 1, 0, 0]),
-  "D:major": Object.freeze([null, null, 0, 2, 3, 2]),
-  "A:minor": Object.freeze([null, 0, 2, 2, 1, 0]),
-  "E:minor": Object.freeze([0, 2, 2, 0, 0, 0]),
-  "D:minor": Object.freeze([null, null, 0, 2, 3, 1]),
+  [openShapeKey(pitchClass(parseNote("C")), "major")]: Object.freeze([null, 3, 2, 0, 1, 0]),
+  [openShapeKey(pitchClass(parseNote("A")), "major")]: Object.freeze([null, 0, 2, 2, 2, 0]),
+  [openShapeKey(pitchClass(parseNote("G")), "major")]: Object.freeze([3, 2, 0, 0, 0, 3]),
+  [openShapeKey(pitchClass(parseNote("E")), "major")]: Object.freeze([0, 2, 2, 1, 0, 0]),
+  [openShapeKey(pitchClass(parseNote("D")), "major")]: Object.freeze([null, null, 0, 2, 3, 2]),
+  [openShapeKey(pitchClass(parseNote("A")), "minor")]: Object.freeze([null, 0, 2, 2, 1, 0]),
+  [openShapeKey(pitchClass(parseNote("E")), "minor")]: Object.freeze([0, 2, 2, 0, 0, 0]),
+  [openShapeKey(pitchClass(parseNote("D")), "minor")]: Object.freeze([null, null, 0, 2, 3, 1]),
 });
 
 function construct(chord: Chord, candidate: ShapeDefinition): GuitarVoicing | null {
@@ -102,10 +107,10 @@ function construct(chord: Chord, candidate: ShapeDefinition): GuitarVoicing | nu
 export function getPlayableVoicings(chord: Chord): readonly GuitarVoicing[] {
   if (chord.chordId !== "major" && chord.chordId !== "minor") return Object.freeze([]);
   const definitions: ShapeDefinition[] = [];
-  const open = OPEN_SHAPES[formatNote(chord.root) + ":" + chord.chordId];
+  const rootClass = pitchClass(chord.root);
+  const open = OPEN_SHAPES[openShapeKey(rootClass, chord.chordId)];
   if (open) definitions.push({ family: "open", frets: open });
 
-  const rootClass = pitchClass(chord.root);
   // Fret 1..12 gives each pitch class one E-shape and one A-shape root,
   // with all of their stopped notes inside the engine's 15-fret board.
   for (let fret = 1; fret <= 12; fret += 1) {

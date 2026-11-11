@@ -40,6 +40,15 @@ describe("engine-validated guitar chord grips", () => {
     expect(shape(root, quality, frets).shapeFamily).toBe("open");
   });
 
+  it("offers the open E grip for F-flat major while preserving the written chord identity", () => {
+    const frets = [0, 2, 2, 1, 0, 0];
+    const flat = shape("Fb", "major", frets);
+    const natural = shape("E", "major", frets);
+    expect(flat.shapeFamily).toBe("open");
+    expect(flat.id).toBe("Fb:major:open:0-2-2-1-0-0");
+    expect(flat.notes).toEqual(natural.notes);
+  });
+
   it("all emitted grips sound precisely the supplied Core chord pitch classes", () => {
     const roots = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
     for (const root of roots) {
