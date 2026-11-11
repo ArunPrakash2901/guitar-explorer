@@ -5,12 +5,8 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const labRoot = resolve(projectRoot, "lab");
-const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
-const port = Number.parseInt(process.env.PORT ?? "4173", 10);
-
-if (!Number.isInteger(port) || port < 1 || port > 65535) {
-  throw new Error("PORT must be an integer between 1 and 65535");
-}
+const buildRoot = resolve(projectRoot, ".lab-dist");
+const progressionPage = resolve(labRoot, "progression.html");
 
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -95,9 +91,15 @@ function resolveRequest(pathname) {
   if (["/phrase.css", "/phrase-app.js", "/phrase-material.mjs", "/melody-session.mjs", "/motif-session.mjs", "/scenario-catalogue.mjs", "/scenario-resolver.mjs", "/rule-contract.mjs", "/melody-generator.mjs", "/melody-experience.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
-  if (pathname.startsWith("/engine/")) {
-    const candidate = resolve(engineRoot, pathname.slice("/engine/".length));
-    return inside(engineRoot, candidate) ? candidate : null;
+  if (["/progression.html", "/progression"].includes(pathname)) return progressionPage;
+  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs"].includes(pathname)) {
+    return resolve(labRoot, pathname.slice(1));
+  }
+  for (const directory of ["engine", "progression"]) {
+    if (!pathname.startsWith("/" + directory + "/")) continue;
+    const base = resolve(buildRoot, directory);
+    const candidate = resolve(buildRoot, pathname.slice(1));
+    return inside(base, candidate) ? candidate : null;
   }
   return null;
 }
@@ -110,7 +112,7 @@ function injectEvidenceRecorder(html) {
   );
 }
 
-const server = createServer(async (request, response) => {
+async function serveRequest(request, response) {
   try {
     const url = new URL(request.url ?? "/", "http://127.0.0.1");
     if (url.pathname === "/favicon.ico") {
@@ -128,7 +130,7 @@ const server = createServer(async (request, response) => {
 
     const extension = extname(filename);
     let body = await readFile(filename);
-    if (extension === ".html" && !filename.endsWith("instrument-desk.html")) {
+    if (extension === ".html" && filename !== progressionPage && !filename.endsWith("instrument-desk.html")) {
       body = Buffer.from(injectEvidenceRecorder(body.toString("utf8")), "utf8");
     }
 
@@ -141,9 +143,19 @@ const server = createServer(async (request, response) => {
     response.writeHead(500, { "content-type": "text/plain; charset=utf-8" });
     response.end(error instanceof Error ? error.message : "Unexpected server error");
   }
-});
+}
 
-server.listen(port, "127.0.0.1", () => {
-  console.log(`Guitar Explorer Lab is running at http://127.0.0.1:${port}`);
-  console.log("Press Ctrl+C to stop.");
-});
+export function createLabServer() {
+  return createServer(serveRequest);
+}
+
+if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  const port = Number.parseInt(process.env.PORT ?? "4173", 10);
+  if (!Number.isInteger(port) || port < 1 || port > 65535) {
+    throw new Error("PORT must be an integer between 1 and 65535");
+  }
+  createLabServer().listen(port, "127.0.0.1", () => {
+    console.log(`Guitar Explorer Lab is running at http://127.0.0.1:${port}`);
+    console.log("Press Ctrl+C to stop.");
+  });
+}
