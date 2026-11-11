@@ -92,7 +92,7 @@ function resolveRequest(pathname) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (["/progression.html", "/progression"].includes(pathname)) return progressionPage;
-  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs"].includes(pathname)) {
+  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   for (const directory of ["engine", "progression"]) {

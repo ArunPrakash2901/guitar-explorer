@@ -381,3 +381,38 @@ button.primary:hover, .generation-actions button[type="submit"]:hover { opacity:
   .generation-actions { flex-basis: 100%; }
   .generation-actions button { flex: 1 1 auto; }
 }
+
+/* Progression transport stays independent from a future rhythm mixer. */
+.transport-panel {
+  display: grid;
+  gap: 0.6rem;
+  margin-block: 1rem 1.15rem;
+  padding: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 0.8rem;
+  background: var(--panel);
+}
+.transport-controls {
+  display: flex;
+  align-items: end;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+.transport-controls .tempo-field {
+  flex: 0 1 8rem;
+}
+#transport-message {
+  color: var(--forest);
+  font-size: 0.9rem;
+}
+.transport-disclaimer {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+.chord-card[data-playing="true"] {
+  border-color: var(--focus);
+  box-shadow: inset 0 0 0 2px var(--focus);
+}
+.audition-button {
+  inline-size: 100%;
+}

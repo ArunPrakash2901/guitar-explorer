@@ -2,6 +2,7 @@ import { formatNote, parseNote } from "./engine/index.js";
 import { chordDiagramModel } from "./progression/voicings.js";
 import { cycleChordVoicing, generateWorkspace, toggleChordLock } from "./progression/workspace.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
+import { ProgressionAudio } from "./progression-audio.mjs";
 
 const modes = { major: "major", naturalMinor: "natural minor", mixolydian: "Mixolydian" };
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre" };
@@ -16,6 +17,12 @@ const message = document.querySelector("#form-message");
 const contextHeading = document.querySelector("#context-heading");
 const scaleNotes = document.querySelector("#scale-notes");
 const cardsElement = document.querySelector("#progression-cards");
+const tempoInput = document.querySelector("#tempo");
+const playButton = document.querySelector("#play-progression");
+const stopButton = document.querySelector("#stop-progression");
+const transportMessage = document.querySelector("#transport-message");
+const audio = new ProgressionAudio();
+let animationFrame = null;
 let workspace;
 
 function setMessage(text, isError = false) {
@@ -48,6 +55,7 @@ function renderCard({ slot, voicings, voicingIndex }) {
         <p><strong>${families[voicing.shapeFamily]}</strong><span>${voicingIndex + 1} of ${voicings.length}</span></p>
         <button type="button" data-action="voicing" data-step="1" aria-label="Next voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>›</button>
       </div>
+      <button class="audition-button" type="button" data-action="audition" aria-label="Hear chord ${number}, ${spokenChord}">Hear chord</button>
     ` : `<p class="unsupported">No guitar grip is available for this chord. Its tones are shown above.</p>`}
   </li>`;
 }
@@ -59,6 +67,28 @@ function renderCards(restoreFocus) {
   }
 }
 
+function paintTransport() {
+  const active = audio.activeSlot();
+  cardsElement.querySelectorAll(".chord-card").forEach((card) => {
+    const selected = audio.isPlaying() && Number(card.dataset.slot) === active;
+    card.dataset.playing = String(selected);
+  });
+  stopButton.disabled = !audio.isPlaying();
+}
+
+function monitorTransport() {
+  paintTransport();
+  if (audio.isPlaying()) animationFrame = requestAnimationFrame(monitorTransport);
+  else animationFrame = null;
+}
+
+function stopPlayback() {
+  audio.stop();
+  if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+  animationFrame = null;
+  paintTransport();
+}
+
 function applyGeneration(seed) {
   const result = generateWorkspace({ tonic: parseNote(tonicInput.value), mode: modeInput.value, seed }, workspace);
   if (!result.ok) {
@@ -68,8 +98,13 @@ function applyGeneration(seed) {
     return;
   }
 
+  stopPlayback();
   const prior = workspace;
   workspace = result.data;
+  playButton.disabled = !workspace.cards.every((card) => card.voicings.length > 0);
+  transportMessage.textContent = playButton.disabled
+    ? "At least one chord has no supported guitar grip. Playback is unavailable for this progression."
+    : "Ready. Play the four-chord loop or use Hear chord on an individual card.";
   const { context, scale } = workspace;
   const name = noteText(formatNote(context.tonic)) + " " + modes[context.mode];
   const tones = scale.tones.map(({ note }) => noteText(formatNote(note)));
@@ -108,11 +143,40 @@ cardsElement.addEventListener("click", (event) => {
     const { slot } = workspace.cards[slotIndex];
     setMessage(`Chord ${slotIndex + 1} ${slot.isLocked ? "locked" : "unlocked"}.`);
   } else if (action === "voicing") {
+    stopPlayback();
     workspace = cycleChordVoicing(workspace, slotIndex, Number(step));
     renderCards(`[data-slot="${slotIndex}"] [data-action="voicing"][data-step="${step}"]`);
     const card = workspace.cards[slotIndex];
     setMessage(`Chord ${slotIndex + 1}, voicing ${card.voicingIndex + 1} of ${card.voicings.length}.`);
+  } else if (action === "audition") {
+    stopPlayback();
+    const card = workspace.cards[slotIndex];
+    audio.audition(card).then((played) => {
+      if (played) transportMessage.textContent = `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`;
+    }).catch((problem) => {
+      transportMessage.textContent = problem.message;
+    });
   }
 });
 
+playButton.addEventListener("click", async () => {
+  if (!workspace) return;
+  stopPlayback();
+  try {
+    const started = await audio.play(workspace.cards, tempoInput.valueAsNumber);
+    if (!started) return;
+    transportMessage.textContent = "Playing four-chord loop. Stop before editing the progression.";
+    monitorTransport();
+  } catch (problem) {
+    transportMessage.textContent = problem.message;
+    paintTransport();
+  }
+});
+
+stopButton.addEventListener("click", () => {
+  stopPlayback();
+  transportMessage.textContent = "Playback stopped.";
+});
+
+window.addEventListener("pagehide", () => stopPlayback());
 applyGeneration(seedInput.valueAsNumber);
