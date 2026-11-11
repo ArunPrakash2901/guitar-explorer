@@ -151,8 +151,8 @@ cardsElement.addEventListener("click", (event) => {
   } else if (action === "audition") {
     stopPlayback();
     const card = workspace.cards[slotIndex];
-    audio.audition(card).then(() => {
-      transportMessage.textContent = `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`;
+    audio.audition(card).then((played) => {
+      if (played) transportMessage.textContent = `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`;
     }).catch((problem) => {
       transportMessage.textContent = problem.message;
     });
@@ -161,6 +161,7 @@ cardsElement.addEventListener("click", (event) => {
 
 playButton.addEventListener("click", async () => {
   if (!workspace) return;
+  stopPlayback();
   try {
     const started = await audio.play(workspace.cards, tempoInput.valueAsNumber);
     if (!started) return;
