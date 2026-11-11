@@ -137,7 +137,7 @@ export function getPlayableVoicings(chord: Chord): readonly GuitarVoicing[] {
  * A browser renderer can use its rows to draw an accessible SVG diagram.
  */
 export function chordDiagramModel(voicing: GuitarVoicing): ChordDiagramModel {
-  const baseFret = voicing.lowestFret > 1 ? voicing.lowestFret : 1;
+  const baseFret = voicing.shapeFamily === "open" ? 1 : voicing.lowestFret > 1 ? voicing.lowestFret : 1;
   if (voicing.highestFret > baseFret + 3) throw new RangeError("A voicing exceeds the four-fret diagram window");
   const strings = voicing.frets.map((fret, stringIndex): DiagramString => Object.freeze({
     stringIndex,
