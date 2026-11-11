@@ -66,6 +66,18 @@
       <h2 id="context-heading"></h2>
       <p id="scale-notes"></p>
     </section>
+    <section class="transport-panel" aria-label="Guitar playback">
+      <div class="transport-controls">
+        <div class="field tempo-field">
+          <label for="tempo">Tempo (BPM)</label>
+          <input id="tempo" type="number" min="50" max="180" step="1" value="92">
+        </div>
+        <button id="play-progression" type="button" class="primary" disabled>Play progression</button>
+        <button id="stop-progression" type="button" disabled>Stop</button>
+      </div>
+      <p id="transport-message" role="status">Choose Generate, then play or audition a chord.</p>
+      <p class="transport-disclaimer">Audio v0 uses a simple synthesized guitar-like pluck, 4/4 and two downstrokes per bar. Studio-quality guitar sounds and drums come later.</p>
+    </section>
     <ol class="chord-grid" id="progression-cards" aria-label="Four-chord progression"></ol>
   </main>
 </body>
