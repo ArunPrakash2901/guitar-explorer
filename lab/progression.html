@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Progression Workbench · Guitar Explorer</title>
+  <link rel="stylesheet" href="./progression.css">
+  <script type="module" src="./progression-workspace.mjs"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell">
+      <a class="brand" href="./">Guitar Explorer</a>
+      <span class="header-detail">Standard tuning</span>
+    </div>
+  </header>
+  <main class="shell">
+    <section class="intro">
+      <h1>Progression Workbench</h1>
+      <p>Generate four chords, hold on to the ones you like, and find a grip for each one.</p>
+    </section>
+
+    <form id="generate-form" class="generation-panel" aria-label="Generate a chord progression">
+      <div class="field">
+        <label for="tonic">Tonic</label>
+        <select id="tonic">
+          <option value="C">C</option>
+          <option value="C#">C♯</option>
+          <option value="Db">D♭</option>
+          <option value="D">D</option>
+          <option value="Eb">E♭</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="F#">F♯</option>
+          <option value="Gb">G♭</option>
+          <option value="G">G</option>
+          <option value="Ab">A♭</option>
+          <option value="A">A</option>
+          <option value="Bb">B♭</option>
+          <option value="B">B</option>
+          <option value="Cb">C♭</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="mode">Mode</label>
+        <select id="mode">
+          <option value="major">Major</option>
+          <option value="naturalMinor">Natural minor</option>
+          <option value="mixolydian">Mixolydian</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="seed">Seed</label>
+        <input id="seed" type="number" min="0" max="4294967295" step="1" value="42" required>
+      </div>
+      <div class="generation-actions">
+        <button type="submit" class="primary">Generate</button>
+        <button type="button" id="regenerate">Next seed</button>
+      </div>
+    </form>
+    <p id="form-message" class="form-message" role="status"></p>
+    <noscript><p>Enable JavaScript to generate chords and view guitar voicings.</p></noscript>
+
+    <section class="context" aria-labelledby="context-heading" hidden>
+      <h2 id="context-heading"></h2>
+      <p id="scale-notes"></p>
+    </section>
+    <ol class="chord-grid" id="progression-cards" aria-label="Four-chord progression"></ol>
+  </main>
+</body>
+</html>
