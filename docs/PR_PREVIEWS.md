@@ -1,10 +1,10 @@
 # Pull-request previews
 
-The `preview` channel publishes the engine-first entrypoint and compiled engine
-on GitHub Pages. See [deployment channels](DEPLOYMENT_CHANNELS.md) for the
-stable and experimental build policies.
+The `preview` channel publishes the Song Study application and compiled
+Music Engine on GitHub Pages. See [deployment channels](DEPLOYMENT_CHANNELS.md)
+for the stable and experimental build policies.
 
-## Exact-head review
+## Review the PR revision
 
 For same-repository pull requests, `.github/workflows/pr-preview.yml` checks out
 the exact head SHA, installs dependencies, builds with `npm run preview:build`
@@ -13,21 +13,25 @@ comments the preview URL on the PR, checks that the live page contains the head
 revision and removes the preview after the PR closes.
 
 Open the URL from the PR and compare the `guitar-explorer-revision` meta tag in
-the page source with the PR head SHA. Check the welcome page at desktop and
-narrow widths. The page should identify the Music Engine and the upcoming Song
-Study direction. Old activity URLs should return 404.
+the page source with the PR head SHA. At desktop and narrow widths, open a
+section and a recording anchor. Try the comparison audio and fretboard,
+then return to the song overview and resume the section. Follow the
+guitar-in-hand review route for the passage and its transfer action.
+[Review on guitar](BLACK_DOG_REQUIREMENTS.md#review-on-guitar)
 
 If the workflow fails to start or Pages does not publish, record the hosted
-status separately. The static site can still be built locally from the same
-head. Exact-head preview publication remains a merge gate.
+status separately. Build and review the same revision locally while hosted
+publication is unavailable. Publication and owner approval remain part of
+the merge gate. [Autonomy contract](AUTONOMY_CONTRACT.md)
 
 ## Static build
 
 Run `npm run preview:build` from the repository root. The build writes the
-welcome page, compiled engine modules and `.nojekyll` to `.preview-dist/`. It
-injects revision, PR and channel metadata in the page. The output supports PR
-subpaths and excludes source maps, TypeScript source, exercise files, tests,
-documents and reference assets.
+HTML entrypoint, its stylesheet and browser modules, compiled Song Study and
+engine modules, and `.nojekyll` to `.preview-dist/`. It injects revision,
+PR and channel metadata and stamps local asset URLs. The output supports PR
+subpaths and excludes source maps, TypeScript source, retired exercise files,
+research code, tests, documentation and media files.
 
 For local browser review, run `npm run lab` and open
 [http://127.0.0.1:4173/](http://127.0.0.1:4173/).

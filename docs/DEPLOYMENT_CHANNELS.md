@@ -26,7 +26,7 @@ metadata fields in the HTML:
 `npm run test:deployments` verifies channel metadata and the static output.
 See [PR previews](PR_PREVIEWS.md) for the published review path.
 
-The preview build contains the entrypoint and compiled engine. Keep private
+The preview build contains the entrypoint, browser assets, and compiled Song Study and engine modules. Keep private
 records and any historical learner evidence local unless explicitly authorized
 for sharing. The former evidence recorder and timeline tooling are archived in
 Git history.

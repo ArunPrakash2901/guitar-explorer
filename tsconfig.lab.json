@@ -1,12 +1,12 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": ".lab-dist/engine",
-    "rootDir": "src/engine",
+    "outDir": ".lab-dist",
+    "rootDir": "src",
     "noEmit": false,
     "declaration": false,
     "sourceMap": true,
     "types": []
   },
-  "include": ["src/engine/**/*.ts"]
+  "include": ["src/engine/**/*.ts", "src/song-study/**/*.ts"]
 }

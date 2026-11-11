@@ -4,19 +4,23 @@ import { extname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const projectRoot = fileURLToPath(new URL("..", import.meta.url));
-const indexPath = resolve(projectRoot, "lab", "index.html");
-const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
+const labRoot = resolve(projectRoot, "lab");
+const buildRoot = resolve(projectRoot, ".lab-dist");
+const browserAssets = new Set(["index.html", "song-study.css", "song-study.mjs", "song-view.mjs", "song-audio.mjs"]);
 
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
+  [".css", "text/css; charset=utf-8"],
   [".js", "text/javascript; charset=utf-8"],
+  [".mjs", "text/javascript; charset=utf-8"],
   [".map", "application/json; charset=utf-8"],
 ]);
 
 function resolveRequest(pathname) {
-  if (pathname === "/" || pathname === "/index.html") return indexPath;
-  if (/^\/engine\/(?:[\w-]+\/)*[\w-]+\.js(?:\.map)?$/.test(pathname)) {
-    return resolve(engineRoot, pathname.slice("/engine/".length));
+  const relativePath = pathname === "/" ? "index.html" : pathname.slice(1);
+  if (browserAssets.has(relativePath)) return resolve(labRoot, relativePath);
+  if (/^\/(?:engine|song-study)\/(?:[\w-]+\/)*[\w-]+\.js(?:\.map)?$/.test(pathname)) {
+    return resolve(buildRoot, relativePath);
   }
   return null;
 }

@@ -4,30 +4,25 @@ Updated 11 November 2026 (Australia/Sydney).
 
 ## Current work
 
-Issue #82 resets Guitar Explorer to the deterministic Music Engine and a minimal
-browser entrypoint. It retires the exercise catalogue, session runtime, activity
-routes and practice-specific tooling from the active project. The starting
-`master` revision is `a1a76f4a2daadf0df80c47231877ef414c60d22d`.
-[Product reset](https://github.com/ArunPrakash2901/guitar-explorer/issues/82)
+The owner authorized the full Black Dog Song Study under Issue #83, superseding
+the proposed one-fragment build. The branch provides the song overview and
+workbench for all eleven sections. The provisional recording anchors, source
+claims, and guitar-in-hand review requirements are documented with the original
+FRD and the owner’s amendment. [Issue #83](https://github.com/ArunPrakash2901/guitar-explorer/issues/83) · [Black Dog requirements](docs/BLACK_DOG_REQUIREMENTS.md)
 
-The proposed baseline retains the public query contracts, Core and Guitar
-geometry, Phrase Foundation, engine correctness tests and independent
-source-provenance research. Prior experiments and approval records remain in
-Git history and the [historical references](docs/history/README.md).
+This work is stacked on cleanup PR #84 at `8a779419808fb94317ca83ad454fd548887094d8`.
+The cleanup branch retires the former exercise product and preserves the
+Music Engine and its tests. Its base on `master` is
+`a1a76f4a2daadf0df80c47231877ef414c60d22d`. [Issue #82](https://github.com/ArunPrakash2901/guitar-explorer/issues/82) · [Cleanup PR](https://github.com/ArunPrakash2901/guitar-explorer/pull/84)
 
 ## Review gate
 
-Run `npm run verify`, then review the welcome page and verify the exact-head
-[PR preview](docs/PR_PREVIEWS.md) once GitHub publishes it. Local verification,
-hosted CI execution and live preview publication are distinct results. Arun's
-explicit approval of the exact reviewed head is required before merge.
-
-## Next separately scoped work
-
-Issue #83 is the requirements and source audit for Song Study Pilot 001, a
-whole-song study of Led Zeppelin's *Black Dog*. Its requirements must be reviewed
-after this reset and before Song Study implementation begins.
-[Song Study requirements](https://github.com/ArunPrakash2901/guitar-explorer/issues/83)
+Run `npm run verify`, review the proposed revision in the browser and follow the
+full-song physical-guitar review. Record hosted Actions and Pages results
+separately from the local checks. Approximate recording alignment, disputed
+source interpretations, and playing comfort require listening or physical
+review. Arun's explicit approval of the reviewed revision is required before
+merge. [PR previews](docs/PR_PREVIEWS.md) · [Review on guitar](docs/BLACK_DOG_REQUIREMENTS.md#review-on-guitar)
 
 ## Operational references
 
