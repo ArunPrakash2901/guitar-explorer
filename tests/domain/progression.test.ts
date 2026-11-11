@@ -89,6 +89,17 @@ describe("bounded four-chord progression generation", () => {
     }));
     expect(result.selection).toBe("constrained");
     expect(result.slots[0]).toMatchObject({ symbol: "Fdim", isLocked: true, romanNumeral: "iii°" });
+    expect(result.slots.slice(1).every(({ chord }) => chord.chordId !== "diminished")).toBe(true);
+  });
+
+  it("uses seeded ties between connected major/minor paths after an unusual lock", () => {
+    const lockedSlots = [{ slotIndex: 0, root: parseNote("D"), chordId: "minor" }] as const;
+    const variants = new Set(Array.from({ length: 32 }, (_, seed) => {
+      const result = generated(request({ seed, lockedSlots }));
+      expect(result.selection).toBe("constrained");
+      return result.slots.map(({ symbol }) => symbol).join(" ");
+    }));
+    expect(variants).toEqual(new Set(["Dm F Am C", "Dm Am F C"]));
   });
 
   it("retains all four locked slots unchanged", () => {
@@ -108,7 +119,36 @@ describe("bounded four-chord progression generation", () => {
     const result = generateProgression(request({
       lockedSlots: [{ slotIndex: 2, root: parseNote("Db"), chordId: "major" }],
     }));
-    expect(result).toMatchObject({ ok: false, error: { code: "LOCK_OUT_OF_MODE" } });
+    expect(result).toMatchObject({
+      ok: false,
+      error: { code: "LOCK_OUT_OF_MODE", message: expect.stringContaining("Chord 3") },
+    });
+    expect(Object.isFrozen(result)).toBe(true);
+    if (!result.ok) expect(Object.isFrozen(result.error)).toBe(true);
+  });
+
+  it("distinguishes malformed lock input from a well-formed unsupported chord", () => {
+    const malformed = [
+      { slotIndex: 0, root: { letter: "H", accidental: 0 }, chordId: "major" },
+      { slotIndex: 0, root: { letter: "A", accidental: 0.5 }, chordId: "major" },
+      { slotIndex: 0, root: parseNote("C"), chordId: "made-up" },
+    ];
+    for (const lock of malformed) {
+      const lockedSlots = [lock] as ProgressionRequest["lockedSlots"];
+      expect(generateProgression(request({ lockedSlots: lockedSlots! })))
+        .toMatchObject({ ok: false, error: { code: "INVALID_INPUT" } });
+    }
+    expect(generateProgression(request({
+      lockedSlots: [{ slotIndex: 0, root: parseNote("C"), chordId: "sus4" }],
+    }))).toMatchObject({ ok: false, error: { code: "LOCK_OUT_OF_MODE" } });
+  });
+
+  it("rejects oversized lock arrays and unformattable theoretical keys", () => {
+    expect(generateProgression(request({
+      lockedSlots: Array.from({ length: 5 }, (_, slotIndex) => ({ slotIndex, root: parseNote("C"), chordId: "major" })),
+    }))).toMatchObject({ ok: false, error: { code: "INVALID_INPUT", message: expect.stringContaining("at most four") } });
+    expect(generateProgression(request({ tonic: { letter: "C", accidental: 4097 }, mode: "mixolydian" })))
+      .toMatchObject({ ok: false, error: { code: "INVALID_INPUT" } });
   });
 
   it("rejects duplicate slots, invalid indices and invalid seeds", () => {
@@ -131,8 +171,11 @@ describe("bounded four-chord progression generation", () => {
   });
 
   it("returns immutable progression and chord values", () => {
-    const result = generated(request());
+    const tonic = { ...parseNote("C"), metadata: { source: "caller" } };
+    const result = generated(request({ tonic }));
     expect(Object.isFrozen(result)).toBe(true);
+    expect(Object.isFrozen(result.tonic)).toBe(true);
+    expect(result.tonic).toEqual(parseNote("C"));
     expect(Object.isFrozen(result.slots)).toBe(true);
     expect(result.slots.every((slot) => Object.isFrozen(slot) && Object.isFrozen(slot.chord))).toBe(true);
   });

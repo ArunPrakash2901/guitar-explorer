@@ -1,7 +1,7 @@
-import { buildChord, buildScale } from "../engine/core/collections.js";
+import { buildChord, buildScale, CHORD_FORMULAS } from "../engine/core/collections.js";
 import { MusicError } from "../engine/core/errors.js";
 import { buildDiatonicHarmony } from "../engine/core/harmony.js";
-import { formatNote } from "../engine/core/pitch.js";
+import { formatNote, validateNote } from "../engine/core/pitch.js";
 import type { Chord, ChordId, NoteName } from "../engine/core/types.js";
 
 /**
@@ -81,7 +81,7 @@ function sameNote(left: NoteName, right: NoteName): boolean {
 }
 
 function error(code: "INVALID_INPUT" | "UNSUPPORTED_MODE" | "LOCK_OUT_OF_MODE", message: string): ProgressionResult {
-  return { ok: false, error: { code, message } };
+  return Object.freeze({ ok: false, error: Object.freeze({ code, message }) });
 }
 
 function chordSymbol(chord: Chord): string {
@@ -135,35 +135,58 @@ function matchesLocks(path: readonly number[], locks: ReadonlyMap<number, number
   return [...locks].every(([slot, degree]) => path[slot] === degree);
 }
 
-/** A small fallback for unusual user locks, not a general harmonic-function engine. */
-function constrainedPaths(locks: ReadonlyMap<number, number>): readonly (readonly number[])[] {
-  const ranked: { path: readonly number[]; score: number }[] = [];
-  for (let a = 0; a < 7; a += 1) {
-    for (let b = 0; b < 7; b += 1) {
-      for (let c = 0; c < 7; c += 1) {
-        for (let d = 0; d < 7; d += 1) {
+function constrainedPaths(
+  locks: ReadonlyMap<number, number>,
+  degrees: readonly DegreeChord[],
+  templates: readonly (readonly number[])[],
+): readonly (readonly number[])[] {
+  // Retain common tones and prefer transitions already used in this mode's templates.
+  // This scores chord relationships without making claims about actual guitar voices.
+  const transitions = degrees.map(({ chord }, from) => degrees.map(({ chord: next }, to) => {
+    if (from === to) return -2;
+    const commonTones = chord.tones.filter((tone) =>
+      next.tones.some((other) => other.pitchClass === tone.pitchClass)).length;
+    const inTemplate = templates.some((path) => path.some((degree, i) => degree === from && path[i + 1] === to));
+    return commonTones + Number(inTemplate);
+  }));
+
+  const options = Array.from({ length: 4 }, (_, slot) => {
+    const locked = locks.get(slot);
+    return locked === undefined ? degrees.map((_, degree) => degree) : [locked];
+  });
+  const best: number[][] = [];
+  let fewestAlteredTriads = Infinity;
+  let bestScore = -Infinity;
+  for (const a of options[0]!) {
+    for (const b of options[1]!) {
+      for (const c of options[2]!) {
+        for (const d of options[3]!) {
           const path = [a, b, c, d];
-          if (!matchesLocks(path, locks)) continue;
-          const distinct = new Set(path).size;
-          let score = (a === 0 ? 4 : 0) + (d === 0 ? 2 : 0) + distinct;
-          if (distinct === 1) score -= 6;
-          if (a === b) score -= 2;
-          if (b === c) score -= 2;
-          if (c === d) score -= 2;
-          // Degree 7 diminished in major, degree 2 diminished in natural
-          // minor and degree 3 diminished in Mixolydian remain legitimate:
-          // no universal ban is imposed on them here.
-          ranked.push({ path, score });
+          const alteredTriads = path.filter((degree) => {
+            const { chordId } = degrees[degree]!.chord;
+            return chordId === "diminished" || chordId === "augmented";
+          }).length;
+          // A locked diminished or augmented chord counts equally in every candidate.
+          // Prefer fewer such chords in the unlocked slots before comparing transitions.
+          if (alteredTriads > fewestAlteredTriads) continue;
+          const score = (a === 0 ? 4 : 0) + (d === 0 ? 2 : 0) + new Set(path).size
+            + transitions[a]![b]! + transitions[b]![c]! + transitions[c]![d]!;
+          if (alteredTriads < fewestAlteredTriads || score > bestScore) {
+            fewestAlteredTriads = alteredTriads;
+            bestScore = score;
+            best.length = 0;
+          }
+          if (score === bestScore) best.push(path);
         }
       }
     }
   }
-  ranked.sort((left, right) => right.score - left.score);
-  return ranked.slice(0, 24).map(({ path }) => path);
+  // The search is bounded by 7^4, with every best-scoring tie eligible for seeded selection.
+  return best;
 }
 
 export function generateProgression(request: ProgressionRequest): ProgressionResult {
-  if (!request || typeof request !== "object") {
+  if (!request || typeof request !== "object" || Array.isArray(request)) {
     return error("INVALID_INPUT", "A progression request is required");
   }
   if (request.mode !== "major" && request.mode !== "naturalMinor" && request.mode !== "mixolydian") {
@@ -176,51 +199,63 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
     return error("INVALID_INPUT", "lockedSlots must be an array");
   }
   const locks = request.lockedSlots ?? [];
-  let degrees: readonly DegreeChord[];
+  if (locks.length > 4) return error("INVALID_INPUT", "A four-chord progression accepts at most four locks");
+
   try {
-    degrees = harmony(request.tonic, request.mode);
+    const seen = new Set<number>();
+    for (const lock of locks) {
+      if (!lock || typeof lock !== "object" || Array.isArray(lock) ||
+          !Number.isInteger(lock.slotIndex) || lock.slotIndex < 0 || lock.slotIndex > 3 || seen.has(lock.slotIndex)) {
+        return error("INVALID_INPUT", "Locked chord slots must be unique, valid indices from 0 to 3");
+      }
+      if (typeof lock.chordId !== "string" || !Object.hasOwn(CHORD_FORMULAS, lock.chordId)) {
+        return error("INVALID_INPUT", `Chord ${lock.slotIndex + 1} has an invalid locked chord quality`);
+      }
+      validateNote(lock.root);
+      seen.add(lock.slotIndex);
+    }
+
+    const degrees = harmony(request.tonic, request.mode);
+    const symbols = degrees.map(({ chord }) => chordSymbol(chord));
+    const lockedDegrees = new Map<number, number>();
+    for (const lock of locks) {
+      const index = degrees.findIndex(({ chord }) => chord.chordId === lock.chordId && sameNote(chord.root, lock.root));
+      if (index < 0) {
+        return error("LOCK_OUT_OF_MODE", `Chord ${lock.slotIndex + 1} is locked and outside the selected key and mode`);
+      }
+      lockedDegrees.set(lock.slotIndex, index);
+    }
+
+    const modeTemplates = TEMPLATES[request.mode];
+    const templates = modeTemplates.filter((path) => matchesLocks(path, lockedDegrees));
+    const choices = templates.length ? templates : constrainedPaths(lockedDegrees, degrees, modeTemplates);
+    const random = mulberry32(request.seed);
+    const path = choices[Math.floor(random() * choices.length)]!;
+    const slots = Object.freeze(path.map((degree, slotIndex): ProgressionSlot => {
+      const chosen = degrees[degree]!;
+      return Object.freeze({
+        slotIndex,
+        degree: degree + 1,
+        chord: chosen.chord,
+        symbol: symbols[degree]!,
+        romanNumeral: chosen.romanNumeral,
+        isLocked: lockedDegrees.has(slotIndex),
+      });
+    }));
+
+    const { letter, accidental } = request.tonic;
+    return Object.freeze({
+      ok: true,
+      data: Object.freeze({
+        tonic: Object.freeze({ letter, accidental }),
+        mode: request.mode,
+        seed: request.seed,
+        selection: templates.length ? "template" : "constrained",
+        slots,
+      }),
+    });
   } catch (caught) {
     if (caught instanceof MusicError) return error("INVALID_INPUT", caught.message);
     throw caught;
   }
-
-  const lockedDegrees = new Map<number, number>();
-  for (const lock of locks) {
-    if (!lock || !Number.isInteger(lock.slotIndex) || lock.slotIndex < 0 || lock.slotIndex > 3 ||
-        lockedDegrees.has(lock.slotIndex) || !lock.root || typeof lock.chordId !== "string") {
-      return error("INVALID_INPUT", "Locked chord slots must be unique, valid indices from 0 to 3");
-    }
-    const index = degrees.findIndex(({ chord }) => chord.chordId === lock.chordId && sameNote(chord.root, lock.root));
-    if (index < 0) {
-      return error("LOCK_OUT_OF_MODE", "A locked chord is not a diatonic triad in the selected context");
-    }
-    lockedDegrees.set(lock.slotIndex, index);
-  }
-
-  const templates = TEMPLATES[request.mode].filter((path) => matchesLocks(path, lockedDegrees));
-  const choices = templates.length ? templates : constrainedPaths(lockedDegrees);
-  const random = mulberry32(request.seed);
-  const path = choices[Math.floor(random() * choices.length)]!;
-  const slots = Object.freeze(path.map((degree, slotIndex): ProgressionSlot => {
-    const chosen = degrees[degree]!;
-    return Object.freeze({
-      slotIndex,
-      degree: degree + 1,
-      chord: chosen.chord,
-      symbol: chordSymbol(chosen.chord),
-      romanNumeral: chosen.romanNumeral,
-      isLocked: lockedDegrees.has(slotIndex),
-    });
-  }));
-
-  return Object.freeze({
-    ok: true,
-    data: Object.freeze({
-      tonic: Object.freeze({ ...request.tonic }),
-      mode: request.mode,
-      seed: request.seed,
-      selection: templates.length ? "template" : "constrained",
-      slots,
-    }),
-  });
 }

@@ -14,7 +14,11 @@ permissions:
 
 jobs:
   preview:
-    if: github.event.pull_request.head.repo.full_name == github.repository
+    # Progression drafts use local review until the owner starts preview validation.
+    if: >-
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      (github.event.action == 'closed' || !github.event.pull_request.draft ||
+      (!startsWith(github.head_ref, 'feat/progression-') && !startsWith(github.head_ref, 'codex/progression-')))
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
