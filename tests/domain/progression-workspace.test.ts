@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { formatNote, parseNote } from "../../src/engine/core/pitch.js";
-import { cycleChordVoicing, generateWorkspace, toggleChordLock } from "../../src/progression/workspace.js";
+import { cycleChordVoicing, generateWorkspace, replaceWorkspaceChord, toggleChordLock } from "../../src/progression/workspace.js";
+import { listProgressionChoices } from "../../src/progression/generator.js";
 import type { ProgressionWorkspace } from "../../src/progression/workspace.js";
 
 const cMajor = { tonic: parseNote("C"), mode: "major", seed: 42 } as const;
@@ -59,5 +60,51 @@ describe("progression workbench state", () => {
     const next = requireWorkspace(generateWorkspace({ ...cMajor, seed: 0 }, locked));
     expect(next.cards).toEqual(locked.cards);
     expect(next.context.seed).toBe(0);
+  });
+
+  it("offers seven correctly spelled chords from the current engine context", () => {
+    const major = listProgressionChoices(parseNote("C"), "major");
+    expect(major).toHaveLength(7);
+    expect(major.map(({ romanNumeral }) => romanNumeral)).toEqual(["I", "ii", "iii", "IV", "V", "vi", "vii°"]);
+    expect(major.map(({ symbol }) => symbol)).toEqual(["C", "Dm", "Em", "F", "G", "Am", "Bdim"]);
+    const mode = listProgressionChoices(parseNote("Db"), "mixolydian");
+    expect(mode[4]).toMatchObject({ symbol: "Abm", romanNumeral: "v" });
+    expect(mode[6]).toMatchObject({ symbol: "Cb", romanNumeral: "♭VII" });
+    expect(Object.isFrozen(mode)).toBe(true);
+  });
+
+  it("replaces one chord, locks it and preserves it through regeneration", () => {
+    const initial = requireWorkspace(generateWorkspace({
+      tonic: parseNote("Db"), mode: "mixolydian", seed: 23,
+    }));
+    const updated = replaceWorkspaceChord(initial, 1, 7);
+    expect(updated.cards[1]!.slot).toMatchObject({
+      slotIndex: 1, degree: 7, symbol: "Cb", romanNumeral: "♭VII", isLocked: true,
+    });
+    expect(updated.cards[1]!.slot.chord.tones.map(({ note }) => formatNote(note))).toEqual(["Cb", "Eb", "Gb"]);
+    expect(updated.cards[0]).toBe(initial.cards[0]);
+    expect(updated.cards[2]).toBe(initial.cards[2]);
+    expect(initial.cards[1]!.slot.symbol).toBe("Abm");
+    const regenerated = requireWorkspace(generateWorkspace({
+      tonic: parseNote("Db"), mode: "mixolydian", seed: 50,
+    }, updated));
+    expect(regenerated.cards[1]!.slot).toEqual(updated.cards[1]!.slot);
+  });
+
+  it("reports unsupported voicings explicitly for a selected diminished chord", () => {
+    const initial = requireWorkspace(generateWorkspace(cMajor));
+    const edited = replaceWorkspaceChord(initial, 2, 7);
+    expect(edited.cards[2]!.slot).toMatchObject({ symbol: "Bdim", isLocked: true });
+    expect(edited.cards[2]!.voicings).toEqual([]);
+  });
+
+  it("rejects out-of-range chord replacements without changing the progression", () => {
+    const initial = requireWorkspace(generateWorkspace(cMajor));
+    const original = structuredClone(initial);
+    expect(() => replaceWorkspaceChord(initial, -1, 2)).toThrow(RangeError);
+    expect(() => replaceWorkspaceChord(initial, 4, 2)).toThrow(RangeError);
+    expect(() => replaceWorkspaceChord(initial, 0, 0)).toThrow(RangeError);
+    expect(() => replaceWorkspaceChord(initial, 0, 8)).toThrow(RangeError);
+    expect(initial).toEqual(original);
   });
 });
