@@ -154,21 +154,23 @@ export class ProgressionAudio {
 
   async loadRecording(sample, directory) {
     if (this.buffers.has(sample.file)) return;
-    if (!this.loading.has(sample.file)) {
-      const task = (async () => {
+    let task = this.loading.get(sample.file);
+    if (!task) {
+      const context = this.context;
+      task = (async () => {
         const response = await this.fetchAsset(new URL("./samples/" + directory + "/" + sample.file, import.meta.url));
         if (!response.ok) throw new Error("Recording unavailable: " + sample.file);
         const bytes = await response.arrayBuffer();
         if (bytes.byteLength !== sample.bytes) {
           throw new Error("Recording did not match the CC0 sample manifest");
         }
-        const buffer = await this.context.decodeAudioData(bytes);
-        this.buffers.set(sample.file, buffer);
+        const buffer = await context.decodeAudioData(bytes);
+        if (context === this.context) this.buffers.set(sample.file, buffer);
       })();
       this.loading.set(sample.file, task);
     }
-    try { await this.loading.get(sample.file); }
-    finally { this.loading.delete(sample.file); }
+    try { await task; }
+    finally { if (this.loading.get(sample.file) === task) this.loading.delete(sample.file); }
   }
 
   async preload(strokes, drumHits = []) {

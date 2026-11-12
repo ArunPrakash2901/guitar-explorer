@@ -370,6 +370,10 @@ patternInput.addEventListener("change", () => {
 });
 grooveInput.addEventListener("change", () => rhythmChanged("Drum groove updated."));
 
+form.addEventListener("change", (event) => {
+  if (event.target.closest("#chords-settings") && message.classList.contains("is-error")) setMessage("");
+});
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   try { applyGeneration(); } catch (problem) { setMessage(problem.message, true); }
@@ -476,6 +480,7 @@ cardsElement.addEventListener("click", (event) => {
     cycleAvailableVoicing(slotIndex, Number(step));
     renderCards(`[data-slot="${slotIndex}"] [data-action="voicing"][data-step="${step}"]`);
     const card = visibleCard(workspace.cards[slotIndex]);
+    transportMessage.textContent = "Voicing updated. Ready to play.";
     setMessage(`Chord ${slotIndex + 1}, voicing ${card.voicingIndex + 1} of ${card.voicings.length}.`);
   } else if (action === "audition") {
     const card = visibleCard(workspace.cards[slotIndex]);

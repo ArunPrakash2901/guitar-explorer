@@ -78,12 +78,17 @@ assert.deepEqual(resolveGenerateChoice({
 
 
 const { parseNote, musicQueries } = await import(new URL("engine/index.js", outputRoot));
+const { generateWorkspace } = await import(new URL("progression/workspace.js", outputRoot));
 for (const context of listGenerateChoices({ keyChoice: "all", modeChoice: "auto", randomUint32: () => 0 })) {
   if (context.mode === "major" || context.mode === "naturalMinor") {
     assert.ok(musicQueries.getKeySignature({
       tonic: parseNote(context.tonic), mode: context.mode === "major" ? "major" : "minor",
     }).ok, "automatic choice must have a supported spelling");
   }
+  const result = generateWorkspace({ ...context, tonic: parseNote(context.tonic), shapeFilter: "all" });
+  assert.ok(result.ok, context.tonic + " " + context.mode);
+  assert.equal(result.data.cards.length, 4);
+  assert.ok(result.data.cards.every(({ voicings }) => voicings.length > 0));
 }
 
 const options44 = patternsForMeter("4/4");
