@@ -58,6 +58,8 @@ const zoomDialog = document.querySelector("#chord-zoom");
 const zoomTitle = document.querySelector("#chord-zoom-title");
 const zoomDiagram = document.querySelector("#chord-zoom-diagram");
 const zoomCount = document.querySelector("#chord-zoom-count");
+const zoomAudition = document.querySelector("#chord-zoom-audition");
+const zoomStatus = document.querySelector("#chord-zoom-status");
 const scalePlayMode = document.querySelector("#scale-play-mode");
 const scalePlayButton = document.querySelector("#play-scale");
 const scaleStopButton = document.querySelector("#stop-scale");
@@ -79,6 +81,9 @@ let boardPosition = "full";
 let zoomCardIndex = 0;
 let keyPreviewDegree = 1;
 let dragFromIndex = null;
+let dropTarget = null;
+let touchDrag = null;
+let dragFrame = null;
 let audioStatusTicket = 0;
 let audioPending = false;
 let loopRequested = false;
@@ -291,7 +296,7 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
   const diagram = voicing ? renderChordDiagram(chordDiagramModel(voicing), spokenChord, {
     chord, voicing, labels: diagramLabels.value, highlight: diagramHighlight.value,
   }) : "";
-  return `<li class="chord-card" draggable="true" data-slot="${slotIndex}" data-chord="${title}">
+  return `<li class="chord-card" data-slot="${slotIndex}" data-chord="${title}">
     <div class="card-heading">
       <div class="card-identity">
         <p class="card-roman">${romanNumeral}</p>
@@ -320,9 +325,9 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
     ` : `<p class="unsupported">No guitar grip is available for this chord. Its tones are shown above.</p>`}
     <div class="card-tools" aria-label="Reorder and enlarge chord ${number}">
       <button type="button" data-action="zoom" aria-label="Enlarge chord ${number} diagram">⛶ Expand</button>
-      <button type="button" data-action="move" data-step="-1" aria-label="Move chord ${number} left" ${slotIndex === 0 ? "disabled" : ""}>←</button>
-      <button type="button" data-action="move" data-step="1" aria-label="Move chord ${number} right" ${slotIndex === workspace.cards.length - 1 ? "disabled" : ""}>→</button>
-      <span class="drag-hint" aria-hidden="true">⋮⋮</span>
+      <button type="button" data-action="move" data-step="-1" aria-label="Move chord ${number} earlier" ${slotIndex === 0 ? "disabled" : ""}>←</button>
+      <button type="button" data-action="move" data-step="1" aria-label="Move chord ${number} later" ${slotIndex === workspace.cards.length - 1 ? "disabled" : ""}>→</button>
+      <span class="drag-handle" draggable="true" aria-hidden="true" title="Drag to reorder">⠿</span>
     </div>
   </li>`;
 }
@@ -348,6 +353,8 @@ function openChordZoom(index) {
   const voicing = card.voicings[card.voicingIndex];
   zoomTitle.textContent = "Chord " + (index + 1) + " · " + noteText(card.slot.symbol);
   zoomCount.textContent = (index + 1) + " of " + workspace.cards.length;
+  zoomAudition.disabled = !voicing;
+  zoomStatus.textContent = "";
   zoomDiagram.innerHTML = voicing
     ? renderChordDiagram(chordDiagramModel(voicing),
         noteText(formatNote(card.slot.chord.root)) + " " + qualities[card.slot.chord.chordId], {
@@ -358,8 +365,11 @@ function openChordZoom(index) {
   document.querySelector("#chord-zoom-prev").disabled = index === 0;
   document.querySelector("#chord-zoom-next").disabled = index === workspace.cards.length - 1;
   if (!zoomDialog.open) zoomDialog.showModal();
+  else if (document.activeElement.disabled) zoomAudition.disabled
+    ? document.querySelector("#close-chord-zoom").focus() : zoomAudition.focus();
 }
 
+zoomAudition.addEventListener("click", () => auditionCard(zoomCardIndex));
 document.querySelector("#close-chord-zoom").addEventListener("click", () => zoomDialog.close());
 document.querySelector("#chord-zoom-prev").addEventListener("click", () => openChordZoom(zoomCardIndex - 1));
 document.querySelector("#chord-zoom-next").addEventListener("click", () => openChordZoom(zoomCardIndex + 1));
@@ -372,63 +382,127 @@ zoomDialog.addEventListener("keydown", (event) => {
     }
   }
 });
-let zoomTouchX = null;
+let zoomTouch = null;
 zoomDialog.addEventListener("touchstart", (event) => {
-  zoomTouchX = event.changedTouches[0]?.clientX ?? null;
+  zoomTouch = event.touches.length === 1 ? event.touches[0] : null;
 }, { passive: true });
 zoomDialog.addEventListener("touchend", (event) => {
-  if (zoomTouchX === null) return;
-  const delta = (event.changedTouches[0]?.clientX ?? zoomTouchX) - zoomTouchX;
-  zoomTouchX = null;
-  if (Math.abs(delta) > 60) {
-    const next = zoomCardIndex + (delta < 0 ? 1 : -1);
-    if (next >= 0 && next < workspace.cards.length) openChordZoom(next);
+  if (!zoomTouch) return;
+  const end = [...event.changedTouches].find((touch) => touch.identifier === zoomTouch.identifier);
+  const start = zoomTouch;
+  zoomTouch = null;
+  if (!end) return;
+  const delta = end.clientX - start.clientX;
+  if (Math.abs(delta) > 60 && Math.abs(delta) > 1.3 * Math.abs(end.clientY - start.clientY)) {
+    openChordZoom(zoomCardIndex + (delta < 0 ? 1 : -1));
   }
 }, { passive: true });
+zoomDialog.addEventListener("touchcancel", () => { zoomTouch = null; });
 for (const control of [diagramLabels, diagramHighlight]) control.addEventListener("change", () => {
   if (!workspace) return;
   renderCards();
   if (zoomDialog.open) openChordZoom(zoomCardIndex);
 });
 
-function moveCard(fromIndex, toIndex) {
-  if (!workspace || fromIndex === toIndex) return;
-  stopPlayback();
+function moveCard(fromIndex, toIndex, direction) {
+  if (!workspace || fromIndex === toIndex || toIndex < 0 || toIndex >= workspace.cards.length) return;
   workspace = moveWorkspaceChord(workspace, fromIndex, toIndex);
   if (selectedCard === fromIndex) selectedCard = toIndex;
   else if (fromIndex < selectedCard && selectedCard <= toIndex) selectedCard--;
   else if (toIndex <= selectedCard && selectedCard < fromIndex) selectedCard++;
   showWorkspace(workspace, selectedCard);
+  const moved = cardsElement.children[toIndex];
+  const preferred = direction && moved.querySelector('[data-action="move"][data-step="' + direction + '"]:enabled');
+  (preferred || moved.querySelector(direction ? '[data-action="move"]:enabled' : '[data-action="select"]'))?.focus();
   setMessage("Moved chord " + (fromIndex + 1) + " to position " + (toIndex + 1) + ". Locks and grips were preserved.");
 }
 
+function showDropTarget(card) {
+  const valid = card && cardsElement.contains(card) && Number(card.dataset.slot) !== dragFromIndex;
+  const next = valid ? card : null;
+  if (dropTarget === next) return;
+  dropTarget?.classList.remove("drop-target");
+  dropTarget = next;
+  dropTarget?.classList.add("drop-target");
+}
+
+function endDrag(commit = false) {
+  const from = dragFromIndex;
+  const to = dropTarget ? Number(dropTarget.dataset.slot) : null;
+  dropTarget?.classList.remove("drop-target");
+  dropTarget = null;
+  if (from !== null) cardsElement.children[from]?.classList.remove("dragging");
+  dragFromIndex = null;
+  touchDrag = null;
+  if (dragFrame !== null) cancelAnimationFrame(dragFrame);
+  dragFrame = null;
+  if (commit && from !== null && to !== null) moveCard(from, to);
+}
+
 cardsElement.addEventListener("dragstart", (event) => {
-  const card = event.target.closest(".chord-card");
-  if (!card) return;
+  const handle = event.target.closest(".drag-handle");
+  if (!handle || touchDrag) {
+    event.preventDefault();
+    return;
+  }
+  const card = handle.closest(".chord-card");
   dragFromIndex = Number(card.dataset.slot);
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData("text/plain", String(dragFromIndex));
   card.classList.add("dragging");
 });
 cardsElement.addEventListener("dragover", (event) => {
-  if (dragFromIndex !== null && event.target.closest(".chord-card")) {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-  }
+  if (dragFromIndex === null || touchDrag) return;
+  showDropTarget(event.target.closest(".chord-card"));
+  if (!dropTarget) return;
+  event.preventDefault();
+  event.dataTransfer.dropEffect = "move";
+});
+cardsElement.addEventListener("dragleave", (event) => {
+  if (!cardsElement.contains(event.relatedTarget)) showDropTarget(null);
 });
 cardsElement.addEventListener("drop", (event) => {
-  if (dragFromIndex === null) return;
-  const card = event.target.closest(".chord-card");
-  if (!card) return;
-  event.preventDefault();
-  const from = dragFromIndex;
-  dragFromIndex = null;
-  moveCard(from, Number(card.dataset.slot));
+  if (dragFromIndex === null || touchDrag) return;
+  showDropTarget(event.target.closest(".chord-card"));
+  if (dropTarget) event.preventDefault();
+  endDrag(true);
 });
-cardsElement.addEventListener("dragend", () => {
-  dragFromIndex = null;
-  cardsElement.querySelectorAll(".dragging").forEach((card) => card.classList.remove("dragging"));
+cardsElement.addEventListener("dragend", () => endDrag());
+
+function trackTouchDrop() {
+  if (!touchDrag || dragFromIndex === null) return;
+  const { x, y } = touchDrag;
+  const edge = 60;
+  const speed = y < edge ? -7 : y > innerHeight - edge ? 7 : 0;
+  if (speed) window.scrollBy(0, speed);
+  showDropTarget(document.elementFromPoint(x, y)?.closest(".chord-card"));
+  dragFrame = requestAnimationFrame(trackTouchDrop);
+}
+
+cardsElement.addEventListener("pointerdown", (event) => {
+  const handle = event.target.closest(".drag-handle");
+  if (!handle || event.pointerType === "mouse" || !event.isPrimary || dragFromIndex !== null) return;
+  handle.setPointerCapture(event.pointerId);
+  touchDrag = { id: event.pointerId, card: handle.closest(".chord-card"), startX: event.clientX, startY: event.clientY };
 });
+cardsElement.addEventListener("pointermove", (event) => {
+  if (touchDrag?.id !== event.pointerId) return;
+  touchDrag.x = event.clientX;
+  touchDrag.y = event.clientY;
+  if (dragFromIndex === null && Math.hypot(event.clientX - touchDrag.startX, event.clientY - touchDrag.startY) >= 8) {
+    dragFromIndex = Number(touchDrag.card.dataset.slot);
+    touchDrag.card.classList.add("dragging");
+    trackTouchDrop();
+  }
+});
+cardsElement.addEventListener("pointerup", (event) => {
+  if (touchDrag?.id !== event.pointerId) return;
+  if (dragFromIndex !== null) showDropTarget(document.elementFromPoint(event.clientX, event.clientY)?.closest(".chord-card"));
+  endDrag(true);
+});
+for (const type of ["pointercancel", "lostpointercapture"]) {
+  cardsElement.addEventListener(type, (event) => { if (touchDrag?.id === event.pointerId) endDrag(); });
+}
 
 function paintTransport() {
   const active = audio.activeSlot();
@@ -503,7 +577,7 @@ function applyGeneration() {
     setMessage(result.error.message + "." + recovery + " Your current progression is still available.", true);
     return;
   }
-  showWorkspace(result.data);
+  showWorkspace(result.data, Math.min(selectedCard, result.data.cards.length - 1));
   const lockCount = workspace.cards.filter(({ slot }) => slot.isLocked).length;
   setMessage(lockCount
     ? "Kept " + lockCount + " locked " + (lockCount === 1 ? "chord." : "chords.")
@@ -511,6 +585,7 @@ function applyGeneration() {
 }
 
 function showWorkspace(next, selected = 0) {
+  endDrag();
   stopPlayback();
   if (zoomDialog.open) zoomDialog.close();
   workspace = next;
@@ -561,6 +636,7 @@ function updateGrooveControls(preferred = grooveInput.value) {
   grooveInput.replaceChildren(...grooves.map(({ id, name }) => new Option(name, id)));
   grooveInput.value = !preferred ? "off"
     : grooves.some(({ id }) => id === preferred) ? preferred : grooves[1].id;
+  syncQuickTrackButtons();
 }
 
 function rhythmChanged(text) {
@@ -576,9 +652,10 @@ function syncQuickTrackButtons() {
   for (const [track, selector] of [["drums", "#quick-drums"], ["guitar", "#quick-guitar"]]) {
     const button = document.querySelector(selector);
     const muted = document.querySelector("#" + track + "-mute").checked;
-    button.setAttribute("aria-pressed", String(!muted));
-    button.textContent = (track === "drums" ? "Rhythm" : "Chords") + (muted ? " off" : " on");
-    button.title = (muted ? "Enable " : "Mute ") + track + " accompaniment";
+    const enabled = !muted && (track === "guitar" || grooveInput.value !== "off");
+    button.setAttribute("aria-pressed", String(enabled));
+    button.textContent = (track === "drums" ? "Rhythm" : "Chords") + (enabled ? " on" : " off");
+    button.title = (enabled ? "Mute " : "Enable ") + track + " accompaniment";
   }
 }
 
@@ -599,10 +676,14 @@ const trackControls = Object.keys(DEFAULT_MIX).map((track) => {
 for (const [track, selector] of [["drums", "#quick-drums"], ["guitar", "#quick-guitar"]]) {
   document.querySelector(selector).addEventListener("click", () => {
     const control = trackControls.find((candidate) => candidate.track === track);
-    control.mute.checked = !control.mute.checked;
+    const chooseGroove = track === "drums" && grooveInput.value === "off";
+    if (chooseGroove) grooveInput.value = groovesForMeter(meterInput.value)[1].id;
+    control.mute.checked = chooseGroove ? false : !control.mute.checked;
     control.update();
-    transportMessage.textContent = (track === "drums" ? "Rhythm" : "Chords") +
-      (control.mute.checked ? " muted." : " enabled.");
+    const text = (track === "drums" ? "Rhythm" : "Chords") + (control.mute.checked ? " muted." : " enabled.");
+    if (chooseGroove) rhythmChanged(text);
+    else transportMessage.textContent = text;
+    window.dispatchEvent(new Event("progression-changed"));
   });
 }
 document.querySelector("#quick-mix").addEventListener("click", () => {
@@ -622,7 +703,10 @@ patternInput.addEventListener("change", () => {
   updatePatternControls();
   rhythmChanged("Strum pattern updated.");
 });
-grooveInput.addEventListener("change", () => rhythmChanged("Drum groove updated."));
+grooveInput.addEventListener("change", () => {
+  syncQuickTrackButtons();
+  rhythmChanged("Drum groove updated.");
+});
 
 form.addEventListener("change", (event) => {
   if (workspace) window.dispatchEvent(new Event("progression-changed"));
@@ -637,6 +721,9 @@ form.addEventListener("submit", (event) => {
 document.querySelector("#reset-workspace").addEventListener("click", () => {
   stopPlayback();
   workspace = undefined;
+  selectedCard = 0;
+  keyPreviewDegree = 1;
+  advancedSettings.open = false;
   showSettings("chords");
   tonicInput.value = "all";
   modeInput.value = "auto";
@@ -738,16 +825,11 @@ cardsElement.addEventListener("click", (event) => {
     transportMessage.textContent = "Voicing updated. Ready to play.";
     setMessage(`Chord ${slotIndex + 1}, voicing ${card.voicingIndex + 1} of ${card.voicings.length}.`);
   } else if (action === "audition") {
-    const card = visibleCard(workspace.cards[slotIndex]);
-    const ticket = beginAudio("Loading acoustic guitar…");
-    audio.audition(card).then((played) => {
-      if (played) finishAudio(ticket, `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`);
-    }).catch((problem) => finishAudio(ticket, problem.message));
+    auditionCard(slotIndex);
   } else if (action === "zoom") {
     openChordZoom(slotIndex);
   } else if (action === "move") {
-    moveCard(slotIndex, slotIndex + Number(step));
-    cardsElement.querySelector('[data-slot="' + (slotIndex + Number(step)) + '"] [data-action="move"][data-step="' + step + '"]')?.focus();
+    moveCard(slotIndex, slotIndex + Number(step), step);
   } else if (action === "select") {
     selectedCard = slotIndex;
     boardView = "chords";
@@ -755,6 +837,19 @@ cardsElement.addEventListener("click", (event) => {
     renderBoard();
   }
 });
+
+async function auditionCard(index) {
+  const card = visibleCard(workspace.cards[index]);
+  const ticket = beginAudio("Loading acoustic guitar…");
+  if (zoomDialog.open) zoomStatus.textContent = "Loading acoustic guitar…";
+  try {
+    if (!await audio.audition(card)) return;
+    const text = "Heard chord " + (index + 1) + " · " + noteText(card.slot.symbol) + ".";
+    if (finishAudio(ticket, text) && zoomDialog.open && zoomCardIndex === index) zoomStatus.textContent = text;
+  } catch (problem) {
+    if (finishAudio(ticket, problem.message) && zoomDialog.open) zoomStatus.textContent = problem.message;
+  }
+}
 
 async function playLoop() {
   if (!workspace || playButton.disabled) return;

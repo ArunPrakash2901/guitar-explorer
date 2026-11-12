@@ -1,5 +1,5 @@
 import { formatNote, parseNote } from "./engine/index.js";
-import { CHORD_SUFFIXES, MOODS, PROGRESSION_COLORS, STYLES } from "./progression/generator.js";
+import { CHORD_SUFFIXES, MOODS, PROGRESSION_COLORS, PROGRESSION_LENGTHS, STYLES } from "./progression/generator.js";
 import { CAGED_FAMILIES } from "./progression/caged.js";
 import { generateWorkspace, replaceWorkspaceChord } from "./progression/workspace.js";
 import { GUITAR_TONES } from "./progression-audio.mjs";
@@ -10,7 +10,7 @@ import { MODE_CHOICES, TONIC_CHOICES } from "./progression-selection.mjs";
 export const FAVORITES_KEY = "guitar-explorer-progression-favorites-v1";
 export const SHARE_PREFIX = "#p=";
 const VERSION = 1;
-const MAX_TOKEN_LENGTH = 2200;
+const MAX_TOKEN_LENGTH = 3400;
 const MAX_FAVORITES = 24;
 const modeNames = {
   major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian",
@@ -23,7 +23,7 @@ function validateSnapshot(input) {
   if (!input || typeof input !== "object") throw new Error("Missing progression state.");
   const { v, k, m, s, c, p } = input;
   if (v !== VERSION || !TONIC_CHOICES.includes(k) || !MODE_CHOICES.includes(m) ||
-      !exactInteger(s, 0, 0xffffffff) || !Array.isArray(c) || !exactInteger(c.length, 2, 8) || !p || typeof p !== "object") {
+      !exactInteger(s, 0, 0xffffffff) || !Array.isArray(c) || !PROGRESSION_LENGTHS.includes(c.length) || !p || typeof p !== "object") {
     throw new Error("The progression link has an unsupported version or musical context.");
   }
   const cards = c.map((card) => {

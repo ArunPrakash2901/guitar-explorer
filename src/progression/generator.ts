@@ -9,6 +9,8 @@ import type { Chord, ChordId, NoteName } from "../engine/core/types.js";
  * authority for spelled scales, chords and major/natural-minor harmonization.
  * This module selects musical material; it never changes core musical truth.
  */
+export const PROGRESSION_LENGTHS: readonly number[] = Object.freeze([2, 3, 4, 5, 6, 7, 8, 12, 16]);
+
 export type ProgressionMode = "major" | "naturalMinor" | "dorian" | "phrygian" | "lydian" | "mixolydian" | "locrian";
 
 export type LockedChordSlot = Readonly<{
@@ -396,14 +398,14 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
   const style = request.style ?? "auto";
   const mood = request.mood ?? "any";
   const color = request.color ?? "triads";
-  if (!Number.isInteger(length) || length < 2 || length > 8) {
-    return error("INVALID_INPUT", "Choose a progression length from two to eight chords");
+  if (!PROGRESSION_LENGTHS.includes(length)) {
+    return error("INVALID_INPUT", "Choose a chord count from two through eight, twelve or sixteen");
   }
   if (!STYLES.includes(style) || !MOODS.includes(mood) || !PROGRESSION_COLORS.includes(color)) {
     return error("INVALID_INPUT", "Choose a supported style, mood and chord colour");
   }
   for (const list of [request.allowedDegrees, request.previousDegrees]) {
-    if (list !== undefined && (!Array.isArray(list) || list.length > 8 ||
+    if (list !== undefined && (!Array.isArray(list) || list.length > PROGRESSION_LENGTHS.at(-1)! ||
       !list.every((degree) => Number.isInteger(degree) && degree >= 1 && degree <= 7))) {
       return error("INVALID_INPUT", "Chord degrees must be integers from one to seven");
     }

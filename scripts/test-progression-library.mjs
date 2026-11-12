@@ -31,6 +31,16 @@ assert.deepEqual(restored.workspace.scale, workspace.scale);
 assert.equal(restored.workspace.context.seed, 4294967295);
 assert.match(progressionText(workspace, preferences), /C major · 6\/8 · 110 dotted-quarter BPM\n.*Cadd9 \(locked\)/);
 
+for (const length of [12, 16]) {
+  const original = generateWorkspace({ tonic: parseNote("Db"), mode: "mixolydian", seed: 112, length, style: "jazz" });
+  assert.ok(original.ok);
+  const locked = toggleChordLock(original.data, length - 1);
+  const encoded = encodeProgression(snapshotProgression(locked, { ...preferences, selected: length - 1 }));
+  const copy = restoreProgression(decodeProgression(encoded));
+  assert.deepEqual(copy.workspace.cards, locked.cards);
+  assert.equal(copy.preferences.selected, length - 1);
+  assert.ok(encoded.length < 2300);
+}
 const outside = structuredClone(snapshot);
 outside.c[1] = [4, "sus4", "F:sus4:a-barre:x-8-10-10-11-8", true];
 assert.throws(() => restoreProgression(outside), /outside the selected/);
@@ -45,7 +55,7 @@ for (const invalid of [
   { ...snapshot, p: { ...preferences, pattern: "waltz" } },
   { ...snapshot, p: { ...preferences, guitarMuted: "true" } },
 ]) assert.throws(() => decodeProgression(packed(invalid)));
-assert.throws(() => decodeProgression("a".repeat(2201)), /invalid format/);
+assert.throws(() => decodeProgression("a".repeat(3401)), /invalid format/);
 assert.throws(() => decodeProgression("%"), /invalid format/);
 
 const local = new Map();
