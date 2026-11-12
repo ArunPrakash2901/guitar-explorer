@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 
 const outputRoot = new URL("../.preview-dist/", import.meta.url);
-const { planProgressionStrokes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
+const { planProgressionStrokes, planScaleNotes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
 const { selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
 const { resolveGenerateChoice, listGenerateChoices } = await import(new URL("progression-selection.mjs", outputRoot));
 const { drumPlan, groovesForMeter } = await import(new URL("progression-grooves.mjs", outputRoot));
@@ -273,6 +273,38 @@ assert.ok(audio.plan.events[(audio.nextEvent - 1) % audio.plan.events.length].se
 audio.pause();
 audio.stop();
 assert.equal(await audio.resume(), false);
+const scaleNotes = [
+  { stringIndex: 0, semitone: 48 },
+  { stringIndex: 1, semitone: 52 },
+  { stringIndex: 2, semitone: 55 },
+];
+const scaleOnce = planScaleNotes(scaleNotes, 120);
+assert.equal(scaleOnce.kind, "scale");
+assert.equal(scaleOnce.repeat, false);
+assert.equal(scaleOnce.events.length, 3);
+assert.deepEqual(scaleOnce.events.map(({ seconds }) => seconds), [0, .25, .5]);
+assert.equal(scaleOnce.loopSeconds, .75);
+assert.ok(Object.isFrozen(scaleOnce.events));
+assert.equal(planScaleNotes(scaleNotes, 120, { loop: true }).repeat, true);
+assert.throws(() => planScaleNotes([], 120), RangeError);
+assert.throws(() => planScaleNotes([{ stringIndex: -1, semitone: 60 }], 120), RangeError);
+const beforeScale = context.sources.length;
+assert.equal(await audio.playScale(scaleNotes, 120), true);
+assert.equal(audio.plan.kind, "scale");
+assert.equal(audio.activeSlot(), null, "Scale transport does not pretend to be a progression chord");
+assert.equal(context.sources.length - beforeScale, 3);
+context.currentTime = audio.loopStart + scaleOnce.loopSeconds + .3;
+audio.fillSchedule();
+assert.equal(audio.isPlaying(), false, "One-shot scale playback ends after the last note");
+assert.equal(audio.interval, null);
+audio.stop();
+assert.equal(await audio.playScale(scaleNotes, 120, { loop: true }), true);
+assert.equal(audio.plan.repeat, true);
+context.currentTime = audio.loopStart + scaleOnce.loopSeconds - .15;
+audio.fillSchedule();
+assert.ok(audio.isPlaying(), "Scale loop remains active for the next cycle");
+audio.stop();
+
 await audio.dispose();
 assert.equal(context.state, "closed");
 
@@ -281,6 +313,11 @@ const browserCode = await readFile(new URL("progression-workspace.mjs", outputRo
 const audioAsset = await readFile(new URL("progression-audio.mjs", outputRoot), "utf8");
 assert.match(page, /id="play-progression"/);
 assert.match(page, /id="show-scale"/);
+assert.match(page, /id="show-key-chords"/);
+assert.match(page, /id="chord-zoom"/);
+assert.match(page, /id="quick-drums"/);
+assert.match(page, /id="quick-favorite"/);
+assert.match(page, /id="play-scale"/);
 assert.match(page, /value="all" selected/);
 assert.match(page, /value="auto" selected/);
 assert.doesNotMatch(page, /id="seed"/);
