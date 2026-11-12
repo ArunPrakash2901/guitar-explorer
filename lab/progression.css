@@ -360,3 +360,78 @@ main.shell { padding-block: 1rem 3rem; }
   font: inherit;
 }
 .chord-edit select:hover { border-color: var(--focus); }
+
+/* P0: a single compact instrument-first toolbar, while advanced choices remain available. */
+.quick-controls {
+  display: grid;
+  grid-template-columns: 1fr 1.25fr 1fr .68fr 1fr 1fr 1fr 1.65fr;
+  align-items: end;
+  gap: .65rem;
+}
+.quick-controls .field { min-width: 0; }
+.quick-controls .field select { min-width: 0; }
+.quick-controls .tempo-inline { display: flex; }
+.quick-controls .tempo-control { min-width: 10rem; }
+.advanced-settings { border-top: 1px solid var(--line); margin-top: .65rem; padding-top: .25rem; }
+.advanced-settings > summary { display: inline-flex; align-items: center; min-height: 1.9rem; color: var(--forest); font-size: .78rem; font-weight: 700; cursor: pointer; }
+.advanced-settings:not([open]) { margin-top: .35rem; }
+.advanced-settings .settings-switch { margin-top: .4rem; }
+.advanced-settings .settings-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.advanced-settings .rhythm-settings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.advanced-settings .track-mixer { grid-column: 1 / -1; }
+.action-row .track-toggle {
+  min-width: 6.25rem;
+  border-color: var(--warm);
+  color: var(--forest);
+  background: var(--olive);
+}
+.action-row .track-toggle[aria-pressed="false"] {
+  background: var(--panel);
+  color: var(--muted);
+  border-color: var(--line);
+  text-decoration: line-through;
+}
+.progression-quick-actions {
+  position: absolute;
+  right: 0;
+  top: .25rem;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+.progression-quick-actions .icon-action {
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel);
+  color: var(--forest);
+  font-size: 1.22rem;
+}
+.progression-quick-actions #quick-favorite[aria-pressed="true"] {
+  background: var(--olive);
+  border-color: var(--forest);
+}
+.progression-quick-actions .chord-count { position: static; margin-left: .25rem; white-space: nowrap; }
+.library-drawer { margin-top: 1rem; border: 1px solid var(--line); border-radius: 1rem; padding: .4rem .9rem; background: var(--panel); }
+.library-drawer > summary { color: var(--forest); cursor: pointer; font-weight: 750; padding: .55rem .25rem; }
+.library-drawer .progression-library { margin-top: 0; padding-top: .5rem; border: 0; box-shadow: none; }
+.visually-hidden { position: absolute; height: 1px; width: 1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; }
+.chord-card { padding: .65rem .7rem; gap: .3rem; }
+.chord-card .diagram-wrap { min-height: 9rem; }
+.chord-card .chord-tones { font-size: .74rem; }
+.chord-card .chord-edit label { font-size: .69rem; }
+.chord-card .chord-edit select { min-height: 2rem; padding: .28rem .5rem; }
+.chord-card .audition-button { min-height: 1.9rem; }
+@media (max-width: 1180px) {
+  .quick-controls { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .quick-controls .tempo-control { min-width: 0; }
+}
+@media (max-width: 650px) {
+  .quick-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .quick-controls .tempo-control { grid-column: 1 / -1; }
+  .advanced-settings .settings-grid, .advanced-settings .rhythm-settings { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .progression-heading { justify-content: flex-start; text-align: left; padding-right: 0; margin-bottom: .5rem; flex-wrap: wrap; gap: .35rem; }
+  .progression-quick-actions { position: static; margin-left: auto; }
+  .action-row button { min-width: 5rem; }
+}
