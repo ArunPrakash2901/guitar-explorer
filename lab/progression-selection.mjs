@@ -5,7 +5,7 @@
  * generation never silently discards them.
  */
 export const TONIC_CHOICES = Object.freeze(["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]);
-export const MODE_CHOICES = Object.freeze(["major", "naturalMinor", "mixolydian"]);
+export const MODE_CHOICES = Object.freeze(["major", "naturalMinor", "dorian", "phrygian", "lydian", "mixolydian"]);
 
 export function resolveGenerateChoice({ keyChoice, modeChoice, lockedCount = 0, previous = null, randomUint32 }) {
   if (typeof randomUint32 !== "function") throw new TypeError("Random source is required");
