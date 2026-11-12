@@ -1,3 +1,10 @@
+import { musicQueries, parseNote } from "./engine/index.js";
+
+function conventionalContext(tonic, mode) {
+  if (mode !== "major" && mode !== "naturalMinor") return true;
+  return musicQueries.getKeySignature({ tonic: parseNote(tonic), mode: mode === "major" ? "major" : "minor" }).ok;
+}
+
 /**
  * UI-only choice policy: reproducibility remains internal, not a user-facing
  * form control. All/Auto chooses a new musical context for an unlocked result;
@@ -5,7 +12,7 @@
  * generation never silently discards them.
  */
 export const TONIC_CHOICES = Object.freeze(["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]);
-export const MODE_CHOICES = Object.freeze(["major", "naturalMinor", "mixolydian"]);
+export const MODE_CHOICES = Object.freeze(["major", "naturalMinor", "dorian", "phrygian", "lydian", "mixolydian"]);
 
 export function resolveGenerateChoice({ keyChoice, modeChoice, lockedCount = 0, previous = null, randomUint32 }) {
   if (typeof randomUint32 !== "function") throw new TypeError("Random source is required");
@@ -15,12 +22,14 @@ export function resolveGenerateChoice({ keyChoice, modeChoice, lockedCount = 0, 
   if (!Number.isInteger(value) || value < 0 || value > 0xffffffff) {
     throw new RangeError("Random source must return a uint32");
   }
-  const preserve = lockedCount > 0 && previous;
-  const chosenKey = keyChoice === "all"
-    ? preserve?.tonic ?? TONIC_CHOICES[value % TONIC_CHOICES.length]
-    : keyChoice;
-  const chosenMode = modeChoice === "auto"
-    ? preserve?.mode ?? MODE_CHOICES[Math.floor(value / TONIC_CHOICES.length) % MODE_CHOICES.length]
-    : modeChoice;
-  return Object.freeze({ tonic: chosenKey, mode: chosenMode, seed: value });
+  const preserve = lockedCount > 0 ? previous : null;
+  const anyKey = keyChoice === "all" && !preserve;
+  const anyMode = modeChoice === "auto" && !preserve;
+  const keys = anyKey ? TONIC_CHOICES : [keyChoice === "all" ? preserve.tonic : keyChoice];
+  const modes = anyMode ? MODE_CHOICES : [modeChoice === "auto" ? preserve.mode : modeChoice];
+  const choices = modes.flatMap((mode) => keys
+    .filter((tonic) => (!anyKey && !anyMode) || conventionalContext(tonic, mode))
+    .map((tonic) => ({ tonic, mode })));
+  if (!choices.length) throw new RangeError("No supported key and mode match these choices.");
+  return Object.freeze({ ...choices[value % choices.length], seed: value });
 }

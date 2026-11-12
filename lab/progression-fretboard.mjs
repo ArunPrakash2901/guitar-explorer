@@ -41,10 +41,9 @@ export function renderScaleBoard(container, scale, chord, mode, onNote) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "fret-note";
-        if (location.pitchClass === scale.tones[0].pitchClass) button.classList.add("root");
-        button.textContent = mode === "chords" ? pretty(tone.note) : (
-          scale.scaleId === "mixolydian" && tone.degree === 7 ? "♭7" : String(tone.degree)
-        );
+        if (location.pitchClass === shown[0].pitchClass) button.classList.add("root");
+        const alteration = tone.alteration === -1 ? "♭" : tone.alteration === 1 ? "♯" : "";
+        button.textContent = mode === "chords" ? pretty(tone.note) : alteration + tone.degree;
         button.setAttribute("aria-label",
           pretty(tone.note) + " on " + labels[stringIndex] + " string, fret " + fret);
         button.addEventListener("click", () => onNote({

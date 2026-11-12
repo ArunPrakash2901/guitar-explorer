@@ -34,6 +34,8 @@ assert.ok(selected.sample.file.endsWith(".ogg"));
 assert.ok(Number.isFinite(selected.playbackRate) && selected.playbackRate > 0);
 assert.ok(Object.isFrozen(selected));
 assert.throws(() => selectGuitarAttack({ stringIndex: -1, semitone: 60 }), TypeError);
+assert.throws(() => selectGuitarAttack({ stringIndex: 6, semitone: 60 }), TypeError);
+assert.throws(() => selectGuitarAttack({ stringIndex: 0, semitone: 128 }), TypeError);
 
 assert.deepEqual(resolveGenerateChoice({
   keyChoice: "all", modeChoice: "auto", randomUint32: () => 0,
@@ -46,6 +48,16 @@ assert.deepEqual(resolveGenerateChoice({
   keyChoice: "G", modeChoice: "major", randomUint32: () => 17,
 }), { tonic: "G", mode: "major", seed: 17 });
 
+
+const { parseNote, musicQueries } = await import(new URL("engine/index.js", outputRoot));
+for (let seed = 0; seed < 72; seed += 1) {
+  const context = resolveGenerateChoice({ keyChoice: "all", modeChoice: "auto", randomUint32: () => seed });
+  if (context.mode === "major" || context.mode === "naturalMinor") {
+    assert.ok(musicQueries.getKeySignature({
+      tonic: parseNote(context.tonic), mode: context.mode === "major" ? "major" : "minor",
+    }).ok, "automatic choice must have a supported spelling");
+  }
+}
 
 const options44 = patternsForMeter("4/4");
 assert.ok(options44.some(({ id }) => id === "acoustic-pop"));

@@ -213,6 +213,8 @@ export class ProgressionAudio {
 
   isPlaying() { return this.playing; }
 
+  isActive() { return this.playing || this.voices.size > 0; }
+
   stop() {
     this.revision += 1;
     this.playing = false;

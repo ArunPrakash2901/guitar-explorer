@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatNote, parseNote } from "../../src/engine/core/pitch.js";
-import { generateProgression } from "../../src/progression/generator.js";
+import { generateProgression, listProgressionChoices } from "../../src/progression/generator.js";
 import type { GeneratedProgression, ProgressionRequest } from "../../src/progression/generator.js";
 
 const request = (overrides: Partial<ProgressionRequest> = {}): ProgressionRequest => ({
@@ -166,8 +166,46 @@ describe("bounded four-chord progression generation", () => {
   });
 
   it("rejects unsupported mode requests without expanding the core", () => {
-    const result = generateProgression(request({ mode: "dorian" as ProgressionRequest["mode"] }));
+    const result = generateProgression(request({ mode: "locrian" as ProgressionRequest["mode"] }));
     expect(result).toMatchObject({ ok: false, error: { code: "UNSUPPORTED_MODE" } });
+  });
+
+  it("harmonizes D Dorian without raising the characteristic sixth", () => {
+    const tonic = parseNote("D");
+    const choices = listProgressionChoices(tonic, "dorian");
+    expect(choices.map(({ romanNumeral }) => romanNumeral))
+      .toEqual(["i", "ii", "♭III", "IV", "v", "vi°", "♭VII"]);
+    expect(choices.map(({ symbol }) => symbol))
+      .toEqual(["Dm", "Em", "F", "G", "Am", "Bdim", "C"]);
+    for (const seed of [0, 1, 8, 29]) {
+      const result = generated(request({ tonic, mode: "dorian", seed }));
+      expect(result.slots[0]!.symbol).toBe("Dm");
+      expect(result.slots.every(({ chord }) => chord.chordId !== "diminished")).toBe(true);
+    }
+  });
+
+  it("derives Phrygian flat second from the written scale", () => {
+    const tonic = parseNote("E");
+    const choices = listProgressionChoices(tonic, "phrygian");
+    expect(choices[0]).toMatchObject({ symbol: "Em", romanNumeral: "i" });
+    expect(choices[1]).toMatchObject({ symbol: "F", romanNumeral: "♭II" });
+    expect(choices[1]!.chord.tones.map(({ note }) => formatNote(note)))
+      .toEqual(["F", "A", "C"]);
+    const result = generated(request({ tonic, mode: "phrygian", seed: 2 }));
+    expect(result.slots[0]!.symbol).toBe("Em");
+    expect(result.slots.some(({ symbol }) => symbol === "F")).toBe(true);
+  });
+
+  it("derives Lydian raised fourth and major II without treating it as a tonic dominant", () => {
+    const tonic = parseNote("F");
+    const choices = listProgressionChoices(tonic, "lydian");
+    expect(choices.map(({ symbol }) => symbol))
+      .toEqual(["F", "G", "Am", "Bdim", "C", "Dm", "Em"]);
+    expect(choices[1]).toMatchObject({ symbol: "G", romanNumeral: "II" });
+    expect(choices[3]).toMatchObject({ symbol: "Bdim", romanNumeral: "♯iv°" });
+    const result = generated(request({ tonic, mode: "lydian", seed: 7 }));
+    expect(result.slots[0]!.romanNumeral).toBe("I");
+    expect(result.slots.some(({ romanNumeral }) => romanNumeral === "II")).toBe(true);
   });
 
   it("returns immutable progression and chord values", () => {

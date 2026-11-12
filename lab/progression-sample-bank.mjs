@@ -15,7 +15,8 @@ export const RECORDED_GUITAR_ATTACKS = Object.freeze(STEEL_SAMPLES.map((sample) 
 })));
 
 export function selectGuitarAttack(note) {
-  if (!note || !Number.isFinite(note.semitone) || !Number.isInteger(note.stringIndex)) {
+  if (!note || !Number.isInteger(note.semitone) || note.semitone < 0 || note.semitone > 127 ||
+      !Number.isInteger(note.stringIndex) || note.stringIndex < 0 || note.stringIndex > 5) {
     throw new TypeError("A guitar attack needs a sounded semitone and string index");
   }
   const best = [...RECORDED_GUITAR_ATTACKS].sort((a, b) => {
