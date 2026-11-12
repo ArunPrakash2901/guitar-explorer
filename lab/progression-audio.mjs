@@ -1,5 +1,5 @@
 import { PROGRESSION_LENGTHS } from "./progression/generator.js";
-import { selectGuitarAttack } from "./progression-sample-bank.mjs";
+import { guitarAttackProfile, selectGuitarAttack } from "./progression-sample-bank.mjs";
 import { rhythmPlan, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 import { drumPlan } from "./progression-grooves.mjs";
 import { DRUM_SAMPLES } from "./progression-drum-samples.mjs";
@@ -10,7 +10,8 @@ export const MAX_BPM = 180;
 const MAX_VOICES = 80;
 export const DEFAULT_MIX = Object.freeze({ guitar: 0.82, drums: 0.62 });
 const DRUM_GAIN = Object.freeze({ kick: 0.58, snare: 0.53, hat: 0.34 });
-const TONE_GAIN_DB = Object.freeze({ natural: 0, warm: -4, bright: 3 });
+const TONE_GAIN_DB = Object.freeze({ natural: -1, warm: -4, bright: 2.5, electric: 0 });
+const guitarBank = (tone) => tone === "electric" ? "electric" : "steel";
 export const GUITAR_TONES = Object.freeze(Object.keys(TONE_GAIN_DB));
 const LOOKAHEAD_SECONDS = 0.65;
 const SCHEDULE_INTERVAL_MS = 100;
@@ -68,7 +69,7 @@ export function planProgressionStrokes(cards, bpm, options = {}) {
         step: event.step,
         direction: event.direction,
         level: event.level,
-        sustain: Math.min(1.35, Math.max(0.32, untilNext * 1.5)),
+        sustain: Math.min(1.38, Math.max(0.23, untilNext + .09)),
         seconds: slotIndex * secondsPerBar + event.seconds,
         notes,
         midis: Object.freeze(notes.map(({ semitone }) => semitone)),
@@ -131,6 +132,7 @@ export class ProgressionAudio {
     this.toneFilter = null;
     this.clickOutput = null;
     this.buffers = new Map();
+    this.attackProfiles = new Map();
     this.loading = new Map();
     this.plan = null;
     this.loopStart = 0;
@@ -168,7 +170,7 @@ export class ProgressionAudio {
       if (typeof this.context.createBiquadFilter === "function") {
         this.toneFilter = this.context.createBiquadFilter();
         this.toneFilter.type = "highshelf";
-        this.toneFilter.frequency.setValueAtTime(2500, this.context.currentTime);
+        this.toneFilter.frequency.setValueAtTime(3000, this.context.currentTime);
         this.toneFilter.gain.setValueAtTime(TONE_GAIN_DB[this.tone], this.context.currentTime);
         this.toneFilter.connect(this.trackBuses.guitar);
       }
@@ -180,8 +182,11 @@ export class ProgressionAudio {
 
   setTone(tone) {
     if (!Object.hasOwn(TONE_GAIN_DB, tone)) throw new RangeError("Choose a guitar tone");
+    const changedBank = guitarBank(tone) !== guitarBank(this.tone);
+    if (changedBank) this.stop();
     this.tone = tone;
     this.toneFilter?.gain.setTargetAtTime(TONE_GAIN_DB[tone], this.context.currentTime, 0.02);
+    return changedBank;
   }
 
   setTrackMix(track, volume, muted) {
@@ -204,7 +209,10 @@ export class ProgressionAudio {
           throw new Error("Recording did not match the CC0 sample manifest");
         }
         const buffer = await context.decodeAudioData(bytes);
-        if (context === this.context) this.buffers.set(sample.file, buffer);
+        if (context === this.context) {
+          this.buffers.set(sample.file, buffer);
+          if (directory !== "drums") this.attackProfiles.set(sample.file, guitarAttackProfile(buffer, sample.layer));
+        }
       })();
       this.loading.set(sample.file, task);
     }
@@ -215,15 +223,16 @@ export class ProgressionAudio {
   async preload(strokes, drumHits = []) {
     await this.ensureContext();
     const selected = new Map();
+    const bank = guitarBank(this.tone);
     for (const { notes, level } of strokes) {
       for (const note of notes) {
-        const attack = selectGuitarAttack(note, velocityFor(level));
+        const attack = selectGuitarAttack(note, velocityFor(level), bank);
         selected.set(attack.sample.file, attack.sample);
       }
     }
     const drumVoices = new Set(drumHits.map(({ voice }) => voice));
     await Promise.all([
-      ...[...selected.values()].map((sample) => this.loadRecording(sample, "steel")),
+      ...[...selected.values()].map((sample) => this.loadRecording(sample, bank)),
       ...[...drumVoices].map((voice) => this.loadRecording(DRUM_SAMPLES[voice], "drums")),
     ]);
   }
@@ -232,15 +241,16 @@ export class ProgressionAudio {
     const context = this.context;
     const upward = direction === "up";
     const ordered = [...notes].sort((a, b) => upward ? b.stringIndex - a.stringIndex : a.stringIndex - b.stringIndex);
-    const spread = upward ? 0.012 : 0.017;
+    const spread = upward ? 0.010 : 0.014;
     const peak = 0.45 * Math.sqrt(level / ordered.length);
     for (let index = 0; index < ordered.length; index += 1) {
       const note = ordered[index];
-      const attack = selectGuitarAttack(note, velocityFor(level));
+      const attack = selectGuitarAttack(note, velocityFor(level), guitarBank(this.tone));
       const buffer = this.buffers.get(attack.sample.file);
       if (!buffer) throw new Error("A guitar recording was not loaded before scheduling");
       const at = when + index * spread;
-      const duration = Math.min(sustain, buffer.duration / attack.playbackRate);
+      const { offset, gain: correction } = this.attackProfiles.get(attack.sample.file);
+      const duration = Math.min(sustain, (buffer.duration - offset) / attack.playbackRate);
       if (!Number.isFinite(duration) || duration < 0.06) {
         throw new Error("Guitar recording is too short for this pitch");
       }
@@ -249,10 +259,11 @@ export class ProgressionAudio {
       source.buffer = buffer;
       source.playbackRate.setValueAtTime(attack.playbackRate, at);
       gain.gain.setValueAtTime(0.0001, at);
-      const accent = peak * (1 - index * 0.035);
-      gain.gain.linearRampToValueAtTime(accent, at + 0.003);
-      gain.gain.setValueAtTime(accent, at + duration * 0.7);
-      gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+      const accent = peak * correction * (1 - index * .03);
+      const release = Math.min(.16, Math.max(.04, duration * .24));
+      gain.gain.linearRampToValueAtTime(accent, at + .003);
+      gain.gain.setValueAtTime(accent, at + duration - release);
+      gain.gain.linearRampToValueAtTime(.0001, at + duration);
       source.connect(gain);
       const panner = context.createStereoPanner?.();
       const output = this.toneFilter ?? this.trackBuses.guitar;
@@ -263,7 +274,7 @@ export class ProgressionAudio {
       } else {
         gain.connect(output);
       }
-      this.startVoice({ source, gain, panner }, at, duration);
+      this.startVoice({ source, gain, panner }, at, duration, offset);
     }
   }
 
@@ -282,11 +293,11 @@ export class ProgressionAudio {
     this.startVoice({ source, gain }, when, duration);
   }
 
-  startVoice(voice, at, duration) {
+  startVoice(voice, at, duration, offset = 0) {
     if (this.voices.size >= MAX_VOICES) this.releaseVoice(this.voices.values().next().value, true);
     this.voices.add(voice);
     voice.source.onended = () => this.releaseVoice(voice);
-    voice.source.start(at);
+    voice.source.start(at, offset);
     voice.source.stop(at + duration);
   }
 
@@ -442,6 +453,7 @@ export class ProgressionAudio {
     this.toneFilter = null;
     this.clickOutput = null;
     this.buffers.clear();
+    this.attackProfiles.clear();
     this.loading.clear();
   }
 }

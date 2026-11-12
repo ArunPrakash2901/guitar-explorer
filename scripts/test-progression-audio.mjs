@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 
 const outputRoot = new URL("../.preview-dist/", import.meta.url);
 const { planProgressionStrokes, planScaleNotes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
-const { selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
+const { guitarAttackProfile, selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
 const { resolveGenerateChoice, listGenerateChoices } = await import(new URL("progression-selection.mjs", outputRoot));
 const { drumPlan, getGrooveGrid, groovesForMeter } = await import(new URL("progression-grooves.mjs", outputRoot));
 const { DRUM_SAMPLES } = await import(new URL("progression-drum-samples.mjs", outputRoot));
@@ -42,6 +42,19 @@ for (const length of [12, 16]) {
 }
 
 const { PROGRESSION_STEEL_SAMPLES } = await import(new URL("progression-guitar-manifest.mjs", outputRoot));
+const { ELECTRIC_GUITAR_ATTACKS } = await import(new URL("progression-electric-manifest.mjs", outputRoot));
+assert.equal(ELECTRIC_GUITAR_ATTACKS.length, 13);
+for (const sample of ELECTRIC_GUITAR_ATTACKS) {
+  const bytes = await readFile(new URL("samples/electric/" + sample.file, outputRoot));
+  assert.equal(bytes.length, sample.bytes);
+  assert.equal(bytes.toString("ascii", 0, 4), "OggS");
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), sample.sha256);
+}
+assert.match(await readFile(new URL("samples/electric/LICENSE", outputRoot), "utf8"), /CC0 1\.0 Universal/);
+const syntheticEnvelope = Float32Array.from({ length: 200 }, (_, index) => index < 18 ? 0 : Math.sin(index) * .12);
+const profiled = guitarAttackProfile({ sampleRate: 1000, numberOfChannels: 1, getChannelData: () => syntheticEnvelope }, 2);
+assert.ok(profiled.offset > 0 && profiled.offset <= .018);
+assert.ok(profiled.gain >= .71 && profiled.gain <= 1.33);
 assert.equal(PROGRESSION_STEEL_SAMPLES.length, 90);
 assert.equal(new Set(RECORDED_GUITAR_ATTACKS.map(({ file }) => file)).size, RECORDED_GUITAR_ATTACKS.length);
 for (const sample of RECORDED_GUITAR_ATTACKS) {
@@ -55,6 +68,9 @@ const { STANDARD_FRETBOARD, getNoteAt } = await import(new URL("engine/index.js"
 for (let stringIndex = 0; stringIndex < 6; stringIndex++) {
   for (let fret = 0; fret <= STANDARD_FRETBOARD.maxFret; fret++) {
     const { semitone } = getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret });
+    const electric = selectGuitarAttack({ stringIndex, semitone }, 80, "electric");
+    assert.ok(Math.abs(electric.sample.semitone - semitone) <= 2);
+    assert.equal(electric.sample.semitone + Math.round(12 * Math.log2(electric.playbackRate)), semitone);
     for (const [velocity, layer] of [[40, 1], [80, 2], [110, 3]]) {
       const { sample, playbackRate } = selectGuitarAttack({ stringIndex, semitone }, velocity);
       assert.equal(sample.stringIndex, stringIndex);
@@ -216,7 +232,7 @@ class FakeContext {
 let fetched = 0;
 const fetchAsset = async (url) => {
   const name = url.pathname.split("/").pop();
-  const sample = RECORDED_GUITAR_ATTACKS.find(({ file }) => file === name) ?? Object.values(DRUM_SAMPLES).find(({ file }) => file === name);
+  const sample = [...RECORDED_GUITAR_ATTACKS, ...ELECTRIC_GUITAR_ATTACKS, ...Object.values(DRUM_SAMPLES)].find(({ file }) => file === name);
   assert.ok(sample, "only licensed manifest files are requested");
   fetched += 1;
   return { ok: true, async arrayBuffer() { return new ArrayBuffer(sample.bytes); } };
@@ -345,6 +361,13 @@ context.currentTime = audio.loopStart + scaleOnce.loopSeconds + .02;
 assert.deepEqual(audio.activeScaleNote(), scaleNotes[0]);
 audio.stop();
 assert.equal(audio.activeScaleNote(), null);
+
+assert.equal(audio.setTone("electric"), true);
+const electricStart = context.sources.length;
+assert.equal(await audio.play(cards, 120), true);
+assert.ok(context.sources.length > electricStart);
+assert.equal(audio.setTone("natural"), true);
+assert.equal(audio.isActive(), false, "A bank change cancels scheduled voices before another bank can play");
 
 await audio.dispose();
 assert.equal(context.state, "closed");

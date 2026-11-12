@@ -24,7 +24,7 @@ function inside(base, candidate) {
 }
 
 function resolveRequest(pathname) {
-  const sampleDirectory = ["/samples/steel/", "/samples/drums/"].find((prefix) => pathname.startsWith(prefix));
+  const sampleDirectory = ["/samples/steel/", "/samples/drums/", "/samples/electric/"].find((prefix) => pathname.startsWith(prefix));
   if (sampleDirectory) {
     const base = resolve(labRoot, sampleDirectory.slice(1));
     const candidate = resolve(labRoot, pathname.slice(1));
@@ -94,7 +94,7 @@ function resolveRequest(pathname) {
   if (["/phrase.css", "/phrase-app.js", "/phrase-material.mjs", "/melody-session.mjs", "/motif-session.mjs", "/scenario-catalogue.mjs", "/scenario-resolver.mjs", "/rule-contract.mjs", "/melody-generator.mjs", "/melody-experience.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
-  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs", "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-tone-label.mjs", "/progression-rhythm.mjs", "/progression-grooves.mjs", "/progression-groove-editor.mjs", "/progression-drum-samples.mjs", "/progression-library.mjs", "/progression-library-view.mjs"].includes(pathname)) {
+  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs", "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-electric-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-tone-label.mjs", "/progression-rhythm.mjs", "/progression-grooves.mjs", "/progression-groove-editor.mjs", "/progression-drum-samples.mjs", "/progression-library.mjs", "/progression-library-view.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   for (const directory of ["engine", "progression"]) {
