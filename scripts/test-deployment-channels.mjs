@@ -28,8 +28,13 @@ for (const channel of ["stable", "experimental", "preview"]) {
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-channel" content="${channel}"`));
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-label" content="${channel}-test"`));
   assert.match(html, new RegExp(`name="guitar-explorer-revision" content="${channel}-revision"`));
-  assert.ok(html.includes(`src="./instrument-desk-app.js?ge-revision=${channel}-revision"`));
-  assert.ok(html.includes(`href="./instrument-desk.css?ge-revision=${channel}-revision"`));
+  const preview = channel === "preview";
+  const homeScript = preview ? "progression-workspace.mjs" : "instrument-desk-app.js";
+  const homeStyle = preview ? "progression.css" : "instrument-desk.css";
+  assert.ok(html.includes(`src="./${homeScript}?ge-revision=${channel}-revision"`));
+  assert.ok(html.includes(`href="./${homeStyle}?ge-revision=${channel}-revision"`));
+  const desk = await readFile(resolve(projectRoot, ".preview-dist", "instrument-desk.html"), "utf8");
+  assert.ok(desk.includes(`src="./instrument-desk-app.js?ge-revision=${channel}-revision"`));
   const app = await readFile(resolve(projectRoot, ".preview-dist", "instrument-desk-app.js"), "utf8");
   assert.ok(app.includes(`from "./role-view.mjs?ge-revision=${channel}-revision"`), "entry code imports the advertised revision");
   const roleView = await readFile(resolve(projectRoot, ".preview-dist", "role-view.mjs"), "utf8");

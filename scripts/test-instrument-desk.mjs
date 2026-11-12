@@ -37,7 +37,7 @@ assert.match(deskCss, /--ge-wood-1/);
 for (const required of ["instrument-desk.html", "instrument-desk.css", "instrument-desk-app.js", "chord-lab.html", "product-theme.js", "practice-material.mjs", "practice-plan.mjs", "sampled-guitar.mjs"]) {
   assert.ok(buildPreview.includes('"' + required + '"'), "preview output requirement: " + required);
 }
-assert.match(buildPreview, /instrument-desk\.html"\), join\(outputRoot, "index\.html"/);
+assert.match(buildPreview, /deploymentChannel === "preview" \? "progression\.html" : "instrument-desk\.html"/);
 assert.match(server, /return resolve\(labRoot, "instrument-desk\.html"\)/);
 assert.match(server, /"\/chord-lab\.html"/);
 assert.doesNotMatch(desk + deskCss, /figma\.com\/api\/mcp\/asset/);

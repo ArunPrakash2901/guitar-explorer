@@ -28,7 +28,8 @@ try {
   ]) {
     assert.ok((await get(asset, /^text\/javascript/)).trim().length, asset);
   }
-  assert.match(await get("/", /^text\/html/), /instrument-desk-app\.js/);
+  assert.equal(await get("/", /^text\/html/), page);
+  assert.match(await get("/instrument-desk.html", /^text\/html/), /instrument-desk-app\.js/);
   const outsideBuild = await fetch(origin + "/progression/%2e%2e%2fengine%2findex.js");
   assert.equal(outsideBuild.status, 404, "compiled progression routes stay within their own directory");
 } finally {
@@ -43,6 +44,7 @@ const stamp = encodeURIComponent(process.env.GE_REVISION || process.env.GITHUB_S
 assert.ok(previewPage.includes('src="./progression-workspace.mjs?ge-revision=' + stamp + '"'));
 assert.ok(previewPage.includes('href="./progression.css?ge-revision=' + stamp + '"'));
 assert.doesNotMatch(previewPage, /session-evidence\.mjs/);
+assert.equal(await readFile(new URL("index.html", outputRoot), "utf8"), previewPage);
 const previewEntry = await readFile(new URL("progression-workspace.mjs", outputRoot), "utf8");
 assert.match(previewEntry, /\.\/progression-diagram\.mjs\?ge-revision=/);
 const generatorFile = new URL("progression/generator.js", outputRoot);

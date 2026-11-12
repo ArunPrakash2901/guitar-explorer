@@ -52,7 +52,8 @@ function resolveRequest(pathname) {
   ].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
-  if (pathname === "/" || pathname === "/index.html") {
+  if (["/", "/index.html", "/progression.html", "/progression"].includes(pathname)) return progressionPage;
+  if (["/instrument-desk.html", "/instrument-desk"].includes(pathname)) {
     return resolve(labRoot, "instrument-desk.html");
   }
   if (["/chord-lab.html", "/chord-lab"].includes(pathname)) {
@@ -93,7 +94,6 @@ function resolveRequest(pathname) {
   if (["/phrase.css", "/phrase-app.js", "/phrase-material.mjs", "/melody-session.mjs", "/motif-session.mjs", "/scenario-catalogue.mjs", "/scenario-resolver.mjs", "/rule-contract.mjs", "/melody-generator.mjs", "/melody-experience.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
-  if (["/progression.html", "/progression"].includes(pathname)) return progressionPage;
   if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs", "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-rhythm.mjs", "/progression-grooves.mjs", "/progression-drum-samples.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }

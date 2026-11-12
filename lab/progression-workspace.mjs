@@ -18,6 +18,7 @@ const qualities = { major: "major", minor: "minor", diminished: "diminished", au
 const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 
 const form = document.querySelector("#generate-form");
+const settingsSwitch = form.querySelector(".settings-switch");
 const tonicInput = document.querySelector("#tonic");
 const modeInput = document.querySelector("#mode");
 const shapeInput = document.querySelector("#shape-filter");
@@ -135,6 +136,9 @@ function renderBoard() {
     : "";
   fretboardDescription.textContent = description + positionDescription + gripDescription;
   scaleLayerControl.hidden = boardView !== "scale";
+  for (const button of cardsElement.querySelectorAll("[data-action=select]")) {
+    button.setAttribute("aria-pressed", String(boardView === "chords" && Number(button.closest("[data-slot]").dataset.slot) === selectedCard));
+  }
   for (const button of cagedControls.querySelectorAll("button")) {
     button.setAttribute("aria-pressed", String(button.dataset.position === boardPosition));
   }
@@ -209,11 +213,21 @@ function renderCards(restoreFocus) {
 
 function paintTransport() {
   const active = audio.activeSlot();
+  const playing = audio.isPlaying();
   cardsElement.querySelectorAll(".chord-card").forEach((card) => {
-    const selected = audio.isPlaying() && Number(card.dataset.slot) === active;
+    const selected = playing && Number(card.dataset.slot) === active;
+    if (card.dataset.playing === String(selected)) return;
     card.dataset.playing = String(selected);
+    if (selected) card.setAttribute("aria-current", "step");
+    else card.removeAttribute("aria-current");
   });
-  stopButton.disabled = !audioPending && !audio.isActive();
+  const label = playing ? "Pause" : audio.isPaused() ? "Resume" : "Play";
+  const text = (playing ? "Ⅱ " : "▶ ") + label;
+  if (playButton.textContent !== text) {
+    playButton.textContent = text;
+    playButton.setAttribute("aria-label", label + " progression");
+  }
+  stopButton.disabled = !audioPending && !audio.isActive() && !audio.isPaused();
 }
 
 function monitorTransport() {
@@ -222,13 +236,17 @@ function monitorTransport() {
   else animationFrame = null;
 }
 
+function cancelTransportAnimation() {
+  if (animationFrame !== null) cancelAnimationFrame(animationFrame);
+  animationFrame = null;
+}
+
 function stopPlayback() {
   audioStatusTicket++;
   audioPending = false;
   loopRequested = false;
   audio.stop();
-  if (animationFrame !== null) cancelAnimationFrame(animationFrame);
-  animationFrame = null;
+  cancelTransportAnimation();
   paintTransport();
 }
 
@@ -274,6 +292,18 @@ function applyGeneration() {
     ? "Kept " + lockCount + " locked " + (lockCount === 1 ? "chord." : "chords.")
     : "New progression. Press Play, or explore the fretboard.");
 }
+
+function showSettings(view) {
+  for (const button of settingsSwitch.querySelectorAll("button[data-settings]")) {
+    const selected = button.dataset.settings === view;
+    button.setAttribute("aria-pressed", String(selected));
+    document.getElementById(button.getAttribute("aria-controls")).hidden = !selected;
+  }
+}
+settingsSwitch.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-settings]");
+  if (button) showSettings(button.dataset.settings);
+});
 
 function updatePatternControls(resetPattern = false) {
   const old = resetPattern ? null : patternInput.value;
@@ -344,6 +374,7 @@ form.addEventListener("submit", (event) => {
 document.querySelector("#reset-workspace").addEventListener("click", () => {
   stopPlayback();
   workspace = undefined;
+  showSettings("chords");
   tonicInput.value = "all";
   modeInput.value = "auto";
   shapeInput.value = "all";
@@ -470,7 +501,30 @@ async function playLoop() {
   }
 }
 
-playButton.addEventListener("click", playLoop);
+async function resumeLoop() {
+  audioPending = true;
+  loopRequested = true;
+  const ticket = ++audioStatusTicket;
+  try {
+    const resumed = await audio.resume();
+    if (resumed) finishAudio(ticket, "Playing loop · " + workspace.cards.length + " chords.");
+  } catch (problem) {
+    if (finishAudio(ticket, problem.message)) loopRequested = false;
+  }
+}
+
+playButton.addEventListener("click", () => {
+  if (audio.pause()) {
+    loopRequested = false;
+    cancelTransportAnimation();
+    paintTransport();
+    transportMessage.textContent = "Paused.";
+  } else if (audio.isPaused()) {
+    void resumeLoop();
+  } else {
+    void playLoop();
+  }
+});
 
 stopButton.addEventListener("click", () => {
   stopPlayback();
