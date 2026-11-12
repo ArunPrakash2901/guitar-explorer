@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
-import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { basename, dirname, extname, join, resolve, sep } from "node:path";
@@ -164,6 +164,7 @@ try {
   }
 
   await cdp("Browser.grantPermissions", { origin, permissions: ["clipboardReadWrite", "clipboardSanitizedWrite"] });
+  await cdp("Browser.setDownloadBehavior", { behavior: "allow", downloadPath: screenshots });
   await cdp("Page.enable");
   await cdp("Runtime.enable");
   await cdp("Page.addScriptToEvaluateOnNewDocument", { source: `
@@ -516,11 +517,30 @@ try {
   await setValue("#meter", "6/8");
   await setValue("#drum-groove", "six-eight-drive");
   await setValue("#guitar-tone", "warm");
-  const savedState = "JSON.stringify({cards:[...document.querySelectorAll('[data-slot]')].map(card=>[card.dataset.chord,card.querySelector('.diagram-wrap').dataset.voicing,card.querySelector('[data-action=lock]').getAttribute('aria-pressed')]),settings:['#meter','#drum-groove','#guitar-tone'].map(selector=>document.querySelector(selector).value),form:document.querySelector('#caged-positions [aria-pressed=true]').dataset.position})";
+  await evaluate("document.querySelector('.drum-editor').open = true");
+  await press("#drum-grid [data-part=snare][data-step='1']", " ");
+  await press("#metronome-click", " ");
+  await setValue("#fretboard-labels", "intervals");
+  const savedState = "JSON.stringify({cards:[...document.querySelectorAll('[data-slot]')].map(card=>[card.dataset.chord,card.querySelector('.diagram-wrap').dataset.voicing,card.querySelector('[data-action=lock]').getAttribute('aria-pressed')]),settings:['#meter','#drum-groove','#guitar-tone','#fretboard-labels'].map(selector=>document.querySelector(selector).value),rhythm:[document.querySelector('#metronome-click').checked,document.querySelector('#drum-grid [data-part=snare][data-step=\\\"1\\\"]').getAttribute('aria-pressed')],form:document.querySelector('#caged-positions [aria-pressed=true]').dataset.position})";
   const original = await evaluate(savedState);
   await evaluate("document.querySelector('#library-drawer').open = true");
   await press("#save-favorite", " ");
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 1);
+  await press("#favorites [data-edit-favorite]", " ");
+  await setValue(".favorite-edit [name=name]", "Evening practice");
+  await setValue(".favorite-edit [name=collection]", "My progressions");
+  await press(".favorite-edit [type=submit]", "Enter");
+  assert.equal(await evaluate("document.querySelector('#favorites strong').textContent"), "Evening practice");
+  await setValue("#favorite-collection", "unfiled");
+  assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 0);
+  await setValue("#favorite-collection", "collection:My progressions");
+  assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 1);
+  await press("#export-progression", " ");
+  const exported = await poll(async () => (await readdir(screenshots)).find((name) => /^guitar-explorer-.*\.png$/.test(name)), "downloaded chord PNG");
+  const png = await readFile(join(screenshots, exported));
+  assert.equal(png.subarray(1, 4).toString(), "PNG");
+  assert.ok(png.readUInt32BE(16) >= 900 && png.readUInt32BE(20) >= 300);
+  await waitFor("document.querySelector('#library-status').textContent.includes('PNG exported')", "export confirmation");
   await press("#reset-workspace", " ");
   await press("#favorites li button:first-child", " ");
   assert.equal(await evaluate(savedState), original);
@@ -540,6 +560,7 @@ try {
   assert.equal(await evaluate(savedState), original);
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 1);
   await evaluate("document.querySelector('#library-drawer').open = true");
+  assert.equal(await evaluate("document.querySelector('#favorites strong').textContent"), "Evening practice");
   await press("#favorites li button:last-child", " ");
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 0);
 

@@ -284,9 +284,13 @@
         <button id="save-favorite" type="button" data-library="save">Save favorite</button>
         <button id="copy-progression" type="button" data-library="text">Copy text</button>
         <button id="share-progression" type="button" data-library="link">Copy link</button>
+        <button id="export-progression" type="button" data-library="image">Export PNG</button>
       </div>
       <p id="library-status" role="status"></p>
       <textarea id="copy-fallback" rows="3" aria-label="Text or link to copy" readonly hidden></textarea>
+      <label id="favorite-collections" for="favorite-collection" hidden>Collection
+        <select id="favorite-collection" aria-label="Filter favorites by collection"></select>
+      </label>
       <p id="favorites-empty">No favorites saved on this device.</p>
       <ul id="favorites" aria-label="Saved progressions"></ul>
       </section>

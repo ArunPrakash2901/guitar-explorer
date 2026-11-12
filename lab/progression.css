@@ -292,7 +292,7 @@ main.shell { padding-block: 1rem 3rem; }
 .credits { text-align: center; }
 .progression-library { margin: 1rem 0; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); }
 .progression-library h2 { margin-bottom: .6rem; font-size: 1.25rem; }
-.library-actions, #favorites li, #favorites li div { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .6rem; }
+.library-actions, #favorites li, .favorite-actions, .favorite-edit { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .6rem; }
 .progression-library button {
   min-height: 2.25rem;
   padding: .32rem .65rem;
@@ -304,6 +304,21 @@ main.shell { padding-block: 1rem 3rem; }
 }
 #favorites { margin: .5rem 0 0; padding: 0; list-style: none; }
 #favorites li { justify-content: space-between; border-top: 1px solid var(--line); padding: .4rem 0; }
+.favorite-info { display: grid; min-width: 0; overflow-wrap: anywhere; }
+.favorite-info small { color: var(--muted); }
+.favorite-info small:empty { display: none; }
+.favorite-edit { flex: 1 0 100%; align-items: end; }
+.favorite-edit label { display: grid; gap: .18rem; color: var(--muted); }
+.favorite-edit input, #favorite-collection {
+  padding: .35rem .45rem;
+  border: 1px solid var(--line);
+  border-radius: .4rem;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+#favorite-collections { margin-block: .45rem; font-size: .84rem; color: var(--muted); }
+#favorite-collection { margin-left: .25rem; max-width: min(14rem, 66%); }
 #library-status, #favorites-empty { margin: .45rem 0; color: var(--muted); font-size: .85rem; }
 #library-status:empty { margin: 0; }
 #copy-fallback { width: 100%; font: inherit; color: var(--text); background: var(--canvas); }
@@ -532,7 +547,8 @@ main.shell { padding-block: 1rem 3rem; }
 .mini-options-panel select { width: 100%; min-height: 2rem; border: 1px solid var(--line); border-radius: .4rem; color: var(--text); background: var(--panel); }
 .diagram-root { fill: #a84335; }
 .diagram-triad-tone { fill: #8e9654; }
-.diagram-finger-number { fill: #fffaf0; font-size: 10px; font-weight: 700; pointer-events: none; }
+.diagram-finger-number { fill: var(--wood); font-size: 10px; font-weight: 700; pointer-events: none; }
+.diagram-root + .diagram-finger-number { fill: #fffaf0; }
 .diagram-open-caption { fill: var(--text); font-size: 7px; font-weight: 700; }
 .diagram-open.diagram-root { stroke: #a84335; stroke-width: 3; }
 .key-chords-grid {

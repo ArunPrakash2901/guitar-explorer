@@ -960,7 +960,7 @@ function captureProgression() {
       fretLabels: fretLabels.value, fretHighlights: fretHighlights.value, scaleMode: scalePlayMode.value },
     rhythm: grooveEditor.read(),
   });
-  return { workspace, snapshot };
+  return { workspace: { ...workspace, cards }, snapshot };
 }
 
 function restoreExplorer(settings) {
