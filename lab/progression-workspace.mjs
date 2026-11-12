@@ -1,6 +1,7 @@
 import { formatNote, parseNote } from "./engine/index.js";
 import { chordDiagramModel } from "./progression/voicings.js";
-import { generateWorkspace, toggleChordLock } from "./progression/workspace.js";
+import { generateWorkspace, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
+import { listProgressionChoices } from "./progression/generator.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { resolveGenerateChoice } from "./progression-selection.mjs";
@@ -112,7 +113,7 @@ function renderBoard() {
   });
 }
 
-function renderCard({ slot, voicings, voicingIndex }) {
+function renderCard({ slot, voicings, voicingIndex }, choices) {
   const { chord, symbol, romanNumeral, isLocked, slotIndex } = slot;
   const title = noteText(symbol);
   const spokenChord = noteText(formatNote(chord.root)) + " " + qualities[chord.chordId];
@@ -130,6 +131,12 @@ function renderCard({ slot, voicings, voicingIndex }) {
       </button>
     </div>
     <p class="chord-tones">${chord.tones.map(({ note }) => noteText(formatNote(note))).join(" · ")}</p>
+    <div class="chord-edit">
+      <label for="chord-choice-${slotIndex}">Replace chord</label>
+      <select id="chord-choice-${slotIndex}" data-action="replace" aria-label="Replace chord ${number} with another chord in this mode">
+        ${choices.map((choice) => `<option value="${choice.degree}" ${choice.degree === slot.degree ? "selected" : ""}>${choice.romanNumeral} · ${noteText(choice.symbol)}</option>`).join("")}
+      </select>
+    </div>
     ${voicing ? `
       <div class="diagram-wrap" data-voicing="${voicing.id}">${diagram}</div>
       <div class="voicing-nav">
@@ -143,7 +150,8 @@ function renderCard({ slot, voicings, voicingIndex }) {
 }
 
 function renderCards(restoreFocus) {
-  cardsElement.innerHTML = workspace.cards.map(visibleCard).map(renderCard).join("");
+  const choices = listProgressionChoices(workspace.context.tonic, workspace.context.mode);
+  cardsElement.innerHTML = workspace.cards.map(visibleCard).map((card) => renderCard(card, choices)).join("");
   if (restoreFocus) {
     cardsElement.querySelector(restoreFocus)?.focus({ preventScroll: true });
   }
@@ -291,6 +299,29 @@ document.querySelector("#show-scale").addEventListener("click", () => {
 document.querySelector("#show-chords").addEventListener("click", () => {
   boardView = "chords";
   renderBoard();
+});
+
+cardsElement.addEventListener("change", (event) => {
+  const select = event.target.closest('select[data-action="replace"]');
+  if (!select || !workspace) return;
+  const slotIndex = Number(select.closest("[data-slot]").dataset.slot);
+  try {
+    stopPlayback();
+    workspace = replaceWorkspaceChord(workspace, slotIndex, Number(select.value));
+    selectedCard = slotIndex;
+    boardView = "chords";
+    renderCards('[data-slot="' + slotIndex + '"] [data-action="replace"]');
+    renderBoard();
+    updatePlayAvailability();
+    const replaced = workspace.cards[slotIndex].slot;
+    setMessage("Chord " + (slotIndex + 1) + " replaced with " + noteText(replaced.symbol) +
+      ". It is locked, so the next Generate preserves it.");
+    transportMessage.textContent = playButton.disabled
+      ? "This chord has no playable guitar grip under the selected shape filter."
+      : "Chord updated. Ready to play.";
+  } catch (problem) {
+    setMessage(problem.message, true);
+  }
 });
 
 cardsElement.addEventListener("click", (event) => {
