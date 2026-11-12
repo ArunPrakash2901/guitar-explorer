@@ -125,3 +125,30 @@ export function replaceWorkspaceChord(
   return { ...workspace, cards: workspace.cards.map((card, index) =>
     index === slotIndex ? replacement : card) };
 }
+
+
+/**
+ * Move a card to a new musical slot without changing its chord, voicing or
+ * lock identity. Numbering follows its new position, so hard locks continue
+ * to apply to the intended chord after reordering and regeneration.
+ */
+export function moveWorkspaceChord(
+  workspace: ProgressionWorkspace, fromIndex: number, toIndex: number,
+): ProgressionWorkspace {
+  const count = workspace.cards.length;
+  if (!Number.isInteger(fromIndex) || !Number.isInteger(toIndex) ||
+      fromIndex < 0 || toIndex < 0 || fromIndex >= count || toIndex >= count) {
+    throw new RangeError("Chord reorder positions must be valid indices");
+  }
+  if (fromIndex === toIndex) return workspace;
+  const cards = [...workspace.cards];
+  const [moved] = cards.splice(fromIndex, 1);
+  cards.splice(toIndex, 0, moved!);
+  return {
+    ...workspace,
+    cards: cards.map((card, slotIndex) => ({
+      ...card,
+      slot: { ...card.slot, slotIndex },
+    })),
+  };
+}
