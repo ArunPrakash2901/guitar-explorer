@@ -173,10 +173,10 @@ for (const directory of ["engine", "progression"]) {
   await cp(join(buildRoot, directory), join(outputRoot, directory), { recursive: true });
 }
 
-// Product builds expose the Instrument Desk at the root while retaining the Chord Lab
-// as an explicit legacy/dev route. Source index.html remains the long-standing Chord
-// Lab fixture so its deep DOM regression test does not need to be weakened.
-await cp(join(outputRoot, "instrument-desk.html"), join(outputRoot, "index.html"));
+// The review channel opens the progression workspace directly. Other channel
+// builds retain the Instrument Desk entry. The source index stays the Chord Lab fixture.
+const home = deploymentChannel === "preview" ? "progression.html" : "instrument-desk.html";
+await cp(join(outputRoot, home), join(outputRoot, "index.html"));
 
 // The local server aliases /harmony.html to practice.html. Static channel builds need an
 // actual file while preserving the pathname distinction used by the practice app.

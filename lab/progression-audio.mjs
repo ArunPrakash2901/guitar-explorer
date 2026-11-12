@@ -95,11 +95,13 @@ export class ProgressionAudio {
     this.loading = new Map();
     this.plan = null;
     this.loopStart = 0;
+    this.transportStartsAt = 0;
     this.nextEvent = 0;
     this.interval = null;
     this.voices = new Set();
     this.revision = 0;
     this.playing = false;
+    this.pausedOffset = null;
   }
 
   async ensureContext() {
@@ -287,12 +289,37 @@ export class ProgressionAudio {
     const revision = this.revision;
     await this.preload(plan.strokes, plan.drumHits);
     if (revision !== this.revision) return false;
+    this.startPlan(plan, 0);
+    return true;
+  }
+
+  startPlan(plan, offset) {
     this.plan = plan;
-    this.loopStart = this.context.currentTime + 0.12;
-    this.nextEvent = 0;
+    this.transportStartsAt = this.context.currentTime + 0.12;
+    this.loopStart = this.transportStartsAt - offset;
+    const first = plan.events.findIndex(({ seconds }) => seconds >= offset);
+    this.nextEvent = first < 0 ? plan.events.length : first;
+    this.pausedOffset = null;
     this.playing = true;
     this.fillSchedule();
     this.interval = setInterval(() => this.fillSchedule(), SCHEDULE_INTERVAL_MS);
+  }
+
+  pause() {
+    if (!this.playing) return false;
+    this.pausedOffset = Math.max(0, this.context.currentTime - this.loopStart) % this.plan.loopSeconds;
+    this.revision += 1;
+    this.playing = false;
+    this.clearSchedule();
+    return true;
+  }
+
+  async resume() {
+    if (!this.isPaused()) return false;
+    const revision = ++this.revision;
+    await this.ensureContext();
+    if (revision !== this.revision) return false;
+    this.startPlan(this.plan, this.pausedOffset);
     return true;
   }
 
@@ -308,12 +335,14 @@ export class ProgressionAudio {
 
   activeSlot() {
     if (!this.playing || !this.context || !this.plan) return null;
+    if (this.context.currentTime < this.transportStartsAt) return null;
     const elapsed = this.context.currentTime - this.loopStart;
-    if (elapsed < 0) return null;
     return Math.floor((elapsed % this.plan.loopSeconds) / this.plan.secondsPerBar);
   }
 
   isPlaying() { return this.playing; }
+
+  isPaused() { return this.pausedOffset !== null; }
 
   isActive() { return this.playing || this.voices.size > 0; }
 
@@ -321,6 +350,11 @@ export class ProgressionAudio {
     this.revision += 1;
     this.playing = false;
     this.plan = null;
+    this.pausedOffset = null;
+    this.clearSchedule();
+  }
+
+  clearSchedule() {
     if (this.interval !== null) {
       clearInterval(this.interval);
       this.interval = null;
