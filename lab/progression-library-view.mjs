@@ -8,6 +8,19 @@ export function connectProgressionLibrary({ capture, restore }) {
   const status = document.querySelector("#library-status");
   const list = document.querySelector("#favorites");
   const fallback = document.querySelector("#copy-fallback");
+  const quickFavorite = document.querySelector("#quick-favorite");
+  function updateQuickFavorite(entries) {
+    let saved = false;
+    try {
+      const { snapshot } = capture();
+      const token = encodeProgression(snapshot);
+      saved = entries.some((entry) => entry.token === token);
+    } catch { /* A progression may not be generated yet. */ }
+    quickFavorite.textContent = saved ? "★" : "☆";
+    quickFavorite.setAttribute("aria-pressed", String(saved));
+    quickFavorite.setAttribute("aria-label", saved ? "Remove current progression from favorites" : "Save current progression to favorites");
+    quickFavorite.title = saved ? "Remove favorite" : "Save favorite";
+  }
 
   function refreshFavorites() {
     list.replaceChildren();
@@ -18,6 +31,7 @@ export function connectProgressionLibrary({ capture, restore }) {
       return;
     }
     document.querySelector("#favorites-empty").hidden = entries.length > 0;
+    updateQuickFavorite(entries);
     for (const { token, snapshot } of entries) {
       const item = document.createElement("li");
       const name = document.createElement("span");
@@ -49,6 +63,21 @@ export function connectProgressionLibrary({ capture, restore }) {
       list.append(item);
     }
   }
+
+  quickFavorite.addEventListener("click", () => {
+    try {
+      const { snapshot } = capture();
+      const token = encodeProgression(snapshot);
+      const alreadySaved = readFavorites(localStorage).some((entry) => entry.token === token);
+      if (alreadySaved) deleteFavorite(localStorage, token);
+      else saveFavorite(localStorage, token);
+      refreshFavorites();
+      status.textContent = alreadySaved ? "Removed this progression from favorites." : "Favorite saved on this device.";
+    } catch (problem) {
+      status.textContent = problem.message;
+    }
+  });
+  window.addEventListener("progression-changed", refreshFavorites);
 
   async function copy(value, what) {
     try {
