@@ -24,6 +24,12 @@ export const RHYTHM_PATTERNS = Object.freeze([
   Object.freeze({ id: "folk", meter: "4/4", name: "Folk strum",
     strokes: Object.freeze([stroke(0, "down", 1), stroke(2, "down", .8),
       stroke(3, "up", .45), stroke(5, "up", .48), stroke(6, "down", .78), stroke(7, "up", .53)]) }),
+  Object.freeze({ id: "rock-eighths", meter: "4/4", name: "Rock eighths",
+    strokes: Object.freeze(Array.from({ length: 8 }, (_, step) =>
+      stroke(step, step % 2 ? "up" : "down", [1, .45, .75, .48, .9, .45, .76, .5][step]))) }),
+  Object.freeze({ id: "blues-shuffle", meter: "4/4", name: "Blues shuffle", subdivisions: 3,
+    strokes: Object.freeze([stroke(0), stroke(2, "up", .55), stroke(3, "down", .8), stroke(5, "up", .48),
+      stroke(6, "down", .9), stroke(8, "up", .52), stroke(9, "down", .78), stroke(11, "up", .5)]) }),
   Object.freeze({ id: "waltz", meter: "3/4", name: "Waltz",
     strokes: Object.freeze([stroke(0, "down", 1), stroke(2, "down", .58), stroke(4, "down", .63)]) }),
   Object.freeze({ id: "waltz-sway", meter: "3/4", name: "Waltz sway",
@@ -48,7 +54,7 @@ export function patternsForMeter(meter) {
 }
 
 export function rhythmPlan(meter, patternId, bpm) {
-  const definition = METERS[meter];
+  const definition = Object.hasOwn(METERS, meter) ? METERS[meter] : undefined;
   if (!definition) throw new RangeError("Unsupported meter: " + String(meter));
   if (!Number.isFinite(bpm) || bpm < 50 || bpm > 180) {
     throw new RangeError("Tempo must be between 50 and 180 BPM");
@@ -57,8 +63,9 @@ export function rhythmPlan(meter, patternId, bpm) {
   if (!pattern) throw new RangeError("The selected strum pattern does not belong to " + meter);
   const secondsPerPulse = 60 / bpm;
   const secondsPerBar = definition.pulses * secondsPerPulse;
-  const secondsPerStep = secondsPerPulse / definition.subdivisions;
-  const stepsPerBar = definition.pulses * definition.subdivisions;
+  const subdivisions = pattern.subdivisions ?? definition.subdivisions;
+  const secondsPerStep = secondsPerPulse / subdivisions;
+  const stepsPerBar = definition.pulses * subdivisions;
   let lastStep = -1;
   const strokes = pattern.strokes.map((item) => {
     if (!Number.isInteger(item.step) || item.step <= lastStep || item.step < 0 || item.step >= stepsPerBar) {
@@ -71,7 +78,7 @@ export function rhythmPlan(meter, patternId, bpm) {
   });
   return Object.freeze({
     meter, pattern: pattern.id, bpm, pulseUnit: definition.pulseUnit,
-    secondsPerPulse, secondsPerBar, secondsPerStep,
+    secondsPerPulse, secondsPerBar, secondsPerStep, stepsPerBar,
     strokes: Object.freeze(strokes),
   });
 }

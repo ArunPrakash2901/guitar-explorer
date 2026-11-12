@@ -280,6 +280,11 @@ main.shell { padding-block: 1rem 3rem; }
 .fret-note:hover { transform: scale(1.12); }
 .fretboard-hint, .credits { color: var(--muted); font-size: .78rem; margin-top: .55rem; }
 .credits { text-align: center; }
+.track-mixer { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
+.track-mix { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .65rem; font-size: .82rem; }
+.track-mix input[type="range"] { inline-size: 6.2rem; accent-color: var(--forest); }
+.track-mix label { white-space: nowrap; }
+.track-mix output { display: inline-block; min-width: 3ch; color: var(--muted); }
 @media (max-width: 1050px) {
   .settings { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .chord-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }

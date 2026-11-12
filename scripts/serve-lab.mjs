@@ -15,6 +15,7 @@ const contentTypes = new Map([
   [".css", "text/css; charset=utf-8"],
   [".map", "application/json; charset=utf-8"],
   [".ogg", "audio/ogg"],
+  [".wav", "audio/wav"],
   [".md", "text/plain; charset=utf-8"],
 ]);
 
@@ -23,8 +24,9 @@ function inside(base, candidate) {
 }
 
 function resolveRequest(pathname) {
-  if (pathname.startsWith("/samples/steel/")) {
-    const base = resolve(labRoot, "samples", "steel");
+  const sampleDirectory = ["/samples/steel/", "/samples/drums/"].find((prefix) => pathname.startsWith(prefix));
+  if (sampleDirectory) {
+    const base = resolve(labRoot, sampleDirectory.slice(1));
     const candidate = resolve(labRoot, pathname.slice(1));
     return inside(base, candidate) ? candidate : null;
   }
@@ -92,7 +94,7 @@ function resolveRequest(pathname) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (["/progression.html", "/progression"].includes(pathname)) return progressionPage;
-  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs", "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-rhythm.mjs"].includes(pathname)) {
+  if (["/progression.css", "/progression-workspace.mjs", "/progression-diagram.mjs", "/progression-audio.mjs", "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-rhythm.mjs", "/progression-grooves.mjs", "/progression-drum-samples.mjs"].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   for (const directory of ["engine", "progression"]) {
