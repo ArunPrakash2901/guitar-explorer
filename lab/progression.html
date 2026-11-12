@@ -37,7 +37,7 @@
         <div class="field">
           <label for="tonic">Key</label>
           <select id="tonic">
-            <option value="all" selected>All (surprise me)</option>
+            <option value="all" selected>All</option>
             <option value="C">C</option><option value="Db">D♭</option>
             <option value="D">D</option><option value="Eb">E♭</option>
             <option value="E">E</option><option value="F">F</option>
@@ -88,7 +88,7 @@
         <div class="field">
           <label for="shape-filter">Chord shapes</label>
           <select id="shape-filter">
-            <option value="all" selected>All playable shapes</option>
+            <option value="all" selected>All shapes</option>
             <option value="open">Open shapes</option>
             <option value="barre">Barre shapes</option>
             <option value="triad">Three-string triads</option>
@@ -121,9 +121,9 @@
         <div class="field">
           <label for="guitar-tone">Guitar sound</label>
           <select id="guitar-tone">
-            <option value="natural" selected>Acoustic · Natural</option>
-            <option value="warm">Acoustic · Warm</option>
-            <option value="bright">Acoustic · Bright</option>
+            <option value="natural" selected>Acoustic</option>
+            <option value="warm">Warm acoustic</option>
+            <option value="bright">Bright acoustic</option>
             <option value="electric">Clean electric</option>
           </select>
         </div>
@@ -134,7 +134,7 @@
             <output id="tempo-value" for="tempo">92 BPM</output>
           </div>
         </div>
-        <div class="field rhythm-control">
+        <div class="field">
           <label for="strum-pattern">Strum pattern</label>
           <select id="strum-pattern" aria-describedby="strum-description"></select>
         </div>
@@ -215,10 +215,16 @@
     <ol class="chord-grid" id="progression-cards" aria-label="Chord positions"></ol>
 
     <section class="fretboard-panel" aria-labelledby="fretboard-title">
-      <div class="fretboard-tabs" role="group" aria-label="Fretboard display">
-        <button type="button" class="tab selected" id="show-scale" aria-pressed="true">Scale</button>
-        <button type="button" class="tab" id="show-key-chords" aria-pressed="false">Key chords</button>
-        <button type="button" class="tab" id="show-chords" aria-pressed="false">Chord tones</button>
+      <div class="fretboard-heading">
+        <div>
+          <h2 id="fretboard-title">Explore the fretboard</h2>
+          <p id="fretboard-description">Select Generate to see the scale across the fretboard.</p>
+        </div>
+        <div class="fretboard-tabs" role="group" aria-label="Fretboard display">
+          <button type="button" class="tab selected" id="show-scale" aria-pressed="true">Scale</button>
+          <button type="button" class="tab" id="show-key-chords" aria-pressed="false">Key chords</button>
+          <button type="button" class="tab" id="show-chords" aria-pressed="false">Chord tones</button>
+        </div>
       </div>
       <div id="key-chords-grid" class="key-chords-grid" aria-label="Diatonic chords in the selected key" hidden></div>
       <div class="fretboard-controls">
@@ -237,28 +243,26 @@
             <option value="minorPentatonic">Minor pentatonic</option>
           </select>
         </label>
+        <details class="fretboard-options">
+          <summary>Fretboard appearance</summary>
+          <div class="appearance-fields">
+            <label for="fretboard-labels">Labels
+              <select id="fretboard-labels">
+                <option value="degrees" selected>Automatic</option>
+                <option value="intervals">Degrees / intervals</option>
+                <option value="notes">Note names</option>
+              </select>
+            </label>
+            <label for="fretboard-highlights">Highlights
+              <select id="fretboard-highlights">
+                <option value="root" selected>Roots</option>
+                <option value="triad">Selected triad</option>
+                <option value="modal">Characteristic modal notes</option>
+              </select>
+            </label>
+          </div>
+        </details>
       </div>
-      <details class="fretboard-options">
-        <summary>Fretboard appearance</summary>
-        <div class="appearance-fields">
-          <label for="fretboard-labels">Labels
-            <select id="fretboard-labels">
-              <option value="degrees" selected>Automatic</option>
-              <option value="intervals">Degrees / intervals</option>
-              <option value="notes">Note names</option>
-            </select>
-          </label>
-          <label for="fretboard-highlights">Highlights
-            <select id="fretboard-highlights">
-              <option value="root" selected>Roots</option>
-              <option value="triad">Selected triad</option>
-              <option value="modal">Characteristic modal notes</option>
-            </select>
-          </label>
-        </div>
-      </details>
-      <h2 id="fretboard-title">Explore the fretboard</h2>
-      <p id="fretboard-description">Select Generate to see the scale across the fretboard.</p>
       <div class="fretboard-scroll" tabindex="0" aria-label="Horizontal guitar fretboard with six strings">
         <div class="fretboard" id="fretboard"></div>
       </div>

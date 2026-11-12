@@ -23,7 +23,7 @@ const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 const form = document.querySelector("#generate-form");
 const advancedSettings = document.querySelector("#advanced-settings");
 const quickControls = document.querySelector("#quick-controls");
-for (const id of ["tonic", "mode", "style", "meter", "drum-groove", "guitar-tone", "shape-filter", "tempo"]) {
+for (const id of ["tonic", "mode", "style", "meter", "drum-groove", "guitar-tone", "shape-filter", "strum-pattern", "tempo"]) {
   const field = document.getElementById(id)?.closest(".field");
   if (!field) throw new Error("Missing quick setting: " + id);
   quickControls.append(field);
@@ -116,6 +116,7 @@ function finishAudio(ticket, text) {
 function setMessage(text, isError = false) {
   message.textContent = text;
   message.classList.toggle("is-error", isError);
+  message.classList.remove("visually-hidden");
 }
 
 function randomUint32() {
@@ -315,30 +316,32 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
       <div class="card-identity">
         <p class="card-roman">${romanNumeral}</p>
         <button type="button" class="chord-select" data-action="select" aria-pressed="${boardView === "chords" && selectedCard === slotIndex}" aria-label="Show chord ${number} tones: ${spokenChord}">${title}</button>
+        <p class="chord-tones">${chord.tones.map(({ note }) => noteText(formatNote(note))).join(" · ")}</p>
       </div>
-      <button class="lock-button" type="button" data-action="lock" aria-label="Lock chord ${number}, ${spokenChord}" aria-pressed="${isLocked}">
-        ${isLocked ? "Locked" : "Lock"}
-      </button>
-    </div>
-    <p class="chord-tones">${chord.tones.map(({ note }) => noteText(formatNote(note))).join(" · ")}</p>
-    <div class="chord-edit">
-      <label for="chord-choice-${slotIndex}">Replace chord</label>
-      <select id="chord-choice-${slotIndex}" data-action="replace" aria-label="Replace chord ${number} with another chord in this mode">
-        ${choices.filter(({ value, playable }) => playable || value === currentChoice)
-          .map((choice) => `<option value="${choice.value}" ${choice.value === currentChoice ? "selected" : ""}>${choice.romanNumeral} · ${noteText(choice.symbol)}</option>`).join("")}
-      </select>
+      <div class="card-actions">
+        <button class="lock-button" type="button" data-action="lock" aria-label="Lock chord ${number}, ${spokenChord}" aria-pressed="${isLocked}">${isLocked ? "Locked" : "Lock"}</button>
+        ${voicing ? `<button class="audition-button" type="button" data-action="audition" aria-label="Hear chord ${number}, ${spokenChord}"><span aria-hidden="true">▶ </span>Hear</button>` : ""}
+      </div>
     </div>
     ${voicing ? `
-      <div class="diagram-wrap" data-voicing="${voicing.id}">${diagram}</div>
+      <div class="diagram-wrap" data-voicing="${voicing.id}">
+        ${diagram}
+        <button class="diagram-expand" type="button" data-action="zoom" aria-label="Enlarge chord ${number} diagram" title="Enlarge diagram">⛶</button>
+      </div>
       <div class="voicing-nav">
         <button type="button" data-action="voicing" data-step="-1" aria-label="Previous voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>‹</button>
         <p><strong>${families[voicing.shapeFamily]}${bass}</strong><span>${voicingIndex + 1} of ${voicings.length}</span></p>
         <button type="button" data-action="voicing" data-step="1" aria-label="Next voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>›</button>
       </div>
-      <button class="audition-button" type="button" data-action="audition" aria-label="Hear chord ${number}, ${spokenChord}">Hear chord</button>
-    ` : `<p class="unsupported">No guitar grip is available for this chord. Its tones are shown above.</p>`}
-    <div class="card-tools" aria-label="Reorder and enlarge chord ${number}">
-      <button type="button" data-action="zoom" aria-label="Enlarge chord ${number} diagram">⛶ Expand</button>
+    ` : `<p class="unsupported">No guitar grip matches the selected shape filter.</p>`}
+    <div class="card-tools">
+      <div class="chord-edit">
+        <label for="chord-choice-${slotIndex}">Replace<span class="visually-hidden"> chord ${number}</span></label>
+        <select id="chord-choice-${slotIndex}" data-action="replace">
+          ${choices.filter(({ value, playable }) => playable || value === currentChoice)
+            .map((choice) => `<option value="${choice.value}" ${choice.value === currentChoice ? "selected" : ""}>${choice.romanNumeral} · ${noteText(choice.symbol)}</option>`).join("")}
+        </select>
+      </div>
       <button type="button" data-action="move" data-step="-1" aria-label="Move chord ${number} earlier" ${slotIndex === 0 ? "disabled" : ""}>←</button>
       <button type="button" data-action="move" data-step="1" aria-label="Move chord ${number} later" ${slotIndex === workspace.cards.length - 1 ? "disabled" : ""}>→</button>
       <span class="drag-handle" draggable="true" aria-hidden="true" title="Drag to reorder">⠿</span>
@@ -618,7 +621,8 @@ function applyGeneration() {
   const lockCount = workspace.cards.filter(({ slot }) => slot.isLocked).length;
   setMessage(lockCount
     ? "Kept " + lockCount + " locked " + (lockCount === 1 ? "chord." : "chords.")
-    : "New progression. Press Play, or explore the fretboard.");
+    : "New progression ready.");
+  if (!lockCount) message.classList.add("visually-hidden");
 }
 
 function showWorkspace(next, selected = 0) {
@@ -629,8 +633,8 @@ function showWorkspace(next, selected = 0) {
   selectedCard = selected;
   updatePlayAvailability();
   transportMessage.textContent = playButton.disabled
-    ? "Some chords have no matching shape. Try All playable shapes to enable playback."
-    : "Ready. Play the progression, or tap a chord to hear it.";
+    ? "Some chords have no matching shape. Try All shapes to enable playback."
+    : "";
   const { context, scale } = workspace;
   contextHeading.textContent = noteText(formatNote(context.tonic)) + " " + modes[context.mode];
   scaleNotes.textContent = scale.tones.map(({ note }) => noteText(formatNote(note))).join(" · ");
@@ -798,7 +802,7 @@ shapeInput.addEventListener("change", () => {
   renderCards();
   updatePlayAvailability();
   transportMessage.textContent = playButton.disabled
-    ? "This shape filter excludes at least one chord. Try All playable shapes."
+    ? "This shape filter excludes at least one chord. Try All shapes."
     : "Chord shapes updated.";
 });
 
