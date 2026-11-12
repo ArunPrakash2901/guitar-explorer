@@ -209,7 +209,7 @@ function renderBoard() {
     button.setAttribute("aria-pressed", String(boardView === view));
   }
   renderScaleBoard(fretboard, scale, chord, boardView === "scale" ? "scale" : "chords", (note) => {
-    const ticket = beginAudio("Loading acoustic note…");
+    const ticket = beginAudio("Loading guitar note…");
     audio.audition({ voicingIndex: 0, voicings: [{ notes: [note] }] }).then((played) => {
       if (played) finishAudio(ticket, note.note + " sounded.");
     }).catch((problem) => finishAudio(ticket, problem.message));
@@ -730,7 +730,9 @@ document.querySelector("#quick-mix").addEventListener("click", () => {
   document.querySelector("#guitar-volume").focus();
 });
 syncQuickTrackButtons();
-toneInput.addEventListener("change", () => audio.setTone(toneInput.value));
+toneInput.addEventListener("change", () => {
+  if (audio.setTone(toneInput.value)) rhythmChanged("Guitar sound changed.");
+});
 
 meterInput.addEventListener("change", () => {
   updatePatternControls("");
@@ -883,8 +885,8 @@ cardsElement.addEventListener("click", (event) => {
 
 async function auditionCard(index) {
   const card = visibleCard(workspace.cards[index]);
-  const ticket = beginAudio("Loading acoustic guitar…");
-  if (zoomDialog.open) zoomStatus.textContent = "Loading acoustic guitar…";
+  const ticket = beginAudio("Loading guitar recordings…");
+  if (zoomDialog.open) zoomStatus.textContent = "Loading guitar recordings…";
   try {
     if (!await audio.audition(card)) return;
     const text = "Heard chord " + (index + 1) + " · " + noteText(card.slot.symbol) + ".";

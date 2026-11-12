@@ -199,11 +199,11 @@ try {
     const realStart = AudioBufferSourceNode.prototype.start;
     const realStop = AudioBufferSourceNode.prototype.stop;
     let sourceId = 0;
-    AudioBufferSourceNode.prototype.start = function (at) {
-      const result = realStart.call(this, at);
+    AudioBufferSourceNode.prototype.start = function (at, offset) {
+      const result = realStart.call(this, at, offset ?? 0);
       this.smokeId = ++sourceId;
       window.audioClocks.add(this.context);
-      window.events.push({ action: "start", id: this.smokeId, at, rate: this.playbackRate.value, clock: this.context.currentTime, duration: this.buffer.duration });
+      window.events.push({ action: "start", id: this.smokeId, at, rate: this.playbackRate.value, clock: this.context.currentTime, duration: this.buffer.duration, offset: offset ?? 0 });
       return result;
     };
     AudioBufferSourceNode.prototype.stop = function (at) {
@@ -394,6 +394,12 @@ try {
   assert.ok(await evaluate("window.sampleRequests.length > 0 && window.sampleRequests.every(({ok}) => ok)"));
   await setValue("#guitar-tone", "warm");
   assert.ok(await evaluate("!!document.querySelector('[data-playing=true]')"));
+  await setValue("#guitar-tone", "electric");
+  await waitFor("window.sampleRequests.some(({path,ok}) => ok && path.includes('/samples/electric/')) && document.querySelector('#transport-message').textContent.includes('Playing loop')", "recorded electric bank playback");
+  assert.equal(await evaluate("window.audioClocks.size"), 1);
+  assert.ok(await evaluate("window.events.some(({action,offset}) => action === 'start' && offset > 0 && offset <= .028)"));
+  await setValue("#guitar-tone", "warm");
+  await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "return to acoustic recording bank");
   await setValue("#drum-groove", "six-eight-sway");
   await waitFor("window.sampleRequests.filter(({path,ok}) => ok && path.includes('/samples/drums/')).length === 3", "three recorded drum sounds");
   await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "live groove restart");
