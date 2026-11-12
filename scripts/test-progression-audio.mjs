@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 
 const outputRoot = new URL("../.preview-dist/", import.meta.url);
 const { planProgressionStrokes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
@@ -31,7 +32,29 @@ assert.throws(() => planProgressionStrokes([...cards, ...cards, cards[0]], 120),
 assert.equal(planProgressionStrokes(cards.slice(0, 3), 120).loopSeconds, 6);
 assert.equal(planProgressionStrokes([...cards, ...cards], 120).loopSeconds, 16);
 
-assert.equal(RECORDED_GUITAR_ATTACKS.length, 12);
+const { PROGRESSION_STEEL_SAMPLES } = await import(new URL("progression-guitar-manifest.mjs", outputRoot));
+assert.equal(PROGRESSION_STEEL_SAMPLES.length, 90);
+assert.equal(new Set(RECORDED_GUITAR_ATTACKS.map(({ file }) => file)).size, RECORDED_GUITAR_ATTACKS.length);
+for (const sample of RECORDED_GUITAR_ATTACKS) {
+  const bytes = await readFile(new URL("samples/steel/" + sample.file, outputRoot));
+  assert.equal(bytes.length, sample.bytes);
+  assert.equal(bytes.toString("ascii", 0, 4), "OggS");
+  assert.equal(createHash("sha1").update("blob " + bytes.length + "\0").update(bytes).digest("hex"), sample.gitBlobSha);
+  assert.equal(sample.note.replace("#", "s"), sample.file.split("_").at(-2));
+}
+const { STANDARD_FRETBOARD, getNoteAt } = await import(new URL("engine/index.js", outputRoot));
+for (let stringIndex = 0; stringIndex < 6; stringIndex++) {
+  for (let fret = 0; fret <= STANDARD_FRETBOARD.maxFret; fret++) {
+    const { semitone } = getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret });
+    for (const [velocity, layer] of [[40, 1], [80, 2], [110, 3]]) {
+      const { sample, playbackRate } = selectGuitarAttack({ stringIndex, semitone }, velocity);
+      assert.equal(sample.stringIndex, stringIndex);
+      assert.equal(sample.layer, layer);
+      assert.ok(Math.abs(sample.fret - fret) <= 2);
+      assert.equal(sample.semitone + Math.round(12 * Math.log2(playbackRate)), semitone);
+    }
+  }
+}
 const selected = selectGuitarAttack({ stringIndex: 5, semitone: 64 });
 assert.ok(selected.sample.file.endsWith(".ogg"));
 assert.ok(Number.isFinite(selected.playbackRate) && selected.playbackRate > 0);
@@ -118,6 +141,7 @@ class FakeContext {
     this.state = "suspended";
     this.destination = {};
     this.sources = [];
+    this.shelf = new FakeGain();
     FakeContext.instance = this;
   }
   createBufferSource() {
@@ -126,6 +150,11 @@ class FakeContext {
     return source;
   }
   createGain() { return new FakeGain(); }
+  createBiquadFilter() {
+    this.shelf.frequency = { setValueAtTime() {} };
+    this.shelf.gain.setTargetAtTime = (value) => { this.toneGain = value; };
+    return this.shelf;
+  }
   async decodeAudioData() { return { duration: 1.75 }; }
   async resume() { this.state = "running"; }
   async close() { this.state = "closed"; }
@@ -143,6 +172,9 @@ assert.equal(audio.activeSlot(), null);
 assert.equal(await audio.play(cards, 120), true);
 const context = FakeContext.instance;
 assert.equal(audio.isPlaying(), true);
+audio.setTone("warm");
+assert.equal(context.toneGain, -4);
+assert.throws(() => audio.setTone("unknown"), RangeError);
 assert.equal(context.sources.length, 3);
 assert.equal(context.sources[0].startedAt, 100.12);
 assert.ok(context.sources[0].rate > 0);
@@ -164,6 +196,14 @@ const fetchedBefore = fetched;
 assert.equal(await audio.audition(cards[2]), true);
 assert.equal(context.sources.length, 9);
 assert.equal(fetched, fetchedBefore, "recordings are cached for the same progression");
+assert.equal(await audio.play(cards, 120), true);
+const beforeWake = context.sources.length;
+context.currentTime = audio.loopStart + audio.plan.loopSeconds * 15 - 0.06;
+audio.fillSchedule();
+const afterWake = context.sources.slice(beforeWake);
+assert.equal(afterWake.length, 3);
+assert.ok(afterWake.every(({ startedAt }) => startedAt >= context.currentTime));
+assert.equal(afterWake[0].startedAt, audio.loopStart + audio.plan.loopSeconds * 15);
 await audio.dispose();
 assert.equal(context.state, "closed");
 

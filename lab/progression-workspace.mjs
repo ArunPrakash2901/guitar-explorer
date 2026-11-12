@@ -23,6 +23,7 @@ const shapeInput = document.querySelector("#shape-filter");
 const styleInput = document.querySelector("#style");
 const moodInput = document.querySelector("#mood");
 const colorInput = document.querySelector("#chord-color");
+const toneInput = document.querySelector("#guitar-tone");
 const countInput = document.querySelector("#chord-length");
 const chordCount = document.querySelector("#chord-count");
 const tempoValue = document.querySelector("#tempo-value");
@@ -289,6 +290,8 @@ function updatePatternControls(resetPattern = false) {
     : "";
 }
 
+toneInput.addEventListener("change", () => audio.setTone(toneInput.value));
+
 meterInput.addEventListener("change", () => {
   stopPlayback();
   updatePatternControls(true);
@@ -314,6 +317,8 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   styleInput.value = "auto";
   moodInput.value = "any";
   colorInput.value = "triads";
+  toneInput.value = "natural";
+  audio.setTone("natural");
   countInput.value = "4";
   boardPosition = "full";
   boardView = "scale";
@@ -433,6 +438,7 @@ stopButton.addEventListener("click", () => {
   transportMessage.textContent = "Playback stopped.";
 });
 
+document.addEventListener("visibilitychange", () => { if (!document.hidden) audio.fillSchedule(); });
 window.addEventListener("pagehide", () => stopPlayback());
 updatePatternControls(true);
 applyGeneration();
