@@ -1,16 +1,15 @@
+import { selectGuitarAttack } from "./progression-sample-bank.mjs";
+
 /**
- * Bounded, original Web Audio guitar-pluck accompaniment for the progression
- * workbench. One AudioContext clock owns every scheduled note and bar boundary.
- * JS timers only refill the schedule horizon, never define musical onset time.
- *
- * This is an intentionally synthetic preview voice, not a sampled-guitar or
- * licensed StrumForge sound. Four chords, 4/4, two downstrokes per bar.
+ * Four-chord, 4/4 acoustic playback. Uses Guitar Explorer's existing CC0 steel
+ * guitar recordings with controlled pitch-shifting; no oscillator voice.
+ * All note onsets are scheduled against the AudioContext clock.
  */
 export const MIN_BPM = 50;
 export const MAX_BPM = 180;
 const BEATS_PER_BAR = 4;
-const STRUM_SPREAD_SECONDS = 0.018;
-const LOOKAHEAD_SECONDS = 0.6;
+const STRUM_SPREAD_SECONDS = 0.025;
+const LOOKAHEAD_SECONDS = 0.65;
 const SCHEDULE_INTERVAL_MS = 100;
 
 function assertBpm(bpm) {
@@ -20,52 +19,55 @@ function assertBpm(bpm) {
 }
 
 function soundingNotes(card) {
-  const voice = card?.voicings?.[card.voicingIndex];
-  if (!voice?.notes?.length) throw new Error("Select a playable guitar grip for all four chords");
-  const midis = voice.notes.map(({ semitone }) => semitone);
-  if (!midis.every((note) => Number.isFinite(note) && note >= 0 && note <= 127)) {
-    throw new RangeError("A guitar grip contains an invalid MIDI pitch");
+  const voicing = card?.voicings?.[card.voicingIndex];
+  if (!voicing?.notes?.length) throw new Error("Select a playable guitar grip for all four chords");
+  const notes = voicing.notes.map(({ semitone, stringIndex }) => Object.freeze({ semitone, stringIndex }));
+  if (!notes.every(({ semitone, stringIndex }) =>
+    Number.isInteger(semitone) && semitone >= 0 && semitone <= 127 &&
+    Number.isInteger(stringIndex) && stringIndex >= 0 && stringIndex < 6)) {
+    throw new RangeError("A guitar grip contains an invalid sounded note");
   }
-  return Object.freeze(midis);
+  return Object.freeze(notes);
 }
 
-/** Pure timing plan, independently testable without an AudioContext. */
+/** Pure tempo/transport facts; never depends on samples or rendering APIs. */
 export function planProgressionStrokes(cards, bpm) {
   assertBpm(bpm);
   if (!Array.isArray(cards) || cards.length !== 4) {
-    throw new RangeError("Audio v0 requires exactly four chord cards");
+    throw new RangeError("Acoustic playback requires exactly four chord cards");
   }
   const secondsPerBeat = 60 / bpm;
   const secondsPerBar = secondsPerBeat * BEATS_PER_BAR;
   const strokes = [];
   for (let slotIndex = 0; slotIndex < cards.length; slotIndex += 1) {
-    const midis = soundingNotes(cards[slotIndex]);
+    const notes = soundingNotes(cards[slotIndex]);
     for (const beat of [0, 2]) {
       strokes.push(Object.freeze({
         slotIndex,
         beat,
         seconds: slotIndex * secondsPerBar + beat * secondsPerBeat,
-        midis,
+        notes,
+        midis: Object.freeze(notes.map(({ semitone }) => semitone)),
       }));
     }
   }
   return Object.freeze({
-    bpm,
-    secondsPerBeat,
-    secondsPerBar,
+    bpm, secondsPerBeat, secondsPerBar,
     loopSeconds: cards.length * secondsPerBar,
     strokes: Object.freeze(strokes),
   });
 }
 
-function midiFrequency(note) {
-  return 440 * 2 ** ((note - 69) / 12);
-}
-
 export class ProgressionAudio {
-  constructor(AudioContextType = globalThis.AudioContext ?? globalThis.webkitAudioContext) {
+  constructor(
+    AudioContextType = globalThis.AudioContext ?? globalThis.webkitAudioContext,
+    fetchAsset = globalThis.fetch?.bind(globalThis),
+  ) {
     this.AudioContextType = AudioContextType;
+    this.fetchAsset = fetchAsset;
     this.context = null;
+    this.buffers = new Map();
+    this.loading = new Map();
     this.plan = null;
     this.loopStart = 0;
     this.nextStroke = 0;
@@ -76,53 +78,86 @@ export class ProgressionAudio {
   }
 
   async ensureContext() {
-    if (!this.AudioContextType) throw new Error("This browser does not support Web Audio");
+    if (!this.AudioContextType || !this.fetchAsset) {
+      throw new Error("Sampled guitar playback needs Web Audio and sample loading");
+    }
     if (!this.context) this.context = new this.AudioContextType();
     if (this.context.state === "closed") throw new Error("Audio context is closed");
     if (this.context.state !== "running") await this.context.resume();
     return this.context;
   }
 
-  /** Schedule notes on the AudioContext clock, with a physical strum stagger. */
-  scheduleStrum(midis, when) {
-    const ctx = this.context;
-    for (let index = 0; index < midis.length; index += 1) {
+  async loadAttack(attack) {
+    const { sample } = attack;
+    if (this.buffers.has(sample.file)) return;
+    if (!this.loading.has(sample.file)) {
+      const task = (async () => {
+        const response = await this.fetchAsset(new URL("./samples/steel/" + sample.file, import.meta.url));
+        if (!response.ok) throw new Error("Guitar recording unavailable: " + sample.note);
+        const bytes = await response.arrayBuffer();
+        if (bytes.byteLength !== sample.bytes) {
+          throw new Error("Guitar recording did not match the existing CC0 sample manifest");
+        }
+        const buffer = await this.context.decodeAudioData(bytes);
+        this.buffers.set(sample.file, buffer);
+      })();
+      this.loading.set(sample.file, task);
+    }
+    try { await this.loading.get(sample.file); }
+    finally { this.loading.delete(sample.file); }
+  }
+
+  async preload(notes) {
+    await this.ensureContext();
+    const selected = new Map(notes.map((note) => {
+      const attack = selectGuitarAttack(note);
+      return [attack.sample.file, attack];
+    }));
+    await Promise.all([...selected.values()].map((attack) => this.loadAttack(attack)));
+  }
+
+  scheduleStrum(notes, when) {
+    const context = this.context;
+    const peak = 0.65 / Math.max(1, Math.sqrt(notes.length));
+    for (let index = 0; index < notes.length; index += 1) {
+      const attack = selectGuitarAttack(notes[index]);
+      const buffer = this.buffers.get(attack.sample.file);
+      if (!buffer) throw new Error("A guitar recording was not loaded before scheduling");
       const at = when + index * STRUM_SPREAD_SECONDS;
-      const oscillator = ctx.createOscillator();
-      const gain = ctx.createGain();
-      oscillator.type = "triangle";
-      oscillator.frequency.setValueAtTime(midiFrequency(midis[index]), at);
-      const peak = 0.11 / Math.sqrt(midis.length);
+      const duration = Math.min(0.95, buffer.duration / attack.playbackRate);
+      if (!Number.isFinite(duration) || duration < 0.06) {
+        throw new Error("Guitar recording is too short for this pitch");
+      }
+      const source = context.createBufferSource();
+      const gain = context.createGain();
+      source.buffer = buffer;
+      source.playbackRate.setValueAtTime(attack.playbackRate, at);
       gain.gain.setValueAtTime(0.0001, at);
-      gain.gain.exponentialRampToValueAtTime(peak, at + 0.008);
-      gain.gain.exponentialRampToValueAtTime(0.0001, at + 0.65);
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      this.voices.add(oscillator);
-      oscillator.onended = () => {
-        this.voices.delete(oscillator);
-        oscillator.disconnect();
+      gain.gain.linearRampToValueAtTime(peak, at + 0.012);
+      gain.gain.exponentialRampToValueAtTime(0.0001, at + duration);
+      source.connect(gain);
+      gain.connect(context.destination);
+      const voice = { source, gain };
+      this.voices.add(voice);
+      source.onended = () => {
+        this.voices.delete(voice);
+        source.disconnect();
         gain.disconnect();
       };
-      oscillator.start(at);
-      oscillator.stop(at + 0.66);
+      source.start(at);
+      source.stop(at + duration);
     }
   }
 
   fillSchedule() {
     if (!this.playing || !this.context || !this.plan) return;
-    const ctx = this.context;
     const { strokes, loopSeconds } = this.plan;
-    const floor = ctx.currentTime - 0.02;
-    const horizon = ctx.currentTime + LOOKAHEAD_SECONDS;
-
-    // After a suspended/background tab returns, skip the missed cycles instead
-    // of spawning an unbounded backlog of notes in the past.
+    const floor = this.context.currentTime - 0.02;
+    const horizon = this.context.currentTime + LOOKAHEAD_SECONDS;
     if (floor > this.loopStart + loopSeconds) {
-      const completedLoops = Math.max(0, Math.floor((floor - this.loopStart) / loopSeconds) - 1);
-      this.nextStroke = Math.max(this.nextStroke, completedLoops * strokes.length);
+      const skippedLoops = Math.max(0, Math.floor((floor - this.loopStart) / loopSeconds) - 1);
+      this.nextStroke = Math.max(this.nextStroke, skippedLoops * strokes.length);
     }
-
     let work = 0;
     while (work < 32) {
       const cycle = Math.floor(this.nextStroke / strokes.length);
@@ -132,19 +167,18 @@ export class ProgressionAudio {
       this.nextStroke += 1;
       work += 1;
       if (when < floor) continue;
-      this.scheduleStrum(stroke.midis, when);
+      this.scheduleStrum(stroke.notes, when);
     }
   }
 
   async play(cards, bpm) {
-    // Validate before interrupting a valid earlier performance.
     const plan = planProgressionStrokes(cards, bpm);
     this.stop();
     const revision = this.revision;
-    const ctx = await this.ensureContext();
+    await this.preload(plan.strokes.flatMap(({ notes }) => notes));
     if (revision !== this.revision) return false;
     this.plan = plan;
-    this.loopStart = ctx.currentTime + 0.1;
+    this.loopStart = this.context.currentTime + 0.12;
     this.nextStroke = 0;
     this.playing = true;
     this.fillSchedule();
@@ -153,12 +187,12 @@ export class ProgressionAudio {
   }
 
   async audition(card) {
-    const midis = soundingNotes(card);
+    const notes = soundingNotes(card);
     this.stop();
     const revision = this.revision;
-    const ctx = await this.ensureContext();
+    await this.preload(notes);
     if (revision !== this.revision) return false;
-    this.scheduleStrum(midis, ctx.currentTime + 0.04);
+    this.scheduleStrum(notes, this.context.currentTime + 0.04);
     return true;
   }
 
@@ -169,9 +203,7 @@ export class ProgressionAudio {
     return Math.floor((elapsed % this.plan.loopSeconds) / this.plan.secondsPerBar);
   }
 
-  isPlaying() {
-    return this.playing;
-  }
+  isPlaying() { return this.playing; }
 
   stop() {
     this.revision += 1;
@@ -181,16 +213,19 @@ export class ProgressionAudio {
       clearInterval(this.interval);
       this.interval = null;
     }
-    for (const oscillator of this.voices) {
-      try { oscillator.stop(); } catch { /* A completed oscillator is already stopped. */ }
-      try { oscillator.disconnect(); } catch { /* Context may have been closed. */ }
+    for (const { source, gain } of this.voices) {
+      try { source.stop(); } catch {}
+      try { source.disconnect(); } catch {}
+      try { gain.disconnect(); } catch {}
     }
     this.voices.clear();
   }
 
   async dispose() {
     this.stop();
-    if (this.context && this.context.state !== "closed") await this.context.close();
+    if (this.context?.state !== "closed" && this.context) await this.context.close();
     this.context = null;
+    this.buffers.clear();
+    this.loading.clear();
   }
 }
