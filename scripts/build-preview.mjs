@@ -73,6 +73,7 @@ const requiredPaths = [
   "progression-selection.mjs",
   "progression-fretboard.mjs",
   "progression-rhythm.mjs",
+  "progression/caged.js",
   "progression/generator.js",
   "progression/voicings.js",
   "progression/workspace.js",

@@ -146,12 +146,29 @@
         <button type="button" class="tab selected" id="show-scale" aria-pressed="true">Scale</button>
         <button type="button" class="tab" id="show-chords" aria-pressed="false">Chord tones</button>
       </div>
+      <div class="fretboard-controls">
+        <div id="caged-positions" role="group" aria-label="CAGED position">
+          <button type="button" data-position="full" aria-pressed="true">Full</button>
+          <button type="button" data-position="C" aria-label="C form" aria-pressed="false">C</button>
+          <button type="button" data-position="A" aria-label="A form" aria-pressed="false">A</button>
+          <button type="button" data-position="G" aria-label="G form" aria-pressed="false">G</button>
+          <button type="button" data-position="E" aria-label="E form" aria-pressed="false">E</button>
+          <button type="button" data-position="D" aria-label="D form" aria-pressed="false">D</button>
+        </div>
+        <label id="scale-layer-control" for="scale-layer">Scale
+          <select id="scale-layer">
+            <option value="context">Current mode</option>
+            <option value="majorPentatonic">Major pentatonic</option>
+            <option value="minorPentatonic">Minor pentatonic</option>
+          </select>
+        </label>
+      </div>
       <h2 id="fretboard-title">Explore the fretboard</h2>
       <p id="fretboard-description">Select Generate to see the scale across the fretboard.</p>
       <div class="fretboard-scroll" tabindex="0" aria-label="Horizontal guitar fretboard with six strings">
         <div class="fretboard" id="fretboard"></div>
       </div>
-      <p class="fretboard-hint">Tap any highlighted note to hear it. Red marks the root of the displayed scale or chord.</p>
+      <p class="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
     </section>
     <p class="credits">Acoustic notes use Guitar Explorer's existing CC0 Meta Steel Guitar recordings. Some notes are pitch-shifted while full multisampling is being developed.</p>
   </main>

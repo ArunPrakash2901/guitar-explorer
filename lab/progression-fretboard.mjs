@@ -3,21 +3,57 @@ import { formatNote, getNoteAt, STANDARD_FRETBOARD } from "./engine/index.js";
 const labels = ["E", "A", "D", "G", "B", "e"];
 const pretty = (note) => formatNote(note).replaceAll("#", "♯").replaceAll("b", "♭");
 
-/**
- * An original, responsive fretboard built from Music Core and Guitar geometry.
- * No duplicated pitch arithmetic or cached "CAGED" theory tables.
- */
-export function renderScaleBoard(container, scale, chord, mode, onNote) {
+function installKeyboardNavigation(container, rows) {
+  const notes = rows.flat();
+  let current = notes.find((button) => button.classList.contains("root")) ?? notes[0];
+  if (current) current.tabIndex = 0;
+  function setCurrent(button) {
+    if (current) current.tabIndex = -1;
+    current = button;
+    current.tabIndex = 0;
+  }
+  for (const button of notes) button.onfocus = () => setCurrent(button);
+  container.onkeydown = (event) => {
+    const { target, key } = event;
+    if (!target.matches(".fret-note") || !["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(key)) return;
+    const stringIndex = Number(target.dataset.string);
+    const fret = Number(target.dataset.fret);
+    const row = rows[stringIndex];
+    const offset = row.indexOf(target);
+    let next;
+    if (key === "ArrowLeft") next = row[offset - 1];
+    if (key === "ArrowRight") next = row[offset + 1];
+    if (key === "Home") next = row[0];
+    if (key === "End") next = row.at(-1);
+    if (key === "ArrowUp" || key === "ArrowDown") {
+      const step = key === "ArrowUp" ? 1 : -1;
+      for (let i = stringIndex + step; i >= 0 && i < rows.length && !next; i += step) {
+        next = rows[i].reduce((nearest, button) => !nearest ||
+          Math.abs(Number(button.dataset.fret) - fret) < Math.abs(Number(nearest.dataset.fret) - fret) ? button : nearest, null);
+      }
+    }
+    event.preventDefault();
+    next?.focus();
+  };
+}
+
+/** Render the selected collection over engine guitar positions. */
+export function renderScaleBoard(container, scale, chord, mode, onNote, position) {
   container.replaceChildren();
   const shown = mode === "chords" ? chord.tones : scale.tones;
   const tones = new Map(shown.map((tone) => [tone.pitchClass, tone]));
+  const firstFret = position?.fromFret ?? 0;
+  const lastFret = position?.toFret ?? STANDARD_FRETBOARD.maxFret;
+  container.style.setProperty("--fret-columns", lastFret - firstFret + 1);
+  container.classList.toggle("has-open", firstFret === 0);
+  const rows = labels.map(() => []);
   const heading = document.createElement("div");
   heading.className = "fretboard-row";
   const corner = document.createElement("span");
   corner.className = "string-label fret-corner";
   corner.textContent = "String";
   heading.append(corner);
-  for (let fret = 0; fret <= 12; fret++) {
+  for (let fret = firstFret; fret <= lastFret; fret++) {
     const item = document.createElement("span");
     item.className = "fret-number";
     item.textContent = fret === 0 ? "Open" : String(fret);
@@ -32,7 +68,7 @@ export function renderScaleBoard(container, scale, chord, mode, onNote) {
     name.className = "string-label";
     name.textContent = labels[stringIndex];
     row.append(name);
-    for (let fret = 0; fret <= 12; fret++) {
+    for (let fret = firstFret; fret <= lastFret; fret++) {
       const cell = document.createElement("div");
       cell.className = "fret-cell";
       const location = getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret });
@@ -41,18 +77,28 @@ export function renderScaleBoard(container, scale, chord, mode, onNote) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "fret-note";
-        if (location.pitchClass === shown[0].pitchClass) button.classList.add("root");
+        button.dataset.string = String(stringIndex);
+        button.dataset.fret = String(fret);
+        button.tabIndex = -1;
+        const root = location.pitchClass === shown[0].pitchClass;
+        const grip = mode === "scale" && position?.gripFrets[stringIndex] === fret;
+        button.classList.toggle("root", root);
+        button.classList.toggle("grip-tone", grip);
         const alteration = tone.alteration === -1 ? "♭" : tone.alteration === 1 ? "♯" : "";
-        button.textContent = mode === "chords" ? pretty(tone.note) : alteration + tone.degree;
-        button.setAttribute("aria-label",
-          pretty(tone.note) + " on " + labels[stringIndex] + " string, fret " + fret);
-        button.addEventListener("click", () => onNote({
-          stringIndex, semitone: location.semitone, note: pretty(tone.note),
-        }));
+        const degree = alteration + tone.degree;
+        const note = pretty(tone.note);
+        button.textContent = mode === "chords" ? note : degree;
+        const stringName = stringIndex === 0 ? "low E" : stringIndex === 5 ? "high E" : labels[stringIndex];
+        button.setAttribute("aria-label", note + " on " + stringName + " string, fret " + fret +
+          ", degree " + degree + (root ? ", root" : "") + (grip ? ", tonic grip" : ""));
+        button.title = note + " · " + degree;
+        button.addEventListener("click", () => onNote({ stringIndex, semitone: location.semitone, note }));
+        rows[stringIndex].push(button);
         cell.append(button);
       }
       row.append(cell);
     }
     container.append(row);
   }
+  installKeyboardNavigation(container, rows);
 }
