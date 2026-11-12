@@ -66,6 +66,19 @@
       <h2 id="context-heading"></h2>
       <p id="scale-notes"></p>
     </section>
+    <section class="transport" aria-labelledby="playback-heading">
+      <h2 id="playback-heading">Playback</h2>
+      <div class="transport-controls">
+        <button type="button" class="primary" id="play-progression" disabled>Play progression</button>
+        <button type="button" id="stop-playback" disabled>Stop</button>
+        <div class="field">
+          <label for="tempo">Tempo (BPM)</label>
+          <input id="tempo" type="number" min="40" max="220" step="1" value="96" required>
+        </div>
+        <label class="loop-control"><input id="loop" type="checkbox"> Loop</label>
+      </div>
+      <p id="playback-status" role="status">One bar per chord in 4/4.</p>
+    </section>
     <ol class="chord-grid" id="progression-cards" aria-label="Four-chord progression"></ol>
   </main>
 </body>
