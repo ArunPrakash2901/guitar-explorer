@@ -62,6 +62,16 @@ describe("progression workbench state", () => {
     expect(next.context.seed).toBe(0);
   });
 
+  it("selects playable open grips from a fixed key and retains them across generation", () => {
+    const request = { ...cMajor, shapeFilter: "open", length: 2, style: "folk" } as const;
+    const first = requireWorkspace(generateWorkspace(request));
+    const second = requireWorkspace(generateWorkspace(request, toggleChordLock(first, 0)));
+    expect(second.cards).toHaveLength(2);
+    expect(second.cards.every(({ voicings }) => voicings.some(({ shapeFamily }) => shapeFamily === "open"))).toBe(true);
+    expect(second.cards[0]!.slot).toEqual({ ...first.cards[0]!.slot, isLocked: true });
+    expect(second.cards[1]!.slot.degree).not.toEqual(first.cards[1]!.slot.degree);
+  });
+
   it("offers seven correctly spelled chords from the current engine context", () => {
     const major = listProgressionChoices(parseNote("C"), "major");
     expect(major).toHaveLength(7);

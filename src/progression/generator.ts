@@ -22,6 +22,11 @@ export type ProgressionRequest = Readonly<{
   mode: ProgressionMode;
   seed: number;
   lockedSlots?: readonly LockedChordSlot[];
+  length?: number;
+  style?: ProgressionStyle;
+  mood?: ProgressionMood;
+  allowedDegrees?: readonly number[]; // 1–7, e.g. from a playable shape filter
+  previousDegrees?: readonly number[];
 }>;
 
 export type ProgressionSlot = Readonly<{
@@ -46,7 +51,7 @@ export type ProgressionResult =
   | Readonly<{
       ok: false;
       error: Readonly<{
-        code: "INVALID_INPUT" | "UNSUPPORTED_MODE" | "LOCK_OUT_OF_MODE";
+        code: "INVALID_INPUT" | "UNSUPPORTED_MODE" | "LOCK_OUT_OF_MODE" | "NO_PLAYABLE_CHORDS";
         message: string;
       }>;
     }>;
@@ -104,7 +109,7 @@ function sameNote(left: NoteName, right: NoteName): boolean {
   return left.letter === right.letter && left.accidental === right.accidental;
 }
 
-function error(code: "INVALID_INPUT" | "UNSUPPORTED_MODE" | "LOCK_OUT_OF_MODE", message: string): ProgressionResult {
+function error(code: Extract<ProgressionResult, { ok: false }>["error"]["code"], message: string): ProgressionResult {
   return Object.freeze({ ok: false, error: Object.freeze({ code, message }) });
 }
 
@@ -227,6 +232,115 @@ function constrainedPaths(
   return best;
 }
 
+export const STYLES = ["auto", "pop", "rock", "blues", "folk", "indie", "jazz"] as const;
+export const MOODS = ["any", "bright", "melancholic", "relaxed", "tense"] as const;
+export type ProgressionStyle = (typeof STYLES)[number];
+export type ProgressionMood = (typeof MOODS)[number];
+
+type Profile = Readonly<{
+  motifs: readonly (readonly number[])[];
+  cadence: readonly (readonly [number, number])[];
+}>;
+
+// Zero-based degrees. These are preferences inside the chosen mode, so for
+// example Blues in Aeolian keeps the modal v instead of raising a leading tone.
+const PROFILES: Readonly<Record<ProgressionStyle, Profile>> = {
+  auto: { motifs: [], cadence: [] },
+  pop: { motifs: [[0, 4, 5, 3], [5, 3, 0, 4], [0, 5, 3, 4]], cadence: [[4, 5], [5, 3], [3, 0]] },
+  rock: { motifs: [[0, 6, 3, 0], [0, 3, 0, 4], [0, 4, 3, 0]], cadence: [[6, 3], [4, 3], [3, 0]] },
+  blues: { motifs: [[0, 0, 3, 0], [3, 3, 0, 4], [0, 0, 3, 0, 4, 3, 0, 4]], cadence: [[0, 0], [3, 0], [4, 3]] },
+  folk: { motifs: [[0, 3, 0, 4], [0, 3, 5, 0], [0, 3, 4, 0]], cadence: [[0, 3], [3, 0], [4, 0]] },
+  indie: { motifs: [[5, 2, 3, 0], [0, 2, 5, 3], [0, 6, 2, 3]], cadence: [[0, 2], [2, 5], [5, 3]] },
+  jazz: { motifs: [[1, 4, 0, 5], [0, 5, 1, 4], [2, 5, 1, 4]], cadence: [[5, 1], [1, 4], [4, 0]] },
+};
+
+const MODAL_COLOR: Partial<Record<ProgressionMode, number>> = {
+  dorian: 3, phrygian: 1, lydian: 1, mixolydian: 6,
+};
+
+type PathOptions = Readonly<{
+  length: number;
+  style: ProgressionStyle;
+  mood: ProgressionMood;
+  mode: ProgressionMode;
+  allowed: readonly number[];
+  previous?: readonly number[];
+}>;
+
+function hybridPath(
+  locks: ReadonlyMap<number, number>,
+  degrees: readonly DegreeChord[],
+  templates: readonly (readonly number[])[],
+  options: PathOptions,
+  random: () => number,
+): number[] {
+  const { length, style, mood, mode, allowed, previous } = options;
+  const profile = PROFILES[style];
+  const pickDegree = () => allowed[Math.floor(random() * allowed.length)]!;
+  const transitions = degrees.map(({ chord }, from) => degrees.map(({ chord: next }, to) => {
+    const common = chord.tones.filter((tone) => next.tones.some((other) => other.pitchClass === tone.pitchClass)).length;
+    const modeMovement = templates.some((path) => path.some((degree, index) => degree === from && path[index + 1] === to));
+    const styleMovement = profile.cadence.some(([a, b]) => a === from && b === to);
+    const step = (next.tones[0]!.pitchClass - chord.tones[0]!.pitchClass + 12) % 12;
+    const tension = mood === "tense" && (step === 1 || step === 11 || step === 6);
+    return (from === to ? -2 : common * (mood === "relaxed" ? 1.45 : 0.6))
+      + Number(modeMovement) * 0.7 + Number(styleMovement) * 2.6 + Number(tension) * 1.7;
+  }));
+  const chordScores = degrees.map(({ chord }) => {
+    if (chord.chordId === "diminished" || chord.chordId === "augmented") return mood === "tense" ? 1.3 : -3;
+    if (mood === "bright" && chord.chordId === "major") return 2.4;
+    if (mood === "melancholic" && chord.chordId === "minor") return 2.4;
+    return 0;
+  });
+  const candidates = new Map<string, { path: number[]; score: number }>();
+  function add(motif: readonly number[], preference = 0) {
+    const path = Array.from({ length }, (_, slot) => {
+      const degree = motif[slot % motif.length];
+      return locks.get(slot) ?? (degree !== undefined && allowed.includes(degree) ? degree : pickDegree());
+    });
+    const signature = path.join(",");
+    const color = MODAL_COLOR[mode];
+    const tonicStart = style === "jazz" || style === "indie" ? 0.7 : 2.1;
+    const resolution = mood === "tense" ? -1 : mood === "relaxed" ? 2.2 : 1;
+    const diversity = Math.min(4, new Set(path).size) * 0.8;
+    const movement = path.reduce((total, degree, slot) => total + chordScores[degree]!
+      + (slot ? transitions[path[slot - 1]!]![degree]! : 0), 0);
+    const score = preference + diversity + movement + (path[0] === 0 ? tonicStart : 0)
+      + (path.at(-1) === 0 ? resolution : 0) + (color !== undefined && path.includes(color) ? 2.6 : 0);
+    if ((candidates.get(signature)?.score ?? -Infinity) < score) candidates.set(signature, { path, score });
+  }
+
+  for (const template of templates) add(template, 1.5);
+  for (const motif of profile.motifs) {
+    add(motif, 3);
+    for (let variation = 0; variation < 5; variation++) {
+      const phrase = Array.from({ length }, (_, slot) => motif[slot % motif.length]!);
+      phrase[Math.floor(random() * length)] = pickDegree();
+      add(phrase, 1.5);
+    }
+  }
+  for (let attempt = 0; attempt < 96; attempt++) {
+    add(Array.from({ length }, pickDegree));
+  }
+
+  // Guarantee a different eligible path when at least one unlocked position
+  // has an alternative, even if the random draws happened to miss it.
+  const prior = previous?.map((degree) => degree - 1);
+  if (prior?.length === length) {
+    const slot = prior.findIndex((degree, index) => !locks.has(index) && allowed.some((other) => degree !== other));
+    if (slot >= 0) {
+      const variant = prior.slice();
+      variant[slot] = allowed.find((degree) => degree !== prior[slot])!;
+      add(variant);
+      candidates.delete(prior.join(","));
+    }
+  }
+
+  const ranked = [...candidates.values()].sort((a, b) => b.score - a.score);
+  const finalists = ranked.filter(({ score }) => ranked[0]!.score - score <= (length <= 4 ? 3 : 5)).slice(0, 8);
+  return finalists[Math.floor(random() * finalists.length)]!.path;
+}
+
 export function generateProgression(request: ProgressionRequest): ProgressionResult {
   if (!request || typeof request !== "object" || Array.isArray(request)) {
     return error("INVALID_INPUT", "A progression request is required");
@@ -240,15 +354,36 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
   if (request.lockedSlots !== undefined && !Array.isArray(request.lockedSlots)) {
     return error("INVALID_INPUT", "lockedSlots must be an array");
   }
+  const length = request.length ?? 4;
+  const style = request.style ?? "auto";
+  const mood = request.mood ?? "any";
+  if (!Number.isInteger(length) || length < 2 || length > 8) {
+    return error("INVALID_INPUT", "Choose a progression length from two to eight chords");
+  }
+  if (!STYLES.includes(style) || !MOODS.includes(mood)) {
+    return error("INVALID_INPUT", "Choose a supported style and mood");
+  }
+  for (const list of [request.allowedDegrees, request.previousDegrees]) {
+    if (list !== undefined && (!Array.isArray(list) || list.length > 8 ||
+      !list.every((degree) => Number.isInteger(degree) && degree >= 1 && degree <= 7))) {
+      return error("INVALID_INPUT", "Chord degrees must be integers from one to seven");
+    }
+  }
   const locks = request.lockedSlots ?? [];
-  if (locks.length > 4) return error("INVALID_INPUT", "A four-chord progression accepts at most four locks");
+  if (request.length === undefined && locks.length > 4) {
+    return error("INVALID_INPUT", "A four-chord progression accepts at most four locks");
+  }
+  const allowed = [...new Set(request.allowedDegrees ?? [1, 2, 3, 4, 5, 6, 7])].map((degree) => degree - 1);
 
   try {
     const seen = new Set<number>();
     for (const lock of locks) {
       if (!lock || typeof lock !== "object" || Array.isArray(lock) ||
-          !Number.isInteger(lock.slotIndex) || lock.slotIndex < 0 || lock.slotIndex > 3 || seen.has(lock.slotIndex)) {
-        return error("INVALID_INPUT", "Locked chord slots must be unique, valid indices from 0 to 3");
+          !Number.isInteger(lock.slotIndex) || lock.slotIndex < 0 || seen.has(lock.slotIndex)) {
+        return error("INVALID_INPUT", "Locked chord positions must be unique, valid card indices");
+      }
+      if (lock.slotIndex >= length) {
+        return error("INVALID_INPUT", "Unlock chord " + (lock.slotIndex + 1) + " or increase the chord count");
       }
       if (typeof lock.chordId !== "string" || !Object.hasOwn(CHORD_FORMULAS, lock.chordId)) {
         return error("INVALID_INPUT", `Chord ${lock.slotIndex + 1} has an invalid locked chord quality`);
@@ -265,14 +400,26 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
       if (index < 0) {
         return error("LOCK_OUT_OF_MODE", `Chord ${lock.slotIndex + 1} is locked and outside the selected key and mode`);
       }
+      if (!allowed.includes(index)) {
+        return error("NO_PLAYABLE_CHORDS", "Locked chord " + (lock.slotIndex + 1) + " has no matching guitar grip");
+      }
       lockedDegrees.set(lock.slotIndex, index);
     }
 
+    if (!allowed.length) return error("NO_PLAYABLE_CHORDS", "No chord in this context has a matching guitar grip");
     const modeTemplates = TEMPLATES[request.mode];
-    const templates = modeTemplates.filter((path) => matchesLocks(path, lockedDegrees));
-    const choices = templates.length ? templates : constrainedPaths(lockedDegrees, degrees, modeTemplates);
+    const templates = length === 4 && style === "auto" && mood === "any" ? modeTemplates.filter((path) =>
+      matchesLocks(path, lockedDegrees) && path.every((degree) => allowed.includes(degree)) &&
+      !path.every((degree, index) => request.previousDegrees?.[index] === degree + 1)) : [];
     const random = mulberry32(request.seed);
-    const path = choices[Math.floor(random() * choices.length)]!;
+    const legacyFallback = length === 4 && request.allowedDegrees === undefined &&
+      request.previousDegrees === undefined && style === "auto" && mood === "any";
+    const choices = templates.length ? templates : legacyFallback ? constrainedPaths(lockedDegrees, degrees, modeTemplates) : [];
+    const path = choices.length ? choices[Math.floor(random() * choices.length)]!
+      : hybridPath(lockedDegrees, degrees, modeTemplates, {
+        length, style, mood, mode: request.mode, allowed,
+        ...(request.previousDegrees?.length === length ? { previous: request.previousDegrees } : {}),
+      }, random);
     const slots = Object.freeze(path.map((degree, slotIndex): ProgressionSlot => {
       const chosen = degrees[degree]!;
       return Object.freeze({

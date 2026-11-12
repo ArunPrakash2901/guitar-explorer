@@ -14,7 +14,7 @@ function conventionalContext(tonic, mode) {
 export const TONIC_CHOICES = Object.freeze(["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]);
 export const MODE_CHOICES = Object.freeze(["major", "naturalMinor", "dorian", "phrygian", "lydian", "mixolydian"]);
 
-export function resolveGenerateChoice({ keyChoice, modeChoice, lockedCount = 0, previous = null, randomUint32 }) {
+export function listGenerateChoices({ keyChoice, modeChoice, lockedCount = 0, previous = null, randomUint32 }) {
   if (typeof randomUint32 !== "function") throw new TypeError("Random source is required");
   if (keyChoice !== "all" && !TONIC_CHOICES.includes(keyChoice)) throw new RangeError("Unsupported tonic selection");
   if (modeChoice !== "auto" && !MODE_CHOICES.includes(modeChoice)) throw new RangeError("Unsupported mode selection");
@@ -31,5 +31,11 @@ export function resolveGenerateChoice({ keyChoice, modeChoice, lockedCount = 0, 
     .filter((tonic) => (!anyKey && !anyMode) || conventionalContext(tonic, mode))
     .map((tonic) => ({ tonic, mode })));
   if (!choices.length) throw new RangeError("No supported key and mode match these choices.");
-  return Object.freeze({ ...choices[value % choices.length], seed: value });
+  const start = value % choices.length;
+  return [...choices.slice(start), ...choices.slice(0, start)]
+    .map((choice) => Object.freeze({ ...choice, seed: value }));
+}
+
+export function resolveGenerateChoice(options) {
+  return listGenerateChoices(options)[0];
 }
