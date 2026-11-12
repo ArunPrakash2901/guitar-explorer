@@ -54,21 +54,30 @@
           <option value="barre">Barre shapes</option>
         </select>
       </div>
-      <div class="field readout">
-        <span class="field-label">Meter</span>
-        <strong>4/4</strong>
+      <div class="field">
+        <label for="meter">Meter</label>
+        <select id="meter">
+          <option value="4/4" selected>4/4</option>
+          <option value="3/4">3/4</option>
+          <option value="6/8">6/8</option>
+        </select>
       </div>
       <div class="field readout">
         <span class="field-label">Guitar</span>
         <strong>Acoustic samples</strong>
       </div>
       <div class="field tempo-control">
-        <label for="tempo">Tempo</label>
+        <label for="tempo">Tempo <span id="tempo-unit">(quarter BPM)</span></label>
         <div class="tempo-inline">
           <input id="tempo" type="range" min="50" max="180" step="1" value="92">
           <output id="tempo-value" for="tempo">92 BPM</output>
         </div>
       </div>
+      <div class="field rhythm-control">
+        <label for="strum-pattern">Strum pattern</label>
+        <select id="strum-pattern" aria-describedby="strum-description"></select>
+      </div>
+      <p id="strum-description" class="strum-description">The rhythm follows the selected meter.</p>
     </form>
 
     <section class="action-stage" aria-label="Progression actions">

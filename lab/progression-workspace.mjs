@@ -5,6 +5,7 @@ import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { resolveGenerateChoice } from "./progression-selection.mjs";
 import { ProgressionAudio } from "./progression-audio.mjs";
+import { patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
 const modes = { major: "major", naturalMinor: "natural minor", mixolydian: "Mixolydian" };
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre" };
@@ -16,6 +17,10 @@ const tonicInput = document.querySelector("#tonic");
 const modeInput = document.querySelector("#mode");
 const shapeInput = document.querySelector("#shape-filter");
 const tempoValue = document.querySelector("#tempo-value");
+const meterInput = document.querySelector("#meter");
+const patternInput = document.querySelector("#strum-pattern");
+const tempoUnit = document.querySelector("#tempo-unit");
+const strumDescription = document.querySelector("#strum-description");
 const fretboard = document.querySelector("#fretboard");
 const fretboardTitle = document.querySelector("#fretboard-title");
 const fretboardDescription = document.querySelector("#fretboard-description");
@@ -213,6 +218,36 @@ function applyGeneration() {
     : "New progression. Press Play, or explore the fretboard.");
 }
 
+function updatePatternControls(resetPattern = false) {
+  const old = resetPattern ? null : patternInput.value;
+  const choices = patternsForMeter(meterInput.value);
+  patternInput.replaceChildren(...choices.map((pattern) => {
+    const option = document.createElement("option");
+    option.value = pattern.id;
+    option.textContent = pattern.name;
+    return option;
+  }));
+  patternInput.value = choices.some((pattern) => pattern.id === old) ? old : DEFAULT_PATTERN[meterInput.value];
+  tempoUnit.textContent = METERS[meterInput.value].pulseUnit === "dotted-quarter"
+    ? "(dotted-quarter BPM)" : "(quarter BPM)";
+  const chosen = choices.find((pattern) => pattern.id === patternInput.value);
+  strumDescription.textContent = chosen
+    ? chosen.strokes.map(({ direction }) => direction === "up" ? "↑" : "↓").join("  ") +
+      " · " + chosen.name + " · " + meterInput.value
+    : "";
+}
+
+meterInput.addEventListener("change", () => {
+  stopPlayback();
+  updatePatternControls(true);
+  transportMessage.textContent = "Meter updated. Press Play for the new rhythm.";
+});
+patternInput.addEventListener("change", () => {
+  stopPlayback();
+  updatePatternControls();
+  transportMessage.textContent = "Strum pattern updated. Press Play to hear it.";
+});
+
 form.addEventListener("submit", (event) => {
   event.preventDefault();
   try { applyGeneration(); } catch (problem) { setMessage(problem.message, true); }
@@ -224,6 +259,8 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   tonicInput.value = "all";
   modeInput.value = "auto";
   shapeInput.value = "all";
+  meterInput.value = "4/4";
+  updatePatternControls(true);
   tempoInput.value = "92";
   tempoValue.textContent = "92 BPM";
   applyGeneration();
@@ -296,7 +333,9 @@ playButton.addEventListener("click", async () => {
   const ticket = ++audioStatusTicket;
   transportMessage.textContent = "Loading acoustic guitar…";
   try {
-    const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber);
+    const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber, {
+      meter: meterInput.value, pattern: patternInput.value,
+    });
     if (!started || ticket !== audioStatusTicket) return;
     transportMessage.textContent = "Playing four-chord loop. Stop before editing the progression.";
     monitorTransport();
@@ -312,4 +351,5 @@ stopButton.addEventListener("click", () => {
 });
 
 window.addEventListener("pagehide", () => stopPlayback());
+updatePatternControls(true);
 applyGeneration();

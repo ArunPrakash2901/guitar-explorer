@@ -284,3 +284,22 @@ main.shell { padding-block: 1rem 3rem; }
   .chord-count { position: static; margin-left: .5rem; }
   .diagram-wrap { min-height: 9rem; }
 }
+
+/* Meter and strum pattern controls use the otherwise-empty second toolbar row. */
+.settings .rhythm-control { grid-column: span 2; }
+.strum-description {
+  align-self: center;
+  grid-column: span 4;
+  color: var(--muted);
+  font-size: .88rem;
+  letter-spacing: .025em;
+}
+#tempo-unit { color: var(--muted); text-transform: none; letter-spacing: normal; font-weight: 500; }
+@media (max-width: 1050px) {
+  .settings .rhythm-control { grid-column: span 1; }
+  .strum-description { grid-column: span 2; }
+}
+@media (max-width: 620px) {
+  .settings .rhythm-control { grid-column: span 2; }
+  .strum-description { grid-column: span 2; }
+}

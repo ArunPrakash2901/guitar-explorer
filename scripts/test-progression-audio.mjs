@@ -5,6 +5,7 @@ const outputRoot = new URL("../.preview-dist/", import.meta.url);
 const { planProgressionStrokes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
 const { selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
 const { resolveGenerateChoice } = await import(new URL("progression-selection.mjs", outputRoot));
+const { rhythmPlan, patternsForMeter, DEFAULT_PATTERN } = await import(new URL("progression-rhythm.mjs", outputRoot));
 
 function card(base) {
   return { voicingIndex: 0, voicings: [{
@@ -44,6 +45,36 @@ assert.deepEqual(resolveGenerateChoice({
 assert.deepEqual(resolveGenerateChoice({
   keyChoice: "G", modeChoice: "major", randomUint32: () => 17,
 }), { tonic: "G", mode: "major", seed: 17 });
+
+
+const options44 = patternsForMeter("4/4");
+assert.ok(options44.some(({ id }) => id === "acoustic-pop"));
+assert.equal(DEFAULT_PATTERN["6/8"], "rolling-six-eight");
+assert.throws(() => rhythmPlan("7/8", "steady", 92), /Unsupported meter/);
+assert.throws(() => rhythmPlan("3/4", "acoustic-pop", 92), /does not belong/);
+assert.throws(() => rhythmPlan("4/4", "steady", 0), RangeError);
+
+const waltz = planProgressionStrokes(cards, 60, { meter: "3/4", pattern: "waltz" });
+assert.equal(waltz.secondsPerBar, 3);
+assert.equal(waltz.loopSeconds, 12);
+assert.equal(waltz.strokes.length, 12);
+assert.deepEqual(waltz.strokes.slice(0, 4).map(({ seconds }) => seconds), [0, 1, 2, 3]);
+
+const sixEight = planProgressionStrokes(cards, 60, { meter: "6/8", pattern: "rolling-six-eight" });
+assert.equal(sixEight.pulseUnit, "dotted-quarter");
+assert.equal(sixEight.secondsPerBar, 2);
+assert.equal(sixEight.loopSeconds, 8);
+assert.equal(sixEight.strokes.length, 24);
+assert.equal(sixEight.strokes[0].direction, "down");
+assert.equal(sixEight.strokes[1].direction, "up");
+assert.ok(Math.abs(sixEight.strokes[1].seconds - 1 / 3) < 0.000001);
+assert.equal(sixEight.strokes[6].slotIndex, 1);
+assert.equal(sixEight.strokes[6].seconds, 2);
+assert.ok(Object.isFrozen(sixEight.strokes));
+const pop = planProgressionStrokes(cards, 120, { meter: "4/4", pattern: "acoustic-pop" });
+assert.equal(pop.strokes.length, 24);
+assert.deepEqual(pop.strokes.slice(0,6).map(({ step }) => step), [0,2,3,4,6,7]);
+assert.deepEqual(pop.strokes.slice(0,6).map(({ direction }) => direction), ["down","down","up","down","down","up"]);
 
 class FakeSource {
   constructor() {
@@ -133,4 +164,4 @@ assert.doesNotMatch(page, /id="seed"/);
 assert.match(browserCode, /progression-audio\.mjs\?ge-revision=/);
 assert.match(audioAsset, /createBufferSource/);
 assert.doesNotMatch(audioAsset, /createOscillator/);
-console.log("sample-based progression playback, random generation and transport checks passed");
+console.log("sample-based progression playback, rhythm meters, strum patterns, random generation and transport checks passed");
