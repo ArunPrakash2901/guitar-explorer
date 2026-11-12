@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 const outputRoot = new URL("../.preview-dist/", import.meta.url);
 const { planProgressionStrokes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
 const { selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
-const { resolveGenerateChoice } = await import(new URL("progression-selection.mjs", outputRoot));
+const { resolveGenerateChoice, listGenerateChoices } = await import(new URL("progression-selection.mjs", outputRoot));
 const { rhythmPlan, patternsForMeter, DEFAULT_PATTERN } = await import(new URL("progression-rhythm.mjs", outputRoot));
 
 function card(base) {
@@ -53,8 +53,7 @@ assert.deepEqual(resolveGenerateChoice({
 
 
 const { parseNote, musicQueries } = await import(new URL("engine/index.js", outputRoot));
-for (let seed = 0; seed < 72; seed += 1) {
-  const context = resolveGenerateChoice({ keyChoice: "all", modeChoice: "auto", randomUint32: () => seed });
+for (const context of listGenerateChoices({ keyChoice: "all", modeChoice: "auto", randomUint32: () => 0 })) {
   if (context.mode === "major" || context.mode === "naturalMinor") {
     assert.ok(musicQueries.getKeySignature({
       tonic: parseNote(context.tonic), mode: context.mode === "major" ? "major" : "minor",

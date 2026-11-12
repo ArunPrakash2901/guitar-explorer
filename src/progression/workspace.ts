@@ -1,7 +1,7 @@
 import { buildScale } from "../engine/core/collections.js";
 import type { Scale } from "../engine/core/types.js";
-import { MusicError } from "../engine/core/errors.js";
-import { generateProgression, listProgressionChoices } from "./generator.js";
+import type { ChordId } from "../engine/core/types.js";
+import { generateProgression, listProgressionChoices, listProgressionVariants } from "./generator.js";
 import type { GeneratedProgression, ProgressionRequest, ProgressionResult, ProgressionSlot } from "./generator.js";
 import { getPlayableVoicings } from "./voicings.js";
 import type { GuitarVoicing } from "./voicings.js";
@@ -20,10 +20,12 @@ export type ProgressionWorkspace = Readonly<{
 
 type WorkspaceResult = Readonly<{ ok: true; data: ProgressionWorkspace }> | Extract<ProgressionResult, { ok: false }>;
 
-export type VoicingFilter = "all" | "open" | "barre";
+export type VoicingFilter = "all" | "open" | "barre" | "triad";
 
 export function matchesVoicingFilter(voicing: GuitarVoicing, filter: VoicingFilter): boolean {
-  return filter === "all" || (filter === "open" ? voicing.shapeFamily === "open" : voicing.shapeFamily !== "open");
+  if (filter === "all") return true;
+  if (filter === "barre") return voicing.shapeFamily === "e-barre" || voicing.shapeFamily === "a-barre";
+  return voicing.shapeFamily === filter;
 }
 
 export function generateWorkspace(
@@ -34,25 +36,21 @@ export function generateWorkspace(
     ? [{ slotIndex: slot.slotIndex, root: slot.chord.root, chordId: slot.chord.chordId }]
     : []) ?? [];
   const { shapeFilter, ...generation } = request;
-  let allowedDegrees = generation.allowedDegrees;
-  if (shapeFilter) {
-    try {
-      allowedDegrees = listProgressionChoices(generation.tonic, generation.mode)
-        .filter(({ degree, chord }) => (allowedDegrees === undefined || allowedDegrees.includes(degree))
-          && getPlayableVoicings(chord).some((voicing) => matchesVoicingFilter(voicing, shapeFilter)))
-        .map(({ degree }) => degree);
-    } catch (problem) {
-      if (!(problem instanceof MusicError)) throw problem;
-      // The generator reports the same invalid context through its public result.
+  const playableByChord = new Map<string, boolean>();
+  const isChordPlayable: ProgressionRequest["isChordPlayable"] = (chord) => {
+    const key = chord.tones[0]!.pitchClass + ":" + chord.chordId;
+    if (!playableByChord.has(key)) {
+      playableByChord.set(key, getPlayableVoicings(chord).some((grip) => matchesVoicingFilter(grip, shapeFilter!)));
     }
-  }
+    return playableByChord.get(key)!;
+  };
   const previousDegrees = generation.previousDegrees ?? (shapeFilter && previous &&
     previous.context.mode === generation.mode && previous.context.tonic.letter === generation.tonic?.letter &&
     previous.context.tonic.accidental === generation.tonic.accidental
     ? previous.cards.map(({ slot }) => slot.degree) : undefined);
   const result = generateProgression({
     ...generation, lockedSlots,
-    ...(allowedDegrees === undefined ? {} : { allowedDegrees }),
+    ...(shapeFilter ? { isChordPlayable } : {}),
     ...(previousDegrees === undefined ? {} : { previousDegrees }),
   });
   if (!result.ok) return result;
@@ -96,7 +94,7 @@ export function cycleChordVoicing(workspace: ProgressionWorkspace, slotIndex: nu
  * All chord facts are imported from the same choices as the generator.
  */
 export function replaceWorkspaceChord(
-  workspace: ProgressionWorkspace, slotIndex: number, degree: number,
+  workspace: ProgressionWorkspace, slotIndex: number, degree: number, chordId?: ChordId,
 ): ProgressionWorkspace {
   if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= workspace.cards.length) {
     throw new RangeError("Chord position must be a valid card index");
@@ -104,7 +102,10 @@ export function replaceWorkspaceChord(
   if (!Number.isInteger(degree) || degree < 1 || degree > 7) {
     throw new RangeError("A chord replacement must be scale degree 1 through 7");
   }
-  const selected = listProgressionChoices(workspace.context.tonic, workspace.context.mode)[degree - 1]!;
+  const { tonic, mode } = workspace.context;
+  const selected = chordId === undefined ? listProgressionChoices(tonic, mode)[degree - 1]
+    : listProgressionVariants(tonic, mode).find((choice) => choice.degree === degree && choice.chord.chordId === chordId);
+  if (!selected) throw new RangeError("This chord quality is outside the selected key and mode");
   const current = workspace.cards[slotIndex]!;
   const voicings = getPlayableVoicings(selected.chord);
   const previousId = current.voicings[current.voicingIndex]?.id;

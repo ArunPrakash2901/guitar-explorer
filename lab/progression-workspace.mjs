@@ -1,16 +1,18 @@
 import { formatNote, parseNote } from "./engine/index.js";
-import { chordDiagramModel } from "./progression/voicings.js";
+import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js";
 import { generateWorkspace, matchesVoicingFilter, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
-import { listProgressionChoices } from "./progression/generator.js";
+import { listProgressionVariants } from "./progression/generator.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { listGenerateChoices } from "./progression-selection.mjs";
 import { ProgressionAudio } from "./progression-audio.mjs";
 import { patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
-const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian" };
-const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre" };
-const qualities = { major: "major", minor: "minor", diminished: "diminished", augmented: "augmented" };
+const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian" };
+const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre", triad: "Three-string triad", compact: "Compact grip" };
+const qualities = { major: "major", minor: "minor", diminished: "diminished", augmented: "augmented",
+  major7: "major seventh", dominant7: "dominant seventh", minor7: "minor seventh",
+  halfDiminished7: "half diminished seventh", sus2: "suspended second", sus4: "suspended fourth", add9: "add nine" };
 const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 
 const form = document.querySelector("#generate-form");
@@ -19,6 +21,7 @@ const modeInput = document.querySelector("#mode");
 const shapeInput = document.querySelector("#shape-filter");
 const styleInput = document.querySelector("#style");
 const moodInput = document.querySelector("#mood");
+const colorInput = document.querySelector("#chord-color");
 const countInput = document.querySelector("#chord-length");
 const chordCount = document.querySelector("#chord-count");
 const tempoValue = document.querySelector("#tempo-value");
@@ -125,12 +128,18 @@ function renderBoard() {
   });
 }
 
+function chordChoiceValue(degree, chordId) {
+  return ["major", "minor", "diminished", "augmented"].includes(chordId) ? String(degree) : degree + ":" + chordId;
+}
+
 function renderCard({ slot, voicings, voicingIndex }, choices) {
   const { chord, symbol, romanNumeral, isLocked, slotIndex } = slot;
   const title = noteText(symbol);
   const spokenChord = noteText(formatNote(chord.root)) + " " + qualities[chord.chordId];
   const voicing = voicings[voicingIndex];
   const number = slotIndex + 1;
+  const currentChoice = chordChoiceValue(slot.degree, chord.chordId);
+  const bass = voicing?.inversion ? " · " + noteText(formatNote(chord.tones[voicing.inversion].note)) + " bass" : "";
   const diagram = voicing ? renderChordDiagram(chordDiagramModel(voicing), spokenChord) : "";
   return `<li class="chord-card" data-slot="${slotIndex}" data-chord="${title}">
     <div class="card-heading">
@@ -146,14 +155,15 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
     <div class="chord-edit">
       <label for="chord-choice-${slotIndex}">Replace chord</label>
       <select id="chord-choice-${slotIndex}" data-action="replace" aria-label="Replace chord ${number} with another chord in this mode">
-        ${choices.map((choice) => `<option value="${choice.degree}" ${choice.degree === slot.degree ? "selected" : ""}>${choice.romanNumeral} · ${noteText(choice.symbol)}</option>`).join("")}
+        ${choices.filter(({ value, playable }) => playable || value === currentChoice)
+          .map((choice) => `<option value="${choice.value}" ${choice.value === currentChoice ? "selected" : ""}>${choice.romanNumeral} · ${noteText(choice.symbol)}</option>`).join("")}
       </select>
     </div>
     ${voicing ? `
       <div class="diagram-wrap" data-voicing="${voicing.id}">${diagram}</div>
       <div class="voicing-nav">
         <button type="button" data-action="voicing" data-step="-1" aria-label="Previous voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>‹</button>
-        <p><strong>${families[voicing.shapeFamily]}</strong><span>${voicingIndex + 1} of ${voicings.length}</span></p>
+        <p><strong>${families[voicing.shapeFamily]}${bass}</strong><span>${voicingIndex + 1} of ${voicings.length}</span></p>
         <button type="button" data-action="voicing" data-step="1" aria-label="Next voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>›</button>
       </div>
       <button class="audition-button" type="button" data-action="audition" aria-label="Hear chord ${number}, ${spokenChord}">Hear chord</button>
@@ -162,7 +172,12 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
 }
 
 function renderCards(restoreFocus) {
-  const choices = listProgressionChoices(workspace.context.tonic, workspace.context.mode);
+  const choices = listProgressionVariants(workspace.context.tonic, workspace.context.mode)
+    .slice().sort((a, b) => a.degree - b.degree).map((choice) => ({
+      ...choice,
+      value: chordChoiceValue(choice.degree, choice.chord.chordId),
+      playable: getPlayableVoicings(choice.chord).some((grip) => matchesVoicingFilter(grip, shapeInput.value)),
+    }));
   cardsElement.innerHTML = workspace.cards.map(visibleCard).map((card) => renderCard(card, choices)).join("");
   if (restoreFocus) {
     cardsElement.querySelector(restoreFocus)?.focus({ preventScroll: true });
@@ -207,7 +222,7 @@ function applyGeneration() {
     result = generateWorkspace({
       tonic: parseNote(choice.tonic), mode: choice.mode, seed: choice.seed,
       length: Number(countInput.value), style: styleInput.value, mood: moodInput.value,
-      shapeFilter: shapeInput.value,
+      shapeFilter: shapeInput.value, color: colorInput.value,
     }, workspace);
     if (result.ok || locks || result.error.code !== "NO_PLAYABLE_CHORDS") break;
   }
@@ -222,7 +237,7 @@ function applyGeneration() {
   selectedCard = 0;
   updatePlayAvailability();
   transportMessage.textContent = playButton.disabled
-    ? "Some chords have no matching shape. Try Open and barre to enable playback."
+    ? "Some chords have no matching shape. Try All playable shapes to enable playback."
     : "Ready. Play the progression, or tap a chord to hear it.";
   const { context, scale } = workspace;
   contextHeading.textContent = noteText(formatNote(context.tonic)) + " " + modes[context.mode];
@@ -279,6 +294,7 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   shapeInput.value = "all";
   styleInput.value = "auto";
   moodInput.value = "any";
+  colorInput.value = "triads";
   countInput.value = "4";
   meterInput.value = "4/4";
   updatePatternControls(true);
@@ -293,7 +309,7 @@ shapeInput.addEventListener("change", () => {
   renderCards();
   updatePlayAvailability();
   transportMessage.textContent = playButton.disabled
-    ? "This shape filter excludes at least one chord. Try Open and barre."
+    ? "This shape filter excludes at least one chord. Try All playable shapes."
     : "Chord shapes updated.";
 });
 
@@ -320,7 +336,8 @@ cardsElement.addEventListener("change", (event) => {
   const slotIndex = Number(select.closest("[data-slot]").dataset.slot);
   try {
     stopPlayback();
-    workspace = replaceWorkspaceChord(workspace, slotIndex, Number(select.value));
+    const [degree, chordId] = select.value.split(":");
+    workspace = replaceWorkspaceChord(workspace, slotIndex, Number(degree), chordId);
     selectedCard = slotIndex;
     boardView = "chords";
     renderCards('[data-slot="' + slotIndex + '"] [data-action="replace"]');

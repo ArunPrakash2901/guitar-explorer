@@ -14,11 +14,13 @@ function escapeMarkup(text) {
 export function renderChordDiagram(model, chordLabel) {
   const lastString = firstString + (strings.length - 1) * stringGap;
   const bottom = top + model.fretCount * fretHeight;
-  const label = model.strings.map(({ stringIndex, state, fret }) => {
+  const label = model.strings.map(({ stringIndex, state, fret, finger }) => {
     const name = stringNames[stringIndex] + " string";
-    return name + (state === "fretted" ? " fret " + fret : " " + state);
+    return name + (state === "fretted" ? " fret " + fret + ", finger " + finger : " " + state);
   }).join(", ");
-  const description = escapeMarkup(chordLabel + " guitar chord diagram. Starting fret " + model.baseFret + ". " + label + ".");
+  const barreDescription = model.barres.map(({ firstString, lastString, finger, fret }) =>
+    " Finger " + finger + " barre at fret " + fret + " from " + stringNames[firstString] + " to " + stringNames[lastString] + ".");
+  const description = escapeMarkup(chordLabel + " guitar chord diagram. Starting fret " + model.baseFret + ". " + label + "." + barreDescription.join(""));
   const fretLines = Array.from({ length: model.fretCount + 1 }, (_, row) => {
     const y = top + row * fretHeight;
     const type = row === 0 && model.baseFret === 1 ? "diagram-nut" : "diagram-fret";
@@ -29,7 +31,11 @@ export function renderChordDiagram(model, chordLabel) {
     return `<line class="diagram-string" x1="${x}" y1="${top}" x2="${x}" y2="${bottom}"/>
       <text class="diagram-label" x="${x}" y="${bottom + 18}" text-anchor="middle">${name}</text>`;
   });
-  const markers = model.strings.map(({ stringIndex, state, diagramRow }) => {
+  const barres = model.barres.map(({ firstString: from, lastString: to, diagramRow }) => {
+    const y = top + (diagramRow - 0.5) * fretHeight;
+    return `<line class="diagram-barre" x1="${firstString + from * stringGap}" y1="${y}" x2="${firstString + to * stringGap}" y2="${y}"/>`;
+  });
+  const markers = model.strings.map(({ stringIndex, state, diagramRow, finger }) => {
     const x = firstString + stringIndex * stringGap;
     if (state === "muted") {
       return `<path class="diagram-muted" d="M ${x - 4} ${markerTop - 4} l 8 8 m 0 -8 l -8 8"/>`;
@@ -38,7 +44,8 @@ export function renderChordDiagram(model, chordLabel) {
       return `<circle class="diagram-open" cx="${x}" cy="${markerTop}" r="4.5"/>`;
     }
     const y = top + (diagramRow - 0.5) * fretHeight;
-    return `<circle class="diagram-finger" cx="${x}" cy="${y}" r="5.5"/>`;
+    return `<circle class="diagram-finger" cx="${x}" cy="${y}" r="8"/>
+      <text class="diagram-finger-number" x="${x}" y="${y + 3.4}" text-anchor="middle">${finger}</text>`;
   });
   const position = model.baseFret > 1
     ? `<text class="diagram-label" x="${firstString - 11}" y="${top + fretHeight / 2 + 4}" text-anchor="end">${model.baseFret}fr</text>`
@@ -49,6 +56,7 @@ export function renderChordDiagram(model, chordLabel) {
       <rect class="diagram-neck" x="${firstString - 5}" y="${top}" width="${lastString - firstString + 10}" height="${bottom - top}" rx="2"/>
       ${fretLines.join("")}
       ${stringLines.join("")}
+      ${barres.join("")}
       ${markers.join("")}
       ${position}
     </g>

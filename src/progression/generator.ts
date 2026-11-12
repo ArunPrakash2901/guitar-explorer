@@ -9,7 +9,7 @@ import type { Chord, ChordId, NoteName } from "../engine/core/types.js";
  * authority for spelled scales, chords and major/natural-minor harmonization.
  * This module selects musical material; it never changes core musical truth.
  */
-export type ProgressionMode = "major" | "naturalMinor" | "dorian" | "phrygian" | "lydian" | "mixolydian";
+export type ProgressionMode = "major" | "naturalMinor" | "dorian" | "phrygian" | "lydian" | "mixolydian" | "locrian";
 
 export type LockedChordSlot = Readonly<{
   slotIndex: number;
@@ -27,6 +27,8 @@ export type ProgressionRequest = Readonly<{
   mood?: ProgressionMood;
   allowedDegrees?: readonly number[]; // 1–7, e.g. from a playable shape filter
   previousDegrees?: readonly number[];
+  color?: ProgressionColor;
+  isChordPlayable?: (chord: Chord) => boolean;
 }>;
 
 export type ProgressionSlot = Readonly<{
@@ -63,6 +65,7 @@ const MODAL_NUMERALS = {
   phrygian: ["i", "♭II", "♭III", "iv", "v°", "♭VI", "♭vii"],
   lydian: ["I", "II", "iii", "♯iv°", "V", "vi", "vii"],
   mixolydian: ["I", "ii", "iii°", "IV", "v", "vi", "♭VII"],
+  locrian: ["i°", "♭II", "♭iii", "iv", "♭V", "♭VI", "♭vii"],
 } as const;
 type HarmonizedModalMode = keyof typeof MODAL_NUMERALS;
 
@@ -97,6 +100,7 @@ const TEMPLATES: Readonly<Record<ProgressionMode, readonly (readonly number[])[]
     [0, 5, 1, 0], // i - ♭VI - ♭II - i
     [0, 2, 1, 0], // i - ♭III - ♭II - i
   ],
+  locrian: [[0, 1, 3, 0], [0, 4, 1, 0], [0, 5, 4, 1]],
   lydian: [
     [0, 1, 4, 0], // I - II - V - I
     [0, 4, 1, 0], // I - V - II - I
@@ -113,14 +117,14 @@ function error(code: Extract<ProgressionResult, { ok: false }>["error"]["code"],
   return Object.freeze({ ok: false, error: Object.freeze({ code, message }) });
 }
 
+export const CHORD_SUFFIXES: Readonly<Partial<Record<ChordId, string>>> = Object.freeze({
+  major: "", minor: "m", diminished: "dim", augmented: "aug",
+  major7: "maj7", dominant7: "7", minor7: "m7", halfDiminished7: "m7♭5",
+  sus2: "sus2", sus4: "sus4", add9: "add9",
+});
+
 function chordSymbol(chord: Chord): string {
-  const suffix: Readonly<Record<(typeof TRIAD_IDS)[number], string>> = {
-    major: "",
-    minor: "m",
-    diminished: "dim",
-    augmented: "aug",
-  };
-  return formatNote(chord.root) + (suffix[chord.chordId as (typeof TRIAD_IDS)[number]] ?? "");
+  return formatNote(chord.root) + (CHORD_SUFFIXES[chord.chordId] ?? "");
 }
 
 /**
@@ -140,7 +144,7 @@ function modalTriads(tonic: NoteName, mode: HarmonizedModalMode): readonly Degre
 }
 
 function harmony(tonic: NoteName, mode: ProgressionMode): readonly DegreeChord[] {
-  if (mode === "mixolydian" || mode === "dorian" || mode === "phrygian" || mode === "lydian") return modalTriads(tonic, mode);
+  if (mode !== "major" && mode !== "naturalMinor") return modalTriads(tonic, mode);
   const result = buildDiatonicHarmony({
     key: { tonic, mode: mode === "major" ? "major" : "minor" },
     chordSize: "triad",
@@ -156,7 +160,7 @@ export type ProgressionChordChoice = Pick<ProgressionSlot, "degree" | "chord" | 
  * explicit user substitution. No parallel chord table or theory is introduced.
  */
 export function listProgressionChoices(tonic: NoteName, mode: ProgressionMode): readonly ProgressionChordChoice[] {
-  if (mode !== "major" && mode !== "naturalMinor" && mode !== "mixolydian" && mode !== "dorian" && mode !== "phrygian" && mode !== "lydian") {
+  if (!Object.hasOwn(TEMPLATES, mode)) {
     throw new MusicError("UNSUPPORTED", "Unsupported progression mode");
   }
   return Object.freeze(harmony(tonic, mode).map((item, index) => Object.freeze({
@@ -165,6 +169,40 @@ export function listProgressionChoices(tonic: NoteName, mode: ProgressionMode): 
     symbol: chordSymbol(item.chord),
     romanNumeral: item.romanNumeral,
   })));
+}
+
+export const PROGRESSION_COLORS = ["triads", "sevenths", "suspended", "add9"] as const;
+export type ProgressionColor = (typeof PROGRESSION_COLORS)[number];
+
+const COLOR_QUALITIES = {
+  triads: [],
+  sevenths: ["major7", "dominant7", "minor7", "halfDiminished7"],
+  suspended: ["sus4", "sus2"],
+  add9: ["add9"],
+} as const satisfies Record<ProgressionColor, readonly ChordId[]>;
+
+function colorChoices(choices: readonly ProgressionChordChoice[], tonic: NoteName, mode: ProgressionMode) {
+  const scale = buildScale({ tonic, scaleId: mode });
+  return choices.flatMap((base) => {
+    const qualities = [...COLOR_QUALITIES.sevenths, ...COLOR_QUALITIES.suspended, ...COLOR_QUALITIES.add9];
+    return qualities.flatMap((chordId): ProgressionChordChoice[] => {
+      const chord = buildChord({ root: base.chord.root, chordId });
+      const preservesTriad = base.chord.tones.every((tone) => chord.tones.some((note) => sameNote(note.note, tone.note)));
+      const isSuspension = chordId === "sus2" || chordId === "sus4";
+      if ((!isSuspension && !preservesTriad) ||
+        !chord.tones.every((tone) => scale.tones.some((note) => sameNote(note.note, tone.note)))) return [];
+      const suffix = chordId === "halfDiminished7" ? "ø7" : chordId === "major7" ? "maj7"
+        : chordId === "minor7" || chordId === "dominant7" ? "7" : chordId;
+      const numeral = isSuspension ? base.romanNumeral.toUpperCase() : base.romanNumeral;
+      return [Object.freeze({ degree: base.degree, chord, symbol: chordSymbol(chord),
+        romanNumeral: numeral.replace("°", "") + suffix })];
+    });
+  });
+}
+
+export function listProgressionVariants(tonic: NoteName, mode: ProgressionMode): readonly ProgressionChordChoice[] {
+  const triads = listProgressionChoices(tonic, mode);
+  return Object.freeze([...triads, ...colorChoices(triads, tonic, mode)]);
 }
 
 function mulberry32(seed: number): () => number {
@@ -255,7 +293,7 @@ const PROFILES: Readonly<Record<ProgressionStyle, Profile>> = {
 };
 
 const MODAL_COLOR: Partial<Record<ProgressionMode, number>> = {
-  dorian: 3, phrygian: 1, lydian: 1, mixolydian: 6,
+  dorian: 3, phrygian: 1, lydian: 1, mixolydian: 6, locrian: 1,
 };
 
 type PathOptions = Readonly<{
@@ -345,8 +383,8 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
   if (!request || typeof request !== "object" || Array.isArray(request)) {
     return error("INVALID_INPUT", "A progression request is required");
   }
-  if (request.mode !== "major" && request.mode !== "naturalMinor" && request.mode !== "mixolydian" && request.mode !== "dorian" && request.mode !== "phrygian" && request.mode !== "lydian") {
-    return error("UNSUPPORTED_MODE", "Supported contexts: major, natural minor, Dorian, Phrygian, Lydian and Mixolydian");
+  if (!Object.hasOwn(TEMPLATES, request.mode)) {
+    return error("UNSUPPORTED_MODE", "Choose a supported progression mode");
   }
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     return error("INVALID_INPUT", "Seed must be an unsigned 32-bit integer");
@@ -357,11 +395,12 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
   const length = request.length ?? 4;
   const style = request.style ?? "auto";
   const mood = request.mood ?? "any";
+  const color = request.color ?? "triads";
   if (!Number.isInteger(length) || length < 2 || length > 8) {
     return error("INVALID_INPUT", "Choose a progression length from two to eight chords");
   }
-  if (!STYLES.includes(style) || !MOODS.includes(mood)) {
-    return error("INVALID_INPUT", "Choose a supported style and mood");
+  if (!STYLES.includes(style) || !MOODS.includes(mood) || !PROGRESSION_COLORS.includes(color)) {
+    return error("INVALID_INPUT", "Choose a supported style, mood and chord colour");
   }
   for (const list of [request.allowedDegrees, request.previousDegrees]) {
     if (list !== undefined && (!Array.isArray(list) || list.length > 8 ||
@@ -373,7 +412,7 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
   if (request.length === undefined && locks.length > 4) {
     return error("INVALID_INPUT", "A four-chord progression accepts at most four locks");
   }
-  const allowed = [...new Set(request.allowedDegrees ?? [1, 2, 3, 4, 5, 6, 7])].map((degree) => degree - 1);
+  const requested = [...new Set(request.allowedDegrees ?? [1, 2, 3, 4, 5, 6, 7])].map((degree) => degree - 1);
 
   try {
     const seen = new Set<number>();
@@ -392,41 +431,54 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
       seen.add(lock.slotIndex);
     }
 
-    const degrees = harmony(request.tonic, request.mode);
-    const symbols = degrees.map(({ chord }) => chordSymbol(chord));
+    const triads = listProgressionChoices(request.tonic, request.mode);
+    const variants = color !== "triads" || locks.some(({ chordId }) => !TRIAD_IDS.some((id) => id === chordId))
+      ? colorChoices(triads, request.tonic, request.mode) : [];
+    const preferred: readonly ChordId[] = COLOR_QUALITIES[color];
+    const playable = (chord: Chord) => request.isChordPlayable?.(chord) ?? true;
+    const degrees = triads.map((base) => preferred.map((id) => variants.find(({ degree, chord }) =>
+      degree === base.degree && chord.chordId === id && playable(chord))).find((choice) => choice) ?? base);
+    const allowed = requested.filter((index) => playable(degrees[index]!.chord));
+    const lockedChords = new Map<number, ProgressionChordChoice>();
     const lockedDegrees = new Map<number, number>();
     for (const lock of locks) {
-      const index = degrees.findIndex(({ chord }) => chord.chordId === lock.chordId && sameNote(chord.root, lock.root));
-      if (index < 0) {
+      const choice = [...triads, ...variants].find(({ chord }) =>
+        chord.chordId === lock.chordId && sameNote(chord.root, lock.root));
+      if (!choice) {
         return error("LOCK_OUT_OF_MODE", `Chord ${lock.slotIndex + 1} is locked and outside the selected key and mode`);
       }
-      if (!allowed.includes(index)) {
+      const index = choice.degree - 1;
+      if (!requested.includes(index) || !playable(choice.chord)) {
         return error("NO_PLAYABLE_CHORDS", "Locked chord " + (lock.slotIndex + 1) + " has no matching guitar grip");
       }
+      lockedChords.set(lock.slotIndex, choice);
       lockedDegrees.set(lock.slotIndex, index);
     }
 
-    if (!allowed.length) return error("NO_PLAYABLE_CHORDS", "No chord in this context has a matching guitar grip");
+    if (!allowed.length && lockedDegrees.size !== length) {
+      return error("NO_PLAYABLE_CHORDS", "No chord in this context has a matching guitar grip for the unlocked cards");
+    }
     const modeTemplates = TEMPLATES[request.mode];
     const templates = length === 4 && style === "auto" && mood === "any" ? modeTemplates.filter((path) =>
-      matchesLocks(path, lockedDegrees) && path.every((degree) => allowed.includes(degree)) &&
+      matchesLocks(path, lockedDegrees) && path.every((degree, index) => lockedDegrees.has(index) || allowed.includes(degree)) &&
       !path.every((degree, index) => request.previousDegrees?.[index] === degree + 1)) : [];
     const random = mulberry32(request.seed);
     const legacyFallback = length === 4 && request.allowedDegrees === undefined &&
-      request.previousDegrees === undefined && style === "auto" && mood === "any";
+      request.previousDegrees === undefined && request.isChordPlayable === undefined && color === "triads" &&
+      style === "auto" && mood === "any";
     const choices = templates.length ? templates : legacyFallback ? constrainedPaths(lockedDegrees, degrees, modeTemplates) : [];
     const path = choices.length ? choices[Math.floor(random() * choices.length)]!
       : hybridPath(lockedDegrees, degrees, modeTemplates, {
-        length, style, mood, mode: request.mode, allowed,
+        length, style, mood, mode: request.mode, allowed: allowed.length ? allowed : [...lockedDegrees.values()],
         ...(request.previousDegrees?.length === length ? { previous: request.previousDegrees } : {}),
       }, random);
     const slots = Object.freeze(path.map((degree, slotIndex): ProgressionSlot => {
-      const chosen = degrees[degree]!;
+      const chosen = lockedChords.get(slotIndex) ?? degrees[degree]!;
       return Object.freeze({
         slotIndex,
         degree: degree + 1,
         chord: chosen.chord,
-        symbol: symbols[degree]!,
+        symbol: chosen.symbol,
         romanNumeral: chosen.romanNumeral,
         isLocked: lockedDegrees.has(slotIndex),
       });
