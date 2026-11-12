@@ -120,6 +120,24 @@ function harmony(tonic: NoteName, mode: ProgressionMode): readonly DegreeChord[]
     Object.freeze({ chord, romanNumeral: romanNumeral.label }));
 }
 
+export type ProgressionChordChoice = Pick<ProgressionSlot, "degree" | "chord" | "symbol" | "romanNumeral">;
+
+/**
+ * The same seven engine-derived chords used during generation, exposed for
+ * explicit user substitution. No parallel chord table or theory is introduced.
+ */
+export function listProgressionChoices(tonic: NoteName, mode: ProgressionMode): readonly ProgressionChordChoice[] {
+  if (mode !== "major" && mode !== "naturalMinor" && mode !== "mixolydian") {
+    throw new MusicError("UNSUPPORTED", "Unsupported progression mode");
+  }
+  return Object.freeze(harmony(tonic, mode).map((item, index) => Object.freeze({
+    degree: index + 1,
+    chord: item.chord,
+    symbol: chordSymbol(item.chord),
+    romanNumeral: item.romanNumeral,
+  })));
+}
+
 function mulberry32(seed: number): () => number {
   let state = seed >>> 0;
   return () => {
