@@ -2,7 +2,7 @@ import { selectGuitarAttack } from "./progression-sample-bank.mjs";
 import { rhythmPlan, DEFAULT_PATTERN } from "./progression-rhythm.mjs";
 
 /**
- * Four-chord, 4/4 acoustic playback. Uses Guitar Explorer's existing CC0 steel
+ * Acoustic progression playback. Uses Guitar Explorer's existing CC0 steel
  * guitar recordings with controlled pitch-shifting; no oscillator voice.
  * All note onsets are scheduled against the AudioContext clock.
  */
@@ -20,7 +20,7 @@ function assertBpm(bpm) {
 
 function soundingNotes(card) {
   const voicing = card?.voicings?.[card.voicingIndex];
-  if (!voicing?.notes?.length) throw new Error("Select a playable guitar grip for all four chords");
+  if (!voicing?.notes?.length) throw new Error("Select a playable guitar grip for every chord");
   const notes = voicing.notes.map(({ semitone, stringIndex }) => Object.freeze({ semitone, stringIndex }));
   if (!notes.every(({ semitone, stringIndex }) =>
     Number.isInteger(semitone) && semitone >= 0 && semitone <= 127 &&
@@ -33,8 +33,8 @@ function soundingNotes(card) {
 /** Pure tempo/transport facts; never depends on samples or rendering APIs. */
 export function planProgressionStrokes(cards, bpm, options = {}) {
   assertBpm(bpm);
-  if (!Array.isArray(cards) || cards.length !== 4) {
-    throw new RangeError("Acoustic playback requires exactly four chord cards");
+  if (!Array.isArray(cards) || cards.length < 2 || cards.length > 8) {
+    throw new RangeError("Acoustic playback needs two to eight chord cards");
   }
   const meter = options.meter ?? "4/4";
   const pattern = options.pattern ?? (meter === "4/4" ? "steady" : DEFAULT_PATTERN[meter]);

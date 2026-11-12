@@ -50,6 +50,31 @@
         </select>
       </div>
       <div class="field">
+        <label for="style">Style</label>
+        <select id="style">
+          <option value="auto" selected>Auto</option>
+          <option value="pop">Pop</option><option value="rock">Rock</option>
+          <option value="blues">Blues</option><option value="folk">Folk / acoustic</option>
+          <option value="indie">Indie / alternative</option><option value="jazz">Jazz-inspired</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="mood">Mood preference</label>
+        <select id="mood" aria-describedby="mood-hint">
+          <option value="any" selected>Any</option>
+          <option value="bright">Bright</option><option value="melancholic">Melancholic</option>
+          <option value="relaxed">Relaxed</option><option value="tense">Tense</option>
+        </select>
+        <small id="mood-hint">Biases chord colour and movement.</small>
+      </div>
+      <div class="field">
+        <label for="chord-length">Chord count</label>
+        <select id="chord-length">
+          <option>2</option><option>3</option><option selected>4</option>
+          <option>5</option><option>6</option><option>7</option><option>8</option>
+        </select>
+      </div>
+      <div class="field">
         <label for="shape-filter">Chord shapes</label>
         <select id="shape-filter">
           <option value="all" selected>Open and barre</option>
@@ -100,9 +125,9 @@
         <h2 id="context-heading">Chord progression</h2>
         <p id="scale-notes"></p>
       </div>
-      <span class="chord-count">4 chords</span>
+      <span class="chord-count" id="chord-count"></span>
     </section>
-    <ol class="chord-grid" id="progression-cards" aria-label="Four chord positions"></ol>
+    <ol class="chord-grid" id="progression-cards" aria-label="Chord positions"></ol>
 
     <section class="fretboard-panel" aria-labelledby="fretboard-title">
       <div class="fretboard-tabs" role="group" aria-label="Fretboard display">

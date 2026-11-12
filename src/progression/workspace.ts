@@ -1,5 +1,6 @@
 import { buildScale } from "../engine/core/collections.js";
 import type { Scale } from "../engine/core/types.js";
+import { MusicError } from "../engine/core/errors.js";
 import { generateProgression, listProgressionChoices } from "./generator.js";
 import type { GeneratedProgression, ProgressionRequest, ProgressionResult, ProgressionSlot } from "./generator.js";
 import { getPlayableVoicings } from "./voicings.js";
@@ -19,14 +20,41 @@ export type ProgressionWorkspace = Readonly<{
 
 type WorkspaceResult = Readonly<{ ok: true; data: ProgressionWorkspace }> | Extract<ProgressionResult, { ok: false }>;
 
+export type VoicingFilter = "all" | "open" | "barre";
+
+export function matchesVoicingFilter(voicing: GuitarVoicing, filter: VoicingFilter): boolean {
+  return filter === "all" || (filter === "open" ? voicing.shapeFamily === "open" : voicing.shapeFamily !== "open");
+}
+
 export function generateWorkspace(
-  request: Omit<ProgressionRequest, "lockedSlots">,
+  request: Omit<ProgressionRequest, "lockedSlots"> & { shapeFilter?: VoicingFilter },
   previous?: ProgressionWorkspace,
 ): WorkspaceResult {
   const lockedSlots = previous?.cards.flatMap(({ slot }) => slot.isLocked
     ? [{ slotIndex: slot.slotIndex, root: slot.chord.root, chordId: slot.chord.chordId }]
     : []) ?? [];
-  const result = generateProgression({ ...request, lockedSlots });
+  const { shapeFilter, ...generation } = request;
+  let allowedDegrees = generation.allowedDegrees;
+  if (shapeFilter) {
+    try {
+      allowedDegrees = listProgressionChoices(generation.tonic, generation.mode)
+        .filter(({ degree, chord }) => (allowedDegrees === undefined || allowedDegrees.includes(degree))
+          && getPlayableVoicings(chord).some((voicing) => matchesVoicingFilter(voicing, shapeFilter)))
+        .map(({ degree }) => degree);
+    } catch (problem) {
+      if (!(problem instanceof MusicError)) throw problem;
+      // The generator reports the same invalid context through its public result.
+    }
+  }
+  const previousDegrees = generation.previousDegrees ?? (shapeFilter && previous &&
+    previous.context.mode === generation.mode && previous.context.tonic.letter === generation.tonic?.letter &&
+    previous.context.tonic.accidental === generation.tonic.accidental
+    ? previous.cards.map(({ slot }) => slot.degree) : undefined);
+  const result = generateProgression({
+    ...generation, lockedSlots,
+    ...(allowedDegrees === undefined ? {} : { allowedDegrees }),
+    ...(previousDegrees === undefined ? {} : { previousDegrees }),
+  });
   if (!result.ok) return result;
 
   const { slots, ...context } = result.data;

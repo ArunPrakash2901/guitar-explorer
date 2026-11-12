@@ -16,7 +16,7 @@ function generated(input: ProgressionRequest): GeneratedProgression {
   return result.data;
 }
 
-describe("bounded four-chord progression generation", () => {
+describe("bounded progression generation", () => {
   it("reuses existing major harmony and returns Roman identities", () => {
     const result = generated(request());
     expect(result.slots).toHaveLength(4);
@@ -206,6 +206,44 @@ describe("bounded four-chord progression generation", () => {
     const result = generated(request({ tonic, mode: "lydian", seed: 7 }));
     expect(result.slots[0]!.romanNumeral).toBe("I");
     expect(result.slots.some(({ romanNumeral }) => romanNumeral === "II")).toBe(true);
+  });
+
+  it("scores different harmonic movements for pop and jazz-inspired loops", () => {
+    const sequences = (style: "pop" | "jazz") => Array.from({ length: 32 }, (_, seed) =>
+      generated(request({ style, seed, length: 8 })).slots.map(({ degree }) => degree).join(""));
+    const pop = sequences("pop");
+    const jazz = sequences("jazz");
+    expect(new Set(pop).size).toBeGreaterThan(2);
+    expect(new Set(jazz).size).toBeGreaterThan(2);
+    expect(pop.filter((degrees) => degrees.includes("64")).length)
+      .toBeGreaterThan(jazz.filter((degrees) => degrees.includes("64")).length);
+    expect(jazz.filter((degrees) => degrees.includes("25")).length)
+      .toBeGreaterThan(pop.filter((degrees) => degrees.includes("25")).length);
+  });
+
+  it("biases the requested mood without changing chord membership", () => {
+    const countMinor = (mood: "bright" | "melancholic") => Array.from({ length: 30 }, (_, seed) =>
+      generated(request({ style: "indie", mood, seed, length: 6 })).slots)
+      .flat().filter(({ chord }) => chord.chordId === "minor").length;
+    expect(countMinor("melancholic")).toBeGreaterThan(countMinor("bright"));
+  });
+
+  it("regenerates with playable degrees and a lock at the last of eight positions", () => {
+    const input = request({ length: 8, style: "rock", allowedDegrees: [1, 4, 5],
+      lockedSlots: [{ slotIndex: 7, root: parseNote("F"), chordId: "major" }] });
+    const first = generated(input);
+    const prior = first.slots.map(({ degree }) => degree);
+    const next = generated({ ...input, previousDegrees: prior });
+    expect(next.slots.map(({ degree }) => degree)).not.toEqual(prior);
+    expect(next.slots.every(({ degree }) => [1, 4, 5].includes(degree))).toBe(true);
+    expect(next.slots[7]).toEqual(first.slots[7]);
+    expect(next).toEqual(generated({ ...input, previousDegrees: prior }));
+    expect(generateProgression({ ...input, length: 2 })).toMatchObject({
+      ok: false, error: { message: expect.stringContaining("Unlock chord 8") },
+    });
+    expect(generateProgression({ ...input, allowedDegrees: [1, 5] })).toMatchObject({
+      ok: false, error: { code: "NO_PLAYABLE_CHORDS", message: expect.stringContaining("Locked chord 8") },
+    });
   });
 
   it("returns immutable progression and chord values", () => {

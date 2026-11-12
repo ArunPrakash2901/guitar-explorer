@@ -26,7 +26,10 @@ assert.deepEqual(plan.strokes[0].midis, [48,52,55]);
 assert.ok(Object.isFrozen(plan) && Object.isFrozen(plan.strokes));
 assert.throws(() => planProgressionStrokes(cards, 40), RangeError);
 assert.throws(() => planProgressionStrokes(cards, 200), RangeError);
-assert.throws(() => planProgressionStrokes(cards.slice(0,3), 120), RangeError);
+assert.throws(() => planProgressionStrokes(cards.slice(0, 1), 120), RangeError);
+assert.throws(() => planProgressionStrokes([...cards, ...cards, cards[0]], 120), RangeError);
+assert.equal(planProgressionStrokes(cards.slice(0, 3), 120).loopSeconds, 6);
+assert.equal(planProgressionStrokes([...cards, ...cards], 120).loopSeconds, 16);
 
 assert.equal(RECORDED_GUITAR_ATTACKS.length, 12);
 const selected = selectGuitarAttack({ stringIndex: 5, semitone: 64 });

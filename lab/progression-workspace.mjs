@@ -1,10 +1,10 @@
 import { formatNote, parseNote } from "./engine/index.js";
 import { chordDiagramModel } from "./progression/voicings.js";
-import { generateWorkspace, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
+import { generateWorkspace, matchesVoicingFilter, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
 import { listProgressionChoices } from "./progression/generator.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
-import { resolveGenerateChoice } from "./progression-selection.mjs";
+import { listGenerateChoices } from "./progression-selection.mjs";
 import { ProgressionAudio } from "./progression-audio.mjs";
 import { patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
@@ -17,6 +17,10 @@ const form = document.querySelector("#generate-form");
 const tonicInput = document.querySelector("#tonic");
 const modeInput = document.querySelector("#mode");
 const shapeInput = document.querySelector("#shape-filter");
+const styleInput = document.querySelector("#style");
+const moodInput = document.querySelector("#mood");
+const countInput = document.querySelector("#chord-length");
+const chordCount = document.querySelector("#chord-count");
 const tempoValue = document.querySelector("#tempo-value");
 const meterInput = document.querySelector("#meter");
 const patternInput = document.querySelector("#strum-pattern");
@@ -69,12 +73,7 @@ function randomUint32() {
 }
 
 function visibleIndices(card) {
-  return card.voicings.flatMap((voicing, index) => {
-    const filter = shapeInput.value;
-    const allowed = filter === "all" || (filter === "open" && voicing.shapeFamily === "open") ||
-      (filter === "barre" && voicing.shapeFamily !== "open");
-    return allowed ? [index] : [];
-  });
+  return card.voicings.flatMap((voicing, index) => matchesVoicingFilter(voicing, shapeInput.value) ? [index] : []);
 }
 
 function visibleCard(card) {
@@ -200,31 +199,22 @@ function applyGeneration() {
     tonic: formatNote(workspace.context.tonic),
     mode: workspace.context.mode,
   } : null;
-  const autoContext = tonicInput.value === "all" || modeInput.value === "auto";
-  const attempts = shapeInput.value === "open" && !locks && autoContext ? 48 : 1;
+  const choices = listGenerateChoices({
+    keyChoice: tonicInput.value, modeChoice: modeInput.value, lockedCount: locks, previous, randomUint32,
+  });
   let result;
-  for (let attempt = 0; attempt < attempts; attempt++) {
-    const choice = resolveGenerateChoice({
-      keyChoice: tonicInput.value,
-      modeChoice: modeInput.value,
-      lockedCount: locks,
-      previous,
-      randomUint32,
-    });
+  for (const choice of choices) {
     result = generateWorkspace({
       tonic: parseNote(choice.tonic), mode: choice.mode, seed: choice.seed,
+      length: Number(countInput.value), style: styleInput.value, mood: moodInput.value,
+      shapeFilter: shapeInput.value,
     }, workspace);
-    if (!result.ok || shapeInput.value !== "open") break;
-    if (result.data.cards.every((card) => card.voicings.some((v) => v.shapeFamily === "open"))) break;
+    if (result.ok || locks || result.error.code !== "NO_PLAYABLE_CHORDS") break;
   }
   if (!result.ok) {
     const recovery = result.error.code === "LOCK_OUT_OF_MODE"
       ? " Unlock that chord or choose another key and mode." : "";
     setMessage(result.error.message + "." + recovery + " Your current progression is still available.", true);
-    return;
-  }
-  if (result.data.cards.some((card) => visibleIndices(card).length === 0)) {
-    setMessage("No playable progression matched the chord shape filter. Choose Open and barre or change the key or mode.", true);
     return;
   }
   stopPlayback();
@@ -237,6 +227,7 @@ function applyGeneration() {
   const { context, scale } = workspace;
   contextHeading.textContent = noteText(formatNote(context.tonic)) + " " + modes[context.mode];
   scaleNotes.textContent = scale.tones.map(({ note }) => noteText(formatNote(note))).join(" · ");
+  chordCount.textContent = workspace.cards.length + " chords";
   renderCards();
   renderBoard();
   const lockCount = workspace.cards.filter(({ slot }) => slot.isLocked).length;
@@ -286,6 +277,9 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   tonicInput.value = "all";
   modeInput.value = "auto";
   shapeInput.value = "all";
+  styleInput.value = "auto";
+  moodInput.value = "any";
+  countInput.value = "4";
   meterInput.value = "4/4";
   updatePatternControls(true);
   tempoInput.value = "92";
@@ -380,7 +374,7 @@ playButton.addEventListener("click", async () => {
     const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber, {
       meter: meterInput.value, pattern: patternInput.value,
     });
-    if (started) finishAudio(ticket, "Playing four-chord loop.");
+    if (started) finishAudio(ticket, "Playing loop · " + workspace.cards.length + " chords.");
   } catch (problem) {
     finishAudio(ticket, problem.message);
   }
