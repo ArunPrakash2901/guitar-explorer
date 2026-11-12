@@ -6,8 +6,9 @@ import { listProgressionVariants } from "./progression/generator.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { listGenerateChoices } from "./progression-selection.mjs";
-import { ProgressionAudio } from "./progression-audio.mjs";
-import { patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
+import { DEFAULT_MIX, ProgressionAudio } from "./progression-audio.mjs";
+import { groovesForMeter } from "./progression-grooves.mjs";
+import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
 const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian" };
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre", triad: "Three-string triad", compact: "Compact grip" };
@@ -29,6 +30,7 @@ const chordCount = document.querySelector("#chord-count");
 const tempoValue = document.querySelector("#tempo-value");
 const meterInput = document.querySelector("#meter");
 const patternInput = document.querySelector("#strum-pattern");
+const grooveInput = document.querySelector("#drum-groove");
 const tempoUnit = document.querySelector("#tempo-unit");
 const strumDescription = document.querySelector("#strum-description");
 const fretboard = document.querySelector("#fretboard");
@@ -53,6 +55,7 @@ let boardView = "scale";
 let boardPosition = "full";
 let audioStatusTicket = 0;
 let audioPending = false;
+let loopRequested = false;
 
 function beginAudio(text) {
   stopPlayback();
@@ -222,6 +225,7 @@ function monitorTransport() {
 function stopPlayback() {
   audioStatusTicket++;
   audioPending = false;
+  loopRequested = false;
   audio.stop();
   if (animationFrame !== null) cancelAnimationFrame(animationFrame);
   animationFrame = null;
@@ -283,25 +287,54 @@ function updatePatternControls(resetPattern = false) {
   patternInput.value = choices.some((pattern) => pattern.id === old) ? old : DEFAULT_PATTERN[meterInput.value];
   tempoUnit.textContent = METERS[meterInput.value].pulseUnit === "dotted-quarter"
     ? "(dotted-quarter BPM)" : "(quarter BPM)";
-  const chosen = choices.find((pattern) => pattern.id === patternInput.value);
-  strumDescription.textContent = chosen
-    ? chosen.strokes.map(({ direction }) => direction === "up" ? "↑" : "↓").join("  ") +
-      " · " + chosen.name + " · " + meterInput.value
-    : "";
+  const pattern = rhythmPlan(meterInput.value, patternInput.value, tempoInput.valueAsNumber);
+  const directions = new Map(pattern.strokes.map(({ step, direction }) => [step, direction === "up" ? "↑" : "↓"]));
+  strumDescription.textContent = Array.from({ length: pattern.stepsPerBar }, (_, step) => directions.get(step) ?? "·").join(" ") +
+    "  (↓ down, ↑ up, · rest)";
 }
+
+function updateGrooveControls({ reset = false } = {}) {
+  const previous = grooveInput.value;
+  const grooves = groovesForMeter(meterInput.value);
+  grooveInput.replaceChildren(...grooves.map(({ id, name }) => new Option(name, id)));
+  grooveInput.value = reset || !previous ? "off"
+    : grooves.some(({ id }) => id === previous) ? previous : grooves[1].id;
+}
+
+function rhythmChanged(text) {
+  if (loopRequested) {
+    void playLoop();
+  } else {
+    stopPlayback();
+    transportMessage.textContent = text;
+  }
+}
+
+const trackControls = Object.keys(DEFAULT_MIX).map((track) => {
+  const volume = document.querySelector("#" + track + "-volume");
+  const mute = document.querySelector("#" + track + "-mute");
+  const value = document.querySelector("#" + track + "-volume-value");
+  const update = () => {
+    value.textContent = volume.value + "%";
+    audio.setTrackMix(track, volume.valueAsNumber / 100, mute.checked);
+  };
+  volume.addEventListener("input", update);
+  mute.addEventListener("change", update);
+  return { track, volume, mute, update };
+});
 
 toneInput.addEventListener("change", () => audio.setTone(toneInput.value));
 
 meterInput.addEventListener("change", () => {
-  stopPlayback();
   updatePatternControls(true);
-  transportMessage.textContent = "Meter updated. Press Play for the new rhythm.";
+  updateGrooveControls();
+  rhythmChanged("Meter updated.");
 });
 patternInput.addEventListener("change", () => {
-  stopPlayback();
   updatePatternControls();
-  transportMessage.textContent = "Strum pattern updated. Press Play to hear it.";
+  rhythmChanged("Strum pattern updated.");
 });
+grooveInput.addEventListener("change", () => rhythmChanged("Drum groove updated."));
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
@@ -324,9 +357,15 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   boardView = "scale";
   scaleLayerInput.value = "context";
   meterInput.value = "4/4";
-  updatePatternControls(true);
   tempoInput.value = "92";
   tempoValue.textContent = "92 BPM";
+  updatePatternControls(true);
+  updateGrooveControls({ reset: true });
+  for (const { track, volume, mute, update } of trackControls) {
+    volume.value = String(Math.round(DEFAULT_MIX[track] * 100));
+    mute.checked = false;
+    update();
+  }
   applyGeneration();
 });
 
@@ -342,11 +381,8 @@ shapeInput.addEventListener("change", () => {
 
 tempoInput.addEventListener("input", () => {
   tempoValue.textContent = tempoInput.value + " BPM";
-  if (audioPending || audio.isActive()) {
-    stopPlayback();
-    transportMessage.textContent = "Tempo changed. Press Play to restart the loop.";
-  }
 });
+tempoInput.addEventListener("change", () => rhythmChanged("Tempo updated."));
 
 cagedControls.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-position]");
@@ -420,18 +456,21 @@ cardsElement.addEventListener("click", (event) => {
   }
 });
 
-playButton.addEventListener("click", async () => {
-  if (!workspace) return;
-  const ticket = beginAudio("Loading acoustic guitar…");
+async function playLoop() {
+  if (!workspace || playButton.disabled) return;
+  const ticket = beginAudio("Loading loop recordings…");
+  loopRequested = true;
   try {
     const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber, {
-      meter: meterInput.value, pattern: patternInput.value,
+      meter: meterInput.value, pattern: patternInput.value, groove: grooveInput.value,
     });
     if (started) finishAudio(ticket, "Playing loop · " + workspace.cards.length + " chords.");
   } catch (problem) {
-    finishAudio(ticket, problem.message);
+    if (finishAudio(ticket, problem.message)) loopRequested = false;
   }
-});
+}
+
+playButton.addEventListener("click", playLoop);
 
 stopButton.addEventListener("click", () => {
   stopPlayback();
@@ -441,4 +480,5 @@ stopButton.addEventListener("click", () => {
 document.addEventListener("visibilitychange", () => { if (!document.hidden) audio.fillSchedule(); });
 window.addEventListener("pagehide", () => stopPlayback());
 updatePatternControls(true);
+updateGrooveControls({ reset: true });
 applyGeneration();

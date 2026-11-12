@@ -6,6 +6,8 @@ const outputRoot = new URL("../.preview-dist/", import.meta.url);
 const { planProgressionStrokes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
 const { selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
 const { resolveGenerateChoice, listGenerateChoices } = await import(new URL("progression-selection.mjs", outputRoot));
+const { drumPlan, groovesForMeter } = await import(new URL("progression-grooves.mjs", outputRoot));
+const { DRUM_SAMPLES } = await import(new URL("progression-drum-samples.mjs", outputRoot));
 const { rhythmPlan, patternsForMeter, DEFAULT_PATTERN } = await import(new URL("progression-rhythm.mjs", outputRoot));
 
 function card(base) {
@@ -113,6 +115,33 @@ assert.equal(pop.strokes.length, 24);
 assert.deepEqual(pop.strokes.slice(0,6).map(({ step }) => step), [0,2,3,4,6,7]);
 assert.deepEqual(pop.strokes.slice(0,6).map(({ direction }) => direction), ["down","down","up","down","down","up"]);
 
+for (const sample of Object.values(DRUM_SAMPLES)) {
+  const bytes = await readFile(new URL("samples/drums/" + sample.file, outputRoot));
+  assert.equal(bytes.length, sample.bytes);
+  assert.equal(bytes.toString("ascii", 0, 4), "RIFF");
+  assert.equal(createHash("sha256").update(bytes).digest("hex"), sample.sha256);
+}
+for (const meter of ["4/4", "3/4", "6/8"]) {
+  for (const { id } of groovesForMeter(meter)) {
+    const plan = planProgressionStrokes(cards, 120, { meter, groove: id });
+    assert.equal(plan.events.length, plan.strokes.length + plan.drumHits.length);
+    assert.equal(plan.loopSeconds, plan.secondsPerBar * cards.length);
+    for (const [index, event] of plan.events.entries()) {
+      assert.ok(event.seconds >= (plan.events[index - 1]?.seconds ?? 0) && event.seconds < plan.loopSeconds);
+      if (event.kind === "drum" && event.step === 0) assert.equal(event.seconds, event.slotIndex * plan.secondsPerBar);
+    }
+    if (id !== "off") {
+      assert.ok(plan.drumHits.some(({ voice }) => voice === "snare"));
+      assert.equal(plan.strokes[0].seconds, plan.drumHits[0].seconds);
+    }
+  }
+}
+assert.throws(() => drumPlan("3/4", "rock-drive", 120), /does not belong/);
+assert.equal(drumPlan("6/8", "six-eight-sway", 120).find(({ voice }) => voice === "snare").seconds, .5);
+const shuffle = planProgressionStrokes(cards, 120, { pattern: "blues-shuffle", groove: "blues-triplets" });
+assert.equal(shuffle.strokes[1].seconds, 1 / 3);
+assert.ok(shuffle.drumHits.some(({ seconds, voice }) => seconds === 1 / 3 && voice === "hat"));
+
 class FakeSource {
   constructor() {
     this.playbackRate = { setValueAtTime: (value) => { this.rate = value; } };
@@ -128,6 +157,7 @@ class FakeGain {
   constructor() {
     this.gain = {
       setValueAtTime() {},
+      setTargetAtTime(value) { this.target = value; },
       linearRampToValueAtTime() {},
       exponentialRampToValueAtTime() {},
     };
@@ -162,7 +192,7 @@ class FakeContext {
 let fetched = 0;
 const fetchAsset = async (url) => {
   const name = url.pathname.split("/").pop();
-  const sample = RECORDED_GUITAR_ATTACKS.find(({ file }) => file === name);
+  const sample = RECORDED_GUITAR_ATTACKS.find(({ file }) => file === name) ?? Object.values(DRUM_SAMPLES).find(({ file }) => file === name);
   assert.ok(sample, "only licensed manifest files are requested");
   fetched += 1;
   return { ok: true, async arrayBuffer() { return new ArrayBuffer(sample.bytes); } };
@@ -204,6 +234,25 @@ const afterWake = context.sources.slice(beforeWake);
 assert.equal(afterWake.length, 3);
 assert.ok(afterWake.every(({ startedAt }) => startedAt >= context.currentTime));
 assert.equal(afterWake[0].startedAt, audio.loopStart + audio.plan.loopSeconds * 15);
+const scheduledBeforeGroove = context.sources.length;
+assert.equal(await audio.play(cards, 120, { meter: "6/8", groove: "six-eight-sway" }), true);
+const grooveStart = context.sources.slice(scheduledBeforeGroove).filter(({ startedAt }) => startedAt === audio.loopStart);
+assert.equal(grooveStart.filter(({ rate }) => rate === undefined).length, 2, "kick and hat share the downstroke time");
+assert.equal(grooveStart.filter(({ rate }) => rate !== undefined).length, 1);
+audio.setTrackMix("drums", .44, true);
+assert.equal(audio.trackBuses.drums.gain.target, 0);
+audio.setTrackMix("drums", .44, false);
+assert.equal(audio.trackBuses.drums.gain.target, .44);
+const superseded = [...audio.voices];
+assert.equal(await audio.play(cards, 135, { meter: "3/4", groove: "folk-waltz" }), true);
+assert.ok(superseded.every(({ source }) => source.stoppedAt === 0), "changing meter and tempo cancels both tracks");
+assert.equal(audio.context, context);
+assert.equal(audio.plan.secondsPerBar, 3 * 60 / 135);
+const priorLoop = context.sources.length;
+context.currentTime = audio.loopStart + audio.plan.loopSeconds - .04;
+audio.fillSchedule();
+const wrapped = context.sources.slice(priorLoop).filter(({ startedAt }) => startedAt === audio.loopStart + audio.plan.loopSeconds);
+assert.ok(wrapped.some(({ rate }) => rate === undefined) && wrapped.some(({ rate }) => rate !== undefined));
 await audio.dispose();
 assert.equal(context.state, "closed");
 
