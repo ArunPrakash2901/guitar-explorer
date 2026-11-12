@@ -1,7 +1,7 @@
 import { buildChord } from "../engine/core/collections.js";
 import { parseNote, pitchClass } from "../engine/core/pitch.js";
-import type { NoteName } from "../engine/core/types.js";
-import { getNoteAt, STANDARD_FRETBOARD } from "../engine/guitar/fretboard.js";
+import type { NoteName, Scale } from "../engine/core/types.js";
+import { findLocations, getNoteAt, STANDARD_FRETBOARD } from "../engine/guitar/fretboard.js";
 import { getPlayableVoicings } from "./voicings.js";
 import type { StringFret } from "./voicings.js";
 
@@ -52,4 +52,15 @@ export function getCagedPosition(tonic: NoteName, family: CagedFamily, quality: 
     }
   }
   return Object.freeze({ family, fromFret, toFret, gripFrets: Object.freeze(gripFrets) });
+}
+
+/** Ascending scale practice uses one guitar location per sounded pitch. */
+export function getScalePracticeNotes(scale: Scale, position?: Pick<CagedPosition, "fromFret" | "toFret">) {
+  const locations = findLocations({
+    board: STANDARD_FRETBOARD,
+    pitchClasses: scale.tones.map((tone) => tone.pitchClass),
+    ...(position ? { fretRange: { minFret: position.fromFret, maxFret: position.toFret } } : {}),
+  }).slice().sort((a, b) => a.semitone - b.semitone || a.position.fret - b.position.fret);
+  return locations.filter((note, index) => note.semitone !== locations[index - 1]?.semitone)
+    .map(({ position: location, semitone }) => ({ ...location, semitone }));
 }

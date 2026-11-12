@@ -1,6 +1,6 @@
 import { PROGRESSION_LENGTHS } from "./progression/generator.js";
 import { selectGuitarAttack } from "./progression-sample-bank.mjs";
-import { rhythmPlan, DEFAULT_PATTERN } from "./progression-rhythm.mjs";
+import { rhythmPlan, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 import { drumPlan } from "./progression-grooves.mjs";
 import { DRUM_SAMPLES } from "./progression-drum-samples.mjs";
 
@@ -84,7 +84,7 @@ export function planProgressionStrokes(cards, bpm, options = {}) {
 
 
 /** Deterministic, time-bounded note-by-note scale sequence on the guitar clock. */
-export function planScaleNotes(notes, bpm, { loop = false } = {}) {
+export function planScaleNotes(notes, bpm, { loop = false, meter = "4/4" } = {}) {
   assertBpm(bpm);
   if (!Array.isArray(notes) || notes.length < 1 || notes.length > 96 ||
       !notes.every(({ semitone, stringIndex }) => Number.isInteger(semitone) &&
@@ -92,7 +92,8 @@ export function planScaleNotes(notes, bpm, { loop = false } = {}) {
         stringIndex >= 0 && stringIndex < 6)) {
     throw new RangeError("Scale playback needs 1–96 valid sounded string notes");
   }
-  const secondsPerNote = (60 / bpm) / 2;
+  if (!Object.hasOwn(METERS, meter)) throw new RangeError("Choose a scale practice meter");
+  const secondsPerNote = (60 / bpm) / METERS[meter].subdivisions;
   const strokes = Object.freeze(notes.map((note, index) => Object.freeze({
     kind: "scale", slotIndex: null, seconds: index * secondsPerNote,
     notes: Object.freeze([{ stringIndex: note.stringIndex, semitone: note.semitone }]),
@@ -379,6 +380,14 @@ export class ProgressionAudio {
     if (revision !== this.revision) return false;
     this.scheduleStrum(notes, this.context.currentTime + 0.04);
     return true;
+  }
+
+  activeScaleNote() {
+    if (!this.playing || this.plan?.kind !== "scale" || this.context.currentTime < this.transportStartsAt) return null;
+    const elapsed = this.context.currentTime - this.loopStart;
+    const { loopSeconds, secondsPerBar, events, repeat } = this.plan;
+    if (!repeat && elapsed >= loopSeconds) return null;
+    return events[Math.floor((elapsed % loopSeconds) / secondsPerBar)]?.notes[0] ?? null;
   }
 
   activeSlot() {

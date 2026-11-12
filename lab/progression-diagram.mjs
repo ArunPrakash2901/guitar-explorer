@@ -1,4 +1,5 @@
 import { formatNote } from "./engine/index.js";
+import { degreeLabel } from "./progression-tone-label.mjs";
 const strings = ["E", "A", "D", "G", "B", "e"];
 const stringNames = ["Low E", "A", "D", "G", "B", "High E"];
 const firstString = 38;
@@ -12,7 +13,6 @@ function escapeMarkup(text) {
     .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 
-const intervalNames = Object.freeze(["1", "♭2", "2", "♭3", "3", "4", "♭5", "5", "♭6", "6", "♭7", "7"]);
 const displayName = (note) => formatNote(note).replaceAll("#", "♯").replaceAll("b", "♭");
 
 export function renderChordDiagram(model, chordLabel, options = {}) {
@@ -25,7 +25,7 @@ export function renderChordDiagram(model, chordLabel, options = {}) {
     const note = voicing?.notes.find((entry) => entry.stringIndex === stringIndex);
     if (!note || !chord) return null;
     const index = chord.tones.findIndex((tone) => tone.pitchClass === note.pitchClass);
-    return index < 0 ? null : { note: chord.tones[index].note, index, pitchClass: note.pitchClass };
+    return index < 0 ? null : { ...chord.tones[index], index };
   }
   function dotLabel(stringIndex, finger) {
     if (labels === "none") return "";
@@ -33,7 +33,7 @@ export function renderChordDiagram(model, chordLabel, options = {}) {
     const tone = toneAt(stringIndex);
     if (!tone) return "";
     if (labels === "notes") return displayName(tone.note);
-    return intervalNames[(tone.pitchClass - chord.tones[0].pitchClass + 12) % 12];
+    return degreeLabel(tone);
   }
   const lastString = firstString + (strings.length - 1) * stringGap;
   const bottom = top + model.fretCount * fretHeight;

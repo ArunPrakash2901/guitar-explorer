@@ -1,4 +1,5 @@
 import { formatNote, getNoteAt, STANDARD_FRETBOARD } from "./engine/index.js";
+import { degreeLabel } from "./progression-tone-label.mjs";
 
 const labels = ["E", "A", "D", "G", "B", "e"];
 const pretty = (note) => formatNote(note).replaceAll("#", "♯").replaceAll("b", "♭");
@@ -39,11 +40,11 @@ function installKeyboardNavigation(container, rows) {
 
 /** Render the selected collection over engine guitar positions. */
 export function renderScaleBoard(container, scale, chord, mode, onNote, position, options = {}) {
-  const labelMode = options.labels === "notes" ? "notes" : "degrees";
+  const labelMode = options.labels ?? "degrees";
   const highlight = ["root", "triad", "modal"].includes(options.highlight) ? options.highlight : "root";
   const modalDegrees = { dorian: 6, phrygian: 2, lydian: 4, mixolydian: 7, locrian: 5, naturalMinor: 6 };
   const characteristic = modalDegrees[options.modeName] ?? null;
-  const chordPitchClasses = new Set(chord.tones.map(({ pitchClass }) => pitchClass));
+  const triadPitchClasses = new Set(chord.tones.slice(0, 3).map(({ pitchClass }) => pitchClass));
   container.replaceChildren();
   const shown = mode === "chords" ? chord.tones : scale.tones;
   const tones = new Map(shown.map((tone) => [tone.pitchClass, tone]));
@@ -84,22 +85,23 @@ export function renderScaleBoard(container, scale, chord, mode, onNote, position
         button.className = "fret-note";
         button.dataset.string = String(stringIndex);
         button.dataset.fret = String(fret);
+        button.dataset.semitone = String(location.semitone);
         button.tabIndex = -1;
         const root = location.pitchClass === shown[0].pitchClass;
         const grip = mode === "scale" && position?.gripFrets[stringIndex] === fret;
         button.classList.toggle("root", root);
         button.classList.toggle("grip-tone", grip);
-        button.classList.toggle("triad-tone", mode === "scale" && highlight === "triad" &&
-          chordPitchClasses.has(tone.pitchClass) && !root);
-        button.classList.toggle("modal-tone", mode === "scale" && highlight === "modal" &&
-          tone.degree === characteristic && !root);
-        const alteration = tone.alteration === -1 ? "♭" : tone.alteration === 1 ? "♯" : "";
-        const degree = alteration + tone.degree;
+        const triad = mode === "scale" && highlight === "triad" && triadPitchClasses.has(tone.pitchClass) && !root;
+        const characteristicTone = mode === "scale" && highlight === "modal" && tone.degree === characteristic && !root;
+        button.classList.toggle("triad-tone", triad);
+        button.classList.toggle("modal-tone", characteristicTone);
+        const degree = degreeLabel(tone);
         const note = pretty(tone.note);
-        button.textContent = mode === "chords" || labelMode === "notes" ? note : degree;
+        button.textContent = labelMode === "notes" || (mode === "chords" && labelMode !== "intervals") ? note : degree;
         const stringName = stringIndex === 0 ? "low E" : stringIndex === 5 ? "high E" : labels[stringIndex];
         button.setAttribute("aria-label", note + " on " + stringName + " string, fret " + fret +
-          ", degree " + degree + (root ? ", root" : "") + (grip ? ", tonic grip" : ""));
+          ", degree " + degree + (root ? ", root" : "") + (grip ? ", tonic grip" : "") +
+          (triad ? ", selected triad tone" : "") + (characteristicTone ? ", characteristic modal tone" : ""));
         button.title = note + " · " + degree;
         button.addEventListener("click", () => onNote({ stringIndex, semitone: location.semitone, note }));
         rows[stringIndex].push(button);

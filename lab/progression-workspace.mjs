@@ -1,5 +1,5 @@
-import { buildScale, formatNote, getNoteAt, parseNote, STANDARD_FRETBOARD } from "./engine/index.js";
-import { getCagedPosition } from "./progression/caged.js";
+import { buildScale, formatNote, parseNote } from "./engine/index.js";
+import { getCagedPosition, getScalePracticeNotes } from "./progression/caged.js";
 import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js";
 import { generateWorkspace, matchesVoicingFilter, moveWorkspaceChord, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
 import { listProgressionChoices, listProgressionVariants } from "./progression/generator.js";
@@ -46,6 +46,7 @@ const strumDescription = document.querySelector("#strum-description");
 const fretboard = document.querySelector("#fretboard");
 const fretboardTitle = document.querySelector("#fretboard-title");
 const fretboardDescription = document.querySelector("#fretboard-description");
+const fretboardHint = document.querySelector("#fretboard-hint");
 const cagedControls = document.querySelector("#caged-positions");
 const scaleLayerInput = document.querySelector("#scale-layer");
 const scaleLayerControl = document.querySelector("#scale-layer-control");
@@ -87,6 +88,9 @@ let dragFrame = null;
 let audioStatusTicket = 0;
 let audioPending = false;
 let loopRequested = false;
+let scalePending = false;
+let scaleRunning = false;
+let scaleMarker = null;
 
 function beginAudio(text) {
   stopPlayback();
@@ -144,31 +148,40 @@ function updatePlayAvailability() {
   playButton.disabled = !workspace || workspace.cards.some((card) => visibleIndices(card).length === 0);
 }
 
-function renderBoard() {
-  if (!workspace) return;
+function explorerContext() {
   const { tonic, mode } = workspace.context;
   const layer = scaleLayerInput.value;
   const scale = layer === "context" ? workspace.scale : buildScale({ tonic, scaleId: layer });
+  const gripQuality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
+    : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
+  const position = boardPosition === "full" ? undefined : getCagedPosition(tonic, boardPosition, gripQuality);
+  return { tonic, mode, layer, scale, position, gripQuality };
+}
+
+function renderBoard() {
+  if (!workspace) return;
+  const { tonic, mode, layer, scale, position, gripQuality } = explorerContext();
   const keyChoices = listProgressionChoices(tonic, mode);
   const selectedKeyChord = keyChoices[keyPreviewDegree - 1] ?? keyChoices[0];
   const chord = boardView === "key" ? selectedKeyChord.chord : workspace.cards[selectedCard].slot.chord;
   const root = noteText(formatNote(tonic));
-  const gripQuality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
-    : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
-  const position = boardPosition === "full" ? undefined : getCagedPosition(tonic, boardPosition, gripQuality);
   const scaleName = layer === "context" ? modes[mode] + " scale"
     : layer === "majorPentatonic" ? "major pentatonic" : "minor pentatonic";
   fretboardTitle.textContent = boardView === "scale" ? root + " " + scaleName
     : boardView === "key" ? root + " " + modes[mode] + " key chords"
     : noteText(workspace.cards[selectedCard].slot.symbol) + " chord tones";
   const description = boardView === "scale" ? "Scale degrees across six strings."
-    : boardView === "key" ? "Seven triads harmonized from this scale. Select a chord below to inspect its notes."
+    : boardView === "key" ? noteText(selectedKeyChord.symbol) + " · " + selectedKeyChord.romanNumeral + ". Select a diatonic chord to hear its grip."
     : "Chord " + (selectedCard + 1) + " in the " + root + " " + modes[mode] + " progression.";
   const positionDescription = position ? " " + position.family + " form, frets " + position.fromFret + "–" + position.toFret + "." : "";
   const gripDescription = position && boardView === "scale"
     ? gripQuality === "reference" ? " Locrian uses the form as a position reference." : " Outlines mark the tonic grip."
     : "";
   fretboardDescription.textContent = description + positionDescription + gripDescription;
+  const highlightHint = boardView === "scale" && fretHighlights.value === "triad" ? " Olive marks the selected chord’s triad."
+    : boardView === "scale" && fretHighlights.value === "modal" && layer === "context" && mode !== "major"
+      ? " Purple marks the characteristic modal note." : "";
+  fretboardHint.textContent = "Play a highlighted note or move with the arrow keys. Red marks the root." + highlightHint;
   scaleLayerControl.hidden = boardView !== "scale";
   document.querySelector("#scale-practice").hidden = boardView !== "scale";
   keyChordsGrid.hidden = boardView !== "key";
@@ -196,12 +209,14 @@ function renderBoard() {
       if (played) finishAudio(ticket, note.note + " sounded.");
     }).catch((problem) => finishAudio(ticket, problem.message));
   }, position, {
-    labels: fretLabels.value, highlight: fretHighlights.value, modeName: mode,
+    labels: fretLabels.value, highlight: fretHighlights.value, modeName: layer === "context" ? mode : null,
   });
+  paintScaleNote();
   window.dispatchEvent(new Event("progression-changed"));
 }
 
 document.querySelector("#show-key-chords").addEventListener("click", () => {
+  stopScale();
   boardView = "key";
   renderBoard();
 });
@@ -228,58 +243,49 @@ for (const control of [fretLabels, fretHighlights]) {
   });
 }
 
-function scalePlaybackNotes(allPositions) {
-  if (!workspace) return [];
-  const { tonic, mode } = workspace.context;
-  const layer = scaleLayerInput.value;
-  const scale = layer === "context" ? workspace.scale : buildScale({ tonic, scaleId: layer });
-  const quality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
-    : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
-  const position = allPositions || boardPosition === "full" ? null : getCagedPosition(tonic, boardPosition, quality);
-  const start = position?.fromFret ?? 0;
-  const end = position?.toFret ?? STANDARD_FRETBOARD.maxFret;
-  const allowed = new Set(scale.tones.map(({ pitchClass }) => pitchClass));
-  const all = [];
-  for (let stringIndex = 0; stringIndex < 6; stringIndex++) {
-    for (let fret = start; fret <= end; fret++) {
-      const note = getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret });
-      if (allowed.has(note.pitchClass)) all.push({ stringIndex, fret, semitone: note.semitone });
-    }
-  }
-  all.sort((a,b) => a.semitone - b.semitone || a.fret - b.fret);
-  const unique = new Map();
-  for (const note of all) if (!unique.has(note.semitone)) unique.set(note.semitone, note);
-  return [...unique.values()].slice(0,96);
+function stopScale() {
+  if (scalePending || scaleRunning) stopPlayback();
 }
 
 scalePlayButton.addEventListener("click", async () => {
   if (!workspace) return;
-  if (audio.plan?.kind === "scale") {
-    stopPlayback();
-    scaleMessage.textContent = "Scale playback stopped.";
+  if (scalePending || scaleRunning) {
+    stopScale();
     return;
   }
-  const notes = scalePlaybackNotes(scalePlayMode.value === "all");
+  const mode = scalePlayMode.value;
+  if (mode === "all" && boardPosition !== "full") {
+    boardPosition = "full";
+    fretboard.parentElement.scrollLeft = 0;
+    renderBoard();
+  }
+  const { scale, position } = explorerContext();
+  const notes = getScalePracticeNotes(scale, position);
   if (!notes.length) {
     scaleMessage.textContent = "No playable scale notes in this position.";
     return;
   }
   const ticket = beginAudio("Loading scale notes…");
+  scalePending = true;
+  paintTransport();
   scaleMessage.textContent = "Preparing " + notes.length + " notes.";
   try {
-    const started = await audio.playScale(notes, tempoInput.valueAsNumber, { loop: scalePlayMode.value === "loop" });
-    if (started) {
-      scaleMessage.textContent = (scalePlayMode.value === "loop" ? "Looping" : "Playing") + " " + notes.length + " scale notes.";
+    const started = await audio.playScale(notes, tempoInput.valueAsNumber, { loop: mode === "loop", meter: meterInput.value });
+    if (started && ticket === audioStatusTicket) {
+      scalePending = false;
+      scaleRunning = true;
+      scaleMessage.textContent = (mode === "loop" ? "Looping" : "Playing") + " " + notes.length + " scale notes.";
       finishAudio(ticket, scaleMessage.textContent);
     }
   } catch (problem) {
-    if (finishAudio(ticket, problem.message)) scaleMessage.textContent = problem.message;
+    if (ticket !== audioStatusTicket) return;
+    scalePending = false;
+    scaleMessage.textContent = problem.message;
+    finishAudio(ticket, problem.message);
   }
 });
-scaleStopButton.addEventListener("click", () => {
-  stopPlayback();
-  scaleMessage.textContent = "Scale playback stopped.";
-});
+scaleStopButton.addEventListener("click", stopScale);
+scalePlayMode.addEventListener("change", stopScale);
 
 function chordChoiceValue(degree, chordId) {
   return ["major", "minor", "diminished", "augmented"].includes(chordId) ? String(degree) : degree + ":" + chordId;
@@ -504,6 +510,22 @@ for (const type of ["pointercancel", "lostpointercapture"]) {
   cardsElement.addEventListener(type, (event) => { if (touchDrag?.id === event.pointerId) endDrag(); });
 }
 
+function paintScaleNote() {
+  const note = audio.activeScaleNote();
+  const marker = note && fretboard.querySelector(
+    '.fret-note[data-string="' + note.stringIndex + '"][data-semitone="' + note.semitone + '"]');
+  if (marker === scaleMarker) return;
+  scaleMarker?.classList.remove("scale-playing");
+  scaleMarker = marker;
+  if (!marker) return;
+  marker.classList.add("scale-playing");
+  const viewport = fretboard.parentElement;
+  const visible = viewport.getBoundingClientRect();
+  const bounds = marker.getBoundingClientRect();
+  if (bounds.right > visible.right) viewport.scrollLeft += bounds.right - visible.right + 12;
+  else if (bounds.left < visible.left) viewport.scrollLeft -= visible.left - bounds.left + 12;
+}
+
 function paintTransport() {
   const active = audio.activeSlot();
   const playing = audio.isPlaying();
@@ -514,10 +536,12 @@ function paintTransport() {
     if (selected) card.setAttribute("aria-current", "step");
     else card.removeAttribute("aria-current");
   });
-  const scaleMode = audio.plan?.kind === "scale";
+  paintScaleNote();
+  const scaleMode = scalePending || scaleRunning;
   const label = scaleMode ? "Play chords" : playing ? "Pause" : audio.isPaused() ? "Resume" : "Play";
   const text = (playing && !scaleMode ? "Ⅱ " : "▶ ") + label;
-  scalePlayButton.textContent = scaleMode ? "■ Stop shape" : "▶ Play scale notes";
+  const scaleLabel = scaleMode ? "■ Stop scale" : "▶ Play scale notes";
+  if (scalePlayButton.textContent !== scaleLabel) scalePlayButton.textContent = scaleLabel;
   scaleStopButton.disabled = !scaleMode;
 
   if (playButton.textContent !== text) {
@@ -532,8 +556,11 @@ function monitorTransport() {
   if (audio.isActive()) animationFrame = requestAnimationFrame(monitorTransport);
   else {
     animationFrame = null;
-    if (!audio.isPaused() && scaleMessage.textContent.startsWith("Playing")) {
+    if (scaleRunning) {
+      scaleRunning = false;
       scaleMessage.textContent = "Scale playback finished.";
+      transportMessage.textContent = scaleMessage.textContent;
+      paintTransport();
     }
   }
 }
@@ -547,7 +574,9 @@ function stopPlayback() {
   audioStatusTicket++;
   audioPending = false;
   loopRequested = false;
-  if (audio.plan?.kind === "scale") scaleMessage.textContent = "Scale playback stopped.";
+  if (scalePending || scaleRunning) scaleMessage.textContent = "Scale playback stopped.";
+  scalePending = false;
+  scaleRunning = false;
   audio.stop();
   cancelTransportAnimation();
   paintTransport();
@@ -767,18 +796,20 @@ tempoInput.addEventListener("change", () => rhythmChanged("Tempo updated."));
 
 cagedControls.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-position]");
-  if (!button) return;
+  if (!button || boardPosition === button.dataset.position) return;
+  stopScale();
   boardPosition = button.dataset.position;
   fretboard.parentElement.scrollLeft = 0;
   renderBoard();
 });
-scaleLayerInput.addEventListener("change", renderBoard);
+scaleLayerInput.addEventListener("change", () => { stopScale(); renderBoard(); });
 
 document.querySelector("#show-scale").addEventListener("click", () => {
   boardView = "scale";
   renderBoard();
 });
 document.querySelector("#show-chords").addEventListener("click", () => {
+  stopScale();
   boardView = "chords";
   renderBoard();
 });
@@ -831,6 +862,7 @@ cardsElement.addEventListener("click", (event) => {
   } else if (action === "move") {
     moveCard(slotIndex, slotIndex + Number(step), step);
   } else if (action === "select") {
+    stopScale();
     selectedCard = slotIndex;
     boardView = "chords";
     renderCards("[data-slot=\""+slotIndex+"\"] [data-action=\"select\"]");
@@ -878,7 +910,7 @@ async function resumeLoop() {
 }
 
 playButton.addEventListener("click", () => {
-  if (audio.plan?.kind === "scale") { void playLoop(); return; }
+  if (scalePending || scaleRunning) { void playLoop(); return; }
   if (audio.pause()) {
     loopRequested = false;
     cancelTransportAnimation();

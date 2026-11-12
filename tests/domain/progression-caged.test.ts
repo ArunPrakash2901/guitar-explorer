@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { buildChord, buildScale } from "../../src/engine/core/collections.js";
 import { parseNote, pitchClass } from "../../src/engine/core/pitch.js";
 import { getNoteAt, STANDARD_FRETBOARD } from "../../src/engine/guitar/fretboard.js";
-import { CAGED_FAMILIES, getCagedPosition } from "../../src/progression/caged.js";
+import { CAGED_FAMILIES, getCagedPosition, getScalePracticeNotes } from "../../src/progression/caged.js";
 
 const roots = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
 
@@ -37,6 +37,25 @@ describe("guitar CAGED positions", () => {
     expect(getCagedPosition(parseNote("C"), "A", "major").gripFrets).toEqual([null, 3, 5, 5, 5, 3]);
     expect(getCagedPosition(parseNote("F#"), "E", "minor")).toEqual(getCagedPosition(parseNote("Gb"), "E", "minor"));
     expect(getCagedPosition(parseNote("Cb"), "G", "major")).toEqual(getCagedPosition(parseNote("B"), "G", "major"));
+  });
+
+  it("returns ascending unique sounded pitches from the selected form or the full guitar", () => {
+    const tonic = parseNote("Db");
+    const scale = buildScale({ tonic, scaleId: "mixolydian" });
+    const position = getCagedPosition(tonic, "E", "major");
+    const notes = getScalePracticeNotes(scale, position);
+    expect(notes.length).toBeGreaterThan(6);
+    const full = getScalePracticeNotes(scale);
+    expect(full.length).toBeGreaterThan(notes.length);
+    expect(full.some(({ fret }) => fret < position.fromFret)).toBe(true);
+    for (const [index, note] of notes.entries()) {
+      expect(note.fret).toBeGreaterThanOrEqual(position.fromFret);
+      expect(note.fret).toBeLessThanOrEqual(position.toFret);
+      const found = getNoteAt(STANDARD_FRETBOARD, note);
+      expect(found.semitone).toBe(note.semitone);
+      expect(scale.tones.some((tone) => tone.pitchClass === found.pitchClass)).toBe(true);
+      if (index) expect(note.semitone).toBeGreaterThan(notes[index - 1]!.semitone);
+    }
   });
 
   it("can show a modal reference window without claiming a tonic triad grip", () => {
