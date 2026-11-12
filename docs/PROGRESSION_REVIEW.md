@@ -24,7 +24,7 @@ npm run typecheck
 npm test -- tests/domain/progression.test.ts tests/domain/progression-voicings.test.ts tests/domain/progression-workspace.test.ts tests/domain/progression-caged.test.ts
 npm run verify
 npm run test:progression-browser
-npm run test:progression-browser -- --preview
+npm run test:progression-browser:preview
 ```
 
 Set `GE_REVISION` to the checkout SHA before building and `GE_EXPECTED_REVISION` to the same SHA before running the nested browser check. The browser test prints the screenshot directory. It verifies real media decoding, audio scheduling and interactions with browser audio output muted.
