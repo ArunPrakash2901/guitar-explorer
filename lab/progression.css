@@ -290,6 +290,23 @@ main.shell { padding-block: 1rem 3rem; }
 .fret-note:hover { transform: scale(1.12); }
 .fretboard-hint, .credits { color: var(--muted); font-size: .78rem; margin-top: .55rem; }
 .credits { text-align: center; }
+.progression-library { margin: 1rem 0; padding: .85rem 1rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--panel); }
+.progression-library h2 { margin-bottom: .6rem; font-size: 1.25rem; }
+.library-actions, #favorites li, #favorites li div { display: flex; align-items: center; flex-wrap: wrap; gap: .35rem .6rem; }
+.progression-library button {
+  min-height: 2.25rem;
+  padding: .32rem .65rem;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+  background: var(--panel);
+  color: var(--forest);
+  font-weight: 700;
+}
+#favorites { margin: .5rem 0 0; padding: 0; list-style: none; }
+#favorites li { justify-content: space-between; border-top: 1px solid var(--line); padding: .4rem 0; }
+#library-status, #favorites-empty { margin: .45rem 0; color: var(--muted); font-size: .85rem; }
+#library-status:empty { margin: 0; }
+#copy-fallback { width: 100%; font: inherit; color: var(--text); background: var(--canvas); }
 .track-mixer { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: .5rem 1rem; }
 .track-mix { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem .65rem; font-size: .82rem; }
 .track-mix input[type="range"] { inline-size: 6.2rem; accent-color: var(--forest); }
@@ -304,6 +321,7 @@ main.shell { padding-block: 1rem 3rem; }
 @media (max-width: 620px) {
   .shell { width: min(100% - 1.2rem, 91rem); }
   .site-header nav { gap: .65rem; font-size: .8rem; }
+  .site-header .nav-current { display: none; }
   .settings-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .rhythm-control { grid-column: span 2; }
   .tempo-control { grid-column: span 2; }

@@ -10,6 +10,7 @@ const MAX_VOICES = 80;
 export const DEFAULT_MIX = Object.freeze({ guitar: 0.82, drums: 0.62 });
 const DRUM_GAIN = Object.freeze({ kick: 0.58, snare: 0.53, hat: 0.34 });
 const TONE_GAIN_DB = Object.freeze({ natural: 0, warm: -4, bright: 3 });
+export const GUITAR_TONES = Object.freeze(Object.keys(TONE_GAIN_DB));
 const LOOKAHEAD_SECONDS = 0.65;
 const SCHEDULE_INTERVAL_MS = 100;
 

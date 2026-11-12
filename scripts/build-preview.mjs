@@ -77,6 +77,8 @@ const requiredPaths = [
   "progression-rhythm.mjs",
   "progression-grooves.mjs",
   "progression-drum-samples.mjs",
+  "progression-library.mjs",
+  "progression-library-view.mjs",
   "samples/drums/LICENSE",
   "samples/drums/PROVENANCE.md",
   "samples/drums/kick.wav",
