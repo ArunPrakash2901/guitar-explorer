@@ -1,6 +1,6 @@
 import { buildScale } from "../engine/core/collections.js";
 import type { Scale } from "../engine/core/types.js";
-import { generateProgression } from "./generator.js";
+import { generateProgression, listProgressionChoices } from "./generator.js";
 import type { GeneratedProgression, ProgressionRequest, ProgressionResult, ProgressionSlot } from "./generator.js";
 import { getPlayableVoicings } from "./voicings.js";
 import type { GuitarVoicing } from "./voicings.js";
@@ -59,4 +59,40 @@ export function cycleChordVoicing(workspace: ProgressionWorkspace, slotIndex: nu
       return { ...card, voicingIndex: (card.voicingIndex + direction + count) % count };
     }),
   };
+}
+
+
+/**
+ * An intentional chord substitution becomes a hard lock. Existing generation
+ * can therefore preserve it across regenerate without new engine state rules.
+ * All chord facts are imported from the same choices as the generator.
+ */
+export function replaceWorkspaceChord(
+  workspace: ProgressionWorkspace, slotIndex: number, degree: number,
+): ProgressionWorkspace {
+  if (!Number.isInteger(slotIndex) || slotIndex < 0 || slotIndex >= workspace.cards.length) {
+    throw new RangeError("Chord position must be a valid card index");
+  }
+  if (!Number.isInteger(degree) || degree < 1 || degree > 7) {
+    throw new RangeError("A chord replacement must be scale degree 1 through 7");
+  }
+  const selected = listProgressionChoices(workspace.context.tonic, workspace.context.mode)[degree - 1]!;
+  const current = workspace.cards[slotIndex]!;
+  const voicings = getPlayableVoicings(selected.chord);
+  const previousId = current.voicings[current.voicingIndex]?.id;
+  const voicingIndex = Math.max(0, voicings.findIndex(({ id }) => id === previousId));
+  const replacement: WorkspaceCard = {
+    slot: {
+      slotIndex,
+      degree: selected.degree,
+      chord: selected.chord,
+      symbol: selected.symbol,
+      romanNumeral: selected.romanNumeral,
+      isLocked: true,
+    },
+    voicings,
+    voicingIndex,
+  };
+  return { ...workspace, cards: workspace.cards.map((card, index) =>
+    index === slotIndex ? replacement : card) };
 }
