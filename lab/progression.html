@@ -15,6 +15,7 @@
       <a class="brand" href="./">Guitar Explorer</a>
       <nav aria-label="Workspace navigation">
         <span class="nav-current" aria-current="page">Chord Progressions</span>
+        <a href="#progression-library">Favorites</a>
         <a href="./instrument-desk.html">Instrument Desk</a>
       </nav>
     </div>
@@ -162,7 +163,7 @@
 
     <section class="progression-heading context" aria-labelledby="context-heading">
       <div>
-        <h2 id="context-heading">Chord progression</h2>
+        <h2 id="context-heading" tabindex="-1">Chord progression</h2>
         <p id="scale-notes"></p>
       </div>
       <span class="chord-count" id="chord-count"></span>
@@ -197,6 +198,18 @@
         <div class="fretboard" id="fretboard"></div>
       </div>
       <p class="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
+    </section>
+    <section id="progression-library" class="progression-library" aria-labelledby="library-title">
+      <h2 id="library-title">Favorites and sharing</h2>
+      <div class="library-actions">
+        <button id="save-favorite" type="button" data-library="save">Save favorite</button>
+        <button id="copy-progression" type="button" data-library="text">Copy text</button>
+        <button id="share-progression" type="button" data-library="link">Copy link</button>
+      </div>
+      <p id="library-status" role="status"></p>
+      <textarea id="copy-fallback" rows="3" aria-label="Text or link to copy" readonly hidden></textarea>
+      <p id="favorites-empty">No favorites saved on this device.</p>
+      <ul id="favorites" aria-label="Saved progressions"></ul>
     </section>
     <p class="credits">Acoustic guitar by Meta Open Sound. Drum recordings from Virtuosity Drums. CC0-1.0.</p>
   </main>

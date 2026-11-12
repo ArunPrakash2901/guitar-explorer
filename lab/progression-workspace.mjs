@@ -7,6 +7,8 @@ import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { listGenerateChoices } from "./progression-selection.mjs";
 import { DEFAULT_MIX, ProgressionAudio } from "./progression-audio.mjs";
+import { snapshotProgression } from "./progression-library.mjs";
+import { connectProgressionLibrary } from "./progression-library-view.mjs";
 import { groovesForMeter } from "./progression-grooves.mjs";
 import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
@@ -274,9 +276,17 @@ function applyGeneration() {
     setMessage(result.error.message + "." + recovery + " Your current progression is still available.", true);
     return;
   }
+  showWorkspace(result.data);
+  const lockCount = workspace.cards.filter(({ slot }) => slot.isLocked).length;
+  setMessage(lockCount
+    ? "Kept " + lockCount + " locked " + (lockCount === 1 ? "chord." : "chords.")
+    : "New progression. Press Play, or explore the fretboard.");
+}
+
+function showWorkspace(next, selected = 0) {
   stopPlayback();
-  workspace = result.data;
-  selectedCard = 0;
+  workspace = next;
+  selectedCard = selected;
   updatePlayAvailability();
   transportMessage.textContent = playButton.disabled
     ? "Some chords have no matching shape. Try All playable shapes to enable playback."
@@ -287,10 +297,6 @@ function applyGeneration() {
   chordCount.textContent = workspace.cards.length + " chords";
   renderCards();
   renderBoard();
-  const lockCount = workspace.cards.filter(({ slot }) => slot.isLocked).length;
-  setMessage(lockCount
-    ? "Kept " + lockCount + " locked " + (lockCount === 1 ? "chord." : "chords.")
-    : "New progression. Press Play, or explore the fretboard.");
 }
 
 function showSettings(view) {
@@ -305,8 +311,7 @@ settingsSwitch.addEventListener("click", (event) => {
   if (button) showSettings(button.dataset.settings);
 });
 
-function updatePatternControls(resetPattern = false) {
-  const old = resetPattern ? null : patternInput.value;
+function updatePatternControls(preferred = patternInput.value) {
   const choices = patternsForMeter(meterInput.value);
   patternInput.replaceChildren(...choices.map((pattern) => {
     const option = document.createElement("option");
@@ -314,7 +319,7 @@ function updatePatternControls(resetPattern = false) {
     option.textContent = pattern.name;
     return option;
   }));
-  patternInput.value = choices.some((pattern) => pattern.id === old) ? old : DEFAULT_PATTERN[meterInput.value];
+  patternInput.value = choices.some((pattern) => pattern.id === preferred) ? preferred : DEFAULT_PATTERN[meterInput.value];
   tempoUnit.textContent = METERS[meterInput.value].pulseUnit === "dotted-quarter"
     ? "(dotted-quarter BPM)" : "(quarter BPM)";
   const pattern = rhythmPlan(meterInput.value, patternInput.value, tempoInput.valueAsNumber);
@@ -323,12 +328,11 @@ function updatePatternControls(resetPattern = false) {
     "  (↓ down, ↑ up, · rest)";
 }
 
-function updateGrooveControls({ reset = false } = {}) {
-  const previous = grooveInput.value;
+function updateGrooveControls(preferred = grooveInput.value) {
   const grooves = groovesForMeter(meterInput.value);
   grooveInput.replaceChildren(...grooves.map(({ id, name }) => new Option(name, id)));
-  grooveInput.value = reset || !previous ? "off"
-    : grooves.some(({ id }) => id === previous) ? previous : grooves[1].id;
+  grooveInput.value = !preferred ? "off"
+    : grooves.some(({ id }) => id === preferred) ? preferred : grooves[1].id;
 }
 
 function rhythmChanged(text) {
@@ -356,7 +360,7 @@ const trackControls = Object.keys(DEFAULT_MIX).map((track) => {
 toneInput.addEventListener("change", () => audio.setTone(toneInput.value));
 
 meterInput.addEventListener("change", () => {
-  updatePatternControls(true);
+  updatePatternControls("");
   updateGrooveControls();
   rhythmChanged("Meter updated.");
 });
@@ -390,8 +394,8 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   meterInput.value = "4/4";
   tempoInput.value = "92";
   tempoValue.textContent = "92 BPM";
-  updatePatternControls(true);
-  updateGrooveControls({ reset: true });
+  updatePatternControls("");
+  updateGrooveControls("off");
   for (const { track, volume, mute, update } of trackControls) {
     volume.value = String(Math.round(DEFAULT_MIX[track] * 100));
     mute.checked = false;
@@ -531,8 +535,55 @@ stopButton.addEventListener("click", () => {
   transportMessage.textContent = "Playback stopped.";
 });
 
+function captureProgression() {
+  const mix = Object.fromEntries(trackControls.flatMap(({ track, volume, mute }) =>
+    [[track, volume.valueAsNumber], [track + "Muted", mute.checked]]));
+  const cards = workspace.cards.map((card) => {
+    const visible = visibleCard(card);
+    return visible.voicings.length ? visible : card;
+  });
+  const snapshot = snapshotProgression({ ...workspace, cards }, {
+    keyAuto: tonicInput.value === "all", modeAuto: modeInput.value === "auto",
+    style: styleInput.value, mood: moodInput.value, color: colorInput.value, shape: shapeInput.value,
+    bpm: tempoInput.valueAsNumber, meter: meterInput.value, pattern: patternInput.value,
+    groove: grooveInput.value, tone: toneInput.value, ...mix,
+    view: boardView, position: boardPosition, layer: scaleLayerInput.value, selected: selectedCard,
+  });
+  return { workspace, snapshot };
+}
+
+function restoreSavedProgression({ workspace: saved, preferences }, { focus }) {
+  tonicInput.value = preferences.keyAuto ? "all" : formatNote(saved.context.tonic);
+  modeInput.value = preferences.modeAuto ? "auto" : saved.context.mode;
+  countInput.value = String(saved.cards.length);
+  styleInput.value = preferences.style;
+  moodInput.value = preferences.mood;
+  colorInput.value = preferences.color;
+  shapeInput.value = preferences.shape;
+  meterInput.value = preferences.meter;
+  tempoInput.value = String(preferences.bpm);
+  tempoValue.textContent = preferences.bpm + " BPM";
+  updatePatternControls(preferences.pattern);
+  updateGrooveControls(preferences.groove);
+  toneInput.value = preferences.tone;
+  audio.setTone(preferences.tone);
+  for (const { track, volume, mute, update } of trackControls) {
+    volume.value = String(preferences[track]);
+    mute.checked = preferences[track + "Muted"];
+    update();
+  }
+  boardView = preferences.view;
+  boardPosition = preferences.position;
+  scaleLayerInput.value = preferences.layer;
+  fretboard.parentElement.scrollLeft = 0;
+  showWorkspace(saved, preferences.selected);
+  setMessage("");
+  if (focus) contextHeading.focus();
+}
+
 document.addEventListener("visibilitychange", () => { if (!document.hidden) audio.fillSchedule(); });
 window.addEventListener("pagehide", () => stopPlayback());
-updatePatternControls(true);
-updateGrooveControls({ reset: true });
-applyGeneration();
+updatePatternControls("");
+updateGrooveControls("off");
+const shared = connectProgressionLibrary({ capture: captureProgression, restore: restoreSavedProgression });
+if (!shared) applyGeneration();
