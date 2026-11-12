@@ -24,7 +24,7 @@ try {
   for (const asset of [
     "/progression-workspace.mjs", "/progression-diagram.mjs",
     "/progression-sample-bank.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-rhythm.mjs", "/progression-audio.mjs",
-    "/progression/generator.js", "/progression/voicings.js", "/progression/workspace.js", "/engine/index.js",
+    "/progression/caged.js", "/progression/generator.js", "/progression/voicings.js", "/progression/workspace.js", "/engine/index.js",
   ]) {
     assert.ok((await get(asset, /^text\/javascript/)).trim().length, asset);
   }

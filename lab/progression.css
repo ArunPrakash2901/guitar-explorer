@@ -246,8 +246,8 @@ main.shell { padding-block: 1rem 3rem; }
 .fretboard-panel h2 { font-size: clamp(1.25rem,2.7vw,1.75rem); }
 #fretboard-description { color: var(--muted); font-size: .85rem; margin-top: .3rem; }
 .fretboard-scroll { max-width: 100%; overflow-x: auto; overscroll-behavior-x: contain; margin-top: .85rem; }
-.fretboard { min-width: 930px; padding-bottom: .55rem; }
-.fretboard-row { display: grid; grid-template-columns: 4.5rem repeat(13, minmax(0,1fr)); min-height: 2.9rem; align-items: center; }
+.fretboard { min-width: calc(2.5rem + 2.25rem * var(--fret-columns, 16)); padding-bottom: .55rem; }
+.fretboard-row { display: grid; grid-template-columns: 2.5rem repeat(var(--fret-columns, 16), minmax(0,1fr)); min-height: 2.9rem; align-items: center; }
 .fret-number { color: var(--muted); font-size: .75rem; text-align: center; }
 .string-label { color: var(--muted); font-weight: 750; text-align: center; }
 .fret-cell {
@@ -258,7 +258,7 @@ main.shell { padding-block: 1rem 3rem; }
   border-bottom: 1px solid var(--wood-string);
   background: var(--wood);
 }
-.fret-cell:nth-child(2) { background: var(--panel); border-left-width: 5px; }
+.has-open .fret-cell:nth-child(2) { background: var(--panel); border-left-width: 5px; }
 .fret-note {
   width: 2.05rem;
   height: 2.05rem;
@@ -270,6 +270,13 @@ main.shell { padding-block: 1rem 3rem; }
   font-weight: 800;
 }
 .fret-note.root { background: #a63e30; color: white; }
+.fret-note.grip-tone { box-shadow: inset 0 0 0 2px var(--wood-marker); }
+.fretboard-controls { display: flex; gap: .65rem 1rem; justify-content: center; flex-wrap: wrap; margin: .55rem 0; }
+#caged-positions { display: flex; gap: .2rem; align-items: center; }
+#caged-positions button { min-width: 2rem; padding: .32rem .45rem; }
+#caged-positions [aria-pressed="true"] { background: var(--forest); color: var(--on-forest); border-color: var(--forest); }
+#scale-layer-control { font-size: .82rem; }
+#scale-layer { min-height: 2.3rem; margin-left: .2rem; }
 .fret-note:hover { transform: scale(1.12); }
 .fretboard-hint, .credits { color: var(--muted); font-size: .78rem; margin-top: .55rem; }
 .credits { text-align: center; }

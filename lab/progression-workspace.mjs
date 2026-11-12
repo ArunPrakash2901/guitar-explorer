@@ -1,4 +1,5 @@
-import { formatNote, parseNote } from "./engine/index.js";
+import { buildScale, formatNote, parseNote } from "./engine/index.js";
+import { getCagedPosition } from "./progression/caged.js";
 import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js";
 import { generateWorkspace, matchesVoicingFilter, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
 import { listProgressionVariants } from "./progression/generator.js";
@@ -32,6 +33,9 @@ const strumDescription = document.querySelector("#strum-description");
 const fretboard = document.querySelector("#fretboard");
 const fretboardTitle = document.querySelector("#fretboard-title");
 const fretboardDescription = document.querySelector("#fretboard-description");
+const cagedControls = document.querySelector("#caged-positions");
+const scaleLayerInput = document.querySelector("#scale-layer");
+const scaleLayerControl = document.querySelector("#scale-layer-control");
 const message = document.querySelector("#form-message");
 const contextHeading = document.querySelector("#context-heading");
 const scaleNotes = document.querySelector("#scale-notes");
@@ -45,6 +49,7 @@ let animationFrame = null;
 let workspace;
 let selectedCard = 0;
 let boardView = "scale";
+let boardPosition = "full";
 let audioStatusTicket = 0;
 let audioPending = false;
 
@@ -106,15 +111,29 @@ function updatePlayAvailability() {
 
 function renderBoard() {
   if (!workspace) return;
-  const scale = workspace.scale;
+  const { tonic, mode } = workspace.context;
+  const layer = scaleLayerInput.value;
+  const scale = layer === "context" ? workspace.scale : buildScale({ tonic, scaleId: layer });
   const chord = workspace.cards[selectedCard].slot.chord;
-  const root = noteText(formatNote(workspace.context.tonic));
-  fretboardTitle.textContent = boardView === "scale"
-    ? root + " " + modes[workspace.context.mode] + " scale"
+  const root = noteText(formatNote(tonic));
+  const gripQuality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
+    : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
+  const position = boardPosition === "full" ? undefined : getCagedPosition(tonic, boardPosition, gripQuality);
+  const scaleName = layer === "context" ? modes[mode] + " scale"
+    : layer === "majorPentatonic" ? "major pentatonic" : "minor pentatonic";
+  fretboardTitle.textContent = boardView === "scale" ? root + " " + scaleName
     : noteText(workspace.cards[selectedCard].slot.symbol) + " chord tones";
-  fretboardDescription.textContent = boardView === "scale"
-    ? "Scale degrees across six strings"
-    : "Chord " + (selectedCard + 1) + ". Select another chord card to change the highlighted notes.";
+  const description = boardView === "scale" ? "Scale degrees across six strings."
+    : "Chord " + (selectedCard + 1) + " in the " + root + " " + modes[mode] + " progression.";
+  const positionDescription = position ? " " + position.family + " form, frets " + position.fromFret + "–" + position.toFret + "." : "";
+  const gripDescription = position && boardView === "scale"
+    ? gripQuality === "reference" ? " Locrian uses the form as a position reference." : " Outlines mark the tonic grip."
+    : "";
+  fretboardDescription.textContent = description + positionDescription + gripDescription;
+  scaleLayerControl.hidden = boardView !== "scale";
+  for (const button of cagedControls.querySelectorAll("button")) {
+    button.setAttribute("aria-pressed", String(button.dataset.position === boardPosition));
+  }
   for (const view of ["scale", "chords"]) {
     const button = document.querySelector(view === "scale" ? "#show-scale" : "#show-chords");
     button.classList.toggle("selected", boardView === view);
@@ -125,7 +144,7 @@ function renderBoard() {
     audio.audition({ voicingIndex: 0, voicings: [{ notes: [note] }] }).then((played) => {
       if (played) finishAudio(ticket, note.note + " sounded.");
     }).catch((problem) => finishAudio(ticket, problem.message));
-  });
+  }, position);
 }
 
 function chordChoiceValue(degree, chordId) {
@@ -296,6 +315,9 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   moodInput.value = "any";
   colorInput.value = "triads";
   countInput.value = "4";
+  boardPosition = "full";
+  boardView = "scale";
+  scaleLayerInput.value = "context";
   meterInput.value = "4/4";
   updatePatternControls(true);
   tempoInput.value = "92";
@@ -320,6 +342,15 @@ tempoInput.addEventListener("input", () => {
     transportMessage.textContent = "Tempo changed. Press Play to restart the loop.";
   }
 });
+
+cagedControls.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-position]");
+  if (!button) return;
+  boardPosition = button.dataset.position;
+  fretboard.parentElement.scrollLeft = 0;
+  renderBoard();
+});
+scaleLayerInput.addEventListener("change", renderBoard);
 
 document.querySelector("#show-scale").addEventListener("click", () => {
   boardView = "scale";
