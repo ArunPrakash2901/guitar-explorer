@@ -303,3 +303,22 @@ main.shell { padding-block: 1rem 3rem; }
   .settings .rhythm-control { grid-column: span 2; }
   .strum-description { grid-column: span 2; }
 }
+
+/* Edit one chord without exposing the deterministic seed or leaving the desk. */
+.chord-edit { display: grid; gap: 0.2rem; }
+.chord-edit label {
+  color: var(--muted);
+  font-size: .7rem;
+  font-weight: 700;
+}
+.chord-edit select {
+  inline-size: 100%;
+  min-height: 2.35rem;
+  padding: .4rem .55rem;
+  border: 1px solid var(--line);
+  border-radius: .55rem;
+  background: var(--panel);
+  color: var(--text);
+  font: inherit;
+}
+.chord-edit select:hover { border-color: var(--focus); }
