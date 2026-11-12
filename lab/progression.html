@@ -102,9 +102,13 @@
           <option value="6/8">6/8</option>
         </select>
       </div>
-      <div class="field readout">
-        <span class="field-label">Guitar</span>
-        <strong>Acoustic samples</strong>
+      <div class="field">
+        <label for="guitar-tone">Acoustic guitar tone</label>
+        <select id="guitar-tone">
+          <option value="natural" selected>Natural</option>
+          <option value="warm">Warm</option>
+          <option value="bright">Bright</option>
+        </select>
       </div>
       <div class="field tempo-control">
         <label for="tempo">Tempo <span id="tempo-unit">(quarter BPM)</span></label>
@@ -170,7 +174,7 @@
       </div>
       <p class="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
     </section>
-    <p class="credits">Acoustic notes use Guitar Explorer's existing CC0 Meta Steel Guitar recordings. Some notes are pitch-shifted while full multisampling is being developed.</p>
+    <p class="credits">Acoustic guitar recordings from Meta Open Sound, CC0-1.0.</p>
   </main>
 </body>
 </html>
