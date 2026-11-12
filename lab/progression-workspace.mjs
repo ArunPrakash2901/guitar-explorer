@@ -1,8 +1,8 @@
-import { buildScale, formatNote, parseNote } from "./engine/index.js";
+import { buildScale, formatNote, getNoteAt, parseNote, STANDARD_FRETBOARD } from "./engine/index.js";
 import { getCagedPosition } from "./progression/caged.js";
 import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js";
-import { generateWorkspace, matchesVoicingFilter, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
-import { listProgressionVariants } from "./progression/generator.js";
+import { generateWorkspace, matchesVoicingFilter, moveWorkspaceChord, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
+import { listProgressionChoices, listProgressionVariants } from "./progression/generator.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { listGenerateChoices } from "./progression-selection.mjs";
@@ -49,6 +49,19 @@ const fretboardDescription = document.querySelector("#fretboard-description");
 const cagedControls = document.querySelector("#caged-positions");
 const scaleLayerInput = document.querySelector("#scale-layer");
 const scaleLayerControl = document.querySelector("#scale-layer-control");
+const keyChordsGrid = document.querySelector("#key-chords-grid");
+const diagramLabels = document.querySelector("#diagram-labels");
+const diagramHighlight = document.querySelector("#diagram-highlight");
+const fretLabels = document.querySelector("#fretboard-labels");
+const fretHighlights = document.querySelector("#fretboard-highlights");
+const zoomDialog = document.querySelector("#chord-zoom");
+const zoomTitle = document.querySelector("#chord-zoom-title");
+const zoomDiagram = document.querySelector("#chord-zoom-diagram");
+const zoomCount = document.querySelector("#chord-zoom-count");
+const scalePlayMode = document.querySelector("#scale-play-mode");
+const scalePlayButton = document.querySelector("#play-scale");
+const scaleStopButton = document.querySelector("#stop-scale");
+const scaleMessage = document.querySelector("#scale-practice-message");
 const message = document.querySelector("#form-message");
 const contextHeading = document.querySelector("#context-heading");
 const scaleNotes = document.querySelector("#scale-notes");
@@ -63,6 +76,9 @@ let workspace;
 let selectedCard = 0;
 let boardView = "scale";
 let boardPosition = "full";
+let zoomCardIndex = 0;
+let keyPreviewDegree = 1;
+let dragFromIndex = null;
 let audioStatusTicket = 0;
 let audioPending = false;
 let loopRequested = false;
@@ -176,8 +192,10 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
   const number = slotIndex + 1;
   const currentChoice = chordChoiceValue(slot.degree, chord.chordId);
   const bass = voicing?.inversion ? " · " + noteText(formatNote(chord.tones[voicing.inversion].note)) + " bass" : "";
-  const diagram = voicing ? renderChordDiagram(chordDiagramModel(voicing), spokenChord) : "";
-  return `<li class="chord-card" data-slot="${slotIndex}" data-chord="${title}">
+  const diagram = voicing ? renderChordDiagram(chordDiagramModel(voicing), spokenChord, {
+    chord, voicing, labels: diagramLabels.value, highlight: diagramHighlight.value,
+  }) : "";
+  return `<li class="chord-card" draggable="true" data-slot="${slotIndex}" data-chord="${title}">
     <div class="card-heading">
       <div class="card-identity">
         <p class="card-roman">${romanNumeral}</p>
@@ -204,6 +222,12 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
       </div>
       <button class="audition-button" type="button" data-action="audition" aria-label="Hear chord ${number}, ${spokenChord}">Hear chord</button>
     ` : `<p class="unsupported">No guitar grip is available for this chord. Its tones are shown above.</p>`}
+    <div class="card-tools" aria-label="Reorder and enlarge chord ${number}">
+      <button type="button" data-action="zoom" aria-label="Enlarge chord ${number} diagram">⛶ Expand</button>
+      <button type="button" data-action="move" data-step="-1" aria-label="Move chord ${number} left" ${slotIndex === 0 ? "disabled" : ""}>←</button>
+      <button type="button" data-action="move" data-step="1" aria-label="Move chord ${number} right" ${slotIndex === workspace.cards.length - 1 ? "disabled" : ""}>→</button>
+      <span class="drag-hint" aria-hidden="true">⋮⋮</span>
+    </div>
   </li>`;
 }
 
@@ -220,6 +244,95 @@ function renderCards(restoreFocus) {
     cardsElement.querySelector(restoreFocus)?.focus({ preventScroll: true });
   }
 }
+
+function openChordZoom(index) {
+  if (!workspace || index < 0 || index >= workspace.cards.length) return;
+  zoomCardIndex = index;
+  const card = visibleCard(workspace.cards[index]);
+  const voicing = card.voicings[card.voicingIndex];
+  zoomTitle.textContent = "Chord " + (index + 1) + " · " + noteText(card.slot.symbol);
+  zoomCount.textContent = (index + 1) + " of " + workspace.cards.length;
+  zoomDiagram.innerHTML = voicing
+    ? renderChordDiagram(chordDiagramModel(voicing),
+        noteText(formatNote(card.slot.chord.root)) + " " + qualities[card.slot.chord.chordId], {
+          chord: card.slot.chord, voicing,
+          labels: diagramLabels.value, highlight: diagramHighlight.value,
+        })
+    : "<p>No guitar grip for this chord under the current shape filter.</p>";
+  document.querySelector("#chord-zoom-prev").disabled = index === 0;
+  document.querySelector("#chord-zoom-next").disabled = index === workspace.cards.length - 1;
+  if (!zoomDialog.open) zoomDialog.showModal();
+}
+
+document.querySelector("#close-chord-zoom").addEventListener("click", () => zoomDialog.close());
+document.querySelector("#chord-zoom-prev").addEventListener("click", () => openChordZoom(zoomCardIndex - 1));
+document.querySelector("#chord-zoom-next").addEventListener("click", () => openChordZoom(zoomCardIndex + 1));
+zoomDialog.addEventListener("keydown", (event) => {
+  if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+    const next = zoomCardIndex + (event.key === "ArrowLeft" ? -1 : 1);
+    if (next >= 0 && next < workspace.cards.length) {
+      event.preventDefault();
+      openChordZoom(next);
+    }
+  }
+});
+let zoomTouchX = null;
+zoomDialog.addEventListener("touchstart", (event) => {
+  zoomTouchX = event.changedTouches[0]?.clientX ?? null;
+}, { passive: true });
+zoomDialog.addEventListener("touchend", (event) => {
+  if (zoomTouchX === null) return;
+  const delta = (event.changedTouches[0]?.clientX ?? zoomTouchX) - zoomTouchX;
+  zoomTouchX = null;
+  if (Math.abs(delta) > 60) {
+    const next = zoomCardIndex + (delta < 0 ? 1 : -1);
+    if (next >= 0 && next < workspace.cards.length) openChordZoom(next);
+  }
+}, { passive: true });
+for (const control of [diagramLabels, diagramHighlight]) control.addEventListener("change", () => {
+  if (!workspace) return;
+  renderCards();
+  if (zoomDialog.open) openChordZoom(zoomCardIndex);
+});
+
+function moveCard(fromIndex, toIndex) {
+  if (!workspace || fromIndex === toIndex) return;
+  stopPlayback();
+  workspace = moveWorkspaceChord(workspace, fromIndex, toIndex);
+  if (selectedCard === fromIndex) selectedCard = toIndex;
+  else if (fromIndex < selectedCard && selectedCard <= toIndex) selectedCard--;
+  else if (toIndex <= selectedCard && selectedCard < fromIndex) selectedCard++;
+  showWorkspace(workspace, selectedCard);
+  setMessage("Moved chord " + (fromIndex + 1) + " to position " + (toIndex + 1) + ". Locks and grips were preserved.");
+}
+
+cardsElement.addEventListener("dragstart", (event) => {
+  const card = event.target.closest(".chord-card");
+  if (!card) return;
+  dragFromIndex = Number(card.dataset.slot);
+  event.dataTransfer.effectAllowed = "move";
+  event.dataTransfer.setData("text/plain", String(dragFromIndex));
+  card.classList.add("dragging");
+});
+cardsElement.addEventListener("dragover", (event) => {
+  if (dragFromIndex !== null && event.target.closest(".chord-card")) {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+  }
+});
+cardsElement.addEventListener("drop", (event) => {
+  if (dragFromIndex === null) return;
+  const card = event.target.closest(".chord-card");
+  if (!card) return;
+  event.preventDefault();
+  const from = dragFromIndex;
+  dragFromIndex = null;
+  moveCard(from, Number(card.dataset.slot));
+});
+cardsElement.addEventListener("dragend", () => {
+  dragFromIndex = null;
+  cardsElement.querySelectorAll(".dragging").forEach((card) => card.classList.remove("dragging"));
+});
 
 function paintTransport() {
   const active = audio.activeSlot();
@@ -293,6 +406,7 @@ function applyGeneration() {
 
 function showWorkspace(next, selected = 0) {
   stopPlayback();
+  if (zoomDialog.open) zoomDialog.close();
   workspace = next;
   selectedCard = selected;
   updatePlayAvailability();
@@ -522,6 +636,11 @@ cardsElement.addEventListener("click", (event) => {
     audio.audition(card).then((played) => {
       if (played) finishAudio(ticket, `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`);
     }).catch((problem) => finishAudio(ticket, problem.message));
+  } else if (action === "zoom") {
+    openChordZoom(slotIndex);
+  } else if (action === "move") {
+    moveCard(slotIndex, slotIndex + Number(step));
+    cardsElement.querySelector('[data-slot="' + (slotIndex + Number(step)) + '"] [data-action="move"][data-step="' + step + '"]')?.focus();
   } else if (action === "select") {
     selectedCard = slotIndex;
     boardView = "chords";
