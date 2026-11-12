@@ -47,6 +47,7 @@
           <option value="phrygian">Phrygian</option>
           <option value="lydian">Lydian</option>
           <option value="mixolydian">Mixolydian</option>
+          <option value="locrian">Locrian</option>
         </select>
       </div>
       <div class="field">
@@ -77,10 +78,21 @@
       <div class="field">
         <label for="shape-filter">Chord shapes</label>
         <select id="shape-filter">
-          <option value="all" selected>Open and barre</option>
+          <option value="all" selected>All playable shapes</option>
           <option value="open">Open shapes</option>
           <option value="barre">Barre shapes</option>
+          <option value="triad">Three-string triads</option>
         </select>
+      </div>
+      <div class="field">
+        <label for="chord-color">Chord colour</label>
+        <select id="chord-color" aria-describedby="color-hint">
+          <option value="triads" selected>Triads</option>
+          <option value="sevenths">Prefer sevenths</option>
+          <option value="suspended">Prefer suspended</option>
+          <option value="add9">Prefer add9</option>
+        </select>
+        <small id="color-hint">Uses colours that fit the mode and shape filter.</small>
       </div>
       <div class="field">
         <label for="meter">Meter</label>

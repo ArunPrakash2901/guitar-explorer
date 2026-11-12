@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatNote, parseNote } from "../../src/engine/core/pitch.js";
-import { generateProgression, listProgressionChoices } from "../../src/progression/generator.js";
+import { generateProgression, listProgressionChoices, listProgressionVariants } from "../../src/progression/generator.js";
 import type { GeneratedProgression, ProgressionRequest } from "../../src/progression/generator.js";
 
 const request = (overrides: Partial<ProgressionRequest> = {}): ProgressionRequest => ({
@@ -139,7 +139,7 @@ describe("bounded progression generation", () => {
         .toMatchObject({ ok: false, error: { code: "INVALID_INPUT" } });
     }
     expect(generateProgression(request({
-      lockedSlots: [{ slotIndex: 0, root: parseNote("C"), chordId: "sus4" }],
+      lockedSlots: [{ slotIndex: 0, root: parseNote("C"), chordId: "power5" }],
     }))).toMatchObject({ ok: false, error: { code: "LOCK_OUT_OF_MODE" } });
   });
 
@@ -166,7 +166,7 @@ describe("bounded progression generation", () => {
   });
 
   it("rejects unsupported mode requests without expanding the core", () => {
-    const result = generateProgression(request({ mode: "locrian" as ProgressionRequest["mode"] }));
+    const result = generateProgression(request({ mode: "harmonicMinor" as ProgressionRequest["mode"] }));
     expect(result).toMatchObject({ ok: false, error: { code: "UNSUPPORTED_MODE" } });
   });
 
@@ -244,6 +244,24 @@ describe("bounded progression generation", () => {
     expect(generateProgression({ ...input, allowedDegrees: [1, 5] })).toMatchObject({
       ok: false, error: { code: "NO_PLAYABLE_CHORDS", message: expect.stringContaining("Locked chord 8") },
     });
+  });
+
+  it("supports all Locrian degrees, including the diminished tonic and flat fifth", () => {
+    const choices = listProgressionChoices(parseNote("B"), "locrian");
+    expect(choices.map(({ symbol }) => symbol)).toEqual(["Bdim", "C", "Dm", "Em", "F", "G", "Am"]);
+    expect(choices.map(({ romanNumeral }) => romanNumeral)).toEqual(["i°", "♭II", "♭iii", "iv", "♭V", "♭VI", "♭vii"]);
+    expect(generated(request({ tonic: parseNote("B"), mode: "locrian" })).slots[0]!.symbol).toBe("Bdim");
+  });
+
+  it("includes in-mode colours and retains a suspended lock across a preference change", () => {
+    const variants = listProgressionVariants(parseNote("C"), "major");
+    expect(variants.filter(({ chord }) => chord.tones.length === 4 && chord.chordId !== "add9")
+      .map(({ symbol }) => symbol)).toEqual(["Cmaj7", "Dm7", "Em7", "Fmaj7", "G7", "Am7", "Bm7♭5"]);
+    expect(variants.some(({ symbol }) => symbol === "Fsus4")).toBe(false);
+    const result = generated(request({ color: "sevenths",
+      lockedSlots: [{ slotIndex: 1, root: parseNote("C"), chordId: "sus4" }] }));
+    expect(result.slots[1]).toMatchObject({ symbol: "Csus4", isLocked: true });
+    expect(result.slots.filter(({ isLocked }) => !isLocked).every(({ chord }) => chord.tones.length === 4)).toBe(true);
   });
 
   it("returns immutable progression and chord values", () => {

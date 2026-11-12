@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { buildChord } from "../../src/engine/core/collections.js";
-import { parseNote, pitchClass } from "../../src/engine/core/pitch.js";
+import { parseNote } from "../../src/engine/core/pitch.js";
 import { getNoteAt, STANDARD_FRETBOARD } from "../../src/engine/guitar/fretboard.js";
 import { chordDiagramModel, getPlayableVoicings } from "../../src/progression/voicings.js";
 import type { Chord } from "../../src/engine/core/types.js";
@@ -10,7 +10,7 @@ function chord(root: string, chordId: Chord["chordId"]): Chord {
   return buildChord({ root: parseNote(root), chordId });
 }
 
-function shape(root: string, quality: "major" | "minor", frets: readonly (number | null)[]): GuitarVoicing {
+function shape(root: string, quality: Chord["chordId"], frets: readonly (number | null)[]): GuitarVoicing {
   const found = getPlayableVoicings(chord(root, quality)).find((voicing) =>
     JSON.stringify(voicing.frets) === JSON.stringify(frets));
   if (!found) throw new Error("Missing shape " + root + ":" + quality + " " + JSON.stringify(frets));
@@ -52,7 +52,8 @@ describe("engine-validated guitar chord grips", () => {
   it("all emitted grips sound precisely the supplied Core chord pitch classes", () => {
     const roots = ["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"];
     for (const root of roots) {
-      for (const quality of ["major", "minor"] as const) {
+      for (const quality of ["major", "minor", "diminished", "dominant7", "major7", "minor7",
+        "halfDiminished7", "diminished7", "sus2", "sus4", "add9"] as const) {
         const source = chord(root, quality);
         const target = new Set(source.tones.map((tone) => tone.pitchClass));
         const voicings = getPlayableVoicings(source);
@@ -60,7 +61,13 @@ describe("engine-validated guitar chord grips", () => {
         for (const voicing of voicings) {
           const notes = voicing.frets.flatMap((fret, stringIndex) =>
             fret === null ? [] : [getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret })]);
-          expect(notes[0]!.pitchClass).toBe(pitchClass(source.root));
+          const bass = Math.min(...notes.map(({ semitone }) => semitone));
+          expect(voicing.bassPitchClass).toBe(bass % 12);
+          expect(source.tones[voicing.inversion]!.pitchClass).toBe(voicing.bassPitchClass);
+          expect(voicing.fingers.every((finger, index) => (finger !== null) === ((voicing.frets[index] ?? 0) > 0))).toBe(true);
+          expect(voicing.barres.every(({ firstString, lastString, fret, finger }) =>
+            firstString < lastString && voicing.frets[firstString] === fret && voicing.frets[lastString] === fret &&
+            voicing.fingers[firstString] === finger && voicing.fingers[lastString] === finger)).toBe(true);
           expect(new Set(notes.map(({ pitchClass: value }) => value))).toEqual(target);
           expect(notes.every(({ pitchClass: value }) => target.has(value))).toBe(true);
           expect(voicing.notes.map((note) => note.pitchClass)).toEqual(notes.map(({ pitchClass: value }) => value));
@@ -71,8 +78,17 @@ describe("engine-validated guitar chord grips", () => {
   });
 
   it("refuses unsupported chord families instead of rendering a false voicing", () => {
-    expect(getPlayableVoicings(chord("C", "dominant7"))).toEqual([]);
-    expect(getPlayableVoicings(chord("F", "diminished"))).toEqual([]);
+    expect(getPlayableVoicings(chord("C", "major13"))).toEqual([]);
+  });
+
+  it("shows familiar extensions, a diminished grip, and two inversions", () => {
+    expect(shape("G", "dominant7", [3, 2, 0, 0, 0, 1]).shapeFamily).toBe("open");
+    expect(shape("C", "add9", [null, 3, 2, 0, 3, 3]).shapeFamily).toBe("open");
+    expect(shape("B", "diminished", [null, 2, 3, 4, 3, null]).shapeFamily).toBe("compact");
+    const inversions = getPlayableVoicings(chord("D", "major")).filter(({ shapeFamily }) => shapeFamily === "triad");
+    expect(new Set(inversions.map(({ inversion }) => inversion))).toEqual(new Set([0, 1, 2]));
+    const f = chordDiagramModel(shape("F", "major", [1, 3, 3, 2, 1, 1]));
+    expect(f.barres).toEqual([{ firstString: 0, lastString: 5, finger: 1, fret: 1, diagramRow: 1 }]);
   });
 
   it("returns stable, immutable voicing IDs and models", () => {

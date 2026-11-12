@@ -200,6 +200,8 @@ main.shell { padding-block: 1rem 3rem; }
 .diagram-fret { stroke: var(--wood-fret); }
 .diagram-nut { stroke: var(--wood-string); stroke-width: 4; }
 .diagram-finger { fill: var(--wood-marker); stroke: var(--wood); stroke-width: 1; }
+.diagram-barre { stroke: var(--wood-marker); stroke-width: 12; stroke-linecap: round; }
+.diagram-finger-number { fill: var(--wood); font-size: 10px; font-weight: 700; }
 .diagram-open, .diagram-muted { fill: none; stroke: var(--text); stroke-width: 1.75; }
 .diagram-label { fill: var(--text); font-size: 11px; font-weight: 600; }
 .audition-button {

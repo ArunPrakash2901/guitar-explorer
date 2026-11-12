@@ -101,11 +101,21 @@ describe("progression workbench state", () => {
     expect(regenerated.cards[1]!.slot).toEqual(updated.cards[1]!.slot);
   });
 
-  it("reports unsupported voicings explicitly for a selected diminished chord", () => {
+  it("uses an engine-validated compact diminished grip after replacement", () => {
     const initial = requireWorkspace(generateWorkspace(cMajor));
     const edited = replaceWorkspaceChord(initial, 2, 7);
     expect(edited.cards[2]!.slot).toMatchObject({ symbol: "Bdim", isLocked: true });
-    expect(edited.cards[2]!.voicings).toEqual([]);
+    expect(edited.cards[2]!.voicings[0]?.shapeFamily).toBe("compact");
+  });
+
+  it("preserves a locked colour and its grip under a different generation preference", () => {
+    const initial = requireWorkspace(generateWorkspace(cMajor));
+    const replaced = replaceWorkspaceChord(initial, 0, 1, "add9");
+    const next = requireWorkspace(generateWorkspace({ ...cMajor, color: "sevenths", shapeFilter: "open" }, replaced));
+    expect(next.cards[0]).toEqual(replaced.cards[0]);
+    expect(next.cards[0]?.slot.symbol).toBe("Cadd9");
+    expect(next.cards.every(({ voicings }) => voicings.some(({ shapeFamily }) => shapeFamily === "open"))).toBe(true);
+    expect(() => replaceWorkspaceChord(initial, 0, 4, "sus4")).toThrow(/outside the selected/);
   });
 
   it("rejects out-of-range chord replacements without changing the progression", () => {
