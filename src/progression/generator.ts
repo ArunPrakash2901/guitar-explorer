@@ -9,7 +9,7 @@ import type { Chord, ChordId, NoteName } from "../engine/core/types.js";
  * authority for spelled scales, chords and major/natural-minor harmonization.
  * This module selects musical material; it never changes core musical truth.
  */
-export type ProgressionMode = "major" | "naturalMinor" | "mixolydian";
+export type ProgressionMode = "major" | "naturalMinor" | "dorian" | "phrygian" | "lydian" | "mixolydian";
 
 export type LockedChordSlot = Readonly<{
   slotIndex: number;
@@ -53,7 +53,13 @@ export type ProgressionResult =
 
 type DegreeChord = Readonly<{ chord: Chord; romanNumeral: string }>;
 const TRIAD_IDS = ["major", "minor", "diminished", "augmented"] as const;
-const MIXOLYDIAN_NUMERALS = ["I", "ii", "iii°", "IV", "v", "vi", "♭VII"] as const;
+const MODAL_NUMERALS = {
+  dorian: ["i", "ii", "♭III", "IV", "v", "vi°", "♭VII"],
+  phrygian: ["i", "♭II", "♭III", "iv", "v°", "♭VI", "♭vii"],
+  lydian: ["I", "II", "iii", "♯iv°", "V", "vi", "vii"],
+  mixolydian: ["I", "ii", "iii°", "IV", "v", "vi", "♭VII"],
+} as const;
+type HarmonizedModalMode = keyof typeof MODAL_NUMERALS;
 
 const TEMPLATES: Readonly<Record<ProgressionMode, readonly (readonly number[])[]>> = {
   major: [
@@ -73,6 +79,24 @@ const TEMPLATES: Readonly<Record<ProgressionMode, readonly (readonly number[])[]
     [0, 6, 3, 0], // I - ♭VII - IV - I
     [0, 3, 6, 0], // I - IV - ♭VII - I
     [0, 4, 6, 3], // I - v - ♭VII - IV
+  ],
+  dorian: [
+    [0, 3, 6, 0], // i - IV - ♭VII - i
+    [0, 1, 3, 0], // i - ii - IV - i
+    [0, 4, 3, 0], // i - v - IV - i
+    [0, 6, 3, 0], // i - ♭VII - IV - i
+  ],
+  phrygian: [
+    [0, 1, 5, 0], // i - ♭II - ♭VI - i
+    [0, 3, 1, 0], // i - iv - ♭II - i
+    [0, 5, 1, 0], // i - ♭VI - ♭II - i
+    [0, 2, 1, 0], // i - ♭III - ♭II - i
+  ],
+  lydian: [
+    [0, 1, 4, 0], // I - II - V - I
+    [0, 4, 1, 0], // I - V - II - I
+    [0, 1, 0, 4], // I - II - I - V
+    [0, 1, 2, 0], // I - II - iii - I
   ],
 };
 
@@ -99,19 +123,19 @@ function chordSymbol(chord: Chord): string {
  * seven triads by stacking written scale thirds, then ask Core to identify each
  * triad. No pitch, interval or chord formula is reimplemented here.
  */
-function modalTriads(tonic: NoteName): readonly DegreeChord[] {
-  const scale = buildScale({ tonic, scaleId: "mixolydian" });
+function modalTriads(tonic: NoteName, mode: HarmonizedModalMode): readonly DegreeChord[] {
+  const scale = buildScale({ tonic, scaleId: mode });
   return scale.tones.map((tone, degree) => {
     const target = [0, 2, 4].map((offset) => scale.tones[(degree + offset) % 7]!.note);
     const matches = TRIAD_IDS.map((chordId) => buildChord({ root: tone.note, chordId }))
       .filter((chord) => chord.tones.every((note, index) => sameNote(note.note, target[index]!)));
     if (matches.length !== 1) throw new Error("Modal triad must match exactly one existing Core chord");
-    return Object.freeze({ chord: matches[0]!, romanNumeral: MIXOLYDIAN_NUMERALS[degree]! });
+    return Object.freeze({ chord: matches[0]!, romanNumeral: MODAL_NUMERALS[mode][degree]! });
   });
 }
 
 function harmony(tonic: NoteName, mode: ProgressionMode): readonly DegreeChord[] {
-  if (mode === "mixolydian") return modalTriads(tonic);
+  if (mode === "mixolydian" || mode === "dorian" || mode === "phrygian" || mode === "lydian") return modalTriads(tonic, mode);
   const result = buildDiatonicHarmony({
     key: { tonic, mode: mode === "major" ? "major" : "minor" },
     chordSize: "triad",
@@ -127,7 +151,7 @@ export type ProgressionChordChoice = Pick<ProgressionSlot, "degree" | "chord" | 
  * explicit user substitution. No parallel chord table or theory is introduced.
  */
 export function listProgressionChoices(tonic: NoteName, mode: ProgressionMode): readonly ProgressionChordChoice[] {
-  if (mode !== "major" && mode !== "naturalMinor" && mode !== "mixolydian") {
+  if (mode !== "major" && mode !== "naturalMinor" && mode !== "mixolydian" && mode !== "dorian" && mode !== "phrygian" && mode !== "lydian") {
     throw new MusicError("UNSUPPORTED", "Unsupported progression mode");
   }
   return Object.freeze(harmony(tonic, mode).map((item, index) => Object.freeze({
@@ -207,8 +231,8 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
   if (!request || typeof request !== "object" || Array.isArray(request)) {
     return error("INVALID_INPUT", "A progression request is required");
   }
-  if (request.mode !== "major" && request.mode !== "naturalMinor" && request.mode !== "mixolydian") {
-    return error("UNSUPPORTED_MODE", "This first slice supports major, natural minor and Mixolydian");
+  if (request.mode !== "major" && request.mode !== "naturalMinor" && request.mode !== "mixolydian" && request.mode !== "dorian" && request.mode !== "phrygian" && request.mode !== "lydian") {
+    return error("UNSUPPORTED_MODE", "Supported contexts: major, natural minor, Dorian, Phrygian, Lydian and Mixolydian");
   }
   if (!Number.isInteger(request.seed) || request.seed < 0 || request.seed > 0xffffffff) {
     return error("INVALID_INPUT", "Seed must be an unsigned 32-bit integer");
