@@ -1,3 +1,4 @@
+import { PROGRESSION_LENGTHS } from "./progression/generator.js";
 import { selectGuitarAttack } from "./progression-sample-bank.mjs";
 import { rhythmPlan, DEFAULT_PATTERN } from "./progression-rhythm.mjs";
 import { drumPlan } from "./progression-grooves.mjs";
@@ -39,8 +40,8 @@ function soundingNotes(card) {
 /** Pure tempo/transport facts; never depends on samples or rendering APIs. */
 export function planProgressionStrokes(cards, bpm, options = {}) {
   assertBpm(bpm);
-  if (!Array.isArray(cards) || cards.length < 2 || cards.length > 8) {
-    throw new RangeError("Acoustic playback needs two to eight chord cards");
+  if (!Array.isArray(cards) || !PROGRESSION_LENGTHS.includes(cards.length)) {
+    throw new RangeError("Acoustic playback needs a supported chord count");
   }
   const meter = options.meter ?? "4/4";
   const pattern = options.pattern ?? (meter === "4/4" ? "steady" : DEFAULT_PATTERN[meter]);
@@ -290,7 +291,7 @@ export class ProgressionAudio {
     const { events, loopSeconds } = this.plan;
     const floor = this.context.currentTime - 0.02;
     const horizon = this.context.currentTime + LOOKAHEAD_SECONDS;
-    if (floor > this.loopStart + loopSeconds) {
+    if (floor > this.loopStart) {
       const cycle = Math.floor((floor - this.loopStart) / loopSeconds);
       const offset = floor - this.loopStart - cycle * loopSeconds;
       const next = events.findIndex(({ seconds }) => seconds >= offset);

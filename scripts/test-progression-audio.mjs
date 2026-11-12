@@ -33,6 +33,13 @@ assert.throws(() => planProgressionStrokes(cards.slice(0, 1), 120), RangeError);
 assert.throws(() => planProgressionStrokes([...cards, ...cards, cards[0]], 120), RangeError);
 assert.equal(planProgressionStrokes(cards.slice(0, 3), 120).loopSeconds, 6);
 assert.equal(planProgressionStrokes([...cards, ...cards], 120).loopSeconds, 16);
+for (const length of [12, 16]) {
+  const long = planProgressionStrokes(Array.from({ length }, (_, index) => cards[index % cards.length]), 120, {
+    pattern: "rock-eighths", groove: "rock-drive",
+  });
+  assert.equal(long.loopSeconds, length * 2);
+  assert.equal(long.events.at(-1).slotIndex, length - 1);
+}
 
 const { PROGRESSION_STEEL_SAMPLES } = await import(new URL("progression-guitar-manifest.mjs", outputRoot));
 assert.equal(PROGRESSION_STEEL_SAMPLES.length, 90);
@@ -273,6 +280,14 @@ assert.ok(audio.plan.events[(audio.nextEvent - 1) % audio.plan.events.length].se
 audio.pause();
 audio.stop();
 assert.equal(await audio.resume(), false);
+const longCards = Array.from({ length: 16 }, (_, index) => cards[index % cards.length]);
+assert.equal(await audio.play(longCards, 120, { pattern: "rock-eighths", groove: "rock-drive" }), true);
+const wakeBeforeLast = context.sources.length;
+context.currentTime = audio.loopStart + 30;
+audio.fillSchedule();
+assert.equal(audio.activeSlot(), 15);
+assert.ok(context.sources.slice(wakeBeforeLast).some(({ startedAt }) => startedAt === context.currentTime));
+audio.stop();
 const scaleNotes = [
   { stringIndex: 0, semitone: 48 },
   { stringIndex: 1, semitone: 52 },

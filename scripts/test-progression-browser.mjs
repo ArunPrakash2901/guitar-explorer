@@ -134,7 +134,7 @@ try {
   async function press(selector, key) {
     assert.equal(await evaluate("(() => { const el = " + css(selector) + "; el.focus(); return document.activeElement === el; })()"), true, selector);
     const code = key === " " ? "Space" : key;
-    const windowsVirtualKeyCode = key === " " ? 32 : 13;
+    const windowsVirtualKeyCode = { " ": 32, Enter: 13, ArrowLeft: 37, ArrowRight: 39, End: 35, Escape: 27 }[key];
     const event = { key, code, windowsVirtualKeyCode, nativeVirtualKeyCode: windowsVirtualKeyCode };
     await cdp("Input.dispatchKeyEvent", { ...event, type: "rawKeyDown" });
     if (key === "Enter") await cdp("Input.dispatchKeyEvent", { ...event, type: "char", text: "\r", unmodifiedText: "\r" });
@@ -149,6 +149,19 @@ try {
   const viewport = (width, height, mobile) => cdp("Emulation.setDeviceMetricsOverride", {
     width, height, deviceScaleFactor: 1, mobile,
   });
+
+  async function touchGesture(start, end, beforeRelease) {
+    await cdp("Emulation.setTouchEmulationEnabled", { enabled: true, maxTouchPoints: 1 });
+    await cdp("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [start] });
+    for (const fraction of [.25, .5, .75, 1]) {
+      const x = start.x + (end.x - start.x) * fraction;
+      const y = start.y + (end.y - start.y) * fraction;
+      await cdp("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x, y }] });
+    }
+    if (beforeRelease) await beforeRelease();
+    await cdp("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+    await cdp("Emulation.setTouchEmulationEnabled", { enabled: false });
+  }
 
   await cdp("Browser.grantPermissions", { origin, permissions: ["clipboardReadWrite", "clipboardSanitizedWrite"] });
   await cdp("Page.enable");
@@ -177,6 +190,12 @@ try {
     };
     window.events = [];
     window.audioClocks = new Set();
+    window.mixerTargets = [];
+    const setTarget = AudioParam.prototype.setTargetAtTime;
+    AudioParam.prototype.setTargetAtTime = function (value, time, constant) {
+      if (constant === .015) window.mixerTargets.push(value);
+      return setTarget.call(this, value, time, constant);
+    };
     const realStart = AudioBufferSourceNode.prototype.start;
     const realStop = AudioBufferSourceNode.prototype.stop;
     let sourceId = 0;
@@ -210,14 +229,25 @@ try {
   await screenshot("desktop-default");
   assert.equal(await evaluate("document.querySelectorAll('#quick-controls > .field').length"), 8);
   assert.equal(await evaluate("document.querySelector('#quick-favorite').getAttribute('aria-pressed')"), "false");
+  assert.equal(await evaluate("document.querySelector('#quick-drums').getAttribute('aria-pressed')"), "false");
+  await press("#quick-drums", " ");
+  assert.equal(await evaluate("document.querySelector('#drum-groove').value"), "pop-backbeat");
+  assert.equal(await evaluate("document.querySelector('#quick-drums').getAttribute('aria-pressed')"), "true");
   await press("#quick-drums", " ");
   assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), true);
   await press("#quick-drums", " ");
   assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), false);
+  await setValue("#drum-groove", "off");
+  await press("#quick-favorite", " ");
+  assert.equal(await evaluate("document.querySelector('#quick-favorite').getAttribute('aria-pressed')"), "true");
+  await press("#quick-favorite", " ");
+  assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 0);
   await press("[data-slot='0'] [data-action=zoom]", " ");
   assert.equal(await evaluate("document.querySelector('#chord-zoom').open"), true);
   await press("#chord-zoom-next", " ");
   assert.match(await evaluate("document.querySelector('#chord-zoom-count').textContent"), /2 of 4/);
+  await press("#chord-zoom-next", "ArrowLeft");
+  assert.equal(await evaluate("document.querySelector('#chord-zoom-count').textContent"), "1 of 4");
   await press("#close-chord-zoom", " ");
   assert.equal(await evaluate("document.querySelector('#chord-zoom').open"), false);
   const firstBeforeMove = await evaluate("document.querySelector('[data-slot=\\\"0\\\"]').dataset.chord");
@@ -225,6 +255,20 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-slot=\\\"1\\\"]').dataset.chord"), firstBeforeMove);
   await press("[data-slot='1'] [data-action=move][data-step='-1']", " ");
   assert.equal(await evaluate("document.querySelector('[data-slot=\\\"0\\\"]').dataset.chord"), firstBeforeMove);
+  const nativeDrop = await evaluate(`(() => {
+    const cards = document.querySelectorAll(".chord-card");
+    const transfer = new DataTransfer();
+    cards[0].querySelector(".drag-handle").dispatchEvent(new DragEvent("dragstart", { bubbles: true, cancelable: true, dataTransfer: transfer }));
+    cards[1].dispatchEvent(new DragEvent("dragover", { bubbles: true, cancelable: true, dataTransfer: transfer }));
+    const highlighted = cards[1].classList.contains("drop-target");
+    cards[1].dispatchEvent(new DragEvent("drop", { bubbles: true, cancelable: true, dataTransfer: transfer }));
+    return highlighted;
+  })()`);
+  assert.equal(nativeDrop, true);
+  assert.equal(await evaluate("document.querySelectorAll('.chord-card')[1].dataset.chord"), firstBeforeMove);
+  assert.equal(await evaluate("document.activeElement.closest('[data-slot]').dataset.slot"), "1");
+  await press("[data-slot='1'] [data-action=move][data-step='-1']", " ");
+  assert.equal(await evaluate("document.activeElement.getAttribute('aria-label')"), "Move chord 1 later");
   await press("#show-key-chords", " ");
   assert.equal(await evaluate("document.querySelector('#key-chords-grid').hidden"), false);
   assert.equal(await evaluate("document.querySelectorAll('#key-chords-grid button').length"), 7);
@@ -237,6 +281,7 @@ try {
   if (preview && process.env.GE_EXPECTED_REVISION) {
     assert.equal(await evaluate("document.querySelector('meta[name=guitar-explorer-revision]').content"), process.env.GE_EXPECTED_REVISION);
   }
+  const startsBeforeCancel = await evaluate("window.events.filter(({action}) => action === 'start').length");
   await evaluate("window.waitForSamples = true");
   await press("#play-progression", " ");
   await waitFor("window.sampleWaiters.length > 0", "guitar sample in flight");
@@ -244,7 +289,7 @@ try {
   await press("#stop-progression", " ");
   await evaluate("window.releaseSamples()");
   await delay(350);
-  assert.equal(await evaluate("window.events.filter(({action}) => action === 'start').length"), 0, "Stop invalidates pending sample playback");
+  assert.equal(await evaluate("window.events.filter(({action}) => action === 'start').length"), startsBeforeCancel, "Stop invalidates pending sample playback");
 
   await setValue("#tonic", "Db");
   await setValue("#mode", "mixolydian");
@@ -252,6 +297,37 @@ try {
   await press("#generate", "Enter");
   assert.match(await evaluate("document.querySelector('#context-heading').textContent"), /D♭ Mixolydian/);
   assert.match(await evaluate("document.querySelector('#scale-notes').textContent"), /C♭/);
+  assert.deepEqual(await evaluate("[...document.querySelectorAll('[data-slot]')].map(card => card.dataset.chord)"), ["D♭", "A♭m", "G♭", "D♭"]);
+  await press("[data-slot='1'] [data-action=zoom]", " ");
+  await press("#chord-zoom-audition", " ");
+  await waitFor("document.querySelector('#chord-zoom-status').textContent.includes('A♭m')", "enlarged chord audition");
+  const zoomPoint = await evaluate(`(() => {
+    const box = document.querySelector('#chord-zoom').getBoundingClientRect();
+    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+  })()`);
+  await touchGesture({ x: zoomPoint.x + 90, y: zoomPoint.y }, { x: zoomPoint.x - 90, y: zoomPoint.y });
+  assert.equal(await evaluate("document.querySelector('#chord-zoom-count').textContent"), "3 of 4");
+  await press("#close-chord-zoom", " ");
+  await viewport(390, 844, true);
+  await press("[data-slot='0'] [data-action=select]", " ");
+  await press("[data-slot='0'] [data-action=lock]", " ");
+  await press("[data-slot='0'] [data-action=voicing][data-step='1']", " ");
+  const movedGrip = await evaluate("document.querySelector('[data-slot=\"0\"] .diagram-wrap').dataset.voicing");
+  const touchPoints = await evaluate(`(() => {
+    const [first, second] = document.querySelectorAll('.chord-card');
+    const handle = first.querySelector('.drag-handle');
+    handle.scrollIntoView({ block: 'center' });
+    const a = handle.getBoundingClientRect();
+    const b = second.getBoundingClientRect();
+    return [{ x: a.left + a.width / 2, y: a.top + a.height / 2 }, { x: b.left + b.width / 2, y: b.top + 35 }];
+  })()`);
+  await touchGesture(...touchPoints, () => waitFor("!!document.querySelector('[data-slot=\"1\"].drop-target')", "touch drop feedback"));
+  assert.equal(await evaluate("document.querySelector('[data-slot=\"1\"] .diagram-wrap').dataset.voicing"), movedGrip);
+  assert.equal(await evaluate("document.querySelector('[data-slot=\"1\"] [data-action=lock]').getAttribute('aria-pressed')"), "true");
+  assert.equal(await evaluate("document.querySelector('[data-slot=\"1\"] [data-action=select]').getAttribute('aria-pressed')"), "true");
+  await press("[data-slot='1'] [data-action=move][data-step='-1']", " ");
+  await press("[data-slot='0'] [data-action=lock]", " ");
+  await viewport(1380, 900, false);
   await press("[data-slot='1'] [data-action=select]", " ");
   assert.equal(await evaluate("document.querySelector('[data-slot=\\\"1\\\"] [data-action=select]').getAttribute('aria-pressed')"), "true");
   assert.ok(await evaluate("[...document.querySelectorAll('.fret-note.root')].every(button => button.getAttribute('aria-label').startsWith(document.querySelector('[data-slot=\\\"1\\\"] .chord-tones').textContent.split(' · ')[0]))"));
@@ -290,8 +366,16 @@ try {
   assert.equal(await evaluate("document.querySelector('#drum-groove').value"), "folk-waltz");
   await setValue("#tempo", "138");
   await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "live tempo restart");
-  await press("#drums-mute", " ");
+  await press("#quick-drums", " ");
   assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), true);
+  assert.equal(await evaluate("window.mixerTargets.at(-1)"), 0);
+  await press("#quick-drums", " ");
+  assert.equal(await evaluate("window.mixerTargets.at(-1)"), .62);
+  await press("#quick-guitar", " ");
+  assert.equal(await evaluate("document.querySelector('#guitar-mute').checked"), true);
+  assert.equal(await evaluate("window.mixerTargets.at(-1)"), 0);
+  await press("#quick-guitar", " ");
+  assert.equal(await evaluate("window.mixerTargets.at(-1)"), .82);
   assert.equal(await evaluate("window.audioClocks.size"), 1);
   await press("#play-progression", " ");
   assert.equal(await evaluate("document.querySelector('#play-progression').getAttribute('aria-label')"), "Resume progression");
@@ -303,18 +387,30 @@ try {
   assert.equal(await evaluate("!!document.querySelector('[data-playing=\\\"true\\\"]')"), false);
 
   await press("[data-settings=chords]", " ");
-  await setValue("#chord-length", "8");
+  await setValue("#chord-length", "16");
   await setValue("#style", "jazz");
   await setValue("#mood", "tense");
   await press("#generate", "Enter");
-  assert.equal(await evaluate("document.querySelectorAll('[data-slot]').length"), 8);
-  assert.equal(await evaluate("document.querySelector('#chord-count').textContent"), "8 chords");
-  await press("[data-slot='7'] [data-action=lock]", " ");
-  await setValue("#chord-length", "2");
+  assert.equal(await evaluate("document.querySelectorAll('[data-slot]').length"), 16);
+  assert.equal(await evaluate("document.querySelector('#chord-count').textContent"), "16 chords");
+  await press("#quick-favorite", " ");
+  assert.equal(await evaluate("document.querySelector('#quick-favorite').getAttribute('aria-pressed')"), "true");
+  await press("#quick-favorite", " ");
+  await press("#play-progression", " ");
+  await waitFor("document.querySelector('#transport-message').textContent.includes('16 chords')", "sixteen-chord playback");
+  await press("#stop-progression", " ");
+  await press("[data-slot='15'] [data-action=lock]", " ");
+  await setValue("#chord-length", "12");
   await press("#generate", "Enter");
-  assert.match(await evaluate("document.querySelector('#form-message').textContent"), /unlock chord 8/i);
-  assert.equal(await evaluate("document.querySelectorAll('[data-slot]').length"), 8);
-  await press("[data-slot='7'] [data-action=lock]", " ");
+  assert.match(await evaluate("document.querySelector('#form-message').textContent"), /unlock chord 16/i);
+  assert.equal(await evaluate("document.querySelectorAll('[data-slot]').length"), 16);
+  await press("[data-slot='15'] [data-action=lock]", " ");
+  await press("#generate", "Enter");
+  assert.equal(await evaluate("document.querySelectorAll('[data-slot]').length"), 12);
+  await press("#play-progression", " ");
+  await waitFor("document.querySelector('#transport-message').textContent.includes('12 chords')", "twelve-chord playback");
+  await press("#stop-progression", " ");
+  await setValue("#chord-length", "2");
   await press("#generate", "Enter");
   assert.equal(await evaluate("document.querySelectorAll('[data-slot]').length"), 2);
   await press("#play-progression", " ");
@@ -359,6 +455,7 @@ try {
 
   await setValue("[data-slot='1'] [data-action=replace]", "1:add9");
   await press("[data-slot='1'] [data-action=voicing][data-step='1']", " ");
+  await press("#advanced-settings > summary", " ");
   await press("[data-settings=rhythm]", " ");
   await setValue("#meter", "6/8");
   await setValue("#drum-groove", "six-eight-drive");
