@@ -193,6 +193,7 @@ function renderBoard() {
   }, position, {
     labels: fretLabels.value, highlight: fretHighlights.value, modeName: mode,
   });
+  window.dispatchEvent(new Event("progression-changed"));
 }
 
 document.querySelector("#show-key-chords").addEventListener("click", () => {
@@ -624,6 +625,7 @@ patternInput.addEventListener("change", () => {
 grooveInput.addEventListener("change", () => rhythmChanged("Drum groove updated."));
 
 form.addEventListener("change", (event) => {
+  if (workspace) window.dispatchEvent(new Event("progression-changed"));
   if (event.target.closest("#chords-settings") && message.classList.contains("is-error")) setMessage("");
 });
 
