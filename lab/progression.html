@@ -26,6 +26,9 @@
     </div>
 
     <form id="generate-form" class="settings" aria-label="Progression settings">
+      <div id="quick-controls" class="quick-controls" aria-label="Quick musical settings"></div>
+      <details id="advanced-settings" class="advanced-settings">
+        <summary>More settings</summary>
       <div class="settings-switch" role="group" aria-label="Settings view">
         <button type="button" data-settings="chords" aria-pressed="true" aria-controls="chords-settings">Chords</button>
         <button type="button" data-settings="rhythm" aria-pressed="false" aria-controls="rhythm-settings">Rhythm</button>
@@ -147,11 +150,14 @@
         </div>
         <p id="strum-description" class="strum-description"></p>
       </div>
+      </details>
     </form>
 
     <section class="action-stage" aria-label="Progression actions">
       <div class="action-row">
         <button id="generate" form="generate-form" type="submit" class="primary">Generate</button>
+        <button id="quick-drums" class="track-toggle" type="button" aria-pressed="true" aria-controls="drums-mute" title="Toggle drum accompaniment">Rhythm on</button>
+        <button id="quick-guitar" class="track-toggle" type="button" aria-pressed="true" aria-controls="guitar-mute" title="Toggle guitar accompaniment">Chords on</button>
         <button id="play-progression" type="button" disabled aria-label="Play progression">▶ Play</button>
         <button id="stop-progression" type="button" disabled>■ Stop</button>
         <button id="reset-workspace" type="button" class="quiet">Reset</button>
@@ -166,7 +172,11 @@
         <h2 id="context-heading" tabindex="-1">Chord progression</h2>
         <p id="scale-notes"></p>
       </div>
-      <span class="chord-count" id="chord-count"></span>
+      <div class="progression-quick-actions">
+        <button id="quick-mix" type="button" class="icon-action" title="Open volume settings" aria-label="Open volume settings">♫</button>
+        <button id="quick-favorite" type="button" class="icon-action" aria-label="Save current progression to favorites" title="Save favorite">☆</button>
+        <span class="chord-count" id="chord-count"></span>
+      </div>
     </section>
     <ol class="chord-grid" id="progression-cards" aria-label="Chord positions"></ol>
 
@@ -199,8 +209,10 @@
       </div>
       <p class="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
     </section>
-    <section id="progression-library" class="progression-library" aria-labelledby="library-title">
-      <h2 id="library-title">Favorites and sharing</h2>
+    <details id="library-drawer" class="library-drawer">
+      <summary>Favorites and sharing</summary>
+      <section id="progression-library" class="progression-library" aria-labelledby="library-title">
+      <h2 id="library-title" class="visually-hidden">Favorites and sharing</h2>
       <div class="library-actions">
         <button id="save-favorite" type="button" data-library="save">Save favorite</button>
         <button id="copy-progression" type="button" data-library="text">Copy text</button>
@@ -210,7 +222,8 @@
       <textarea id="copy-fallback" rows="3" aria-label="Text or link to copy" readonly hidden></textarea>
       <p id="favorites-empty">No favorites saved on this device.</p>
       <ul id="favorites" aria-label="Saved progressions"></ul>
-    </section>
+      </section>
+    </details>
     <p class="credits">Acoustic guitar by Meta Open Sound. Drum recordings from Virtuosity Drums. CC0-1.0.</p>
   </main>
 </body>
