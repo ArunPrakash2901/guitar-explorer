@@ -6,13 +6,13 @@ The local Lab and PR preview open Chord Progressions at the home route. The Inst
 
 | Feature | Implemented | Automated verification | Browser verification | Review or limit |
 |---|---|---|---|---|
-| Generation | All/Auto, seven diatonic modes, six style preferences, mood, two to eight chords, exact chord locks and grip-aware selection | Scale membership, modal spelling, distinct style and mood behaviour, seeded variation, lock conflicts and shape availability | Generate, incompatible locks, shortening and playable regeneration | Mood biases chord colour and movement. Blues stays within the selected mode. |
-| Voicings | Open chords, E/A barres, compact grips, inverted triads, sevenths, suspended, diminished and add9 shapes | Sounded pitches, fingering, barre endpoints and all twelve root classes | Finger numbers, real grip navigation, replacement and locking | Try the listed grips on a guitar. The catalogue covers practical selections from a bounded set of chord qualities. |
-| Fretboard | Full 0–15 fret view, five CAGED forms, modal and pentatonic layers, selected chord tones and note audition | CAGED coordinates, pitch classes and enharmonic pairs | Full/cropped views, all five forms and arrow/End navigation | Locrian uses the CAGED windows as position references. Try the reduced minor C and G forms on guitar. |
-| Guitar sound | Three recorded velocity layers, direction-specific strums, three tone settings, release envelopes and bounded voices | Sample bytes/hashes, all fret positions, pitch, cache, cancellation and scheduler recovery | Real browser decoding, audition and playback, tone change and Stop during loading | The source provides one take per fret and velocity layer. Listen to balance, realism and release. |
-| Rhythm and drums | 4/4, 3/4 and 6/8, strum patterns, drum grooves, live track mix and Play/Pause/Stop | Meter pulse math, drum alignment, loop wrap and transport changes | Live meter, tempo, groove and mute changes and pause/resume | Listen to guitar/drum balance at slow and fast tempos. |
-| Favorites and sharing | Save, restore, delete, readable text and compact URL | Strict validation, chord/grip restoration, local storage and privacy allowlist | Native clipboard, reloading a link, malformed input and favorites | Favorites are stored in this browser, with room for 24. |
-| Integration | Local and nested PR preview entry, desktop/tablet/mobile layout and keyboard controls | Full repository verification and optional Chrome journey | 1380, 844, 390 and 320 px, light and dark | Owner review and exact-head hosted Pages verification precede merge. |
+| Arrangement | All/Auto, seven modes, style and mood, 2–8, 12 or 16 chords, locks, replacement and reorder | Scale membership and spelling, shape availability, lock conflicts, long loops and snapshot round trips | Generate, conflict recovery, locked grip preservation, drag and touch reorder, keyboard focus, long playback and sharing | Blues stays within the selected mode. |
+| Chord diagrams | Fingered open chords, barres, compact grips, inversions and colour chords with enlarge, audition and label options | Sounded pitches, fingering, barre endpoints and all twelve roots | Voicing navigation, replacement, zoom buttons, keys and swipe, fingers, note names and intervals | Compare muted strings, finger numbers and bass notes on a guitar. |
+| Fretboard | Full 0–15 fret view, five CAGED positions, diatonic key chords, both pentatonic layers, modal and triad highlights, and Once, Loop and All scale practice | Fret coordinates, pitch classes, enharmonic intervals and scale events | Key Chords and audition, all forms, keyboard navigation, scale cursor and Stop | Locrian uses CAGED windows as position references. Try the reduced minor C and G forms on guitar. |
+| Guitar sound | Three recorded acoustic velocity layers and recorded clean electric, direction-specific strums and short releases | Asset hashes, fret coverage, pitch bounds, cache, cancellation and scheduling | Chrome decoded both banks, switched sound during the loop and stopped pending loads | Electric uses 13 recorded pitch anchors, one take per anchor, and at most two semitones of pitch shift. Listen on speakers and headphones. |
+| Rhythm and drums | 4/4, 3/4 and 6/8, editable kick/snare/hat patterns, phrase-end fills, hi-hat click, live track mix and transport | Meter and subdivisions, groove masks, fills, loop boundaries and transport changes | Live drum edits, meter, tempo, groove, independent gains and mute, metronome and pause/resume | Listen to attacks, balance and the loop seam at different tempos. |
+| Favorites and export | Star, names, collection filtering, restore/delete, readable text, compact URL and PNG | Validation, version-one migration, chord/grip/rhythm/appearance round trips and private-field allowlist | Native clipboard, old and current links, favorite restore and real PNG download | Favorites stay in the current browser, with room for 24. |
+| Integration | Local and nested preview, responsive controls and keyboard navigation | Full repository verification and Chrome journey | 1600, 1380, 844, 390 and 320 px in light and dark | Test audio and touch on a physical phone. |
 
 ## Reproduce the checks
 
@@ -24,18 +24,19 @@ npm run typecheck
 npm test -- tests/domain/progression.test.ts tests/domain/progression-voicings.test.ts tests/domain/progression-workspace.test.ts tests/domain/progression-caged.test.ts
 npm run verify
 npm run test:progression-browser
+npm run preview:build
 npm run test:progression-browser:preview
 ```
 
-Set `GE_REVISION` to the checkout SHA before building and `GE_EXPECTED_REVISION` to the same SHA before running the nested browser check. The browser test prints the screenshot directory. It verifies real media decoding, audio scheduling and interactions with browser audio output muted.
+Set `GE_REVISION` to the checkout SHA before building and `GE_EXPECTED_REVISION` to the same SHA before running the nested browser check. To run the browser journey against a hosted build, set `GE_BROWSER_URL` to the HTTPS preview directory, `GE_EXPECTED_REVISION` to its full head SHA and `GE_PREVIEW_PR` to the PR number. Run `npm run test:progression-browser:preview`. The test prints the screenshot directory and checks real media decoding and audio scheduling with browser output muted.
 
 ## Owner listening and physical-guitar trial
 
 1. Open the review build with Key set to All, Mode set to Auto and chord count set to four. Click Generate, then Play. Try at least three generations and choose a progression worth playing.
-2. Open Rhythm. Add a groove, then change meter and strum pattern while playing. Test 4/4 and 3/4 at quarter-note BPM, then 6/8 at dotted-quarter BPM. Move the guitar and drum volume sliders and mute each track. Listen to the attack, balance and loop seam. Pause, resume, then Stop.
+2. Turn on Rhythm. Change the meter and strum pattern while playing. Try 4/4 and 3/4 at quarter-note BPM, then 6/8 at dotted-quarter BPM. In Rhythm settings, edit a kick hit and turn on the fill and metronome. Move the independent volume sliders, mute each track and switch from Acoustic to Clean electric. Listen to attacks, releases, fill timing and the loop seam. Pause, resume, then Stop.
 3. Choose C major. Compare the displayed open C and G, B diminished, and a G7 or Cadd9 grip on a standard-tuned guitar. Cycle to a barre and an inverted triad. Compare the muted strings, finger numbers and written bass with what you play. Replace and lock one chord, then Generate again and check both its chord and grip.
-4. In C major, try the open C form, the A form around fret 3, and the E form around fret 8. Compare the outlined tonic grip with your guitar. Switch to major pentatonic and selected chord tones. In A minor, try the minor pentatonic C and G forms and listen to the highlighted notes.
-5. Save a favorite, copy the URL into another tab and verify the restored chord, lock, grip, tempo, groove and fretboard position. Delete the favorite after the trial if desired.
+4. In C major, try the open C form, the A form around fret 3, and the E form around fret 8. Compare the outlined tonic grip with your guitar. Try Key Chords, play a scale in Once and Loop, then stop it. In A minor, try the minor pentatonic C and G forms.
+5. On a phone, drag a locked card by its handle, swipe an enlarged diagram and scroll the full fretboard. Save a favorite with a name and collection, open its share link in a new tab and check the grip, groove and fretboard settings. Download the PNG and compare it with the four selected grips.
 
 ## Existing stack register
 
@@ -59,4 +60,17 @@ The rows below were inspected at the start of the full implementation mission. P
 | [#100](https://github.com/ArunPrakash2901/guitar-explorer/pull/100) | Workspace and pause/resume | `codex/progression-drums` | `c56332986911e91562c59b4ec64bbef1b2be590c` |
 | [#101](https://github.com/ArunPrakash2901/guitar-explorer/pull/101) | Favorites and sharing | `codex/progression-interface` | `79292d5e8bb97f8cb864d2249705079b675c2ba0` |
 
-The earlier heads were verified through their combined #94 integration. Each new slice passed `npm run verify` locally on its listed SHA. The integration PR records the final exact head, browser results and hosted-preview status.
+The earlier heads were verified through their combined #94 integration.
+
+| PR | Purpose | Base | Head |
+|---|---|---|---|
+| [#102](https://github.com/ArunPrakash2901/guitar-explorer/pull/102) | Progression integration | `codex/progression-favorites` | `4d034dbafc96157d2a7e5b7a297cd0d619b4749c` |
+| [#103](https://github.com/ArunPrakash2901/guitar-explorer/pull/103) | Compact controls | `codex/progression-integration` | `f59ff62e17c84f5b9081fcda8fad31f882027553` |
+| [#104](https://github.com/ArunPrakash2901/guitar-explorer/pull/104) | Progression interactions | `feat/progression-p0-parity-v1` | `b1022871f5e96fbf85a587cb5319d5f82610ee75` |
+| [#105](https://github.com/ArunPrakash2901/guitar-explorer/pull/105) | Touch arrangement and longer progressions | `feat/progression-p1-interactions-v1` | `1408f7ee5a20340836c2bad57b2727a155b0b706` |
+| [#106](https://github.com/ArunPrakash2901/guitar-explorer/pull/106) | Fretboard and scale practice | `codex/progression-arrangement` | `131c63b6d63e71a2c6aed5121fd9a9dd1b74f7c4` |
+| [#107](https://github.com/ArunPrakash2901/guitar-explorer/pull/107) | Drum editor and metronome | `codex/progression-explorer` | `4e7a2ef2a9624dbd719d259870b933161ad2817d` |
+| [#108](https://github.com/ArunPrakash2901/guitar-explorer/pull/108) | Acoustic voicing and clean electric | `codex/progression-rhythm-editor` | `decfb02c12cb97962ffec7dbe5023fa661d03596` |
+| [#109](https://github.com/ArunPrakash2901/guitar-explorer/pull/109) | Favorite collections and PNG export | `codex/progression-guitar-sound` | `3be9410fc2ce45d94afc4742a32acf28549c5dc6` |
+
+PR #104 and each of #105–#109 passed full verification and both local Chromium routes on the listed revisions. The final review PR records its own exact head, browser results and hosted-preview status.

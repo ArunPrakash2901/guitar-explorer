@@ -2,7 +2,7 @@ name: PR preview
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize, closed]
+    types: [opened, reopened, synchronize, ready_for_review, closed]
 
 concurrency:
   group: pr-preview-${{ github.event.number }}

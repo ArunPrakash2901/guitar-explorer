@@ -10,6 +10,12 @@ import { fileURLToPath } from "node:url";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
 const preview = process.argv.includes("--preview");
+const hosted = process.env.GE_BROWSER_URL ? new URL(process.env.GE_BROWSER_URL) : null;
+if (hosted) {
+  assert.equal(hosted.protocol, "https:", "Hosted preview must use HTTPS");
+  assert.ok(hosted.pathname.endsWith("/") && !hosted.hash && !hosted.search, "Use the preview directory URL");
+  assert.match(process.env.GE_EXPECTED_REVISION || "", /^[a-f0-9]{40}$/, "Set the exact hosted revision");
+}
 const previewPrefix = "/guitar-explorer/pr-preview/pr-local/";
 const staticRoot = resolve(root, ".preview-dist");
 const profilePrefix = "guitar-explorer-progression-audio-chrome-";
@@ -44,7 +50,7 @@ function staticServer() {
   });
 }
 
-async function poll(check, description, timeout = 6000) {
+async function poll(check, description, timeout = hosted ? 15000 : 6000) {
   const deadline = Date.now() + timeout;
   while (Date.now() < deadline) {
     const value = await check();
@@ -54,14 +60,14 @@ async function poll(check, description, timeout = 6000) {
   throw new Error("Timed out waiting for " + description);
 }
 
-const server = preview ? staticServer() : (await import("./serve-lab.mjs")).createLabServer();
+const server = hosted ? null : preview ? staticServer() : (await import("./serve-lab.mjs")).createLabServer();
 let chrome;
 let socket;
 
 try {
-  await once(server.listen(0, "127.0.0.1"), "listening");
-  const origin = "http://127.0.0.1:" + server.address().port;
-  const page = origin + (preview ? previewPrefix : "/");
+  if (server) await once(server.listen(0, "127.0.0.1"), "listening");
+  const origin = hosted?.origin || "http://127.0.0.1:" + server.address().port;
+  const page = hosted?.href || origin + (preview ? previewPrefix : "/");
   chrome = spawn(chromePath, [
     "--headless=new", "--remote-debugging-port=0", "--no-first-run", "--disable-extensions",
     "--disable-background-networking", "--no-default-browser-check", "--mute-audio",
@@ -141,8 +147,26 @@ try {
     await cdp("Input.dispatchKeyEvent", { ...event, type: "keyUp" });
   }
 
-  async function screenshot(name) {
-    const { data } = await cdp("Page.captureScreenshot", { format: "png" });
+  async function click(selector) {
+    const point = await evaluate(`(() => {
+      const button = ${css(selector)};
+      button.scrollIntoView({ block: "nearest" });
+      const box = button.getBoundingClientRect();
+      return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+    })()`);
+    const event = { ...point, button: "left", clickCount: 1 };
+    await cdp("Input.dispatchMouseEvent", { ...event, type: "mousePressed" });
+    await cdp("Input.dispatchMouseEvent", { ...event, type: "mouseReleased" });
+  }
+
+  async function screenshot(name, fullPage = false) {
+    const options = { format: "png" };
+    if (fullPage) {
+      const { cssContentSize } = await cdp("Page.getLayoutMetrics");
+      options.captureBeyondViewport = true;
+      options.clip = { x: 0, y: 0, width: Math.ceil(cssContentSize.width), height: Math.ceil(cssContentSize.height), scale: 1 };
+    }
+    const { data } = await cdp("Page.captureScreenshot", options);
     await writeFile(join(screenshots, name + ".png"), Buffer.from(data, "base64"));
   }
 
@@ -220,15 +244,21 @@ try {
   assert.equal(await evaluate("document.querySelector('#tonic').value"), "all");
   assert.equal(await evaluate("document.querySelector('#mode').value"), "auto");
   assert.equal(await evaluate("!!document.querySelector('#seed')"), false);
-  await press("#generate", "Enter");
+  if ((preview || hosted) && process.env.GE_EXPECTED_REVISION) {
+    assert.equal(await evaluate("document.querySelector('meta[name=guitar-explorer-revision]').content"), process.env.GE_EXPECTED_REVISION);
+  }
+  if (hosted && process.env.GE_PREVIEW_PR) {
+    assert.equal(await evaluate("document.querySelector('meta[name=guitar-explorer-preview-pr]').content"), process.env.GE_PREVIEW_PR);
+  }
+  await click("#generate");
   assert.equal(await evaluate("document.querySelectorAll('[data-slot] .chord-diagram').length"), 4);
   assert.equal(await evaluate("document.querySelector('#play-progression').disabled"), false);
   assert.equal(await evaluate("document.querySelector('nav a[href$=\"instrument-desk.html\"]').textContent"), "Instrument Desk");
-  const desk = await fetch(origin + (preview ? previewPrefix : "/") + "instrument-desk.html");
+  const desk = await fetch(new URL("instrument-desk.html", page));
   assert.ok(desk.ok && (await desk.text()).includes("instrument-desk-app.js"));
   await evaluate("window.scrollTo(0, 0)");
   await screenshot("desktop-default");
-  assert.equal(await evaluate("document.querySelectorAll('#quick-controls > .field').length"), 8);
+  assert.equal(await evaluate("document.querySelectorAll('#quick-controls > .field').length"), 9);
   assert.equal(await evaluate("document.querySelector('#quick-favorite').getAttribute('aria-pressed')"), "false");
   assert.equal(await evaluate("document.querySelector('#quick-drums').getAttribute('aria-pressed')"), "false");
   await press("#quick-drums", " ");
@@ -279,9 +309,6 @@ try {
   assert.ok(await evaluate("!!document.querySelector('.fret-note') && document.querySelector('.fret-note').textContent.length > 0"));
   await setValue("#fretboard-labels", "degrees");
 
-  if (preview && process.env.GE_EXPECTED_REVISION) {
-    assert.equal(await evaluate("document.querySelector('meta[name=guitar-explorer-revision]').content"), process.env.GE_EXPECTED_REVISION);
-  }
   const startsBeforeCancel = await evaluate("window.events.filter(({action}) => action === 'start').length");
   await evaluate("window.waitForSamples = true");
   await press("#play-progression", " ");
@@ -299,10 +326,19 @@ try {
   assert.match(await evaluate("document.querySelector('#context-heading').textContent"), /D♭ Mixolydian/);
   assert.match(await evaluate("document.querySelector('#scale-notes').textContent"), /C♭/);
   assert.deepEqual(await evaluate("[...document.querySelectorAll('[data-slot]')].map(card => card.dataset.chord)"), ["D♭", "A♭m", "G♭", "D♭"]);
-  await viewport(1600, 1000, false);
-  await evaluate("window.scrollTo(0, 0)");
-  await screenshot("comparison-1600");
-  await viewport(1380, 900, false);
+  for (const [width, height] of [[1600, 1000], [1380, 900]]) {
+    await viewport(width, height, false);
+    await waitFor("innerWidth === " + width, "desktop viewport");
+    await evaluate("window.scrollTo(0, 0)");
+    assert.ok(await evaluate(`(() => {
+      const cards = [...document.querySelectorAll(".chord-card")].map(card => card.getBoundingClientRect());
+      const board = document.querySelector(".fretboard-scroll").getBoundingClientRect();
+      return cards.length === 4 && cards.every(card => card.top === cards[0].top && card.height === cards[0].height)
+        && board.top < innerHeight;
+    })()`), width + " aligns four cards with the fretboard visible");
+    await screenshot("comparison-" + width);
+    if (width === 1600) await screenshot("desktop-full", true);
+  }
   await press("[data-slot='1'] [data-action=zoom]", " ");
   await screenshot("chord-diagram");
   await press("#chord-zoom-audition", " ");
@@ -337,8 +373,10 @@ try {
   await press("#show-key-chords", " ");
   await press("#key-chords-grid [data-degree='7']", " ");
   assert.match(await evaluate("document.querySelector('#fretboard-description').textContent"), /C♭.*♭VII/);
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('#scale-layer-control')).display"), "none");
   await setValue("#fretboard-labels", "intervals");
   assert.equal(await evaluate("document.querySelector('.fret-note.root').textContent"), "1");
+  await evaluate("document.querySelector('.fretboard-panel').scrollIntoView({ block: 'start' })");
   await screenshot("key-chords");
   await setValue("#fretboard-labels", "degrees");
   await press("#show-scale", " ");
@@ -351,6 +389,7 @@ try {
   await setValue("#tempo", "180");
   await press('[data-position="E"]', " ");
   await press("#play-scale", " ");
+  await evaluate("document.querySelector('.fretboard-panel').scrollIntoView({ block: 'start' })");
   await waitFor("!!document.querySelector('.scale-playing')", "visible scale note from Once");
   await screenshot("caged-playback");
   await waitFor("document.querySelector('#scale-practice-message').textContent.includes('finished')", "one-shot scale completion");
@@ -438,7 +477,9 @@ try {
   assert.equal(await evaluate("document.querySelector('#transport-message').textContent"), "Paused.");
   await press("#play-progression", " ");
   await waitFor("document.querySelector('#play-progression').getAttribute('aria-label') === 'Pause progression'", "resumed transport");
+  await evaluate("document.querySelector('.drum-editor').scrollIntoView({ block: 'center' })");
   await screenshot("rhythm-controls");
+  await evaluate("document.querySelector('#progression-cards').scrollIntoView({ block: 'center' })");
   await screenshot("desktop-playback");
   await press("#stop-progression", " ");
   assert.equal(await evaluate("!!document.querySelector('[data-playing=\\\"true\\\"]')"), false);
@@ -564,21 +605,26 @@ try {
   await press("#favorites li button:last-child", " ");
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 0);
 
-  await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
-  for (const [width, height, name] of [[390, 844, "mobile"], [320, 740, "mobile-320"], [844, 390, "landscape"]]) {
-    await viewport(width, height, true);
-    await waitFor("innerWidth === " + width, name);
-    assert.ok(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), name + " avoids page overflow");
-    await press('[data-position="A"]', " ");
-    assert.ok(await evaluate("(() => { const board = document.querySelector('.fretboard-scroll'); return board.scrollWidth <= board.clientWidth + 1; })()"));
-    await evaluate("document.querySelector('.fretboard-panel').scrollIntoView()");
-    await screenshot(name + "-caged");
-    await press('[data-position="full"]', " ");
-    if (width <= 390) {
-      assert.ok(await evaluate("(() => { const board = document.querySelector('.fretboard-scroll'); return board.scrollWidth > board.clientWidth; })()"));
+  for (const theme of ["light", "dark"]) {
+    await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
+    assert.ok(await evaluate("matchMedia('(prefers-color-scheme: " + theme + ")').matches"));
+    for (const [width, height, name] of [[1600, 1000, "desktop"], [1380, 900, "desktop-1380"], [844, 390, "landscape"], [390, 844, "mobile"], [320, 740, "mobile-320"]]) {
+      await viewport(width, height, width <= 844);
+      await waitFor("innerWidth === " + width, name);
+      assert.ok(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"), name + " " + theme + " avoids page overflow");
+      await press('[data-position="A"]', " ");
+      assert.ok(await evaluate("(() => { const board = document.querySelector('.fretboard-scroll'); return board.scrollWidth <= board.clientWidth + 1; })()"));
+      if (width <= 844) {
+        await evaluate("document.querySelector('.fretboard-panel').scrollIntoView({ block: 'start' })");
+        await screenshot(name + "-caged-" + theme);
+      }
+      await press('[data-position="full"]', " ");
+      if (width <= 390) {
+        assert.ok(await evaluate("(() => { const board = document.querySelector('.fretboard-scroll'); return board.scrollWidth > board.clientWidth; })()"));
+      }
+      await evaluate("window.scrollTo(0, 0)");
+      await screenshot(name + "-" + theme);
     }
-    await evaluate("window.scrollTo(0, 0)");
-    await screenshot(name);
   }
   assert.deepEqual(exceptions, []);
   console.log("Chrome progression integration passed at " + page);
@@ -595,8 +641,8 @@ try {
     await Promise.race([exit, delay(2000, undefined, { ref: false })]);
   }
   socket?.close();
-  server.closeAllConnections();
-  if (server.listening) {
+  server?.closeAllConnections();
+  if (server?.listening) {
     const close = once(server, "close");
     server.close();
     await close;
