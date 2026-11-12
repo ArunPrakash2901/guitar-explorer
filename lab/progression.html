@@ -150,6 +150,20 @@
           </div>
         </div>
         <p id="strum-description" class="strum-description"></p>
+        <div class="rhythm-tools" role="group" aria-label="Rhythm options">
+          <label><input id="metronome-click" type="checkbox"> Hi-hat metronome</label>
+          <label><input id="drum-fill" type="checkbox"> Phrase-end fills</label>
+        </div>
+        <details class="drum-editor">
+          <summary>Edit drum pattern</summary>
+          <div class="drum-editor-heading">
+            <p id="drum-edit-status" role="status"></p>
+            <button id="reset-drum-pattern" type="button">Reset to preset</button>
+          </div>
+          <div class="drum-grid-scroll">
+            <div id="drum-grid" role="group" aria-label="One-bar drum pattern" hidden></div>
+          </div>
+        </details>
       </div>
       </details>
     </form>

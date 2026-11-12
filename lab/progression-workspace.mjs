@@ -7,9 +7,10 @@ import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { listGenerateChoices } from "./progression-selection.mjs";
 import { DEFAULT_MIX, ProgressionAudio } from "./progression-audio.mjs";
-import { snapshotProgression } from "./progression-library.mjs";
+import { DEFAULT_EXPLORER, snapshotProgression } from "./progression-library.mjs";
 import { connectProgressionLibrary } from "./progression-library-view.mjs";
-import { groovesForMeter } from "./progression-grooves.mjs";
+import { connectGrooveEditor } from "./progression-groove-editor.mjs";
+import { DEFAULT_RHYTHM_EDIT, groovesForMeter } from "./progression-grooves.mjs";
 import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
 const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian" };
@@ -41,6 +42,10 @@ const tempoValue = document.querySelector("#tempo-value");
 const meterInput = document.querySelector("#meter");
 const patternInput = document.querySelector("#strum-pattern");
 const grooveInput = document.querySelector("#drum-groove");
+const grooveEditor = connectGrooveEditor(document.querySelector("#rhythm-settings"), (text) => {
+  rhythmChanged(text);
+  window.dispatchEvent(new Event("progression-changed"));
+});
 const tempoUnit = document.querySelector("#tempo-unit");
 const strumDescription = document.querySelector("#strum-description");
 const fretboard = document.querySelector("#fretboard");
@@ -285,7 +290,10 @@ scalePlayButton.addEventListener("click", async () => {
   }
 });
 scaleStopButton.addEventListener("click", stopScale);
-scalePlayMode.addEventListener("change", stopScale);
+scalePlayMode.addEventListener("change", () => {
+  stopScale();
+  window.dispatchEvent(new Event("progression-changed"));
+});
 
 function chordChoiceValue(degree, chordId) {
   return ["major", "minor", "diminished", "augmented"].includes(chordId) ? String(degree) : degree + ":" + chordId;
@@ -665,6 +673,7 @@ function updateGrooveControls(preferred = grooveInput.value) {
   grooveInput.replaceChildren(...grooves.map(({ id, name }) => new Option(name, id)));
   grooveInput.value = !preferred ? "off"
     : grooves.some(({ id }) => id === preferred) ? preferred : grooves[1].id;
+  grooveEditor.update(meterInput.value, grooveInput.value);
   syncQuickTrackButtons();
 }
 
@@ -706,7 +715,7 @@ for (const [track, selector] of [["drums", "#quick-drums"], ["guitar", "#quick-g
   document.querySelector(selector).addEventListener("click", () => {
     const control = trackControls.find((candidate) => candidate.track === track);
     const chooseGroove = track === "drums" && grooveInput.value === "off";
-    if (chooseGroove) grooveInput.value = groovesForMeter(meterInput.value)[1].id;
+    if (chooseGroove) updateGrooveControls(groovesForMeter(meterInput.value)[1].id);
     control.mute.checked = chooseGroove ? false : !control.mute.checked;
     control.update();
     const text = (track === "drums" ? "Rhythm" : "Chords") + (control.mute.checked ? " muted." : " enabled.");
@@ -733,6 +742,7 @@ patternInput.addEventListener("change", () => {
   rhythmChanged("Strum pattern updated.");
 });
 grooveInput.addEventListener("change", () => {
+  grooveEditor.update(meterInput.value, grooveInput.value);
   syncQuickTrackButtons();
   rhythmChanged("Drum groove updated.");
 });
@@ -751,7 +761,7 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   stopPlayback();
   workspace = undefined;
   selectedCard = 0;
-  keyPreviewDegree = 1;
+  restoreExplorer(DEFAULT_EXPLORER);
   advancedSettings.open = false;
   showSettings("chords");
   tonicInput.value = "all";
@@ -771,6 +781,7 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   tempoValue.textContent = "92 BPM";
   updatePatternControls("");
   updateGrooveControls("off");
+  grooveEditor.restore(meterInput.value, grooveInput.value, DEFAULT_RHYTHM_EDIT);
   for (const { track, volume, mute, update } of trackControls) {
     volume.value = String(Math.round(DEFAULT_MIX[track] * 100));
     mute.checked = false;
@@ -888,8 +899,10 @@ async function playLoop() {
   const ticket = beginAudio("Loading loop recordings…");
   loopRequested = true;
   try {
+    const { parts, fill, click } = grooveEditor.read();
     const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber, {
       meter: meterInput.value, pattern: patternInput.value, groove: grooveInput.value,
+      drumParts: parts, fill, click,
     });
     if (started) finishAudio(ticket, "Playing loop · " + workspace.cards.length + " chords.");
   } catch (problem) {
@@ -941,8 +954,20 @@ function captureProgression() {
     bpm: tempoInput.valueAsNumber, meter: meterInput.value, pattern: patternInput.value,
     groove: grooveInput.value, tone: toneInput.value, ...mix,
     view: boardView, position: boardPosition, layer: scaleLayerInput.value, selected: selectedCard,
+    explorer: { keyDegree: keyPreviewDegree, diagramLabels: diagramLabels.value, diagramHighlight: diagramHighlight.value,
+      fretLabels: fretLabels.value, fretHighlights: fretHighlights.value, scaleMode: scalePlayMode.value },
+    rhythm: grooveEditor.read(),
   });
   return { workspace, snapshot };
+}
+
+function restoreExplorer(settings) {
+  keyPreviewDegree = settings.keyDegree;
+  diagramLabels.value = settings.diagramLabels;
+  diagramHighlight.value = settings.diagramHighlight;
+  fretLabels.value = settings.fretLabels;
+  fretHighlights.value = settings.fretHighlights;
+  scalePlayMode.value = settings.scaleMode;
 }
 
 function restoreSavedProgression({ workspace: saved, preferences }, { focus }) {
@@ -958,6 +983,8 @@ function restoreSavedProgression({ workspace: saved, preferences }, { focus }) {
   tempoValue.textContent = preferences.bpm + " BPM";
   updatePatternControls(preferences.pattern);
   updateGrooveControls(preferences.groove);
+  grooveEditor.restore(preferences.meter, preferences.groove, preferences.rhythm);
+  restoreExplorer(preferences.explorer);
   toneInput.value = preferences.tone;
   audio.setTone(preferences.tone);
   for (const { track, volume, mute, update } of trackControls) {

@@ -1,5 +1,8 @@
 import { METERS } from "./progression-rhythm.mjs";
 
+export const DRUM_PARTS = Object.freeze(["kick", "snare", "hat"]);
+export const DEFAULT_RHYTHM_EDIT = Object.freeze({ parts: null, fill: false, click: false });
+
 const off = Object.freeze({ id: "off", name: "Off", hits: Object.freeze([]) });
 const grooves = [
   { id: "pop-backbeat", meter: "4/4", name: "Pop backbeat", subdivisions: 2,
@@ -27,14 +30,55 @@ export function groovesForMeter(meter) {
   return [off, ...grooves.filter((groove) => groove.meter === meter)];
 }
 
-export function drumPlan(meter, grooveId, bpm) {
+export function getGrooveGrid(meter, grooveId) {
   const groove = groovesForMeter(meter).find(({ id }) => id === grooveId);
   if (!groove) throw new RangeError("The selected drum groove does not belong to " + meter);
+  const subdivisions = groove.subdivisions ?? METERS[meter].subdivisions;
+  const steps = METERS[meter].pulses * subdivisions;
+  const parts = DRUM_PARTS.map((voice) =>
+    groove.hits.reduce((mask, hit) => hit.voice === voice ? mask | (1 << hit.step) : mask, 0));
+  return { subdivisions, steps, parts, hits: groove.hits };
+}
+
+export function validDrumParts(parts, steps) {
+  return Array.isArray(parts) && parts.length === DRUM_PARTS.length &&
+    Array.from(parts).every((part) => Number.isInteger(part) && part >= 0 && part < 2 ** steps);
+}
+
+// Each fill adds a short phrase near the bar line using the existing acoustic kit.
+const fills = {
+  "pop-backbeat": [["snare", 2, .68], ["hat", 1, .53]],
+  "rock-drive": [["snare", 3, .72], ["snare", 2, .9], ["kick", 1, .85]],
+  "blues-triplets": [["snare", 3, .57], ["snare", 1, .76]],
+  "folk-waltz": [["snare", 1, .48]],
+  "soft-waltz": [["hat", 2, .42], ["snare", 1, .42]],
+  "six-eight-sway": [["hat", 2, .45], ["snare", 1, .51]],
+  "six-eight-drive": [["snare", 3, .66], ["snare", 2, .76], ["kick", 1, .78]],
+};
+const addedLevel = { kick: .8, snare: .75, hat: .43 };
+
+export function drumPlan(meter, grooveId, bpm, { parts = null, fill = false } = {}) {
+  const grid = getGrooveGrid(meter, grooveId);
   if (!Number.isFinite(bpm) || bpm < 50 || bpm > 180) throw new RangeError("Tempo must be between 50 and 180 BPM");
-  const secondsPerStep = 60 / bpm / (groove.subdivisions ?? METERS[meter].subdivisions);
-  return Object.freeze(groove.hits.map((hit) => {
-    if (!Number.isInteger(hit.step) || hit.step < 0 || hit.step >= METERS[meter].pulses * groove.subdivisions ||
-        !(hit.level > 0 && hit.level <= 1)) throw new Error("Invalid drum groove event");
-    return Object.freeze({ ...hit, seconds: hit.step * secondsPerStep });
-  }));
+  if (parts !== null && (grooveId === "off" || !validDrumParts(parts, grid.steps))) {
+    throw new RangeError("The drum parts must match the groove grid");
+  }
+  if (typeof fill !== "boolean") throw new TypeError("The drum fill setting must be on or off");
+  const masks = parts ?? grid.parts;
+  const pattern = new Map(grid.hits.map((hit) => [hit.voice + ":" + hit.step, hit.level]));
+  const hits = DRUM_PARTS.flatMap((voice, index) =>
+    Array.from({ length: grid.steps }, (_, step) => step).filter((step) => masks[index] & (1 << step))
+      .map((step) => ({ voice, step, level: pattern.get(voice + ":" + step) ?? addedLevel[voice] })));
+  const events = new Map(hits.map((hit) => [hit.voice + ":" + hit.step, hit]));
+  if (fill) {
+    for (const [voice, beforeEnd, accent] of fills[grooveId] ?? []) {
+      const step = grid.steps - beforeEnd;
+      const key = voice + ":" + step;
+      const level = Math.max(accent, events.get(key)?.level ?? 0);
+      events.set(key, { voice, step, level });
+    }
+  }
+  const secondsPerStep = 60 / bpm / grid.subdivisions;
+  return Object.freeze([...events.values()].sort((a, b) => a.step - b.step)
+    .map((hit) => Object.freeze({ ...hit, seconds: hit.step * secondsPerStep })));
 }

@@ -3,15 +3,19 @@ import { CHORD_SUFFIXES, MOODS, PROGRESSION_COLORS, PROGRESSION_LENGTHS, STYLES 
 import { CAGED_FAMILIES } from "./progression/caged.js";
 import { generateWorkspace, replaceWorkspaceChord } from "./progression/workspace.js";
 import { GUITAR_TONES } from "./progression-audio.mjs";
-import { groovesForMeter } from "./progression-grooves.mjs";
+import { DEFAULT_RHYTHM_EDIT, getGrooveGrid, groovesForMeter, validDrumParts } from "./progression-grooves.mjs";
 import { METERS, patternsForMeter } from "./progression-rhythm.mjs";
 import { MODE_CHOICES, TONIC_CHOICES } from "./progression-selection.mjs";
 
 export const FAVORITES_KEY = "guitar-explorer-progression-favorites-v1";
 export const SHARE_PREFIX = "#p=";
-const VERSION = 1;
+const VERSION = 2;
 const MAX_TOKEN_LENGTH = 3400;
 const MAX_FAVORITES = 24;
+export const DEFAULT_EXPLORER = Object.freeze({
+  keyDegree: 1, diagramLabels: "fingers", diagramHighlight: "root",
+  fretLabels: "degrees", fretHighlights: "root", scaleMode: "once",
+});
 const modeNames = {
   major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian",
   lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian",
@@ -22,7 +26,7 @@ const bool = (value) => typeof value === "boolean";
 function validateSnapshot(input) {
   if (!input || typeof input !== "object") throw new Error("Missing progression state.");
   const { v, k, m, s, c, p } = input;
-  if (v !== VERSION || !TONIC_CHOICES.includes(k) || !MODE_CHOICES.includes(m) ||
+  if ((v !== 1 && v !== VERSION) || !TONIC_CHOICES.includes(k) || !MODE_CHOICES.includes(m) ||
       !exactInteger(s, 0, 0xffffffff) || !Array.isArray(c) || !PROGRESSION_LENGTHS.includes(c.length) || !p || typeof p !== "object") {
     throw new Error("The progression link has an unsupported version or musical context.");
   }
@@ -44,9 +48,24 @@ function validateSnapshot(input) {
     !bool(guitarMuted) || !bool(drumsMuted) || !["scale", "chords", "key"].includes(view) ||
     !["full", ...CAGED_FAMILIES].includes(position) || !["context", "majorPentatonic", "minorPentatonic"].includes(layer) ||
     !exactInteger(selected, 0, cards.length - 1)) throw new Error("The progression contains invalid settings.");
-  return { v, k, m, s, c: cards, p: {
+  const explorer = v === 1 ? DEFAULT_EXPLORER : p.explorer ?? DEFAULT_EXPLORER;
+  const rhythm = v === 1 ? DEFAULT_RHYTHM_EDIT : p.rhythm ?? DEFAULT_RHYTHM_EDIT;
+  const { keyDegree, diagramLabels, diagramHighlight, fretLabels, fretHighlights, scaleMode } = explorer;
+  if (!exactInteger(keyDegree, 1, 7) || !["fingers", "notes", "intervals", "none"].includes(diagramLabels) ||
+      !["none", "root", "triad"].includes(diagramHighlight) || !["degrees", "notes", "intervals"].includes(fretLabels) ||
+      !["root", "triad", "modal"].includes(fretHighlights) || !["once", "loop", "all"].includes(scaleMode)) {
+    throw new Error("The progression contains invalid explorer settings.");
+  }
+  const { parts, fill, click } = rhythm;
+  if (!bool(fill) || !bool(click) ||
+      (parts !== null && (groove === "off" || !validDrumParts(parts, getGrooveGrid(meter, groove).steps)))) {
+    throw new Error("The progression contains invalid drum settings.");
+  }
+  return { v: VERSION, k, m, s, c: cards, p: {
     keyAuto, modeAuto, style, mood, color, shape, bpm, meter, pattern, groove, tone,
     guitar, drums, guitarMuted, drumsMuted, view, position, layer, selected,
+    explorer: { keyDegree, diagramLabels, diagramHighlight, fretLabels, fretHighlights, scaleMode },
+    rhythm: { parts: parts && [...parts], fill, click },
   } };
 }
 
@@ -117,9 +136,10 @@ export function readFavorites(storage) {
   try { values = JSON.parse(raw); } catch { return []; }
   if (!Array.isArray(values)) return [];
   const tokens = [];
-  for (const token of values.slice(0, MAX_FAVORITES)) {
+  for (const stored of values.slice(0, MAX_FAVORITES)) {
     try {
-      const snapshot = decodeProgression(token);
+      const snapshot = decodeProgression(stored);
+      const token = encodeProgression(snapshot);
       if (!tokens.some((entry) => entry.token === token)) tokens.push({ token, snapshot });
     } catch {
       // A malformed stored entry does not hide the other favorites.
@@ -129,12 +149,13 @@ export function readFavorites(storage) {
 }
 
 export function saveFavorite(storage, token) {
-  decodeProgression(token);
+  token = encodeProgression(decodeProgression(token));
   const values = readFavorites(storage).map((entry) => entry.token).filter((entry) => entry !== token);
   if (values.length >= MAX_FAVORITES) throw new Error("Delete a favorite before saving another.");
   storage.setItem(FAVORITES_KEY, JSON.stringify([token, ...values]));
 }
 
 export function deleteFavorite(storage, token) {
+  token = encodeProgression(decodeProgression(token));
   storage.setItem(FAVORITES_KEY, JSON.stringify(readFavorites(storage).map((entry) => entry.token).filter((entry) => entry !== token)));
 }
