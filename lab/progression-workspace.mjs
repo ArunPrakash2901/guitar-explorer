@@ -8,7 +8,7 @@ import { resolveGenerateChoice } from "./progression-selection.mjs";
 import { ProgressionAudio } from "./progression-audio.mjs";
 import { patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
-const modes = { major: "major", naturalMinor: "natural minor", mixolydian: "Mixolydian" };
+const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian" };
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre" };
 const qualities = { major: "major", minor: "minor", diminished: "diminished", augmented: "augmented" };
 const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
