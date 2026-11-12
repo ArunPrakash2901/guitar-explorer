@@ -404,6 +404,17 @@ try {
   assert.equal(await evaluate("document.querySelector('#drum-groove').value"), "folk-waltz");
   await setValue("#tempo", "138");
   await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "live tempo restart");
+  await press(".drum-editor > summary", " ");
+  assert.equal(await evaluate("document.querySelectorAll('#drum-grid button').length"), 18);
+  const editedStep = "#drum-grid [data-part=kick][data-step='1']";
+  assert.equal(await evaluate(css(editedStep) + ".getAttribute('aria-pressed')"), "false");
+  await press(editedStep, " ");
+  assert.equal(await evaluate(css(editedStep) + ".getAttribute('aria-pressed')"), "true");
+  await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "edited live pattern");
+  await press("#drum-fill", " ");
+  await press("#metronome-click", " ");
+  await waitFor("window.events.some(start => start.action === 'start' && Math.abs(start.duration - .23) < .005 && window.events.some(stop => stop.action === 'stop' && stop.id === start.id && Math.abs(stop.at - start.at - .065) < .001))", "recorded metronome click");
+  assert.equal(await evaluate("window.audioClocks.size"), 1);
   await press("#quick-drums", " ");
   assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), true);
   assert.equal(await evaluate("window.mixerTargets.at(-1)"), 0);
@@ -420,6 +431,7 @@ try {
   assert.equal(await evaluate("document.querySelector('#transport-message').textContent"), "Paused.");
   await press("#play-progression", " ");
   await waitFor("document.querySelector('#play-progression').getAttribute('aria-label') === 'Pause progression'", "resumed transport");
+  await screenshot("rhythm-controls");
   await screenshot("desktop-playback");
   await press("#stop-progression", " ");
   assert.equal(await evaluate("!!document.querySelector('[data-playing=\\\"true\\\"]')"), false);

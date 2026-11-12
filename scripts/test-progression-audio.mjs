@@ -6,7 +6,7 @@ const outputRoot = new URL("../.preview-dist/", import.meta.url);
 const { planProgressionStrokes, planScaleNotes, ProgressionAudio } = await import(new URL("progression-audio.mjs", outputRoot));
 const { selectGuitarAttack, RECORDED_GUITAR_ATTACKS } = await import(new URL("progression-sample-bank.mjs", outputRoot));
 const { resolveGenerateChoice, listGenerateChoices } = await import(new URL("progression-selection.mjs", outputRoot));
-const { drumPlan, groovesForMeter } = await import(new URL("progression-grooves.mjs", outputRoot));
+const { drumPlan, getGrooveGrid, groovesForMeter } = await import(new URL("progression-grooves.mjs", outputRoot));
 const { DRUM_SAMPLES } = await import(new URL("progression-drum-samples.mjs", outputRoot));
 const { rhythmPlan, patternsForMeter, DEFAULT_PATTERN } = await import(new URL("progression-rhythm.mjs", outputRoot));
 
@@ -149,6 +149,18 @@ for (const meter of ["4/4", "3/4", "6/8"]) {
   }
 }
 assert.throws(() => drumPlan("3/4", "rock-drive", 120), /does not belong/);
+const { parts: rockParts, steps: rockSteps } = getGrooveGrid("4/4", "rock-drive");
+assert.equal(rockSteps, 8);
+const editedRock = [1 << 1, 0, rockParts[2]];
+const edited = planProgressionStrokes(cards, 120, {
+  meter: "4/4", groove: "rock-drive", drumParts: editedRock, fill: true, click: true,
+});
+assert.deepEqual(edited.drumHits.filter((hit) => hit.slotIndex === 0 && hit.voice === "kick").map((hit) => hit.seconds), [.25]);
+assert.ok(edited.drumHits.some((hit) => hit.slotIndex === 3 && hit.voice === "snare"));
+assert.equal(edited.clickHits.length, 16);
+assert.deepEqual(edited.clickHits.slice(0, 4).map(({ seconds }) => seconds), [0, .5, 1, 1.5]);
+assert.equal(planProgressionStrokes(cards, 60, { meter: "6/8", click: true }).clickHits[1].seconds, 1);
+assert.throws(() => drumPlan("4/4", "rock-drive", 120, { parts: [256, 0, 0] }), /match the groove grid/);
 assert.equal(drumPlan("6/8", "six-eight-sway", 120).find(({ voice }) => voice === "snare").seconds, .5);
 const shuffle = planProgressionStrokes(cards, 120, { pattern: "blues-shuffle", groove: "blues-triplets" });
 assert.equal(shuffle.strokes[1].seconds, 1 / 3);
@@ -287,6 +299,13 @@ context.currentTime = audio.loopStart + 30;
 audio.fillSchedule();
 assert.equal(audio.activeSlot(), 15);
 assert.ok(context.sources.slice(wakeBeforeLast).some(({ startedAt }) => startedAt === context.currentTime));
+audio.stop();
+audio.setTrackMix("drums", .6, true);
+assert.equal(await audio.play(cards, 120, { groove: "off", click: true }), true);
+assert.equal(audio.plan.drumHits.length, 0);
+const clickVoice = [...audio.voices].find(({ source }) => source.rate === undefined);
+assert.ok(clickVoice);
+assert.ok(Math.abs(clickVoice.source.stoppedAt - clickVoice.source.startedAt - .065) < 1e-9);
 audio.stop();
 const scaleNotes = [
   { stringIndex: 0, semitone: 48 },

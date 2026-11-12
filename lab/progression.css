@@ -312,6 +312,22 @@ main.shell { padding-block: 1rem 3rem; }
 .track-mix input[type="range"] { inline-size: 6.2rem; accent-color: var(--forest); }
 .track-mix label { white-space: nowrap; }
 .track-mix output { display: inline-block; min-width: 3ch; color: var(--muted); }
+.rhythm-tools, .drum-editor { grid-column: 1 / -1; }
+.rhythm-tools { display: flex; flex-wrap: wrap; gap: .35rem 1rem; }
+.rhythm-tools input { accent-color: var(--forest); }
+.drum-editor { border-top: 1px solid var(--line); padding-top: .45rem; min-width: 0; }
+.drum-editor summary { cursor: pointer; color: var(--forest); font-weight: 750; padding: .2rem 0; }
+.drum-editor-heading { display: flex; align-items: center; justify-content: space-between; gap: .5rem; margin-block: .45rem; }
+#drum-edit-status { color: var(--muted); font-size: .82rem; }
+#reset-drum-pattern { border: 1px solid var(--line); border-radius: .5rem; padding: .38rem .55rem; color: var(--forest); background: var(--panel); }
+.drum-grid-scroll { overflow-x: auto; padding: .25rem; }
+#drum-grid { display: grid; grid-template-columns: 4.3rem repeat(var(--steps), minmax(2rem, 1fr)); gap: .24rem; align-items: center; }
+#drum-grid[hidden] { display: none; }
+#drum-grid span { color: var(--muted); font-size: .77rem; text-align: center; }
+#drum-grid .drum-part-name, #drum-grid .drum-grid-corner { text-align: left; font-weight: 700; }
+#drum-grid button { min-height: 2rem; border: 1px solid var(--line); border-radius: .38rem; background: var(--canvas); }
+#drum-grid button.downbeat { border-color: var(--focus); }
+#drum-grid button[aria-pressed="true"] { background: var(--forest); border-color: var(--forest); }
 @media (max-width: 1080px) {
   .settings-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }

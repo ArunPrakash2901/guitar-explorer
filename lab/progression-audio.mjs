@@ -49,9 +49,15 @@ export function planProgressionStrokes(cards, bpm, options = {}) {
   const secondsPerBeat = groove.secondsPerPulse;
   const secondsPerBar = groove.secondsPerBar;
   const drumGroove = options.groove ?? "off";
-  const barHits = drumPlan(meter, drumGroove, bpm);
+  const drumParts = options.drumParts ?? null;
+  const barHits = drumPlan(meter, drumGroove, bpm, { parts: drumParts });
+  const fillHits = options.fill ? drumPlan(meter, drumGroove, bpm, { parts: drumParts, fill: true }) : barHits;
+  const click = options.click ? Array.from({ length: METERS[meter].pulses }, (_, pulse) => ({
+    kind: "click", voice: "hat", level: pulse === 0 ? .95 : .48, seconds: pulse * secondsPerBeat,
+  })) : [];
   const strokes = [];
   const drumHits = [];
+  const clickHits = [];
   for (let slotIndex = 0; slotIndex < cards.length; slotIndex += 1) {
     const notes = soundingNotes(cards[slotIndex]);
     for (const [index, event] of groove.strokes.entries()) {
@@ -68,17 +74,22 @@ export function planProgressionStrokes(cards, bpm, options = {}) {
         midis: Object.freeze(notes.map(({ semitone }) => semitone)),
       }));
     }
-    for (const hit of barHits) {
+    const endsPhrase = (slotIndex + 1) % 4 === 0 || slotIndex === cards.length - 1;
+    for (const hit of endsPhrase ? fillHits : barHits) {
       drumHits.push(Object.freeze({ ...hit, kind: "drum", slotIndex, seconds: slotIndex * secondsPerBar + hit.seconds }));
     }
+    for (const hit of click) {
+      clickHits.push(Object.freeze({ ...hit, slotIndex, seconds: slotIndex * secondsPerBar + hit.seconds }));
+    }
   }
-  const events = [...strokes, ...drumHits].sort((a, b) => a.seconds - b.seconds);
+  const events = [...strokes, ...drumHits, ...clickHits].sort((a, b) => a.seconds - b.seconds);
   return Object.freeze({
     kind: "progression", repeat: true,
     meter, pattern, groove: drumGroove, pulseUnit: groove.pulseUnit,
     bpm, secondsPerBeat, secondsPerBar,
     loopSeconds: cards.length * secondsPerBar,
-    strokes: Object.freeze(strokes), drumHits: Object.freeze(drumHits), events: Object.freeze(events),
+    strokes: Object.freeze(strokes), drumHits: Object.freeze(drumHits),
+    clickHits: Object.freeze(clickHits), events: Object.freeze(events),
   });
 }
 
@@ -118,6 +129,7 @@ export class ProgressionAudio {
     this.trackBuses = {};
     this.mix = Object.fromEntries(Object.entries(DEFAULT_MIX).map(([track, volume]) => [track, { volume, muted: false }]));
     this.toneFilter = null;
+    this.clickOutput = null;
     this.buffers = new Map();
     this.loading = new Map();
     this.plan = null;
@@ -146,6 +158,7 @@ export class ProgressionAudio {
         master.release.value = 0.12;
         master.connect(this.context.destination);
       }
+      this.clickOutput = master ?? this.context.destination;
       for (const [track, { volume, muted }] of Object.entries(this.mix)) {
         const bus = this.context.createGain();
         bus.gain.setValueAtTime(muted ? 0 : volume, this.context.currentTime);
@@ -254,17 +267,19 @@ export class ProgressionAudio {
     }
   }
 
-  scheduleDrum(voice, when, level) {
+  scheduleDrum(voice, when, level, click = false) {
     const sample = DRUM_SAMPLES[voice];
     const buffer = this.buffers.get(sample.file);
     if (!buffer) throw new Error("A drum recording was not loaded before scheduling");
     const source = this.context.createBufferSource();
     source.buffer = buffer;
     const gain = this.context.createGain();
+    const duration = click ? Math.min(.065, buffer.duration) : buffer.duration;
     gain.gain.setValueAtTime(DRUM_GAIN[voice] * level, when);
+    if (click) gain.gain.exponentialRampToValueAtTime(.0001, when + duration);
     source.connect(gain);
-    gain.connect(this.trackBuses.drums);
-    this.startVoice({ source, gain }, when, buffer.duration);
+    gain.connect(click ? this.clickOutput : this.trackBuses.drums);
+    this.startVoice({ source, gain }, when, duration);
   }
 
   startVoice(voice, at, duration) {
@@ -317,7 +332,7 @@ export class ProgressionAudio {
       this.nextEvent += 1;
       work += 1;
       if (when < floor) continue;
-      if (event.kind === "drum") this.scheduleDrum(event.voice, when, event.level);
+      if (event.kind === "drum" || event.kind === "click") this.scheduleDrum(event.voice, when, event.level, event.kind === "click");
       else this.scheduleStrum(event.notes, when, event.direction, event.level, event.sustain);
     }
   }
@@ -326,7 +341,7 @@ export class ProgressionAudio {
     const plan = planProgressionStrokes(cards, bpm, options);
     this.stop();
     const revision = this.revision;
-    await this.preload(plan.strokes, plan.drumHits);
+    await this.preload(plan.strokes, [...plan.drumHits, ...plan.clickHits]);
     if (revision !== this.revision) return false;
     this.startPlan(plan, 0);
     return true;
@@ -425,6 +440,7 @@ export class ProgressionAudio {
     this.context = null;
     this.trackBuses = {};
     this.toneFilter = null;
+    this.clickOutput = null;
     this.buffers.clear();
     this.loading.clear();
   }

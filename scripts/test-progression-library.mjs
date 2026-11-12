@@ -4,7 +4,7 @@ const output = new URL("../.preview-dist/", import.meta.url);
 const { parseNote } = await import(new URL("engine/index.js", output));
 const { generateWorkspace, replaceWorkspaceChord, toggleChordLock, cycleChordVoicing } = await import(new URL("progression/workspace.js", output));
 const {
-  snapshotProgression, encodeProgression, decodeProgression, restoreProgression, progressionText,
+  DEFAULT_EXPLORER, snapshotProgression, encodeProgression, decodeProgression, restoreProgression, progressionText,
   readFavorites, saveFavorite, deleteFavorite, FAVORITES_KEY,
 } = await import(new URL("progression-library.mjs", output));
 
@@ -17,6 +17,8 @@ const preferences = {
   bpm: 110, meter: "6/8", pattern: "six-eight", groove: "six-eight-sway", tone: "warm",
   guitar: 76, drums: 45, guitarMuted: false, drumsMuted: true, view: "chords", position: "A",
   layer: "majorPentatonic", selected: 1,
+  explorer: { ...DEFAULT_EXPLORER, keyDegree: 7, diagramLabels: "intervals", fretHighlights: "modal" },
+  rhythm: { parts: [9, 4, 11], fill: true, click: true },
 };
 const snapshot = snapshotProgression(workspace, { ...preferences, learnerEvidence: "private" });
 assert.equal(Object.hasOwn(snapshot.p, "learnerEvidence"), false);
@@ -49,19 +51,30 @@ falseGrip.c[1][2] = "C:add9:open:x-9-9-9-9-9";
 assert.throws(() => restoreProgression(falseGrip), /grip is unavailable/);
 const packed = (value) => Buffer.from(JSON.stringify(value)).toString("base64url");
 for (const invalid of [
-  { ...snapshot, v: 2 }, { ...snapshot, s: -1 }, { ...snapshot, k: "H" }, { ...snapshot, c: [] },
+  { ...snapshot, v: 3 }, { ...snapshot, s: -1 }, { ...snapshot, k: "H" }, { ...snapshot, c: [] },
   { ...snapshot, p: { ...preferences, bpm: 181 } }, { ...snapshot, p: { ...preferences, selected: 9 } },
   { ...snapshot, p: { ...preferences, groove: "pop-backbeat" } },
   { ...snapshot, p: { ...preferences, pattern: "waltz" } },
   { ...snapshot, p: { ...preferences, guitarMuted: "true" } },
+  { ...snapshot, p: { ...preferences, rhythm: { parts: [64, 0, 0], fill: true, click: false } } },
+  { ...snapshot, p: { ...preferences, explorer: { ...DEFAULT_EXPLORER, keyDegree: 8 } } },
 ]) assert.throws(() => decodeProgression(packed(invalid)));
 assert.throws(() => decodeProgression("a".repeat(3401)), /invalid format/);
 assert.throws(() => decodeProgression("%"), /invalid format/);
 
+const { explorer, rhythm, ...legacyPreferences } = preferences;
+const legacyToken = packed({ ...snapshot, v: 1, p: legacyPreferences });
+const migrated = restoreProgression(decodeProgression(legacyToken));
+assert.deepEqual(migrated.workspace.cards, workspace.cards);
+assert.deepEqual(migrated.preferences.explorer, DEFAULT_EXPLORER);
+assert.deepEqual(migrated.preferences.rhythm, { parts: null, fill: false, click: false });
+
 const local = new Map();
 const storage = { getItem: (key) => local.get(key), setItem: (key, value) => local.set(key, value) };
-local.set(FAVORITES_KEY, JSON.stringify([token, "broken", token]));
+local.set(FAVORITES_KEY, JSON.stringify([legacyToken, "broken", legacyToken]));
 assert.equal(readFavorites(storage).length, 1);
+assert.equal(readFavorites(storage)[0].token, encodeProgression(decodeProgression(legacyToken)));
+deleteFavorite(storage, legacyToken);
 saveFavorite(storage, token);
 assert.equal(readFavorites(storage).length, 1);
 for (let seed = 0; seed < 23; seed++) saveFavorite(storage, encodeProgression({ ...snapshot, s: seed }));
