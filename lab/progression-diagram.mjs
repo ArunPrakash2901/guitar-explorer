@@ -1,3 +1,4 @@
+import { formatNote } from "./engine/index.js";
 const strings = ["E", "A", "D", "G", "B", "e"];
 const stringNames = ["Low E", "A", "D", "G", "B", "High E"];
 const firstString = 38;
@@ -11,7 +12,29 @@ function escapeMarkup(text) {
     .replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 
-export function renderChordDiagram(model, chordLabel) {
+const intervalNames = Object.freeze(["1", "♭2", "2", "♭3", "3", "4", "♭5", "5", "♭6", "6", "♭7", "7"]);
+const displayName = (note) => formatNote(note).replaceAll("#", "♯").replaceAll("b", "♭");
+
+export function renderChordDiagram(model, chordLabel, options = {}) {
+  const { labels = "fingers", highlight = "root", chord = null, voicing = null } = options;
+  if (!["fingers", "notes", "intervals", "none"].includes(labels) ||
+      !["none", "root", "triad"].includes(highlight)) {
+    throw new RangeError("Unsupported chord-diagram appearance option");
+  }
+  function toneAt(stringIndex) {
+    const note = voicing?.notes.find((entry) => entry.stringIndex === stringIndex);
+    if (!note || !chord) return null;
+    const index = chord.tones.findIndex((tone) => tone.pitchClass === note.pitchClass);
+    return index < 0 ? null : { note: chord.tones[index].note, index, pitchClass: note.pitchClass };
+  }
+  function dotLabel(stringIndex, finger) {
+    if (labels === "none") return "";
+    if (labels === "fingers") return finger == null ? "" : String(finger);
+    const tone = toneAt(stringIndex);
+    if (!tone) return "";
+    if (labels === "notes") return displayName(tone.note);
+    return intervalNames[(tone.pitchClass - chord.tones[0].pitchClass + 12) % 12];
+  }
   const lastString = firstString + (strings.length - 1) * stringGap;
   const bottom = top + model.fretCount * fretHeight;
   const label = model.strings.map(({ stringIndex, state, fret, finger }) => {
@@ -37,15 +60,21 @@ export function renderChordDiagram(model, chordLabel) {
   });
   const markers = model.strings.map(({ stringIndex, state, diagramRow, finger }) => {
     const x = firstString + stringIndex * stringGap;
+    const tone = toneAt(stringIndex);
+    const dotClass = tone && highlight !== "none" && (
+      tone.index === 0 || (highlight === "triad" && tone.index <= 2))
+      ? tone.index === 0 ? " diagram-root" : " diagram-triad-tone" : "";
+    const text = escapeMarkup(dotLabel(stringIndex, finger));
     if (state === "muted") {
       return `<path class="diagram-muted" d="M ${x - 4} ${markerTop - 4} l 8 8 m 0 -8 l -8 8"/>`;
     }
     if (state === "open") {
-      return `<circle class="diagram-open" cx="${x}" cy="${markerTop}" r="4.5"/>`;
+      return `<circle class="diagram-open${dotClass}" cx="${x}" cy="${markerTop}" r="4.5"/>
+        ${labels !== "fingers" && text ? `<text class="diagram-open-caption" x="${x}" y="${markerTop - 10}" text-anchor="middle">${text}</text>` : ""}`;
     }
     const y = top + (diagramRow - 0.5) * fretHeight;
-    return `<circle class="diagram-finger" cx="${x}" cy="${y}" r="8"/>
-      <text class="diagram-finger-number" x="${x}" y="${y + 3.4}" text-anchor="middle">${finger}</text>`;
+    return `<circle class="diagram-finger${dotClass}" cx="${x}" cy="${y}" r="8"/>
+      ${text ? `<text class="diagram-finger-number" x="${x}" y="${y + 3.4}" text-anchor="middle">${text}</text>` : ""}`;
   });
   const position = model.baseFret > 1
     ? `<text class="diagram-label" x="${firstString - 11}" y="${top + fretHeight / 2 + 4}" text-anchor="end">${model.baseFret}fr</text>`

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { formatNote, parseNote } from "../../src/engine/core/pitch.js";
-import { cycleChordVoicing, generateWorkspace, replaceWorkspaceChord, toggleChordLock } from "../../src/progression/workspace.js";
+import { moveWorkspaceChord, cycleChordVoicing, generateWorkspace, replaceWorkspaceChord, toggleChordLock } from "../../src/progression/workspace.js";
 import { listProgressionChoices } from "../../src/progression/generator.js";
 import type { ProgressionWorkspace } from "../../src/progression/workspace.js";
 
@@ -43,6 +43,31 @@ describe("progression workbench state", () => {
     expect(locked).toEqual(snapshot);
     expect(requireWorkspace(generateWorkspace({ ...cMajor, mode: "naturalMinor" }, toggleChordLock(locked, 0)))
       .cards[0]?.slot.symbol).toBe("Cm");
+  });
+
+  it("reorders cards while preserving chord identity, voicing and hard locks", () => {
+    const initial = requireWorkspace(generateWorkspace(cMajor));
+    const first = toggleChordLock(cycleChordVoicing(initial, 0, 1), 0);
+    const originalCard = first.cards[0]!;
+    const reordered = moveWorkspaceChord(first, 0, 2);
+    expect(reordered.cards.map(({ slot }) => slot.slotIndex)).toEqual([0, 1, 2, 3]);
+    expect(reordered.cards[2]!.slot.symbol).toBe(originalCard.slot.symbol);
+    expect(reordered.cards[2]!.slot.isLocked).toBe(true);
+    expect(reordered.cards[2]!.voicings[reordered.cards[2]!.voicingIndex]!.id)
+      .toBe(originalCard.voicings[originalCard.voicingIndex]!.id);
+    expect(first.cards[0]).toEqual(originalCard);
+    const regenerated = requireWorkspace(generateWorkspace({ ...cMajor, seed: 99 }, reordered));
+    expect(regenerated.cards[2]!.slot).toEqual(reordered.cards[2]!.slot);
+    expect(moveWorkspaceChord(reordered, 2, 2)).toBe(reordered);
+  });
+
+  it("rejects invalid musical reorder indices without modifying the workspace", () => {
+    const initial = requireWorkspace(generateWorkspace(cMajor));
+    const snapshot = structuredClone(initial);
+    expect(() => moveWorkspaceChord(initial, -1, 2)).toThrow(RangeError);
+    expect(() => moveWorkspaceChord(initial, 0, 4)).toThrow(RangeError);
+    expect(() => moveWorkspaceChord(initial, 0.5, 2)).toThrow(RangeError);
+    expect(initial).toEqual(snapshot);
   });
 
   it("cycles one card's grip in both directions and wraps at the ends", () => {

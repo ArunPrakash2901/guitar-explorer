@@ -41,7 +41,7 @@ function validateSnapshot(input) {
     !exactInteger(bpm, 50, 180) || typeof meter !== "string" || !Object.hasOwn(METERS, meter) ||
     !patternsForMeter(meter).some(({ id }) => id === pattern) || !groovesForMeter(meter).some(({ id }) => id === groove) ||
     !GUITAR_TONES.includes(tone) || !exactInteger(guitar, 0, 100) || !exactInteger(drums, 0, 100) ||
-    !bool(guitarMuted) || !bool(drumsMuted) || !["scale", "chords"].includes(view) ||
+    !bool(guitarMuted) || !bool(drumsMuted) || !["scale", "chords", "key"].includes(view) ||
     !["full", ...CAGED_FAMILIES].includes(position) || !["context", "majorPentatonic", "minorPentatonic"].includes(layer) ||
     !exactInteger(selected, 0, cards.length - 1)) throw new Error("The progression contains invalid settings.");
   return { v, k, m, s, c: cards, p: {

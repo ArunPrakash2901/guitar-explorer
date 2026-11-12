@@ -208,6 +208,32 @@ try {
   assert.ok(desk.ok && (await desk.text()).includes("instrument-desk-app.js"));
   await evaluate("window.scrollTo(0, 0)");
   await screenshot("desktop-default");
+  assert.equal(await evaluate("document.querySelectorAll('#quick-controls > .field').length"), 8);
+  assert.equal(await evaluate("document.querySelector('#quick-favorite').getAttribute('aria-pressed')"), "false");
+  await press("#quick-drums", " ");
+  assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), true);
+  await press("#quick-drums", " ");
+  assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), false);
+  await press("[data-slot='0'] [data-action=zoom]", " ");
+  assert.equal(await evaluate("document.querySelector('#chord-zoom').open"), true);
+  await press("#chord-zoom-next", " ");
+  assert.match(await evaluate("document.querySelector('#chord-zoom-count').textContent"), /2 of 4/);
+  await press("#close-chord-zoom", " ");
+  assert.equal(await evaluate("document.querySelector('#chord-zoom').open"), false);
+  const firstBeforeMove = await evaluate("document.querySelector('[data-slot=\\\"0\\\"]').dataset.chord");
+  await press("[data-slot='0'] [data-action=move][data-step='1']", " ");
+  assert.equal(await evaluate("document.querySelector('[data-slot=\\\"1\\\"]').dataset.chord"), firstBeforeMove);
+  await press("[data-slot='1'] [data-action=move][data-step='-1']", " ");
+  assert.equal(await evaluate("document.querySelector('[data-slot=\\\"0\\\"]').dataset.chord"), firstBeforeMove);
+  await press("#show-key-chords", " ");
+  assert.equal(await evaluate("document.querySelector('#key-chords-grid').hidden"), false);
+  assert.equal(await evaluate("document.querySelectorAll('#key-chords-grid button').length"), 7);
+  await press("#key-chords-grid button[data-degree='5']", " ");
+  await press("#show-scale", " ");
+  await setValue("#fretboard-labels", "notes");
+  assert.ok(await evaluate("!!document.querySelector('.fret-note') && document.querySelector('.fret-note').textContent.length > 0"));
+  await setValue("#fretboard-labels", "degrees");
+
   if (preview && process.env.GE_EXPECTED_REVISION) {
     assert.equal(await evaluate("document.querySelector('meta[name=guitar-explorer-revision]').content"), process.env.GE_EXPECTED_REVISION);
   }
@@ -244,6 +270,7 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-slot=\\\"1\\\"]').dataset.chord"), locked);
   await setValue("#tonic", "Db");
   await setValue("#mode", "mixolydian");
+  await evaluate("document.querySelector('#advanced-settings').open = true");
   await press("[data-settings=rhythm]", " ");
   assert.ok(await evaluate("!document.querySelector('#rhythm-settings').hidden && document.querySelector('#chords-settings').hidden"));
   await setValue("#meter", "6/8");
@@ -338,6 +365,7 @@ try {
   await setValue("#guitar-tone", "warm");
   const savedState = "JSON.stringify({cards:[...document.querySelectorAll('[data-slot]')].map(card=>[card.dataset.chord,card.querySelector('.diagram-wrap').dataset.voicing,card.querySelector('[data-action=lock]').getAttribute('aria-pressed')]),settings:['#meter','#drum-groove','#guitar-tone'].map(selector=>document.querySelector(selector).value),form:document.querySelector('#caged-positions [aria-pressed=true]').dataset.position})";
   const original = await evaluate(savedState);
+  await evaluate("document.querySelector('#library-drawer').open = true");
   await press("#save-favorite", " ");
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 1);
   await press("#reset-workspace", " ");
@@ -358,6 +386,7 @@ try {
   await waitFor("document.querySelector('#library-status').textContent.includes('invalid format')", "invalid hash notice");
   assert.equal(await evaluate(savedState), original);
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 1);
+  await evaluate("document.querySelector('#library-drawer').open = true");
   await press("#favorites li button:last-child", " ");
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 0);
 

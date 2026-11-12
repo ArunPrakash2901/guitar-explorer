@@ -73,10 +73,34 @@ export function planProgressionStrokes(cards, bpm, options = {}) {
   }
   const events = [...strokes, ...drumHits].sort((a, b) => a.seconds - b.seconds);
   return Object.freeze({
+    kind: "progression", repeat: true,
     meter, pattern, groove: drumGroove, pulseUnit: groove.pulseUnit,
     bpm, secondsPerBeat, secondsPerBar,
     loopSeconds: cards.length * secondsPerBar,
     strokes: Object.freeze(strokes), drumHits: Object.freeze(drumHits), events: Object.freeze(events),
+  });
+}
+
+
+/** Deterministic, time-bounded note-by-note scale sequence on the guitar clock. */
+export function planScaleNotes(notes, bpm, { loop = false } = {}) {
+  assertBpm(bpm);
+  if (!Array.isArray(notes) || notes.length < 1 || notes.length > 96 ||
+      !notes.every(({ semitone, stringIndex }) => Number.isInteger(semitone) &&
+        semitone >= 0 && semitone <= 127 && Number.isInteger(stringIndex) &&
+        stringIndex >= 0 && stringIndex < 6)) {
+    throw new RangeError("Scale playback needs 1–96 valid sounded string notes");
+  }
+  const secondsPerNote = (60 / bpm) / 2;
+  const strokes = Object.freeze(notes.map((note, index) => Object.freeze({
+    kind: "scale", slotIndex: null, seconds: index * secondsPerNote,
+    notes: Object.freeze([{ stringIndex: note.stringIndex, semitone: note.semitone }]),
+    level: .8, direction: "down", sustain: Math.min(.9, secondsPerNote * 1.5),
+  })));
+  return Object.freeze({
+    kind: "scale", repeat: Boolean(loop), bpm,
+    secondsPerBar: secondsPerNote, loopSeconds: notes.length * secondsPerNote,
+    strokes, drumHits: Object.freeze([]), events: strokes,
   });
 }
 
@@ -272,8 +296,18 @@ export class ProgressionAudio {
       const next = events.findIndex(({ seconds }) => seconds >= offset);
       this.nextEvent = Math.max(this.nextEvent, cycle * events.length + (next < 0 ? events.length : next));
     }
+    if (this.plan.repeat === false && this.nextEvent >= events.length) {
+      if (this.context.currentTime >= this.loopStart + loopSeconds + 0.2) {
+        this.playing = false;
+        this.plan = null;
+        if (this.interval !== null) clearInterval(this.interval);
+        this.interval = null;
+      }
+      return;
+    }
     let work = 0;
     while (work < 192) {
+      if (this.plan.repeat === false && this.nextEvent >= events.length) break;
       const cycle = Math.floor(this.nextEvent / events.length);
       const event = events[this.nextEvent % events.length];
       const when = this.loopStart + cycle * loopSeconds + event.seconds;
@@ -291,6 +325,16 @@ export class ProgressionAudio {
     this.stop();
     const revision = this.revision;
     await this.preload(plan.strokes, plan.drumHits);
+    if (revision !== this.revision) return false;
+    this.startPlan(plan, 0);
+    return true;
+  }
+
+  async playScale(notes, bpm, options = {}) {
+    const plan = planScaleNotes(notes, bpm, options);
+    this.stop();
+    const revision = this.revision;
+    await this.preload(plan.strokes);
     if (revision !== this.revision) return false;
     this.startPlan(plan, 0);
     return true;
@@ -337,7 +381,7 @@ export class ProgressionAudio {
   }
 
   activeSlot() {
-    if (!this.playing || !this.context || !this.plan) return null;
+    if (!this.playing || !this.context || !this.plan || this.plan.kind === "scale") return null;
     if (this.context.currentTime < this.transportStartsAt) return null;
     const elapsed = this.context.currentTime - this.loopStart;
     return Math.floor((elapsed % this.plan.loopSeconds) / this.plan.secondsPerBar);
