@@ -228,14 +228,15 @@
         <div class="appearance-fields">
           <label for="fretboard-labels">Labels
             <select id="fretboard-labels">
-              <option value="degrees" selected>Scale degrees</option>
+              <option value="degrees" selected>Automatic</option>
+              <option value="intervals">Degrees / intervals</option>
               <option value="notes">Note names</option>
             </select>
           </label>
           <label for="fretboard-highlights">Highlights
             <select id="fretboard-highlights">
               <option value="root" selected>Roots</option>
-              <option value="triad">Chord tones</option>
+              <option value="triad">Selected triad</option>
               <option value="modal">Characteristic modal notes</option>
             </select>
           </label>
@@ -258,7 +259,7 @@
         <button id="stop-scale" type="button">Stop shape</button>
         <span id="scale-practice-message" role="status"></span>
       </div>
-      <p class="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
+      <p class="fretboard-hint" id="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
     </section>
     <details id="library-drawer" class="library-drawer">
       <summary>Favorites and sharing</summary>

@@ -74,6 +74,7 @@ const requiredPaths = [
   "progression-guitar-manifest.mjs",
   "progression-selection.mjs",
   "progression-fretboard.mjs",
+  "progression-tone-label.mjs",
   "progression-rhythm.mjs",
   "progression-grooves.mjs",
   "progression-drum-samples.mjs",

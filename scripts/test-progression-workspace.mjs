@@ -23,7 +23,7 @@ try {
   await get("/progression.css", /^text\/css/);
   for (const asset of [
     "/progression-workspace.mjs", "/progression-diagram.mjs",
-    "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-rhythm.mjs", "/progression-grooves.mjs", "/progression-drum-samples.mjs", "/progression-audio.mjs", "/progression-library.mjs", "/progression-library-view.mjs",
+    "/progression-sample-bank.mjs", "/progression-guitar-manifest.mjs", "/progression-selection.mjs", "/progression-fretboard.mjs", "/progression-tone-label.mjs", "/progression-rhythm.mjs", "/progression-grooves.mjs", "/progression-drum-samples.mjs", "/progression-audio.mjs", "/progression-library.mjs", "/progression-library-view.mjs",
     "/progression/caged.js", "/progression/generator.js", "/progression/voicings.js", "/progression/workspace.js", "/engine/index.js",
   ]) {
     assert.ok((await get(asset, /^text\/javascript/)).trim().length, asset);
@@ -69,4 +69,11 @@ assert.deepEqual(chord.tones.map(({ note }) => formatNote(note)), ["Ab", "Cb", "
 const [grip] = getPlayableVoicings(chord);
 assert.ok(grip);
 assert.equal(chordDiagramModel(grip).strings.length, 6);
+const { buildChord } = await import(new URL("engine/index.js", outputRoot));
+const { renderChordDiagram } = await import(new URL("progression-diagram.mjs", outputRoot));
+const extended = buildChord({ root: parseNote("C"), chordId: "add9" });
+const extendedGrip = getPlayableVoicings(extended)[0];
+assert.match(renderChordDiagram(chordDiagramModel(extendedGrip), "Cadd9", {
+  chord: extended, voicing: extendedGrip, labels: "intervals", highlight: "triad",
+}), />9<\/text>/);
 console.log("progression workspace routes, static assets and compiled musical output checks passed");

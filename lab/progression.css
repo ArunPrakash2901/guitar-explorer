@@ -546,6 +546,7 @@ main.shell { padding-block: 1rem 3rem; }
 }
 .fret-note.triad-tone { background: #857b45; }
 .fret-note.modal-tone { background: #6a497f; }
+.fret-note.scale-playing { outline: 3px solid #ffdd86; outline-offset: 1px; box-shadow: 0 0 0 6px #493713; z-index: 1; }
 .fret-note.root { background: #a63e30; }
 .scale-practice { display: flex; justify-content: center; align-items: end; flex-wrap: wrap; gap: .55rem; margin-top: .8rem; }
 .scale-practice[hidden] { display: none; }
