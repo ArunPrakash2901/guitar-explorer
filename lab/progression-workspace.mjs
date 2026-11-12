@@ -455,7 +455,12 @@ function paintTransport() {
 function monitorTransport() {
   paintTransport();
   if (audio.isActive()) animationFrame = requestAnimationFrame(monitorTransport);
-  else animationFrame = null;
+  else {
+    animationFrame = null;
+    if (!audio.isPaused() && scaleMessage.textContent.startsWith("Playing")) {
+      scaleMessage.textContent = "Scale playback finished.";
+    }
+  }
 }
 
 function cancelTransportAnimation() {
@@ -467,6 +472,7 @@ function stopPlayback() {
   audioStatusTicket++;
   audioPending = false;
   loopRequested = false;
+  if (audio.plan?.kind === "scale") scaleMessage.textContent = "Scale playback stopped.";
   audio.stop();
   cancelTransportAnimation();
   paintTransport();
