@@ -5,7 +5,7 @@ const { parseNote } = await import(new URL("engine/index.js", output));
 const { generateWorkspace, replaceWorkspaceChord, toggleChordLock, cycleChordVoicing } = await import(new URL("progression/workspace.js", output));
 const {
   DEFAULT_EXPLORER, snapshotProgression, encodeProgression, decodeProgression, restoreProgression, progressionText,
-  readFavorites, saveFavorite, deleteFavorite, FAVORITES_KEY,
+  readFavorites, saveFavorite, deleteFavorite, updateFavorite, FAVORITES_KEY,
 } = await import(new URL("progression-library.mjs", output));
 
 const result = generateWorkspace({ tonic: parseNote("C"), mode: "major", seed: 4294967295, length: 8 });
@@ -77,6 +77,12 @@ assert.equal(readFavorites(storage)[0].token, encodeProgression(decodeProgressio
 deleteFavorite(storage, legacyToken);
 saveFavorite(storage, token);
 assert.equal(readFavorites(storage).length, 1);
+updateFavorite(storage, token, { name: "  Back Porch  ", collection: "Practice" });
+saveFavorite(storage, token);
+assert.equal(readFavorites(storage)[0].name, "Back Porch");
+assert.equal(readFavorites(storage)[0].collection, "Practice");
+assert.deepEqual(readFavorites(storage)[0].snapshot, snapshot);
+assert.throws(() => updateFavorite(storage, token, { name: "x".repeat(49), collection: "" }), /shorter/);
 for (let seed = 0; seed < 23; seed++) saveFavorite(storage, encodeProgression({ ...snapshot, s: seed }));
 assert.equal(readFavorites(storage).length, 24);
 assert.throws(() => saveFavorite(storage, encodeProgression({ ...snapshot, s: 42 })), /Delete a favorite/);

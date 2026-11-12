@@ -12,6 +12,8 @@ export const SHARE_PREFIX = "#p=";
 const VERSION = 2;
 const MAX_TOKEN_LENGTH = 3400;
 const MAX_FAVORITES = 24;
+export const MAX_FAVORITE_NAME = 48;
+export const MAX_COLLECTION_NAME = 32;
 export const DEFAULT_EXPLORER = Object.freeze({
   keyDegree: 1, diagramLabels: "fingers", diagramHighlight: "root",
   fretLabels: "degrees", fretHighlights: "root", scaleMode: "once",
@@ -131,16 +133,21 @@ export function progressionText(workspace, preferences) {
 
 export function readFavorites(storage) {
   const raw = storage.getItem(FAVORITES_KEY);
-  if (!raw || raw.length > MAX_FAVORITES * (MAX_TOKEN_LENGTH + 10)) return [];
+  if (!raw || raw.length > MAX_FAVORITES * (MAX_TOKEN_LENGTH + 360)) return [];
   let values;
   try { values = JSON.parse(raw); } catch { return []; }
   if (!Array.isArray(values)) return [];
   const tokens = [];
   for (const stored of values.slice(0, MAX_FAVORITES)) {
     try {
-      const snapshot = decodeProgression(stored);
+      const snapshot = decodeProgression(typeof stored === "string" ? stored : stored?.token);
       const token = encodeProgression(snapshot);
-      if (!tokens.some((entry) => entry.token === token)) tokens.push({ token, snapshot });
+      if (!tokens.some((entry) => entry.token === token)) {
+        tokens.push({ token, snapshot,
+          name: validFavoriteLabel(stored?.name, MAX_FAVORITE_NAME) ?? "",
+          collection: validFavoriteLabel(stored?.collection, MAX_COLLECTION_NAME) ?? "",
+        });
+      }
     } catch {
       // A malformed stored entry does not hide the other favorites.
     }
@@ -148,14 +155,39 @@ export function readFavorites(storage) {
   return tokens;
 }
 
+function validFavoriteLabel(value, maxLength) {
+  if (typeof value !== "string") return null;
+  const text = value.trim();
+  return text.length <= maxLength && !/[\u0000-\u001f\u007f]/u.test(text) ? text : null;
+}
+
+function writeFavorites(storage, entries) {
+  storage.setItem(FAVORITES_KEY, JSON.stringify(entries.map(({ token, name, collection }) => ({ token, name, collection }))));
+}
+
 export function saveFavorite(storage, token) {
+  const snapshot = decodeProgression(token);
+  token = encodeProgression(snapshot);
+  const entries = readFavorites(storage);
+  const previous = entries.find((entry) => entry.token === token);
+  if (!previous && entries.length >= MAX_FAVORITES) throw new Error("Delete a favorite before saving another.");
+  writeFavorites(storage, [previous ?? { token, name: "", collection: "" }, ...entries.filter((entry) => entry.token !== token)]);
+}
+
+export function updateFavorite(storage, token, { name, collection }) {
+  const newName = validFavoriteLabel(name, MAX_FAVORITE_NAME);
+  const newCollection = validFavoriteLabel(collection, MAX_COLLECTION_NAME);
+  if (newName === null || newCollection === null) throw new Error("Use a shorter favorite name or collection.");
   token = encodeProgression(decodeProgression(token));
-  const values = readFavorites(storage).map((entry) => entry.token).filter((entry) => entry !== token);
-  if (values.length >= MAX_FAVORITES) throw new Error("Delete a favorite before saving another.");
-  storage.setItem(FAVORITES_KEY, JSON.stringify([token, ...values]));
+  const entries = readFavorites(storage);
+  const entry = entries.find((item) => item.token === token);
+  if (!entry) throw new Error("This favorite is no longer saved.");
+  entry.name = newName;
+  entry.collection = newCollection;
+  writeFavorites(storage, entries);
 }
 
 export function deleteFavorite(storage, token) {
   token = encodeProgression(decodeProgression(token));
-  storage.setItem(FAVORITES_KEY, JSON.stringify(readFavorites(storage).map((entry) => entry.token).filter((entry) => entry !== token)));
+  writeFavorites(storage, readFavorites(storage).filter((entry) => entry.token !== token));
 }
