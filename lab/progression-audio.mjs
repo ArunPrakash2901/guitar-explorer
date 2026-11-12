@@ -1,4 +1,5 @@
 import { selectGuitarAttack } from "./progression-sample-bank.mjs";
+import { rhythmPlan, DEFAULT_PATTERN } from "./progression-rhythm.mjs";
 
 /**
  * Four-chord, 4/4 acoustic playback. Uses Guitar Explorer's existing CC0 steel
@@ -7,7 +8,6 @@ import { selectGuitarAttack } from "./progression-sample-bank.mjs";
  */
 export const MIN_BPM = 50;
 export const MAX_BPM = 180;
-const BEATS_PER_BAR = 4;
 const STRUM_SPREAD_SECONDS = 0.025;
 const LOOKAHEAD_SECONDS = 0.65;
 const SCHEDULE_INTERVAL_MS = 100;
@@ -31,27 +31,34 @@ function soundingNotes(card) {
 }
 
 /** Pure tempo/transport facts; never depends on samples or rendering APIs. */
-export function planProgressionStrokes(cards, bpm) {
+export function planProgressionStrokes(cards, bpm, options = {}) {
   assertBpm(bpm);
   if (!Array.isArray(cards) || cards.length !== 4) {
     throw new RangeError("Acoustic playback requires exactly four chord cards");
   }
-  const secondsPerBeat = 60 / bpm;
-  const secondsPerBar = secondsPerBeat * BEATS_PER_BAR;
+  const meter = options.meter ?? "4/4";
+  const pattern = options.pattern ?? (meter === "4/4" ? "steady" : DEFAULT_PATTERN[meter]);
+  const groove = rhythmPlan(meter, pattern, bpm);
+  const secondsPerBeat = groove.secondsPerPulse;
+  const secondsPerBar = groove.secondsPerBar;
   const strokes = [];
   for (let slotIndex = 0; slotIndex < cards.length; slotIndex += 1) {
     const notes = soundingNotes(cards[slotIndex]);
-    for (const beat of [0, 2]) {
+    for (const event of groove.strokes) {
       strokes.push(Object.freeze({
         slotIndex,
-        beat,
-        seconds: slotIndex * secondsPerBar + beat * secondsPerBeat,
+        beat: event.step / (secondsPerBeat / groove.secondsPerStep),
+        step: event.step,
+        direction: event.direction,
+        level: event.level,
+        seconds: slotIndex * secondsPerBar + event.seconds,
         notes,
         midis: Object.freeze(notes.map(({ semitone }) => semitone)),
       }));
     }
   }
   return Object.freeze({
+    meter, pattern, pulseUnit: groove.pulseUnit,
     bpm, secondsPerBeat, secondsPerBar,
     loopSeconds: cards.length * secondsPerBar,
     strokes: Object.freeze(strokes),
@@ -116,11 +123,12 @@ export class ProgressionAudio {
     await Promise.all([...selected.values()].map((attack) => this.loadAttack(attack)));
   }
 
-  scheduleStrum(notes, when) {
+  scheduleStrum(notes, when, direction = "down", level = 1) {
     const context = this.context;
-    const peak = 0.65 / Math.max(1, Math.sqrt(notes.length));
-    for (let index = 0; index < notes.length; index += 1) {
-      const attack = selectGuitarAttack(notes[index]);
+    const ordered = direction === "up" ? [...notes].reverse() : notes;
+    const peak = (0.65 * level) / Math.max(1, Math.sqrt(ordered.length));
+    for (let index = 0; index < ordered.length; index += 1) {
+      const attack = selectGuitarAttack(ordered[index]);
       const buffer = this.buffers.get(attack.sample.file);
       if (!buffer) throw new Error("A guitar recording was not loaded before scheduling");
       const at = when + index * STRUM_SPREAD_SECONDS;
@@ -167,12 +175,12 @@ export class ProgressionAudio {
       this.nextStroke += 1;
       work += 1;
       if (when < floor) continue;
-      this.scheduleStrum(stroke.notes, when);
+      this.scheduleStrum(stroke.notes, when, stroke.direction, stroke.level);
     }
   }
 
-  async play(cards, bpm) {
-    const plan = planProgressionStrokes(cards, bpm);
+  async play(cards, bpm, options = {}) {
+    const plan = planProgressionStrokes(cards, bpm, options);
     this.stop();
     const revision = this.revision;
     await this.preload(plan.strokes.flatMap(({ notes }) => notes));
