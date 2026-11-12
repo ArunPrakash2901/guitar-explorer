@@ -165,6 +165,7 @@ function renderBoard() {
     : "";
   fretboardDescription.textContent = description + positionDescription + gripDescription;
   scaleLayerControl.hidden = boardView !== "scale";
+  document.querySelector("#scale-practice").hidden = boardView !== "scale";
   keyChordsGrid.hidden = boardView !== "key";
   if (boardView === "key") {
     keyChordsGrid.innerHTML = keyChoices.map((choice) =>
@@ -220,6 +221,59 @@ for (const control of [fretLabels, fretHighlights]) {
     if (workspace) renderBoard();
   });
 }
+
+function scalePlaybackNotes(allPositions) {
+  if (!workspace) return [];
+  const { tonic, mode } = workspace.context;
+  const layer = scaleLayerInput.value;
+  const scale = layer === "context" ? workspace.scale : buildScale({ tonic, scaleId: layer });
+  const quality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
+    : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
+  const position = allPositions || boardPosition === "full" ? null : getCagedPosition(tonic, boardPosition, quality);
+  const start = position?.fromFret ?? 0;
+  const end = position?.toFret ?? STANDARD_FRETBOARD.maxFret;
+  const allowed = new Set(scale.tones.map(({ pitchClass }) => pitchClass));
+  const all = [];
+  for (let stringIndex = 0; stringIndex < 6; stringIndex++) {
+    for (let fret = start; fret <= end; fret++) {
+      const note = getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret });
+      if (allowed.has(note.pitchClass)) all.push({ stringIndex, fret, semitone: note.semitone });
+    }
+  }
+  all.sort((a,b) => a.semitone - b.semitone || a.fret - b.fret);
+  const unique = new Map();
+  for (const note of all) if (!unique.has(note.semitone)) unique.set(note.semitone, note);
+  return [...unique.values()].slice(0,96);
+}
+
+scalePlayButton.addEventListener("click", async () => {
+  if (!workspace) return;
+  if (audio.plan?.kind === "scale") {
+    stopPlayback();
+    scaleMessage.textContent = "Scale playback stopped.";
+    return;
+  }
+  const notes = scalePlaybackNotes(scalePlayMode.value === "all");
+  if (!notes.length) {
+    scaleMessage.textContent = "No playable scale notes in this position.";
+    return;
+  }
+  const ticket = beginAudio("Loading scale notes…");
+  scaleMessage.textContent = "Preparing " + notes.length + " notes.";
+  try {
+    const started = await audio.playScale(notes, tempoInput.valueAsNumber, { loop: scalePlayMode.value === "loop" });
+    if (started) {
+      scaleMessage.textContent = (scalePlayMode.value === "loop" ? "Looping" : "Playing") + " " + notes.length + " scale notes.";
+      finishAudio(ticket, scaleMessage.textContent);
+    }
+  } catch (problem) {
+    if (finishAudio(ticket, problem.message)) scaleMessage.textContent = problem.message;
+  }
+});
+scaleStopButton.addEventListener("click", () => {
+  stopPlayback();
+  scaleMessage.textContent = "Scale playback stopped.";
+});
 
 function chordChoiceValue(degree, chordId) {
   return ["major", "minor", "diminished", "augmented"].includes(chordId) ? String(degree) : degree + ":" + chordId;
@@ -385,8 +439,12 @@ function paintTransport() {
     if (selected) card.setAttribute("aria-current", "step");
     else card.removeAttribute("aria-current");
   });
-  const label = playing ? "Pause" : audio.isPaused() ? "Resume" : "Play";
-  const text = (playing ? "Ⅱ " : "▶ ") + label;
+  const scaleMode = audio.plan?.kind === "scale";
+  const label = scaleMode ? "Play chords" : playing ? "Pause" : audio.isPaused() ? "Resume" : "Play";
+  const text = (playing && !scaleMode ? "Ⅱ " : "▶ ") + label;
+  scalePlayButton.textContent = scaleMode ? "■ Stop shape" : "▶ Play scale notes";
+  scaleStopButton.disabled = !scaleMode;
+
   if (playButton.textContent !== text) {
     playButton.textContent = text;
     playButton.setAttribute("aria-label", label + " progression");
@@ -717,6 +775,7 @@ async function resumeLoop() {
 }
 
 playButton.addEventListener("click", () => {
+  if (audio.plan?.kind === "scale") { void playLoop(); return; }
   if (audio.pause()) {
     loopRequested = false;
     cancelTransportAnimation();
