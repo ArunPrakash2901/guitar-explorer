@@ -2,6 +2,8 @@ import { formatNote, parseNote } from "./engine/index.js";
 import { chordDiagramModel } from "./progression/voicings.js";
 import { cycleChordVoicing, generateWorkspace, toggleChordLock } from "./progression/workspace.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
+import { renderScaleBoard } from "./progression-fretboard.mjs";
+import { resolveGenerateChoice } from "./progression-selection.mjs";
 import { ProgressionAudio } from "./progression-audio.mjs";
 
 const modes = { major: "major", naturalMinor: "natural minor", mixolydian: "Mixolydian" };
@@ -12,7 +14,11 @@ const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 const form = document.querySelector("#generate-form");
 const tonicInput = document.querySelector("#tonic");
 const modeInput = document.querySelector("#mode");
-const seedInput = document.querySelector("#seed");
+const shapeInput = document.querySelector("#shape-filter");
+const tempoValue = document.querySelector("#tempo-value");
+const fretboard = document.querySelector("#fretboard");
+const fretboardTitle = document.querySelector("#fretboard-title");
+const fretboardDescription = document.querySelector("#fretboard-description");
 const message = document.querySelector("#form-message");
 const contextHeading = document.querySelector("#context-heading");
 const scaleNotes = document.querySelector("#scale-notes");
@@ -24,10 +30,81 @@ const transportMessage = document.querySelector("#transport-message");
 const audio = new ProgressionAudio();
 let animationFrame = null;
 let workspace;
+let selectedCard = 0;
+let boardView = "scale";
+let audioStatusTicket = 0;
 
 function setMessage(text, isError = false) {
   message.textContent = text;
   message.classList.toggle("is-error", isError);
+}
+
+function randomUint32() {
+  return globalThis.crypto?.getRandomValues
+    ? crypto.getRandomValues(new Uint32Array(1))[0]
+    : Math.floor(Math.random() * 4294967296);
+}
+
+function visibleIndices(card) {
+  return card.voicings.flatMap((voicing, index) => {
+    const filter = shapeInput.value;
+    const allowed = filter === "all" || (filter === "open" && voicing.shapeFamily === "open") ||
+      (filter === "barre" && voicing.shapeFamily !== "open");
+    return allowed ? [index] : [];
+  });
+}
+
+function visibleCard(card) {
+  const indices = visibleIndices(card);
+  const index = indices.includes(card.voicingIndex) ? card.voicingIndex : indices[0];
+  return index === undefined ? { ...card, voicings: [], voicingIndex: 0 } : {
+    ...card, voicings: indices.map((i) => card.voicings[i]), voicingIndex: indices.indexOf(index),
+  };
+}
+
+function cycleAvailableVoicing(slotIndex, direction) {
+  const card = workspace.cards[slotIndex];
+  const indices = visibleIndices(card);
+  if (indices.length < 2) return;
+  const oldIndex = indices.includes(card.voicingIndex) ? card.voicingIndex : indices[0];
+  const newIndex = indices[(indices.indexOf(oldIndex) + direction + indices.length) % indices.length];
+  workspace = {
+    ...workspace,
+    cards: workspace.cards.map((entry, index) => index === slotIndex
+      ? { ...entry, voicingIndex: newIndex } : entry),
+  };
+}
+
+function updatePlayAvailability() {
+  playButton.disabled = !workspace || workspace.cards.some((card) => visibleIndices(card).length === 0);
+}
+
+function renderBoard() {
+  if (!workspace) return;
+  const scale = workspace.scale;
+  const chord = workspace.cards[selectedCard].slot.chord;
+  const root = noteText(formatNote(workspace.context.tonic));
+  fretboardTitle.textContent = boardView === "scale"
+    ? root + " " + modes[workspace.context.mode] + " scale"
+    : noteText(workspace.cards[selectedCard].slot.symbol) + " chord tones";
+  fretboardDescription.textContent = boardView === "scale"
+    ? "Scale degrees across six strings"
+    : "Chord " + (selectedCard + 1) + ". Select another chord card to change the highlighted notes.";
+  for (const view of ["scale", "chords"]) {
+    const button = document.querySelector(view === "scale" ? "#show-scale" : "#show-chords");
+    button.classList.toggle("selected", boardView === view);
+    button.setAttribute("aria-pressed", String(boardView === view));
+  }
+  renderScaleBoard(fretboard, scale, chord, boardView, (note) => {
+    stopPlayback();
+    const ticket = ++audioStatusTicket;
+    transportMessage.textContent = "Loading acoustic note…";
+    audio.audition({ voicingIndex: 0, voicings: [{ notes: [note] }] }).then((played) => {
+      if (played && ticket === audioStatusTicket) transportMessage.textContent = note.note + " sounded.";
+    }).catch((problem) => {
+      if (ticket === audioStatusTicket) transportMessage.textContent = problem.message;
+    });
+  });
 }
 
 function renderCard({ slot, voicings, voicingIndex }) {
@@ -41,7 +118,7 @@ function renderCard({ slot, voicings, voicingIndex }) {
     <div class="card-heading">
       <div class="card-identity">
         <p class="card-roman">${romanNumeral}</p>
-        <h3 aria-label="${spokenChord}">${title}</h3>
+        <button type="button" class="chord-select" data-action="select" aria-label="Show chord ${number} tones: ${spokenChord}">${title}</button>
       </div>
       <button class="lock-button" type="button" data-action="lock" aria-label="Lock chord ${number}, ${spokenChord}" aria-pressed="${isLocked}">
         ${isLocked ? "Locked" : "Lock"}
@@ -61,7 +138,7 @@ function renderCard({ slot, voicings, voicingIndex }) {
 }
 
 function renderCards(restoreFocus) {
-  cardsElement.innerHTML = workspace.cards.map(renderCard).join("");
+  cardsElement.innerHTML = workspace.cards.map(visibleCard).map(renderCard).join("");
   if (restoreFocus) {
     cardsElement.querySelector(restoreFocus)?.focus({ preventScroll: true });
   }
