@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { access, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
@@ -24,6 +24,8 @@ function runBuild(channel, extraEnv = {}) {
 
 for (const channel of ["stable", "experimental", "preview"]) {
   runBuild(channel);
+  await assert.rejects(access(resolve(projectRoot, ".preview-dist", "looper-studio")), { code: "ENOENT" },
+    "the recording diagnostic stays in the local Lab");
   const html = await readFile(indexPath, "utf8");
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-channel" content="${channel}"`));
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-label" content="${channel}-test"`));

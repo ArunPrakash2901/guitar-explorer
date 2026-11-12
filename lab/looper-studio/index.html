@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Looper Studio | Guitar Explorer</title>
+  <link rel="stylesheet" href="./looper-studio.css">
+  <script type="module" src="./looper-studio.mjs"></script>
+</head>
+<body>
+  <main>
+    <header>
+      <a href="../">Guitar Explorer</a>
+      <h1>Looper Studio</h1>
+      <p>Record a fixed loop, add a second take and check your audio and MIDI inputs.</p>
+    </header>
+
+    <div class="devices">
+      <section aria-labelledby="audio-heading">
+        <h2 id="audio-heading">Audio input</h2>
+        <label for="audio-device">Recording device</label>
+        <select id="audio-device"><option value="">System default</option></select>
+        <div class="actions">
+          <button id="connect-audio" type="button">Connect audio</button>
+          <button id="disconnect-audio" type="button" disabled>Disconnect</button>
+        </div>
+        <dl class="facts">
+          <div><dt>Permission</dt><dd id="audio-permission">Prompt</dd></div>
+          <div><dt>Connection</dt><dd id="audio-connection">Disconnected</dd></div>
+          <div><dt>Audio clock</dt><dd id="sample-rate">—</dd></div>
+          <div><dt>Device-reported rate</dt><dd id="device-rate">—</dd></div>
+          <div><dt>Input channels</dt><dd id="input-channels">—</dd></div>
+        </dl>
+        <label for="input-level">Input peak</label>
+        <div class="level">
+          <meter id="input-level" min="0" max="1" value="0" high="0.88" optimum="0.5"></meter>
+          <output id="level-db" aria-live="off">−∞ dBFS</output>
+        </div>
+      </section>
+
+      <section aria-labelledby="midi-heading">
+        <h2 id="midi-heading">MIDI input</h2>
+        <label for="midi-device">Controller</label>
+        <select id="midi-device" disabled><option value="">Select an input</option></select>
+        <div class="actions">
+          <button id="enable-midi" type="button">Enable MIDI</button>
+          <button id="clear-midi" type="button" disabled>Clear held notes</button>
+        </div>
+        <dl class="facts">
+          <div><dt>Permission</dt><dd id="midi-permission">Prompt</dd></div>
+          <div><dt>Connection</dt><dd id="midi-connection">Disconnected</dd></div>
+          <div><dt>Akai</dt><dd id="akai-status">—</dd></div>
+          <div><dt>Held notes</dt><dd id="held-notes">0</dd></div>
+        </dl>
+        <ol class="log midi-log" id="midi-log" aria-label="MIDI events"></ol>
+      </section>
+    </div>
+
+    <section aria-labelledby="transport-heading">
+      <h2 id="transport-heading">Loop transport</h2>
+      <div class="settings">
+        <label for="tempo">Tempo (BPM)
+          <input id="tempo" type="number" value="120" min="40" max="240" step="1">
+        </label>
+        <label for="bars">Loop length
+          <select id="bars">
+            <option value="2">2 bars</option>
+            <option value="4" selected>4 bars</option>
+            <option value="8">8 bars</option>
+          </select>
+        </label>
+        <p id="region-length" aria-live="polite"></p>
+      </div>
+      <div class="actions">
+        <button id="record-base" class="primary" type="button" disabled>Record base</button>
+        <button id="record-layer" class="primary" type="button" disabled>Record second take</button>
+        <button id="play-loop" type="button" disabled>Play loop</button>
+        <button id="stop" type="button" disabled>Stop</button>
+      </div>
+      <p id="notice" role="status">Connect audio to record. Each pass starts with one bar of clicks.</p>
+      <dl class="facts clock">
+        <div><dt>Transport</dt><dd id="transport-state" data-state="idle">Idle</dd></div>
+        <div><dt>Position</dt><dd id="transport-position">—</dd></div>
+        <div><dt>Saved frames</dt><dd id="saved-frames">0</dd></div>
+        <div><dt>Overflow frames</dt><dd id="overflow-frames">0</dd></div>
+      </dl>
+      <ol class="log clock-log" id="clock-log" aria-label="Recording and playback timing"></ol>
+    </section>
+
+    <section aria-labelledby="takes-heading">
+      <h2 id="takes-heading">Local recordings</h2>
+      <p id="storage-state">Opening local storage…</p>
+      <ul class="takes" id="takes"></ul>
+      <div id="unsaved-take" hidden>
+        <p>These frames are in memory. Download the WAV before reloading.</p>
+        <div class="actions">
+          <button id="export-unsaved" type="button">Download unsaved WAV</button>
+          <button id="dismiss-unsaved" type="button">Dismiss</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
