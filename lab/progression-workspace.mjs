@@ -1,6 +1,6 @@
 import { formatNote, parseNote } from "./engine/index.js";
 import { chordDiagramModel } from "./progression/voicings.js";
-import { cycleChordVoicing, generateWorkspace, toggleChordLock } from "./progression/workspace.js";
+import { generateWorkspace, toggleChordLock } from "./progression/workspace.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
 import { resolveGenerateChoice } from "./progression-selection.mjs";
@@ -160,53 +160,100 @@ function monitorTransport() {
 }
 
 function stopPlayback() {
+  audioStatusTicket++;
   audio.stop();
   if (animationFrame !== null) cancelAnimationFrame(animationFrame);
   animationFrame = null;
   paintTransport();
 }
 
-function applyGeneration(seed) {
-  const result = generateWorkspace({ tonic: parseNote(tonicInput.value), mode: modeInput.value, seed }, workspace);
+function applyGeneration() {
+  const locks = workspace?.cards.filter(({ slot }) => slot.isLocked).length ?? 0;
+  const previous = workspace ? {
+    tonic: formatNote(workspace.context.tonic),
+    mode: workspace.context.mode,
+  } : null;
+  const attempts = shapeInput.value === "open" && !locks && tonicInput.value === "all" ? 80 : 1;
+  let result;
+  for (let attempt = 0; attempt < attempts; attempt++) {
+    const choice = resolveGenerateChoice({
+      keyChoice: tonicInput.value,
+      modeChoice: modeInput.value,
+      lockedCount: locks,
+      previous,
+      randomUint32,
+    });
+    result = generateWorkspace({
+      tonic: parseNote(choice.tonic), mode: choice.mode, seed: choice.seed,
+    }, workspace);
+    if (!result.ok || shapeInput.value !== "open") break;
+    if (result.data.cards.every((card) => card.voicings.some((v) => v.shapeFamily === "open"))) break;
+  }
   if (!result.ok) {
-    const keep = workspace ? " The current progression is still available." : "";
-    const recovery = result.error.code === "LOCK_OUT_OF_MODE" ? " Unlock that chord or choose another key and mode." : "";
-    setMessage(result.error.message + "." + recovery + keep, true);
+    const recovery = result.error.code === "LOCK_OUT_OF_MODE"
+      ? " Unlock that chord or choose another key and mode." : "";
+    setMessage(result.error.message + "." + recovery + " Your current progression is still available.", true);
     return;
   }
-
   stopPlayback();
-  const prior = workspace;
   workspace = result.data;
-  playButton.disabled = !workspace.cards.every((card) => card.voicings.length > 0);
+  selectedCard = 0;
+  updatePlayAvailability();
   transportMessage.textContent = playButton.disabled
-    ? "At least one chord has no supported guitar grip. Playback is unavailable for this progression."
-    : "Ready. Play the four-chord loop or use Hear chord on an individual card.";
+    ? "Some chords have no matching shape. Try Open and barre to enable playback."
+    : "Ready. Play the progression, or tap a chord to hear it.";
   const { context, scale } = workspace;
-  const name = noteText(formatNote(context.tonic)) + " " + modes[context.mode];
-  const tones = scale.tones.map(({ note }) => noteText(formatNote(note)));
-  if (context.mode === "mixolydian") tones[6] += " (♭7)";
-  contextHeading.textContent = name;
-  scaleNotes.textContent = tones.join(" · ");
-  contextHeading.closest("section").hidden = false;
-  seedInput.value = String(context.seed);
+  contextHeading.textContent = noteText(formatNote(context.tonic)) + " " + modes[context.mode];
+  scaleNotes.textContent = scale.tones.map(({ note }) => noteText(formatNote(note))).join(" · ");
   renderCards();
-
+  renderBoard();
   const lockCount = workspace.cards.filter(({ slot }) => slot.isLocked).length;
-  const same = prior && workspace.cards.every(({ slot }, i) => slot.symbol === prior.cards[i].slot.symbol);
-  const status = lockCount === 4 ? " All four chords are locked."
-    : same ? " This seed selected the same chords."
-    : lockCount ? ` Kept ${lockCount} locked ${lockCount === 1 ? "chord" : "chords"}.` : "";
-  setMessage(`Seed ${seed}.${status}`);
+  setMessage(lockCount
+    ? "Kept " + lockCount + " locked " + (lockCount === 1 ? "chord." : "chords.")
+    : "New progression. Press Play, or explore the fretboard.");
 }
 
 form.addEventListener("submit", (event) => {
   event.preventDefault();
-  applyGeneration(seedInput.valueAsNumber);
+  try { applyGeneration(); } catch (problem) { setMessage(problem.message, true); }
 });
 
-document.querySelector("#regenerate").addEventListener("click", () => {
-  if (form.reportValidity()) applyGeneration((seedInput.valueAsNumber + 1) >>> 0);
+document.querySelector("#reset-workspace").addEventListener("click", () => {
+  stopPlayback();
+  workspace = undefined;
+  tonicInput.value = "all";
+  modeInput.value = "auto";
+  shapeInput.value = "all";
+  tempoInput.value = "92";
+  tempoValue.textContent = "92 BPM";
+  applyGeneration();
+});
+
+shapeInput.addEventListener("change", () => {
+  stopPlayback();
+  if (!workspace) return;
+  renderCards();
+  updatePlayAvailability();
+  transportMessage.textContent = playButton.disabled
+    ? "This shape filter excludes at least one chord. Try Open and barre."
+    : "Chord shapes updated.";
+});
+
+tempoInput.addEventListener("input", () => {
+  tempoValue.textContent = tempoInput.value + " BPM";
+  if (audio.isPlaying()) {
+    stopPlayback();
+    transportMessage.textContent = "Tempo changed. Press Play to restart the loop.";
+  }
+});
+
+document.querySelector("#show-scale").addEventListener("click", () => {
+  boardView = "scale";
+  renderBoard();
+});
+document.querySelector("#show-chords").addEventListener("click", () => {
+  boardView = "chords";
+  renderBoard();
 });
 
 cardsElement.addEventListener("click", (event) => {
@@ -221,31 +268,40 @@ cardsElement.addEventListener("click", (event) => {
     setMessage(`Chord ${slotIndex + 1} ${slot.isLocked ? "locked" : "unlocked"}.`);
   } else if (action === "voicing") {
     stopPlayback();
-    workspace = cycleChordVoicing(workspace, slotIndex, Number(step));
+    cycleAvailableVoicing(slotIndex, Number(step));
     renderCards(`[data-slot="${slotIndex}"] [data-action="voicing"][data-step="${step}"]`);
     const card = workspace.cards[slotIndex];
     setMessage(`Chord ${slotIndex + 1}, voicing ${card.voicingIndex + 1} of ${card.voicings.length}.`);
   } else if (action === "audition") {
     stopPlayback();
-    const card = workspace.cards[slotIndex];
+    const card = visibleCard(workspace.cards[slotIndex]);
+    const ticket = ++audioStatusTicket;
+    transportMessage.textContent = "Loading acoustic guitar…";
     audio.audition(card).then((played) => {
-      if (played) transportMessage.textContent = `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`;
+      if (played && ticket === audioStatusTicket) transportMessage.textContent = `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`;
     }).catch((problem) => {
-      transportMessage.textContent = problem.message;
+      if (ticket === audioStatusTicket) transportMessage.textContent = problem.message;
     });
+  } else if (action === "select") {
+    selectedCard = slotIndex;
+    boardView = "chords";
+    renderCards("[data-slot=\""+slotIndex+"\"] [data-action=\"select\"]");
+    renderBoard();
   }
 });
 
 playButton.addEventListener("click", async () => {
   if (!workspace) return;
   stopPlayback();
+  const ticket = ++audioStatusTicket;
+  transportMessage.textContent = "Loading acoustic guitar…";
   try {
-    const started = await audio.play(workspace.cards, tempoInput.valueAsNumber);
-    if (!started) return;
+    const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber);
+    if (!started || ticket !== audioStatusTicket) return;
     transportMessage.textContent = "Playing four-chord loop. Stop before editing the progression.";
     monitorTransport();
   } catch (problem) {
-    transportMessage.textContent = problem.message;
+    if (ticket === audioStatusTicket) transportMessage.textContent = problem.message;
     paintTransport();
   }
 });
@@ -256,4 +312,4 @@ stopButton.addEventListener("click", () => {
 });
 
 window.addEventListener("pagehide", () => stopPlayback());
-applyGeneration(seedInput.valueAsNumber);
+applyGeneration();
