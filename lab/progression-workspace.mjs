@@ -20,6 +20,13 @@ const qualities = { major: "major", minor: "minor", diminished: "diminished", au
 const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 
 const form = document.querySelector("#generate-form");
+const advancedSettings = document.querySelector("#advanced-settings");
+const quickControls = document.querySelector("#quick-controls");
+for (const id of ["tonic", "mode", "style", "meter", "drum-groove", "guitar-tone", "shape-filter", "tempo"]) {
+  const field = document.getElementById(id)?.closest(".field");
+  if (!field) throw new Error("Missing quick setting: " + id);
+  quickControls.append(field);
+}
 const settingsSwitch = form.querySelector(".settings-switch");
 const tonicInput = document.querySelector("#tonic");
 const modeInput = document.querySelector("#mode");
@@ -208,6 +215,7 @@ function renderCards(restoreFocus) {
       playable: getPlayableVoicings(choice.chord).some((grip) => matchesVoicingFilter(grip, shapeInput.value)),
     }));
   cardsElement.innerHTML = workspace.cards.map(visibleCard).map((card) => renderCard(card, choices)).join("");
+  window.dispatchEvent(new Event("progression-changed"));
   if (restoreFocus) {
     cardsElement.querySelector(restoreFocus)?.focus({ preventScroll: true });
   }
@@ -344,6 +352,16 @@ function rhythmChanged(text) {
   }
 }
 
+function syncQuickTrackButtons() {
+  for (const [track, selector] of [["drums", "#quick-drums"], ["guitar", "#quick-guitar"]]) {
+    const button = document.querySelector(selector);
+    const muted = document.querySelector("#" + track + "-mute").checked;
+    button.setAttribute("aria-pressed", String(!muted));
+    button.textContent = (track === "drums" ? "Rhythm" : "Chords") + (muted ? " off" : " on");
+    button.title = (muted ? "Enable " : "Mute ") + track + " accompaniment";
+  }
+}
+
 const trackControls = Object.keys(DEFAULT_MIX).map((track) => {
   const volume = document.querySelector("#" + track + "-volume");
   const mute = document.querySelector("#" + track + "-mute");
@@ -351,12 +369,28 @@ const trackControls = Object.keys(DEFAULT_MIX).map((track) => {
   const update = () => {
     value.textContent = volume.value + "%";
     audio.setTrackMix(track, volume.valueAsNumber / 100, mute.checked);
+    syncQuickTrackButtons();
   };
   volume.addEventListener("input", update);
   mute.addEventListener("change", update);
   return { track, volume, mute, update };
 });
 
+for (const [track, selector] of [["drums", "#quick-drums"], ["guitar", "#quick-guitar"]]) {
+  document.querySelector(selector).addEventListener("click", () => {
+    const control = trackControls.find((candidate) => candidate.track === track);
+    control.mute.checked = !control.mute.checked;
+    control.update();
+    transportMessage.textContent = (track === "drums" ? "Rhythm" : "Chords") +
+      (control.mute.checked ? " muted." : " enabled.");
+  });
+}
+document.querySelector("#quick-mix").addEventListener("click", () => {
+  advancedSettings.open = true;
+  showSettings("rhythm");
+  document.querySelector("#guitar-volume").focus();
+});
+syncQuickTrackButtons();
 toneInput.addEventListener("change", () => audio.setTone(toneInput.value));
 
 meterInput.addEventListener("change", () => {
