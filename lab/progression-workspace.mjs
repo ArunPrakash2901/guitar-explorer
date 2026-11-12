@@ -144,7 +144,9 @@ function renderBoard() {
   const { tonic, mode } = workspace.context;
   const layer = scaleLayerInput.value;
   const scale = layer === "context" ? workspace.scale : buildScale({ tonic, scaleId: layer });
-  const chord = workspace.cards[selectedCard].slot.chord;
+  const keyChoices = listProgressionChoices(tonic, mode);
+  const selectedKeyChord = keyChoices[keyPreviewDegree - 1] ?? keyChoices[0];
+  const chord = boardView === "key" ? selectedKeyChord.chord : workspace.cards[selectedCard].slot.chord;
   const root = noteText(formatNote(tonic));
   const gripQuality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
     : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
@@ -152,8 +154,10 @@ function renderBoard() {
   const scaleName = layer === "context" ? modes[mode] + " scale"
     : layer === "majorPentatonic" ? "major pentatonic" : "minor pentatonic";
   fretboardTitle.textContent = boardView === "scale" ? root + " " + scaleName
+    : boardView === "key" ? root + " " + modes[mode] + " key chords"
     : noteText(workspace.cards[selectedCard].slot.symbol) + " chord tones";
   const description = boardView === "scale" ? "Scale degrees across six strings."
+    : boardView === "key" ? "Seven triads harmonized from this scale. Select a chord below to inspect its notes."
     : "Chord " + (selectedCard + 1) + " in the " + root + " " + modes[mode] + " progression.";
   const positionDescription = position ? " " + position.family + " form, frets " + position.fromFret + "–" + position.toFret + "." : "";
   const gripDescription = position && boardView === "scale"
@@ -161,23 +165,60 @@ function renderBoard() {
     : "";
   fretboardDescription.textContent = description + positionDescription + gripDescription;
   scaleLayerControl.hidden = boardView !== "scale";
+  keyChordsGrid.hidden = boardView !== "key";
+  if (boardView === "key") {
+    keyChordsGrid.innerHTML = keyChoices.map((choice) =>
+      '<button type="button" data-degree="' + choice.degree +
+      '" aria-pressed="' + (choice.degree === keyPreviewDegree) + '">' +
+      choice.romanNumeral + ' · ' + noteText(choice.symbol) + '</button>').join("");
+  }
   for (const button of cardsElement.querySelectorAll("[data-action=select]")) {
     button.setAttribute("aria-pressed", String(boardView === "chords" && Number(button.closest("[data-slot]").dataset.slot) === selectedCard));
   }
   for (const button of cagedControls.querySelectorAll("button")) {
     button.setAttribute("aria-pressed", String(button.dataset.position === boardPosition));
   }
-  for (const view of ["scale", "chords"]) {
-    const button = document.querySelector(view === "scale" ? "#show-scale" : "#show-chords");
+  for (const view of ["scale", "key", "chords"]) {
+    const button = document.querySelector(view === "scale" ? "#show-scale"
+      : view === "key" ? "#show-key-chords" : "#show-chords");
     button.classList.toggle("selected", boardView === view);
     button.setAttribute("aria-pressed", String(boardView === view));
   }
-  renderScaleBoard(fretboard, scale, chord, boardView, (note) => {
+  renderScaleBoard(fretboard, scale, chord, boardView === "scale" ? "scale" : "chords", (note) => {
     const ticket = beginAudio("Loading acoustic note…");
     audio.audition({ voicingIndex: 0, voicings: [{ notes: [note] }] }).then((played) => {
       if (played) finishAudio(ticket, note.note + " sounded.");
     }).catch((problem) => finishAudio(ticket, problem.message));
-  }, position);
+  }, position, {
+    labels: fretLabels.value, highlight: fretHighlights.value, modeName: mode,
+  });
+}
+
+document.querySelector("#show-key-chords").addEventListener("click", () => {
+  boardView = "key";
+  renderBoard();
+});
+keyChordsGrid.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-degree]");
+  if (!button || !workspace) return;
+  keyPreviewDegree = Number(button.dataset.degree);
+  renderBoard();
+  keyChordsGrid.querySelector('[data-degree="' + keyPreviewDegree + '"]')?.focus();
+  const choice = listProgressionChoices(workspace.context.tonic, workspace.context.mode)[keyPreviewDegree - 1];
+  const voicing = getPlayableVoicings(choice.chord)[0];
+  if (!voicing) {
+    setMessage("The selected chord has no supported guitar grip.", true);
+    return;
+  }
+  const ticket = beginAudio("Loading key chord…");
+  audio.audition({ voicingIndex: 0, voicings: [voicing] }).then((played) => {
+    if (played) finishAudio(ticket, "Heard " + noteText(choice.symbol) + " from the selected key.");
+  }).catch((problem) => finishAudio(ticket, problem.message));
+});
+for (const control of [fretLabels, fretHighlights]) {
+  control.addEventListener("change", () => {
+    if (workspace) renderBoard();
+  });
 }
 
 function chordChoiceValue(degree, chordId) {
