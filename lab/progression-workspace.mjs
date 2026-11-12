@@ -39,6 +39,23 @@ let workspace;
 let selectedCard = 0;
 let boardView = "scale";
 let audioStatusTicket = 0;
+let audioPending = false;
+
+function beginAudio(text) {
+  stopPlayback();
+  audioPending = true;
+  transportMessage.textContent = text;
+  paintTransport();
+  return ++audioStatusTicket;
+}
+
+function finishAudio(ticket, text) {
+  if (ticket !== audioStatusTicket) return false;
+  audioPending = false;
+  transportMessage.textContent = text;
+  monitorTransport();
+  return true;
+}
 
 function setMessage(text, isError = false) {
   message.textContent = text;
@@ -102,14 +119,10 @@ function renderBoard() {
     button.setAttribute("aria-pressed", String(boardView === view));
   }
   renderScaleBoard(fretboard, scale, chord, boardView, (note) => {
-    stopPlayback();
-    const ticket = ++audioStatusTicket;
-    transportMessage.textContent = "Loading acoustic note…";
+    const ticket = beginAudio("Loading acoustic note…");
     audio.audition({ voicingIndex: 0, voicings: [{ notes: [note] }] }).then((played) => {
-      if (played && ticket === audioStatusTicket) transportMessage.textContent = note.note + " sounded.";
-    }).catch((problem) => {
-      if (ticket === audioStatusTicket) transportMessage.textContent = problem.message;
-    });
+      if (played) finishAudio(ticket, note.note + " sounded.");
+    }).catch((problem) => finishAudio(ticket, problem.message));
   });
 }
 
@@ -124,7 +137,7 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
     <div class="card-heading">
       <div class="card-identity">
         <p class="card-roman">${romanNumeral}</p>
-        <button type="button" class="chord-select" data-action="select" aria-label="Show chord ${number} tones: ${spokenChord}">${title}</button>
+        <button type="button" class="chord-select" data-action="select" aria-pressed="${boardView === "chords" && selectedCard === slotIndex}" aria-label="Show chord ${number} tones: ${spokenChord}">${title}</button>
       </div>
       <button class="lock-button" type="button" data-action="lock" aria-label="Lock chord ${number}, ${spokenChord}" aria-pressed="${isLocked}">
         ${isLocked ? "Locked" : "Lock"}
@@ -163,17 +176,18 @@ function paintTransport() {
     const selected = audio.isPlaying() && Number(card.dataset.slot) === active;
     card.dataset.playing = String(selected);
   });
-  stopButton.disabled = !audio.isPlaying();
+  stopButton.disabled = !audioPending && !audio.isActive();
 }
 
 function monitorTransport() {
   paintTransport();
-  if (audio.isPlaying()) animationFrame = requestAnimationFrame(monitorTransport);
+  if (audio.isActive()) animationFrame = requestAnimationFrame(monitorTransport);
   else animationFrame = null;
 }
 
 function stopPlayback() {
   audioStatusTicket++;
+  audioPending = false;
   audio.stop();
   if (animationFrame !== null) cancelAnimationFrame(animationFrame);
   animationFrame = null;
@@ -186,7 +200,8 @@ function applyGeneration() {
     tonic: formatNote(workspace.context.tonic),
     mode: workspace.context.mode,
   } : null;
-  const attempts = shapeInput.value === "open" && !locks && tonicInput.value === "all" ? 80 : 1;
+  const autoContext = tonicInput.value === "all" || modeInput.value === "auto";
+  const attempts = shapeInput.value === "open" && !locks && autoContext ? 48 : 1;
   let result;
   for (let attempt = 0; attempt < attempts; attempt++) {
     const choice = resolveGenerateChoice({
@@ -206,6 +221,10 @@ function applyGeneration() {
     const recovery = result.error.code === "LOCK_OUT_OF_MODE"
       ? " Unlock that chord or choose another key and mode." : "";
     setMessage(result.error.message + "." + recovery + " Your current progression is still available.", true);
+    return;
+  }
+  if (result.data.cards.some((card) => visibleIndices(card).length === 0)) {
+    setMessage("No playable progression matched the chord shape filter. Choose Open and barre or change the key or mode.", true);
     return;
   }
   stopPlayback();
@@ -286,7 +305,7 @@ shapeInput.addEventListener("change", () => {
 
 tempoInput.addEventListener("input", () => {
   tempoValue.textContent = tempoInput.value + " BPM";
-  if (audio.isPlaying()) {
+  if (audioPending || audio.isActive()) {
     stopPlayback();
     transportMessage.textContent = "Tempo changed. Press Play to restart the loop.";
   }
@@ -338,18 +357,14 @@ cardsElement.addEventListener("click", (event) => {
     stopPlayback();
     cycleAvailableVoicing(slotIndex, Number(step));
     renderCards(`[data-slot="${slotIndex}"] [data-action="voicing"][data-step="${step}"]`);
-    const card = workspace.cards[slotIndex];
+    const card = visibleCard(workspace.cards[slotIndex]);
     setMessage(`Chord ${slotIndex + 1}, voicing ${card.voicingIndex + 1} of ${card.voicings.length}.`);
   } else if (action === "audition") {
-    stopPlayback();
     const card = visibleCard(workspace.cards[slotIndex]);
-    const ticket = ++audioStatusTicket;
-    transportMessage.textContent = "Loading acoustic guitar…";
+    const ticket = beginAudio("Loading acoustic guitar…");
     audio.audition(card).then((played) => {
-      if (played && ticket === audioStatusTicket) transportMessage.textContent = `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`;
-    }).catch((problem) => {
-      if (ticket === audioStatusTicket) transportMessage.textContent = problem.message;
-    });
+      if (played) finishAudio(ticket, `Heard chord ${slotIndex + 1}: ${noteText(card.slot.symbol)}.`);
+    }).catch((problem) => finishAudio(ticket, problem.message));
   } else if (action === "select") {
     selectedCard = slotIndex;
     boardView = "chords";
@@ -360,19 +375,14 @@ cardsElement.addEventListener("click", (event) => {
 
 playButton.addEventListener("click", async () => {
   if (!workspace) return;
-  stopPlayback();
-  const ticket = ++audioStatusTicket;
-  transportMessage.textContent = "Loading acoustic guitar…";
+  const ticket = beginAudio("Loading acoustic guitar…");
   try {
     const started = await audio.play(workspace.cards.map(visibleCard), tempoInput.valueAsNumber, {
       meter: meterInput.value, pattern: patternInput.value,
     });
-    if (!started || ticket !== audioStatusTicket) return;
-    transportMessage.textContent = "Playing four-chord loop. Stop before editing the progression.";
-    monitorTransport();
+    if (started) finishAudio(ticket, "Playing four-chord loop.");
   } catch (problem) {
-    if (ticket === audioStatusTicket) transportMessage.textContent = problem.message;
-    paintTransport();
+    finishAudio(ticket, problem.message);
   }
 });
 
