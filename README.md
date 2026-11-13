@@ -39,12 +39,15 @@ Both have now merged into the head of the still-open learner-facing
 This **does not mean the application code is merged to `master`**.
 A merged source PR is also **not** proof an installer or app-store release exists.
 
-**For a native release:** restore GitHub Actions execution, run the exact-head
-`.github/workflows/build-personal-installers.yml` workflow, verify the
-Windows/Android binary jobs and the release-upload job, then confirm the actual
-files on [GitHub Releases](https://github.com/ArunPrakash2901/guitar-explorer/releases).
-The workflow targets the pre-release tag `personal-v0.1.0-preview`, but this
-tag is *not a download link* until GitHub has published it.
+**For a native release:** restore GitHub Actions execution, open **Actions →
+Personal Windows + Android installers → Run workflow** on `master`, then
+verify the source-check, Windows/Android builds and release-upload job.
+The workflow checks out an exact commit from `codex/guitar-practice-tools`
+without merging that learner-facing stack into `master`. Successful builds
+create a GitHub pre-release named `personal-v0.1.0-<12-character-commit-SHA>`
+with both binaries. Check the actual files on
+[GitHub Releases](https://github.com/ArunPrakash2901/guitar-explorer/releases).
+No release download exists until GitHub confirms those assets.
 
 The Windows app contains local static assets behind an isolated Electron protocol;
 the Android APK packages the same web UI in a local WebView. Neither requires a
