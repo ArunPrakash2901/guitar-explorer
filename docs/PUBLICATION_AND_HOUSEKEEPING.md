@@ -37,6 +37,27 @@ can read/manage branches and PRs but has no repository-visibility setting action
    The old `startup_failure` was pre-job and does not prove source failure,
    but conversion might not clear every billing/account restriction.
 
+## Automatic kickoff after changing visibility
+
+The default-branch workflows listen to GitHub's one-time `public` event:
+
+- `.github/workflows/bootstrap-public-preview.yml` checks out the current
+  `codex/guitar-practice-tools` head, verifies it, builds the static
+  exact-revision PR #116 preview and publishes only the
+  `gh-pages/pr-preview/pr-116/` directory. It checks the live Pages URL
+  for the exact SHA. If Pages remains 404, use Settings → Pages to ensure
+  `gh-pages` and `/(root)` are selected and rerun manually.
+- `.github/workflows/build-personal-installers.yml` verifies the same
+  staging branch, builds one Windows EXE and one Android phone/tablet APK,
+  and publishes a SHA-tagged GitHub pre-release **only if both pass**.
+- Both workflows also permit manual `workflow_dispatch` after a billing
+  or Pages restriction is repaired. A repository visibility change does
+  not itself prove any of these jobs completed successfully.
+
+Do not change the repository visibility until the history/private-asset
+review above is satisfactory. Only the repository owner can make the
+visibility change through the GitHub website in this environment.
+
 ## Preview and personal-release gates
 
 - Existing `.github/workflows/pr-preview.yml` publishes static review
