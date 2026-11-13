@@ -28,6 +28,19 @@
 .interval-movement { margin: .5rem auto; display: flex; justify-content: center; flex-wrap: wrap; gap: .35rem 1.2rem; font-size: .83rem; color: var(--muted); }
 .interval-movement[hidden] { display: none; }
 .trainer-credit { margin: .9rem 0; text-align: center; color: var(--muted); font-size: .78rem; }
+.arpeggio-options { display: flex; flex-wrap: wrap; gap: .35rem 1.2rem; margin-top: .65rem; }
+.arpeggio-roles, #tab-position { margin: .4rem 0; color: var(--muted); font-size: .86rem; }
+.tab-scroll { overflow-x: auto; max-width: 68rem; margin: .5rem auto 0; }
+.trainer-tab { display: block; margin-inline: auto; font: .84rem system-ui, sans-serif; fill: var(--text); }
+.trainer-tab line { stroke: var(--muted); }
+.trainer-tab .tab-bar { stroke-width: 2px; }
+.tab-note rect { fill: var(--panel); }
+.tab-note text { font-weight: 750; }
+.tab-note .tab-role { fill: var(--muted); }
+.tab-note[data-role="root"] .tab-role { fill: var(--warm); }
+.tab-current rect { fill: var(--forest); }
+.tab-current text { fill: var(--on-forest); }
+.tab-current .tab-role { fill: var(--forest); }
 @media (max-width: 900px) { .trainer-settings { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (max-width: 530px) {
   .trainer-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
