@@ -114,6 +114,26 @@ for (const context of listGenerateChoices({ keyChoice: "all", modeChoice: "auto"
   assert.ok(result.data.cards.every(({ voicings }) => voicings.length > 0));
 }
 
+const { STYLE_PRESETS } = await import(new URL("progression-style-presets.mjs", outputRoot));
+const accents = new Set();
+for (const [style, preset] of Object.entries(STYLE_PRESETS)) {
+  const { meter, pattern, groove, bpm } = preset;
+  const first = planProgressionStrokes(Array.from({ length: 16 }, () => cards[0]), bpm, { meter, pattern, groove, fill: true });
+  assert.deepEqual(first, planProgressionStrokes(Array.from({ length: 16 }, () => cards[0]), bpm, { meter, pattern, groove, fill: true }));
+  assert.equal(first.loopSeconds, first.secondsPerBar * 16);
+  assert.ok(first.strokes.every((stroke) => stroke.seconds < first.loopSeconds && stroke.level <= 1));
+  assert.ok(first.drumHits.every(({ voice }) => ["kick", "snare", "hat"].includes(voice)));
+  assert.ok(first.strokes.some(({ level }, index) => level !== first.strokes[index + 1]?.level));
+  accents.add(JSON.stringify(first.strokes.filter(({ slotIndex }) => slotIndex === 0).map(({ step, direction, notes }) => [step, direction, notes.length])));
+  if (style === "bossa" || style === "country" || style === "ballad") assert.equal(first.strokes[0].notes.length, 1);
+  if (style === "reggae") {
+    assert.equal(first.strokes[0].seconds, 30 / bpm);
+    assert.equal(first.drumHits.find(({ voice }) => voice === "kick").seconds, 120 / bpm);
+  }
+  if (style === "country") assert.ok(Math.abs(first.strokes[1].seconds - 40 / bpm) < 1e-10);
+}
+assert.equal(accents.size, 6);
+
 const options44 = patternsForMeter("4/4");
 assert.ok(options44.some(({ id }) => id === "acoustic-pop"));
 assert.equal(DEFAULT_PATTERN["6/8"], "rolling-six-eight");

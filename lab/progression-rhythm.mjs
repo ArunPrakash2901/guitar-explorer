@@ -11,8 +11,8 @@ export const METERS = Object.freeze({
   "6/8": Object.freeze({ pulses: 2, subdivisions: 3, pulseUnit: "dotted-quarter" }),
 });
 
-function stroke(step, direction = "down", level = 1) {
-  return Object.freeze({ step, direction, level });
+function stroke(step, direction = "down", level = 1, articulation, gate) {
+  return Object.freeze({ step, direction, level, ...(articulation ? { articulation, gate } : {}) });
 }
 
 export const RHYTHM_PATTERNS = Object.freeze([
@@ -30,6 +30,27 @@ export const RHYTHM_PATTERNS = Object.freeze([
   Object.freeze({ id: "blues-shuffle", meter: "4/4", name: "Blues shuffle", subdivisions: 3,
     strokes: Object.freeze([stroke(0), stroke(2, "up", .55), stroke(3, "down", .8), stroke(5, "up", .48),
       stroke(6, "down", .9), stroke(8, "up", .52), stroke(9, "down", .78), stroke(11, "up", .5)]) }),
+  Object.freeze({ id: "funk-syncopation", meter: "4/4", name: "Funk syncopation", subdivisions: 4,
+    variation: true, strokes: Object.freeze([stroke(0,"down",1,"upper",.46), stroke(3,"up",.58,"upper",.42),
+      stroke(6,"down",.74,"upper",.44), stroke(7,"up",.38,"upper",.4), stroke(10,"down",.86,"upper",.47),
+      stroke(13,"up",.52,"upper",.4), stroke(15,"up",.47,"upper",.38)]) }),
+  Object.freeze({ id: "reggae-offbeat", meter: "4/4", name: "Reggae offbeats", variation: true,
+    strokes: Object.freeze([stroke(1,"up",.79,"upper",.27), stroke(3,"up",.66,"upper",.25),
+      stroke(5,"up",.76,"upper",.26), stroke(7,"up",.71,"upper",.24)]) }),
+  Object.freeze({ id: "bossa-bass", meter: "4/4", name: "Bossa bass and chords", subdivisions: 4,
+    variation: true, strokes: Object.freeze([stroke(0,"down",.9,"bass",.86), stroke(2,"up",.62,"upper",.7),
+      stroke(6,"down",.73,"upper",.75), stroke(8,"down",.78,"bass",.85),
+      stroke(11,"up",.52,"upper",.73), stroke(14,"up",.63,"upper",.69)]) }),
+  Object.freeze({ id: "country-shuffle", meter: "4/4", name: "Country shuffle", subdivisions: 3,
+    variation: true, strokes: Object.freeze([stroke(0,"down",1,"bass",.78), stroke(2,"up",.54,"upper",.85),
+      stroke(3,"down",.76), stroke(5,"up",.46,"upper",.7), stroke(6,"down",.93,"bass",.76),
+      stroke(8,"up",.53,"upper",.85), stroke(9,"down",.81), stroke(11,"up",.49,"upper",.7)]) }),
+  Object.freeze({ id: "soul-pocket", meter: "4/4", name: "Soul pocket", subdivisions: 4,
+    variation: true, strokes: Object.freeze([stroke(0,"down",.77), stroke(3,"up",.48,"upper",.75),
+      stroke(7,"up",.58,"upper",.76), stroke(10,"down",.92), stroke(14,"up",.54,"upper",.77)]) }),
+  Object.freeze({ id: "ballad-bass", meter: "6/8", name: "Ballad bass and chords", variation: true,
+    strokes: Object.freeze([stroke(0,"down",.86,"bass",.84), stroke(1,"down",.65,"upper",.98),
+      stroke(3,"down",.73,"bass",.82), stroke(4,"down",.58,"upper",.93)]) }),
   Object.freeze({ id: "waltz", meter: "3/4", name: "Waltz",
     strokes: Object.freeze([stroke(0, "down", 1), stroke(2, "down", .58), stroke(4, "down", .63)]) }),
   Object.freeze({ id: "waltz-sway", meter: "3/4", name: "Waltz sway",
@@ -78,7 +99,7 @@ export function rhythmPlan(meter, patternId, bpm) {
   });
   return Object.freeze({
     meter, pattern: pattern.id, bpm, pulseUnit: definition.pulseUnit,
-    secondsPerPulse, secondsPerBar, secondsPerStep, stepsPerBar,
+    secondsPerPulse, secondsPerBar, secondsPerStep, stepsPerBar, variation: pattern.variation === true,
     strokes: Object.freeze(strokes),
   });
 }

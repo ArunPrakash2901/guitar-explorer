@@ -60,22 +60,28 @@ export function planProgressionStrokes(cards, bpm, options = {}) {
   const drumHits = [];
   const clickHits = [];
   for (let slotIndex = 0; slotIndex < cards.length; slotIndex += 1) {
-    const notes = soundingNotes(cards[slotIndex]);
+    const chordNotes = soundingNotes(cards[slotIndex]);
+    const endsPhrase = (slotIndex + 1) % 4 === 0 || slotIndex === cards.length - 1;
     for (const [index, event] of groove.strokes.entries()) {
+      const notes = event.articulation === "bass" ? chordNotes.slice(0, 1)
+        : event.articulation === "upper" ? chordNotes.slice(-3) : chordNotes;
+      const accent = groove.variation ? [.97, 1, .94, 1.02][(slotIndex + index) % 4] : 1;
+      const phraseAccent = groove.variation && endsPhrase && index === groove.strokes.length - 1 ? 1.06 : 1;
       const untilNext = (groove.strokes[index + 1]?.seconds ?? secondsPerBar) - event.seconds;
       strokes.push(Object.freeze({
         kind: "strum", slotIndex,
         beat: event.step / (secondsPerBeat / groove.secondsPerStep),
         step: event.step,
         direction: event.direction,
-        level: event.level,
-        sustain: Math.min(1.38, Math.max(0.23, untilNext + .09)),
+        level: Math.min(1, event.level * accent * phraseAccent),
+        sustain: event.gate ? Math.max(.065, Math.min(1.25, untilNext * event.gate))
+          : Math.min(1.38, Math.max(0.23, untilNext + .09)),
+        spread: groove.variation ? (event.direction === "up" ? .009 : .013) + (slotIndex % 2) * .002 : undefined,
         seconds: slotIndex * secondsPerBar + event.seconds,
         notes,
         midis: Object.freeze(notes.map(({ semitone }) => semitone)),
       }));
     }
-    const endsPhrase = (slotIndex + 1) % 4 === 0 || slotIndex === cards.length - 1;
     for (const hit of endsPhrase ? fillHits : barHits) {
       drumHits.push(Object.freeze({ ...hit, kind: "drum", slotIndex, seconds: slotIndex * secondsPerBar + hit.seconds }));
     }
@@ -237,11 +243,11 @@ export class ProgressionAudio {
     ]);
   }
 
-  scheduleStrum(notes, when, direction = "down", level = 1, sustain = 1.25) {
+  scheduleStrum(notes, when, direction = "down", level = 1, sustain = 1.25, spreadSeconds) {
     const context = this.context;
     const upward = direction === "up";
     const ordered = [...notes].sort((a, b) => upward ? b.stringIndex - a.stringIndex : a.stringIndex - b.stringIndex);
-    const spread = upward ? 0.010 : 0.014;
+    const spread = spreadSeconds ?? (upward ? 0.010 : 0.014);
     const peak = 0.45 * Math.sqrt(level / ordered.length);
     for (let index = 0; index < ordered.length; index += 1) {
       const note = ordered[index];
@@ -344,7 +350,7 @@ export class ProgressionAudio {
       work += 1;
       if (when < floor) continue;
       if (event.kind === "drum" || event.kind === "click") this.scheduleDrum(event.voice, when, event.level, event.kind === "click");
-      else this.scheduleStrum(event.notes, when, event.direction, event.level, event.sustain);
+      else this.scheduleStrum(event.notes, when, event.direction, event.level, event.sustain, event.spread);
     }
   }
 
