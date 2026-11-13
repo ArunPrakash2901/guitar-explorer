@@ -30,12 +30,14 @@ The intended *personal test* binaries are:
 | Windows 10/11 x64 | `GuitarExplorer-Setup-0.1.0-x64.exe` | Electron + NSIS |
 | Android phone/tablet | `GuitarExplorer-Android-Phone-Tablet.apk` | Capacitor + Android debug APK |
 
-The installer source and the opt-in release workflow are in
-[PR #118](https://github.com/ArunPrakash2901/guitar-explorer/pull/118),
-stacked on the [PWA packaging PR #117](https://github.com/ArunPrakash2901/guitar-explorer/pull/117)
-and the learner-facing [progression/trainer PR #116](https://github.com/ArunPrakash2901/guitar-explorer/pull/116).
-The precise status must be read from GitHub; a merged PR is **not** proof that
-an installer or app-store release exists.
+The installer source began in
+[PR #118](https://github.com/ArunPrakash2901/guitar-explorer/pull/118)
+and was merged into the PWA staging branch through
+[PR #117](https://github.com/ArunPrakash2901/guitar-explorer/pull/117).
+Both have now merged into the head of the still-open learner-facing
+[progression/trainer PR #116](https://github.com/ArunPrakash2901/guitar-explorer/pull/116).
+This **does not mean the application code is merged to `master`**.
+A merged source PR is also **not** proof an installer or app-store release exists.
 
 **For a native release:** restore GitHub Actions execution, run the exact-head
 `.github/workflows/build-personal-installers.yml` workflow, verify the
