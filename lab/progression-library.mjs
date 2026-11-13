@@ -1,15 +1,16 @@
 import { formatNote, parseNote } from "./engine/index.js";
 import { CHORD_SUFFIXES, MOODS, PROGRESSION_COLORS, PROGRESSION_LENGTHS, STYLES } from "./progression/generator.js";
+import { LEGACY_COLORS, selectedChordColors } from "./progression/chord-colors.js";
 import { CAGED_FAMILIES } from "./progression/caged.js";
 import { generateWorkspace, replaceWorkspaceChord } from "./progression/workspace.js";
 import { GUITAR_TONES } from "./progression-audio.mjs";
 import { DEFAULT_RHYTHM_EDIT, getGrooveGrid, groovesForMeter, validDrumParts } from "./progression-grooves.mjs";
 import { METERS, patternsForMeter } from "./progression-rhythm.mjs";
-import { MODE_CHOICES, TONIC_CHOICES } from "./progression-selection.mjs";
+import { MODE_CHOICES, MODE_NAMES as modeNames, TONIC_CHOICES } from "./progression-selection.mjs";
 
 export const FAVORITES_KEY = "guitar-explorer-progression-favorites-v1";
 export const SHARE_PREFIX = "#p=";
-const VERSION = 2;
+const VERSION = 3;
 const MAX_TOKEN_LENGTH = 3400;
 const MAX_FAVORITES = 24;
 export const MAX_FAVORITE_NAME = 48;
@@ -18,17 +19,13 @@ export const DEFAULT_EXPLORER = Object.freeze({
   keyDegree: 1, diagramLabels: "fingers", diagramHighlight: "root",
   fretLabels: "degrees", fretHighlights: "root", scaleMode: "once",
 });
-const modeNames = {
-  major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian",
-  lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian",
-};
 const exactInteger = (value, min, max) => Number.isInteger(value) && value >= min && value <= max;
 const bool = (value) => typeof value === "boolean";
 
 function validateSnapshot(input) {
   if (!input || typeof input !== "object") throw new Error("Missing progression state.");
   const { v, k, m, s, c, p } = input;
-  if ((v !== 1 && v !== VERSION) || !TONIC_CHOICES.includes(k) || !MODE_CHOICES.includes(m) ||
+  if (![1, 2, VERSION].includes(v) || !TONIC_CHOICES.includes(k) || !MODE_CHOICES.includes(m) ||
       !exactInteger(s, 0, 0xffffffff) || !Array.isArray(c) || !PROGRESSION_LENGTHS.includes(c.length) || !p || typeof p !== "object") {
     throw new Error("The progression link has an unsupported version or musical context.");
   }
@@ -40,10 +37,12 @@ function validateSnapshot(input) {
       !bool(locked)) throw new Error("The progression contains an invalid chord or grip.");
     return [degree, quality, grip, locked];
   });
-  const { keyAuto, modeAuto, style, mood, color, shape, bpm, meter, pattern, groove, tone,
+  const { keyAuto, modeAuto, style, mood, shape, bpm, meter, pattern, groove, tone,
     guitar, drums, guitarMuted, drumsMuted, view, position, layer, selected } = p;
+  const colors = selectedChordColors(v === VERSION ? p.colors :
+    PROGRESSION_COLORS.includes(p.color) ? LEGACY_COLORS[p.color] : null);
   if (!bool(keyAuto) || !bool(modeAuto) || !STYLES.includes(style) || !MOODS.includes(mood) ||
-    !PROGRESSION_COLORS.includes(color) || !["all", "open", "barre", "triad"].includes(shape) ||
+    colors === null || !["all", "open", "barre", "triad"].includes(shape) ||
     !exactInteger(bpm, 50, 180) || typeof meter !== "string" || !Object.hasOwn(METERS, meter) ||
     !patternsForMeter(meter).some(({ id }) => id === pattern) || !groovesForMeter(meter).some(({ id }) => id === groove) ||
     !GUITAR_TONES.includes(tone) || !exactInteger(guitar, 0, 100) || !exactInteger(drums, 0, 100) ||
@@ -64,7 +63,7 @@ function validateSnapshot(input) {
     throw new Error("The progression contains invalid drum settings.");
   }
   return { v: VERSION, k, m, s, c: cards, p: {
-    keyAuto, modeAuto, style, mood, color, shape, bpm, meter, pattern, groove, tone,
+    keyAuto, modeAuto, style, mood, colors, shape, bpm, meter, pattern, groove, tone,
     guitar, drums, guitarMuted, drumsMuted, view, position, layer, selected,
     explorer: { keyDegree, diagramLabels, diagramHighlight, fretLabels, fretHighlights, scaleMode },
     rhythm: { parts: parts && [...parts], fill, click },

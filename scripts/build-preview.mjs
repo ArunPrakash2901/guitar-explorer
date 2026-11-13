@@ -86,6 +86,8 @@ const requiredPaths = [
   "progression-library-view.mjs",
   "progression-image.mjs",
   "progression-style-presets.mjs",
+  "progression-color-picker.mjs",
+  "progression/chord-colors.js",
   "samples/drums/LICENSE",
   "samples/drums/PROVENANCE.md",
   "samples/drums/kick.wav",

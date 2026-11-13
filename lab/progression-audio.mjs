@@ -375,11 +375,15 @@ export class ProgressionAudio {
   }
 
   activePracticeEvent() {
-    if (!this.playing || this.plan?.kind !== "practice") return null;
+    if (!this.playing || this.plan?.kind !== "practice" || this.context.currentTime < this.transportStartsAt) return null;
     const elapsed = this.context.currentTime - this.loopStart;
-    if (elapsed < 0 || (!this.plan.repeat && elapsed >= this.plan.loopSeconds)) return null;
+    if (!this.plan.repeat && elapsed >= this.plan.loopSeconds) return null;
     const position = elapsed % this.plan.loopSeconds;
-    return this.plan.strokes.findLast((event) => event.seconds <= position) ?? null;
+    const event = this.plan.strokes.findLast((candidate) => candidate.seconds <= position);
+    if (!event || (elapsed < this.plan.loopSeconds && event.seconds < this.transportOffset)) return null;
+    const secondsPerBeat = this.plan.countInBeat;
+    const end = event.seconds + event.duration.numerator / event.duration.denominator * secondsPerBeat;
+    return position < end ? event : null;
   }
 
   isCountingIn() {
@@ -404,6 +408,7 @@ export class ProgressionAudio {
       for (let beat = 0; beat < 4; beat++) this.scheduleDrum("hat", anchor + beat * plan.countInBeat, beat === 0 ? .9 : .47, true);
     }
     this.loopStart = this.transportStartsAt - offset;
+    this.transportOffset = offset;
     const first = plan.events.findIndex(({ seconds }) => seconds >= offset);
     this.nextEvent = first < 0 ? plan.events.length : first;
     this.pausedOffset = null;

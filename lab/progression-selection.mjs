@@ -1,4 +1,11 @@
 import { musicQueries, parseNote } from "./engine/index.js";
+import { PROGRESSION_MODES } from "./progression/generator.js";
+
+export const MODE_NAMES = Object.freeze({
+  major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian",
+  lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian", majorBlues: "major blues",
+  minorBlues: "minor blues", harmonicMinor: "harmonic minor", melodicMinorAscending: "melodic minor (jazz)",
+});
 
 function conventionalContext(tonic, mode) {
   if (mode !== "major" && mode !== "naturalMinor") return true;
@@ -12,7 +19,7 @@ function conventionalContext(tonic, mode) {
  * generation never silently discards them.
  */
 export const TONIC_CHOICES = Object.freeze(["C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab", "A", "Bb", "B"]);
-export const MODE_CHOICES = Object.freeze(["major", "naturalMinor", "dorian", "phrygian", "lydian", "mixolydian", "locrian"]);
+export const MODE_CHOICES = PROGRESSION_MODES;
 
 export function listGenerateChoices({ keyChoice, modeChoice, lockedCount = 0, previous = null, randomUint32 }) {
   if (typeof randomUint32 !== "function") throw new TypeError("Random source is required");

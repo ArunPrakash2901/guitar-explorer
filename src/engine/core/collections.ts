@@ -14,6 +14,7 @@ export const SCALE_FORMULAS: Readonly<Record<ScaleId, Formula>> = Object.freeze(
   melodicMinorAscending: formula([[1, 0], [2, 0], [3, -1], [4, 0], [5, 0], [6, 0], [7, 0]]),
   majorPentatonic: formula([[1, 0], [2, 0], [3, 0], [5, 0], [6, 0]]),
   minorPentatonic: formula([[1, 0], [3, -1], [4, 0], [5, 0], [7, -1]]),
+  majorBlues: formula([[1, 0], [2, 0], [3, -1], [3, 0], [5, 0], [6, 0]]),
   minorBlues: formula([[1, 0], [3, -1], [4, 0], [5, -1], [5, 0], [7, -1]]),
   dorian: formula([[1, 0], [2, 0], [3, -1], [4, 0], [5, 0], [6, 0], [7, -1]]),
   phrygian: formula([[1, 0], [2, -1], [3, -1], [4, 0], [5, 0], [6, -1], [7, -1]]),

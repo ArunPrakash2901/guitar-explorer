@@ -13,7 +13,7 @@ assert.ok(result.ok);
 const replaced = replaceWorkspaceChord(result.data, 1, 1, "add9");
 const workspace = cycleChordVoicing(toggleChordLock(replaced, 7), 1, 1);
 const preferences = {
-  keyAuto: true, modeAuto: false, style: "indie", mood: "bright", color: "sevenths", shape: "all",
+  keyAuto: true, modeAuto: false, style: "indie", mood: "bright", colors: ["major7", "dominant7", "minor7", "halfDiminished7"], shape: "all",
   bpm: 110, meter: "6/8", pattern: "six-eight", groove: "six-eight-sway", tone: "warm",
   guitar: 76, drums: 45, guitarMuted: false, drumsMuted: true, view: "chords", position: "A",
   layer: "majorPentatonic", selected: 1,
@@ -51,7 +51,7 @@ falseGrip.c[1][2] = "C:add9:open:x-9-9-9-9-9";
 assert.throws(() => restoreProgression(falseGrip), /grip is unavailable/);
 const packed = (value) => Buffer.from(JSON.stringify(value)).toString("base64url");
 for (const invalid of [
-  { ...snapshot, v: 3 }, { ...snapshot, s: -1 }, { ...snapshot, k: "H" }, { ...snapshot, c: [] },
+  { ...snapshot, v: 4 }, { ...snapshot, p: { ...preferences, colors: ["power5"] } }, { ...snapshot, s: -1 }, { ...snapshot, k: "H" }, { ...snapshot, c: [] },
   { ...snapshot, p: { ...preferences, bpm: 181 } }, { ...snapshot, p: { ...preferences, selected: 9 } },
   { ...snapshot, p: { ...preferences, groove: "pop-backbeat" } },
   { ...snapshot, p: { ...preferences, pattern: "waltz" } },
@@ -62,10 +62,13 @@ for (const invalid of [
 assert.throws(() => decodeProgression("a".repeat(3401)), /invalid format/);
 assert.throws(() => decodeProgression("%"), /invalid format/);
 
-const { explorer, rhythm, ...legacyPreferences } = preferences;
-const legacyToken = packed({ ...snapshot, v: 1, p: legacyPreferences });
+const { explorer, rhythm, colors, ...legacyPreferences } = preferences;
+const legacyToken = packed({ ...snapshot, v: 1, p: { ...legacyPreferences, color: "sevenths" } });
+const v2Token = packed({ ...snapshot, v: 2, p: { ...legacyPreferences, color: "sevenths", explorer, rhythm } });
+assert.deepEqual(restoreProgression(decodeProgression(v2Token)).preferences, preferences);
 const migrated = restoreProgression(decodeProgression(legacyToken));
 assert.deepEqual(migrated.workspace.cards, workspace.cards);
+assert.deepEqual(migrated.preferences.colors, colors);
 assert.deepEqual(migrated.preferences.explorer, DEFAULT_EXPLORER);
 assert.deepEqual(migrated.preferences.rhythm, { parts: null, fill: false, click: false });
 

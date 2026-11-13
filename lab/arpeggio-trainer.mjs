@@ -1,4 +1,4 @@
-import { parseNote, formatPitch } from "./engine/index.js";
+import { addMusicalTime, parseNote, formatPitch } from "./engine/index.js";
 import { ARPEGGIO_QUALITIES, arpeggioMaterial, arpeggioEvents } from "./progression/arpeggios.js";
 import { CAGED_FAMILIES } from "./progression/caged.js";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
@@ -19,13 +19,16 @@ const check = (name) => byId("arpeggio-" + name).checked;
 let family = "C";
 let material;
 let events = [];
-let cycling = false;
 const transport = practiceTransport({
   play, stop: byId("trainer-stop"), status: byId("trainer-status"), pauseable: true,
   highlight(event) {
     board.querySelector(".scale-playing")?.classList.remove("scale-playing");
     tab.querySelector(".tab-current")?.classList.remove("tab-current");
     if (!event) return;
+    if (event.family && event.family !== family) {
+      family = event.family;
+      render();
+    }
     const [{ stringIndex, fret }] = event.notes;
     board.querySelector(`[data-string="${stringIndex}"][data-fret="${fret}"]`)?.classList.add("scale-playing");
     const cursor = tab.querySelector(`[data-index="${event.index}"]`);
@@ -35,21 +38,6 @@ const transport = practiceTransport({
       if (x < tab.scrollLeft + 28 || x > tab.scrollLeft + tab.clientWidth - 36) {
         tab.scrollLeft = Math.max(0, x - tab.clientWidth / 2);
       }
-    }
-  },
-  onFinish() {
-    if (!cycling) return;
-    for (let offset = 1; offset <= CAGED_FAMILIES.length; offset++) {
-      const next = CAGED_FAMILIES[(CAGED_FAMILIES.indexOf(family) + offset) % CAGED_FAMILIES.length];
-      if (!readMaterial(next).path.length) continue;
-      if (!check("loop") && next === startingFamily) {
-        cycling = false;
-        break;
-      }
-      family = next;
-      render();
-      start(false);
-      break;
     }
   },
 });
@@ -85,9 +73,13 @@ function renderTab() {
   byId("tab-position").textContent = family + " shape" + (events.length ? " · " + events.length + " notes" : "");
 }
 
+function sequence(path, removeReturn = check("loop") && !check("cycle")) {
+  return arpeggioEvents(path, byId("arpeggio-direction").value, byId("arpeggio-rhythm").value, removeReturn);
+}
+
 function render() {
   material = readMaterial();
-  events = arpeggioEvents(material.path, byId("arpeggio-direction").value, byId("arpeggio-rhythm").value, check("loop") && !check("cycle"));
+  events = sequence(material.path);
   for (const button of positionButtons) button.setAttribute("aria-pressed", String(button.dataset.position === family));
   byId("trainer-board-heading").textContent = chordName(material.chord) + " · " + family + " shape";
   byId("arpeggio-roles").textContent = material.chord.tones.map((tone) =>
@@ -96,24 +88,31 @@ function render() {
   const markers = new Map(material.path.map(({ stringIndex, fret, tone }) => [stringIndex + ":" + fret,
     { label: degreeLabel(tone), role: roleNames[tone.degree].toLowerCase() }]));
   renderScaleBoard(board, null, material.chord, "chords", (note) => {
-    cycling = false;
     void transport.start([{ notes: [note], onset: { numerator: 0, denominator: 1 }, duration: { numerator: 1, denominator: 1 } }], Number(tempo.value));
   }, material.position, { markers });
   renderTab();
   play.disabled = events.length === 0;
 }
 
-let startingFamily;
-function start(first = true) {
+function start() {
   if (!events.length) return;
-  if (first) {
-    cycling = check("cycle");
-    startingFamily = family;
+  let performance = events;
+  if (check("cycle")) {
+    let onset = { numerator: 0, denominator: 1 };
+    const first = CAGED_FAMILIES.indexOf(family);
+    performance = [...CAGED_FAMILIES.slice(first), ...CAGED_FAMILIES.slice(0, first)].flatMap((position) => {
+      const part = sequence(readMaterial(position).path, false);
+      const shifted = part.map((event) => ({ ...event, family: position, onset: addMusicalTime(event.onset, onset) }));
+      const last = shifted.at(-1);
+      if (last) onset = addMusicalTime(last.onset, last.duration);
+      return shifted;
+    });
   }
-  void transport.start(events, Number(tempo.value), { loop: check("loop") && !cycling, click: check("click"), countIn: first && check("count-in") });
+  void transport.start(performance, Number(tempo.value), {
+    loop: check("loop"), click: check("click"), countIn: check("count-in"),
+  });
 }
 function refresh() {
-  cycling = false;
   transport.reset();
   render();
 }
@@ -121,7 +120,6 @@ play.addEventListener("click", () => {
   if (transport.active) transport.toggle();
   else start();
 });
-byId("trainer-stop").addEventListener("click", () => { cycling = false; });
 for (const button of positionButtons) button.addEventListener("click", () => {
   family = button.dataset.position;
   refresh();

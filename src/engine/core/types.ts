@@ -23,6 +23,7 @@ export type ScaleId =
   | "melodicMinorAscending"
   | "majorPentatonic"
   | "minorPentatonic"
+  | "majorBlues"
   | "minorBlues"
   | "dorian"
   | "phrygian"

@@ -1,11 +1,11 @@
-import { buildScale, formatNote, parseNote } from "./engine/index.js";
+import { buildScale, CHORD_CATALOG_METADATA, formatNote, parseNote } from "./engine/index.js";
 import { getCagedPosition, getScalePracticeNotes } from "./progression/caged.js";
 import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js";
 import { generateWorkspace, matchesVoicingFilter, moveWorkspaceChord, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js";
-import { listProgressionChoices, listProgressionVariants } from "./progression/generator.js";
+import { isBluesMode, listProgressionChoices, listProgressionVariants } from "./progression/generator.js";
 import { renderChordDiagram } from "./progression-diagram.mjs";
 import { renderScaleBoard } from "./progression-fretboard.mjs";
-import { listGenerateChoices } from "./progression-selection.mjs";
+import { listGenerateChoices, MODE_NAMES as modes } from "./progression-selection.mjs";
 import { DEFAULT_MIX, ProgressionAudio } from "./progression-audio.mjs";
 import { DEFAULT_EXPLORER, snapshotProgression } from "./progression-library.mjs";
 import { connectProgressionLibrary } from "./progression-library-view.mjs";
@@ -13,13 +13,11 @@ import { connectGrooveEditor } from "./progression-groove-editor.mjs";
 import { DEFAULT_RHYTHM_EDIT, groovesForMeter } from "./progression-grooves.mjs";
 import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
+import { connectChordColors } from "./progression-color-picker.mjs";
 import { STYLE_PRESETS } from "./progression-style-presets.mjs";
 
-const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian" };
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre", triad: "Three-string triad", compact: "Compact grip" };
-const qualities = { major: "major", minor: "minor", diminished: "diminished", augmented: "augmented",
-  major7: "major seventh", dominant7: "dominant seventh", minor7: "minor seventh",
-  halfDiminished7: "half diminished seventh", sus2: "suspended second", sus4: "suspended fourth", add9: "add nine" };
+const qualities = Object.fromEntries(CHORD_CATALOG_METADATA.map(({ id, displayName }) => [id, displayName.toLowerCase()]));
 const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 
 const form = document.querySelector("#generate-form");
@@ -36,7 +34,10 @@ const modeInput = document.querySelector("#mode");
 const shapeInput = document.querySelector("#shape-filter");
 const styleInput = document.querySelector("#style");
 const moodInput = document.querySelector("#mood");
-const colorInput = document.querySelector("#chord-color");
+const colors = connectChordColors(() => {
+  setMessage("Chord colors updated. Generate to use this selection.");
+  renderCards();
+});
 const toneInput = document.querySelector("#guitar-tone");
 const countInput = document.querySelector("#chord-length");
 const chordCount = document.querySelector("#chord-count");
@@ -161,7 +162,7 @@ function explorerContext() {
   const layer = scaleLayerInput.value;
   const scale = layer === "context" ? workspace.scale : buildScale({ tonic, scaleId: layer });
   const gripQuality = layer === "majorPentatonic" ? "major" : layer === "minorPentatonic" ? "minor"
-    : ["major", "lydian", "mixolydian"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
+    : ["major", "lydian", "mixolydian", "majorBlues"].includes(mode) ? "major" : mode === "locrian" ? "reference" : "minor";
   const position = boardPosition === "full" ? undefined : getCagedPosition(tonic, boardPosition, gripQuality);
   return { tonic, mode, layer, scale, position, gripQuality };
 }
@@ -170,16 +171,18 @@ function renderBoard() {
   if (!workspace) return;
   const { tonic, mode, layer, scale, position, gripQuality } = explorerContext();
   const keyChoices = listProgressionChoices(tonic, mode);
-  const selectedKeyChord = keyChoices[keyPreviewDegree - 1] ?? keyChoices[0];
+  const selectedKeyChord = keyChoices.find(({ degree }) => degree === keyPreviewDegree) ?? keyChoices[0];
+  keyPreviewDegree = selectedKeyChord.degree;
+  const blues = isBluesMode(mode);
   const chord = boardView === "key" ? selectedKeyChord.chord : workspace.cards[selectedCard].slot.chord;
   const root = noteText(formatNote(tonic));
   const scaleName = layer === "context" ? modes[mode] + " scale"
     : layer === "majorPentatonic" ? "major pentatonic" : "minor pentatonic";
   fretboardTitle.textContent = boardView === "scale" ? root + " " + scaleName
-    : boardView === "key" ? root + " " + modes[mode] + " key chords"
+    : boardView === "key" ? root + " " + modes[mode] + (blues ? " backing chords" : " key chords")
     : noteText(workspace.cards[selectedCard].slot.symbol) + " chord tones";
-  const description = boardView === "scale" ? "Scale degrees across six strings."
-    : boardView === "key" ? noteText(selectedKeyChord.symbol) + " · " + selectedKeyChord.romanNumeral + ". Select a diatonic chord to hear its grip."
+  const description = boardView === "scale" ? blues ? "Blues scale for soloing over the backing chords." : "Scale degrees across six strings."
+    : boardView === "key" ? noteText(selectedKeyChord.symbol) + " · " + selectedKeyChord.romanNumeral + ". Select a chord to hear its grip."
     : "Chord " + (selectedCard + 1) + " in the " + root + " " + modes[mode] + " progression.";
   const positionDescription = position ? " " + position.family + " form, frets " + position.fromFret + "–" + position.toFret + "." : "";
   const gripDescription = position && boardView === "scale"
@@ -234,7 +237,7 @@ keyChordsGrid.addEventListener("click", (event) => {
   keyPreviewDegree = Number(button.dataset.degree);
   renderBoard();
   keyChordsGrid.querySelector('[data-degree="' + keyPreviewDegree + '"]')?.focus();
-  const choice = listProgressionChoices(workspace.context.tonic, workspace.context.mode)[keyPreviewDegree - 1];
+  const choice = listProgressionChoices(workspace.context.tonic, workspace.context.mode).find(({ degree }) => degree === keyPreviewDegree);
   const voicing = getPlayableVoicings(choice.chord)[0];
   if (!voicing) {
     setMessage("The selected chord has no supported guitar grip.", true);
@@ -313,7 +316,9 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
   const diagram = voicing ? renderChordDiagram(chordDiagramModel(voicing), spokenChord, {
     chord, voicing, labels: diagramLabels.value, highlight: diagramHighlight.value,
   }) : "";
-  return `<li class="chord-card" data-slot="${slotIndex}" data-chord="${title}">
+  const omitted = chord.tones.filter(({ pitchClass }) => voicing && !voicing.notes.some((note) => note.pitchClass === pitchClass));
+  const gripLabel = voicing ? (omitted.length ? "Shell · " : "") + families[voicing.shapeFamily] : "";
+  return `<li class="chord-card" data-slot="${slotIndex}" data-chord="${title}" data-quality="${chord.chordId}">
     <div class="card-heading">
       <div class="card-identity">
         <p class="card-roman">${romanNumeral}</p>
@@ -332,7 +337,7 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
       </div>
       <div class="voicing-nav">
         <button type="button" data-action="voicing" data-step="-1" aria-label="Previous voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>‹</button>
-        <p><strong>${families[voicing.shapeFamily]}${bass}</strong><span>${voicingIndex + 1} of ${voicings.length}</span></p>
+        <p><strong title="${omitted.length ? "Omits " + omitted.map(({ note }) => noteText(formatNote(note))).join(", ") : ""}">${gripLabel}${bass}</strong><span>${voicingIndex + 1} of ${voicings.length}</span></p>
         <button type="button" data-action="voicing" data-step="1" aria-label="Next voicing for chord ${number}" ${voicings.length < 2 ? "disabled" : ""}>›</button>
       </div>
     ` : `<p class="unsupported">No guitar grip matches the selected shape filter.</p>`}
@@ -352,11 +357,12 @@ function renderCard({ slot, voicings, voicingIndex }, choices) {
 }
 
 function renderCards(restoreFocus) {
+  const allowed = new Set(["major", "minor", ...colors.value]);
   const choices = listProgressionVariants(workspace.context.tonic, workspace.context.mode)
     .slice().sort((a, b) => a.degree - b.degree).map((choice) => ({
       ...choice,
       value: chordChoiceValue(choice.degree, choice.chord.chordId),
-      playable: getPlayableVoicings(choice.chord).some((grip) => matchesVoicingFilter(grip, shapeInput.value)),
+      playable: allowed.has(choice.chord.chordId) && getPlayableVoicings(choice.chord).some((grip) => matchesVoicingFilter(grip, shapeInput.value)),
     }));
   cardsElement.innerHTML = workspace.cards.map(visibleCard).map((card) => renderCard(card, choices)).join("");
   window.dispatchEvent(new Event("progression-changed"));
@@ -609,7 +615,7 @@ function applyGeneration() {
     result = generateWorkspace({
       tonic: parseNote(choice.tonic), mode: choice.mode, seed: choice.seed,
       length: Number(countInput.value), style: styleInput.value, mood: moodInput.value,
-      shapeFilter: shapeInput.value, color: colorInput.value,
+      shapeFilter: shapeInput.value, colors: colors.value,
     }, workspace);
     if (result.ok || locks || result.error.code !== "NO_PLAYABLE_CHORDS") break;
   }
@@ -800,7 +806,7 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   styleInput.value = "auto";
   updateStylePreset();
   moodInput.value = "any";
-  colorInput.value = "triads";
+  colors.set([]);
   toneInput.value = "natural";
   audio.setTone("natural");
   countInput.value = "4";
@@ -981,7 +987,7 @@ function captureProgression() {
   });
   const snapshot = snapshotProgression({ ...workspace, cards }, {
     keyAuto: tonicInput.value === "all", modeAuto: modeInput.value === "auto",
-    style: styleInput.value, mood: moodInput.value, color: colorInput.value, shape: shapeInput.value,
+    style: styleInput.value, mood: moodInput.value, colors: colors.value, shape: shapeInput.value,
     bpm: tempoInput.valueAsNumber, meter: meterInput.value, pattern: patternInput.value,
     groove: grooveInput.value, tone: toneInput.value, ...mix,
     view: boardView, position: boardPosition, layer: scaleLayerInput.value, selected: selectedCard,
@@ -1008,7 +1014,7 @@ function restoreSavedProgression({ workspace: saved, preferences }, { focus }) {
   styleInput.value = preferences.style;
   updateStylePreset();
   moodInput.value = preferences.mood;
-  colorInput.value = preferences.color;
+  colors.set(preferences.colors);
   shapeInput.value = preferences.shape;
   meterInput.value = preferences.meter;
   tempoInput.value = String(preferences.bpm);

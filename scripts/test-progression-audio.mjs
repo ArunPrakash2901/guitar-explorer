@@ -130,7 +130,10 @@ for (const [style, preset] of Object.entries(STYLE_PRESETS)) {
     assert.equal(first.strokes[0].seconds, 30 / bpm);
     assert.equal(first.drumHits.find(({ voice }) => voice === "kick").seconds, 120 / bpm);
   }
-  if (style === "country") assert.ok(Math.abs(first.strokes[1].seconds - 40 / bpm) < 1e-10);
+  if (style === "country") {
+    assert.ok(Math.abs(first.strokes[1].seconds - 40 / bpm) < 1e-10);
+    assert.deepEqual(first.drumHits.filter(({ slotIndex, voice }) => slotIndex === 0 && voice === "snare").map(({ step }) => step), [3, 9]);
+  }
 }
 assert.equal(accents.size, 6);
 
