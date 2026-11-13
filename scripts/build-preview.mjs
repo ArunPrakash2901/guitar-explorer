@@ -6,7 +6,7 @@ const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const labRoot = resolve(projectRoot, "lab");
 const buildRoot = resolve(projectRoot, ".lab-dist");
 const outputRoot = resolve(projectRoot, ".preview-dist");
-const revision = process.env.GE_REVISION || process.env.GITHUB_SHA || "local";
+const revision = process.env.GE_REVISION || process.env.GITHUB_SHA || process.env.RENDER_GIT_COMMIT || "local";
 const previewPr = process.env.GE_PREVIEW_PR || "";
 const channelFlagIndex = process.argv.indexOf("--channel");
 const requestedChannel = process.argv.find((arg) => arg.startsWith("--channel="))?.split("=", 2)[1]
