@@ -284,13 +284,49 @@ Physical evidence is descriptive. Do not convert hesitation, retries, timing or 
 
 Session Evidence remains local-only validation tooling, not telemetry or a learner database.
 
-## 13. Deployment boundaries
+## 13. Deployment and app packaging boundaries
 
-- `preview`: automatically published exact-head PR review surface.
+The browser application remains the primary UI and music-engine consumer.
+Packaging for a Windows or Android **personal install** is a distribution
+adapter, not a new engine or learner-experience implementation.
+
+- `scripts/build-preview.mjs` produces the static site assets from the
+  existing Lab and compiled engine; `npm run app:build` selects a
+  Chord Progressions first screen for offline-capable app containers.
+- `packaging/windows/` contains the isolated Electron host and NSIS Windows
+  setup metadata. It may manage its window, navigation and local asset protocol,
+  but must not copy music facts or replace the Web Audio musical clock.
+- `packaging/android/` contains the Capacitor project definition. Android
+  phone and tablet share a responsive web UI and packaged local assets.
+  Platform-specific permissions and WebView behaviour need device verification.
+- `lab/manifest.webmanifest` and `lab/sw.js` provide installability
+  and bounded web-shell caching; sample audio is excluded from PWA offline
+  caching unless a later explicit storage/rights/size review approves it.
+- `.github/workflows/build-personal-installers.yml` is the build,
+  attachment and GitHub pre-release automation. Its existence is not
+  proof that the build or upload ran. A missing GitHub Release is a
+  release-blocker fact, not a documentation omission.
+
+Do not classify any of the above as **published** until the exact GitHub
+release is visible with valid binaries and the intended devices have been tested.
+
+Deployment channels are distinct from native packaging:
+
+- `preview`: exact-head PR review surface, **currently blocked** when
+  GitHub Actions returns `startup_failure`; a configured workflow does not
+  guarantee a deployed preview.
 - `experimental`: opt-in/non-production.
-- `stable`: reserved and explicitly controlled; not automatically published.
+- `stable`: reserved, separately approved; never automatically published
+  by a personal installer build.
 
-Do not add another host, production deployment, account system or backend merely for convenience.
+`master` is merged implementation authority. A PR merged into its *stack
+parent* is not thereby merged into `master`, and draft feature PRs remain
+unvalidated until their own review gates are satisfied. Read
+`PROJECT_STATE.md` and `docs/PERSONAL_INSTALLER_RELEASE.md` for operational
+state rather than freezing it in this architecture document.
+
+Do not add production hosting, analytics, an account system, a backend
+or a new UI framework merely to ship personal binary packages.
 
 ## 14. Detailed implemented contracts that remain normative
 
