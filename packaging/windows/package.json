@@ -31,13 +31,16 @@
             "x64"
           ]
         }
-      ]
+      ],
+      "icon": "icon.ico"
     },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
       "allowToChangeInstallationDirectory": false,
-      "artifactName": "GuitarExplorer-Setup-${version}-${arch}.${ext}"
+      "artifactName": "GuitarExplorer-Setup-${version}-${arch}.${ext}",
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico"
     }
   }
 }
