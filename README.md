@@ -23,6 +23,11 @@ requires an owner visibility change in GitHub Settings after checking
 repository history, third-party licences and evidence assets. See
 [public-readiness and housekeeping](docs/PUBLICATION_AND_HOUSEKEEPING.md).
 
+Once the repository becomes public, one-time Actions workflows attempt
+an **exact-head PR #116 preview** and a **Windows/Android pre-release**
+automatically, subject to build verification and GitHub Pages configuration.
+Their workflow runs must complete before any preview or download is claimed live.
+
 Routine cleanup is managed by `.github/workflows/weekly-housekeeping.yml`:
 it prunes expired temporary Actions artifacts, older failed workflow runs,
 and PR-preview directories for closed PRs only. It retains successful runs,

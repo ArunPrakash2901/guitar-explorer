@@ -3,6 +3,7 @@ name: Personal Windows + Android installers
 # Run manually from Actions on master. Source is the approved staging branch.
 # This is a personal debug/unsigned release, never an app-store distribution.
 on:
+  public:
   workflow_dispatch:
 
 permissions:
