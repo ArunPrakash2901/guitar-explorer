@@ -1,6 +1,26 @@
 # Guitar Explorer — Project State
 
-Last updated: 2026-11-04 (Australia/Sydney). Productization reset from Arun's current request and Issue #70 supersedes the former feature-by-feature queue.
+Last updated: 2026-11-13 (Australia/Melbourne). This release/integration note reconciles newer draft work without retroactively declaring it merged or physically accepted.
+
+## Current app distribution and integration — 13 November 2026
+
+- **GitHub Releases: none published.** GitHub Actions runs for installer sources completed with `startup_failure` and **zero jobs**, so there are no downloadable EXE/APK files. The immediate blocker is restoring Actions execution; source merges do not produce binaries.
+- **Personal native package source:** PR #118 merged into PR #117's PWA branch; PR #117 then merged into the head of **still-open draft PR #116**. Windows uses Electron/NSIS and Android phone/tablet share a Capacitor debug APK. This integrated branch is **not `master`**, and these remain personal test wrappers, not signed production releases.
+- **Intended workflow:** `.github/workflows/build-personal-installers.yml` creates `personal-v0.1.0-preview` with Windows and Android files *only after both builds pass*. No publish event or download is claimed until the real GitHub Release and attachments are verified.
+- **Unmerged dependencies:** the progression/trainer work is a stack of draft PRs; a merge into a parent branch does not merge source into `master`. The independent Looper Studio #111 remains out of this app installer pilot.
+- **Validation:** exact native binary builds, iOS/Android/Windows real-device audio, persistence, icons and export remain unverified. Earlier Chromium and source tests on PR #116 are not a substitute for testing this packaging head.
+- **Scope decision:** the owner authorized reconciliation and merging of the installer/release work on 13 November, not automatic release publication or bypassing an infrastructure failure. Preserve the review status of unrelated learner-facing PRs.
+
+Responsibility map: `README.md` = entry/installation/status, `AGENTS.md` and
+`AUTONOMY_CONTRACT.md` = execution/approval boundaries,
+`docs/ARCHITECTURE.md` = stable ownership of Music Core, musical consumers,
+audio and packaging adapters, `project-state.json` = machine state,
+`docs/PERSONAL_INSTALLER_RELEASE.md` = build/recovery checklist.
+All claims about binary availability require a live Release asset.
+
+## Earlier accepted Practice baseline (4 November 2026)
+
+
 
 ## North star and product test
 
