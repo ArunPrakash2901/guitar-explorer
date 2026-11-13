@@ -11,10 +11,11 @@ These are **personal test builds**, not signed commercial or app-store releases.
 
 ## Source and publishing
 
-The installer build is based on `feat/pwa-installable-release` (PR #117)
-and the latest integrated Guitar Explorer progression/trainer work underneath it
-(PR #116 and its dependent PRs). It does not include experimental Looper Studio
-PR #111.
+Installer source PR #118 merged into PWA PR #117; the combined package then
+merged into `codex/guitar-practice-tools` (still-open PR #116), **not**
+`master`. That branch contains the progression/trainer work and packaging,
+but no verified native binaries or published GitHub Release. The independent
+experimental Looper Studio PR #111 is excluded.
 
 The publish workflow is `.github/workflows/build-personal-installers.yml`.
 It runs on workflow changes pushed to `feat/personal-windows-android-installers`,
