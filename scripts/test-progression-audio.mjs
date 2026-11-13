@@ -164,6 +164,37 @@ for (const meter of ["4/4", "3/4", "6/8"]) {
     }
   }
 }
+// Keep presets as distinct, meter-correct arrangements, not cosmetic menu entries.
+const newFourFourGrooves = [
+  "rock-backbeat", "half-time", "light-funk", "pocket-funk",
+  "jazz-swing-kit", "half-shuffle", "reggae-one-drop", "soul",
+  "country-train", "disco",
+];
+const allFourFour = groovesForMeter("4/4");
+assert.equal(new Set(allFourFour.map(({ id }) => id)).size, allFourFour.length);
+const signatures = new Set();
+for (const id of newFourFourGrooves) {
+  assert.ok(allFourFour.some((item) => item.id === id), id + " is selectable");
+  const grid = getGrooveGrid("4/4", id);
+  assert.ok([8, 12, 16].includes(grid.steps), id + " has a supported subdivision");
+  const preset = drumPlan("4/4", id, 120);
+  assert.ok(preset.some(({ voice }) => voice === "snare"), id + " needs an audible backbeat");
+  assert.ok(preset.every(({ step, level, seconds }) =>
+    step >= 0 && step < grid.steps && level > 0 && level <= 1 &&
+    seconds >= 0 && seconds < 2), id + " events stay inside the bar");
+  const signature = JSON.stringify(preset.map(({ voice, step, level }) => [voice, step, level]));
+  assert.ok(!signatures.has(signature), id + " must be audibly different");
+  signatures.add(signature);
+  const withFill = drumPlan("4/4", id, 120, { fill: true });
+  assert.notDeepEqual(withFill, preset, id + " should have a phrase fill");
+  assert.equal(planProgressionStrokes(cards, 120, { groove: id }).loopSeconds, 8);
+}
+assert.equal(getGrooveGrid("4/4", "light-funk").steps, 16);
+assert.equal(getGrooveGrid("4/4", "jazz-swing-kit").steps, 12);
+assert.ok(drumPlan("4/4", "jazz-swing-kit", 120).some(({ seconds }) => Math.abs(seconds - 1 / 3) < 1e-9));
+assert.deepEqual(drumPlan("4/4", "disco", 120).filter(({ voice }) => voice === "kick").map(({ step }) => step), [0, 2, 4, 6]);
+assert.throws(() => drumPlan("3/4", "light-funk", 120), /does not belong/);
+
 assert.throws(() => drumPlan("3/4", "rock-drive", 120), /does not belong/);
 const { parts: rockParts, steps: rockSteps } = getGrooveGrid("4/4", "rock-drive");
 assert.equal(rockSteps, 8);
