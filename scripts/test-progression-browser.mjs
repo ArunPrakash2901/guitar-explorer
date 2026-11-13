@@ -271,6 +271,9 @@ try {
   await evaluate("document.querySelector('.drum-editor').open = true");
   assert.equal(await evaluate("document.querySelectorAll('#drum-grid button').length"), 48, "16-step funk pattern exposes three editable drum rows");
   await setValue("#drum-groove", "pop-backbeat");
+  await evaluate("document.querySelector('.drum-editor').open = false");
+  await press("[data-settings=chords]", " ");
+  await evaluate("document.querySelector('#advanced-settings').open = false");
 
   assert.equal(await evaluate("document.querySelector('#quick-drums').getAttribute('aria-pressed')"), "true");
   await press("#quick-drums", " ");
