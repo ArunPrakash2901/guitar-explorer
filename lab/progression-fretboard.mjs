@@ -42,8 +42,9 @@ function installKeyboardNavigation(container, rows) {
 export function renderScaleBoard(container, scale, chord, mode, onNote, position, options = {}) {
   const labelMode = options.labels ?? "degrees";
   const highlight = ["root", "triad", "modal"].includes(options.highlight) ? options.highlight : "root";
-  const modalDegrees = { dorian: 6, phrygian: 2, lydian: 4, mixolydian: 7, locrian: 5, naturalMinor: 6 };
-  const characteristic = modalDegrees[options.modeName] ?? null;
+  const modalDegrees = { dorian: "6", phrygian: "♭2", lydian: "♯4", mixolydian: "♭7", locrian: "♭5", naturalMinor: "♭6",
+    harmonicMinor: "7", melodicMinorAscending: "6", majorBlues: "♭3", minorBlues: "♭5" };
+  const characteristic = modalDegrees[options.modeName];
   const triadPitchClasses = new Set(chord.tones.slice(0, 3).map(({ pitchClass }) => pitchClass));
   container.replaceChildren();
   const markers = options.markers;
@@ -94,7 +95,7 @@ export function renderScaleBoard(container, scale, chord, mode, onNote, position
         button.classList.toggle("root", root);
         button.classList.toggle("grip-tone", grip);
         const triad = mode === "scale" && highlight === "triad" && triadPitchClasses.has(tone.pitchClass) && !root;
-        const characteristicTone = mode === "scale" && highlight === "modal" && tone.degree === characteristic && !root;
+        const characteristicTone = mode === "scale" && highlight === "modal" && degreeLabel(tone) === characteristic && !root;
         button.classList.toggle("triad-tone", triad);
         button.classList.toggle("modal-tone", characteristicTone);
         const degree = degreeLabel(tone);

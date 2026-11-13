@@ -166,7 +166,7 @@ describe("bounded progression generation", () => {
   });
 
   it("rejects unsupported mode requests without expanding the core", () => {
-    const result = generateProgression(request({ mode: "harmonicMinor" as ProgressionRequest["mode"] }));
+    const result = generateProgression(request({ mode: "minorPentatonic" as ProgressionRequest["mode"] }));
     expect(result).toMatchObject({ ok: false, error: { code: "UNSUPPORTED_MODE" } });
   });
 
@@ -255,7 +255,7 @@ describe("bounded progression generation", () => {
 
   it("includes in-mode colours and retains a suspended lock across a preference change", () => {
     const variants = listProgressionVariants(parseNote("C"), "major");
-    expect(variants.filter(({ chord }) => chord.tones.length === 4 && chord.chordId !== "add9")
+    expect(variants.filter(({ chord }) => ["major7", "minor7", "dominant7", "halfDiminished7"].includes(chord.chordId))
       .map(({ symbol }) => symbol)).toEqual(["Cmaj7", "Dm7", "Em7", "Fmaj7", "G7", "Am7", "Bm7♭5"]);
     expect(variants.some(({ symbol }) => symbol === "Fsus4")).toBe(false);
     const result = generated(request({ color: "sevenths",

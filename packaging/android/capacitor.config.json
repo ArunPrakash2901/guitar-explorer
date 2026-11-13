@@ -1,0 +1,9 @@
+{
+  "appId": "app.guitarexplorer.personal",
+  "appName": "Guitar Explorer",
+  "webDir": "../../.preview-dist",
+  "android": {
+    "backgroundColor": "#f2f0eb"
+  },
+  "plugins": {}
+}

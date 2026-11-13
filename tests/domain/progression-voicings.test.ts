@@ -77,8 +77,14 @@ describe("engine-validated guitar chord grips", () => {
     }
   });
 
-  it("refuses unsupported chord families instead of rendering a false voicing", () => {
-    expect(getPlayableVoicings(chord("C", "major13"))).toEqual([]);
+  it("uses a compact 13th voicing with root, third, seventh and thirteenth", () => {
+    const source = chord("C", "major13");
+    const voicing = getPlayableVoicings(source)[0]!;
+    const tones = new Set(voicing.notes.map(({ pitchClass }) => pitchClass));
+    expect(voicing.shapeFamily).toBe("compact");
+    expect(source.tones.filter(({ degree }) => [1, 3, 7, 13].includes(degree))
+      .every(({ pitchClass }) => tones.has(pitchClass))).toBe(true);
+    expect(tones.size).toBeLessThan(source.tones.length);
   });
 
   it("shows familiar extensions, a diminished grip, and two inversions", () => {

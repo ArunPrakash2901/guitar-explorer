@@ -8,7 +8,10 @@ export function practicePlan(events, bpm, { loop = false, click = false, countIn
     sustain: Math.min(1.25, Math.max(.08, seconds(event.duration) * .94)),
   }));
   const last = strokes.at(-1);
-  const total = last.seconds + seconds(last.duration);
+  const lastBeat = (last.seconds + seconds(last.duration)) / secondsPerBeat;
+  // With a click, leave the remainder of the bar as a rest so the loop
+  // restarts on a full beat and the next click keeps the same phase.
+  const total = (loop && click ? Math.ceil((lastBeat - 1e-7) / 4) * 4 : lastBeat) * secondsPerBeat;
   const clickHits = [];
   if (click) {
     for (let beat = 0; beat * secondsPerBeat < total - 1e-7; beat++) {

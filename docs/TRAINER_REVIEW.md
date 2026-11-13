@@ -10,7 +10,15 @@ Each card has one note on each chosen string, three distinct chord tones, and a 
 
 Select C dominant 7 in the A position. Play an octave from C up to C and back down. The TAB shows the exact string and fret sequence the audio plays. Try the E position, then loop in eighth-note triplets with the metronome. Pause, resume and cycle all available shapes. For Full shape, the path follows increasing sounding pitches with a preference for adjacent string crossings and smaller fret changes. An octave is only offered when the entire root-to-root sequence fits the position.
 
-The first count-in is one bar. Changing the tempo or material stops the current run so the new settings apply on the next Play. The display follows the Web Audio clock at the browser's paint rate. Try the paths on guitar before treating the hand-position rules as a fingering verdict.
+The first count-in is one bar. Shape cycling plays all available shapes on the same clock. Looping with the metronome leaves a rest to the next bar when the notes finish early. Changing the tempo or material stops the current run so the new settings apply on the next Play. The display follows the Web Audio clock at the browser's paint rate. Try the paths on guitar before treating the hand-position rules as a fingering verdict.
+
+## Chord colors and modes
+
+Open **Chord colors** beside **Chord shapes** in the main settings. Choose extra chord types from the seven compact groups or switch to Card view to browse one family at a time. Select all and Clear all edit the dialog until Apply commits the selection. Cancel, Close and Escape discard those edits. Major and minor remain available when they fit the key. Explicit locks keep their chord identities. Clear the lock to regenerate it under the new filter. Share links and favorites store the selected types, and older links map their single preference to the corresponding choices.
+
+Try G7sus4 in C major, Cmaj7♯11 in C Lydian, and E♭ augmented in C harmonic minor. Altered dominants such as G7♯9 are available on V, and some upper extensions use compact shells with the root, third, seventh and named extension. The voicing label identifies the shell. The sounded notes omit some of the inner tones of the full chord formula. Compact grips use the All shapes filter and fingerings should be tried on guitar.
+
+In C major blues, play C–F–G while using the major blues scale. In C minor blues, compare Cm–Fm–G against the minor blues scale. Optional dominant sevenths support blues harmony. The Key Chords view labels those choices as backing chords. Harmonic minor and ascending melodic minor use seven chord degrees from written scale thirds.
 
 ## Verification
 

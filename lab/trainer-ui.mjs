@@ -16,7 +16,7 @@ export function initChordInputs(root, quality, qualities) {
     new Option(CHORD_CATALOG_METADATA.find((entry) => entry.id === id).displayName, id)));
 }
 
-export function practiceTransport({ play, stop, status, highlight, pauseable = false, onFinish = () => {} }) {
+export function practiceTransport({ play, stop, status, highlight, pauseable = false }) {
   const audio = new ProgressionAudio();
   let frame = 0;
   let ticket = 0;
@@ -41,7 +41,6 @@ export function practiceTransport({ play, stop, status, highlight, pauseable = f
       paint(null);
       if (!audio.isPaused()) setStatus("Finished.");
       buttons();
-      onFinish();
       return;
     }
     const event = audio.activePracticeEvent();

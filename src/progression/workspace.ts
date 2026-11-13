@@ -103,7 +103,7 @@ export function replaceWorkspaceChord(
     throw new RangeError("A chord replacement must be scale degree 1 through 7");
   }
   const { tonic, mode } = workspace.context;
-  const selected = chordId === undefined ? listProgressionChoices(tonic, mode)[degree - 1]
+  const selected = chordId === undefined ? listProgressionChoices(tonic, mode).find((choice) => choice.degree === degree)
     : listProgressionVariants(tonic, mode).find((choice) => choice.degree === degree && choice.chord.chordId === chordId);
   if (!selected) throw new RangeError("This chord quality is outside the selected key and mode");
   const current = workspace.cards[slotIndex]!;

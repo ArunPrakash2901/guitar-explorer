@@ -59,6 +59,10 @@
             <option value="lydian">Lydian</option>
             <option value="mixolydian">Mixolydian</option>
             <option value="locrian">Locrian</option>
+            <option value="majorBlues">Major blues</option>
+            <option value="minorBlues">Minor blues</option>
+            <option value="harmonicMinor">Harmonic minor</option>
+            <option value="melodicMinorAscending">Melodic minor (jazz)</option>
           </select>
         </div>
         <div class="field">
@@ -68,6 +72,9 @@
             <option value="pop">Pop</option><option value="rock">Rock</option>
             <option value="blues">Blues</option><option value="folk">Folk / acoustic</option>
             <option value="indie">Indie / alternative</option><option value="jazz">Jazz-inspired</option>
+            <option value="funk">Funk</option><option value="reggae">Reggae</option>
+            <option value="bossa">Bossa Nova</option><option value="country">Country</option>
+            <option value="soul">Soul / R&amp;B</option><option value="ballad">Acoustic Ballad</option>
           </select>
         </div>
         <div class="field">
@@ -97,14 +104,14 @@
           </select>
         </div>
         <div class="field">
-          <label for="chord-color">Chord colour</label>
-          <select id="chord-color" aria-describedby="color-hint">
-            <option value="triads" selected>Triads</option>
-            <option value="sevenths">Prefer sevenths</option>
-            <option value="suspended">Prefer suspended</option>
-            <option value="add9">Prefer add9</option>
-          </select>
-          <small id="color-hint">Uses colours that fit the mode and shape filter.</small>
+          <label for="chord-color">Chord colors</label>
+          <button type="button" id="chord-color" class="color-trigger" aria-haspopup="dialog"
+            aria-controls="chord-color-dialog" aria-label="Choose chord colors" aria-describedby="color-summary color-more">
+            <span class="color-selection">
+              <span id="color-summary">Basic only</span><span id="color-more" hidden></span>
+            </span>
+            <span class="color-chevron" aria-hidden="true"></span>
+          </button>
         </div>
       </div>
       <div class="settings-grid rhythm-settings" id="rhythm-settings" hidden>
@@ -153,6 +160,10 @@
           </div>
         </div>
         <p id="strum-description" class="strum-description"></p>
+        <div class="style-preset" id="style-preset" hidden>
+          <button type="button" id="apply-style-rhythm">Use style rhythm</button>
+          <small id="style-tempo-range"></small>
+        </div>
         <div class="rhythm-tools" role="group" aria-label="Rhythm options">
           <label><input id="metronome-click" type="checkbox"> Hi-hat metronome</label>
           <label><input id="drum-fill" type="checkbox"> Phrase-end fills</label>
@@ -301,7 +312,40 @@
       <ul id="favorites" aria-label="Saved progressions"></ul>
       </section>
     </details>
-    <dialog id="chord-zoom" class="chord-zoom" aria-labelledby="chord-zoom-title">
+    <dialog id="chord-color-dialog" class="chord-colors" data-view="compact" aria-labelledby="color-title" aria-describedby="color-note">
+      <header class="color-heading">
+        <h2 id="color-title">Choose chord colors</h2>
+        <div class="color-view" role="group" aria-label="Chord color view">
+          <button type="button" data-color-view="compact" aria-pressed="true" aria-label="Compact view" title="Compact view" autofocus>
+            <span class="color-icon-list" aria-hidden="true"></span>
+          </button>
+          <button type="button" data-color-view="card" aria-pressed="false" aria-label="Card view" title="Card view">
+            <span class="color-icon-grid" aria-hidden="true"></span>
+          </button>
+        </div>
+        <button type="button" class="color-close" id="color-close" aria-label="Close">×</button>
+      </header>
+      <div class="color-body">
+        <p id="color-note">Choose which extra chord types Generate can use alongside major and minor chords.</p>
+        <div class="color-actions">
+          <button type="button" id="color-all">Select all</button>
+          <button type="button" id="color-clear">Clear all</button>
+        </div>
+        <div id="color-families" class="color-families" hidden>
+          <div class="color-family-label" id="color-family-label">Family</div>
+          <div id="color-family-list" role="group" aria-labelledby="color-family-label"></div>
+        </div>
+        <div id="color-groups" class="color-groups"></div>
+      </div>
+      <footer>
+        <output id="color-count" aria-live="polite">Major and minor chords only.</output>
+        <div class="color-actions">
+          <button type="button" id="color-cancel">Cancel</button>
+          <button type="button" id="color-apply" class="color-apply">Apply</button>
+        </div>
+      </footer>
+    </dialog>
+  <dialog id="chord-zoom" class="chord-zoom" aria-labelledby="chord-zoom-title">
       <div class="zoom-heading">
         <h2 id="chord-zoom-title">Chord diagram</h2>
         <button id="close-chord-zoom" type="button" aria-label="Close enlarged chord diagram">✕</button>

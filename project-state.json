@@ -1,8 +1,8 @@
 {
   "$schema": "guitar-explorer/project-state",
   "schemaVersion": 1,
-  "updatedAt": "2026-11-04",
-  "stage": "Productization 1 / Practice Session v0 (#70), two accepted families; Target Landing child #75 scoped",
+  "updatedAt": "2026-11-13",
+  "stage": "Merged Practice baseline plus unmerged progression/trainer stack; personal Windows/Android installer release blocked by GitHub Actions startup_failure",
   "phase": {
     "engine": "through Phase 2D plus merged Phrase Foundation PR 1",
     "runtime": "merged Productization 1A (#72) and 1B (#74): one Home/Practice Runtime with Interval Hunt and Role Ear, sampled guitar, physical use and transfer",
@@ -166,6 +166,13 @@
       "Implement only the separately authorized Target Landing child and return for its own exact-head listening/physical review",
       "Only then decide the smallest mixed-family session composition for #70",
       "Later Apply/Jam, precise looper, breadth, songs/tone and Style remain separately authorized"
+    ],
+    "personalRelease": [
+      "Keep PR #116 unmerged learner-facing work isolated from master while updating documentation on master; do not confuse stacked PR merges with release readiness",
+      "Restore GitHub Actions and manually launch the installer workflow from master, which checks out the pinned staging branch commit",
+      "Build Windows EXE and Android APK from an exact source head, then verify both artifacts",
+      "Create and verify source-SHA-specific GitHub prerelease with EXE and APK assets; only then share the download link",
+      "Test on Windows, Android phone and tablet; record real results and sign/prepare production artifacts only as separately requested"
     ]
   },
   "deferred": [
@@ -190,5 +197,37 @@
     "Target Landing and mixed-family composition remain later separate children of #70, not #73",
     "Looper, songs/tone, Style, AI, backend, grading and learner adaptation remain parked by the Productization reset",
     "Universal learning DSL, curriculum graph or mastery engine"
-  ]
+  ],
+  "distributionPilot": {
+    "kind": "personal-windows-android-installers",
+    "status": "packaging-integrated-in-open-feature-stack-no-build-no-release",
+    "sourcePullRequests": [
+      116,
+      117,
+      118
+    ],
+    "installerPullRequest": 118,
+    "installerBranch": "feat/personal-windows-android-installers",
+    "intendedTag": "personal-v0.1.0-<12-character-source-SHA>",
+    "windowsFilename": "GuitarExplorer-Setup-0.1.0-x64.exe",
+    "androidFilename": "GuitarExplorer-Android-Phone-Tablet.apk",
+    "workflow": ".github/workflows/build-personal-installers.yml",
+    "workflowStatus": "startup_failure-before-jobs",
+    "publishedRelease": false,
+    "assetCount": 0,
+    "lastVerifiedAt": "2026-11-13",
+    "excludedExperimentalPullRequests": [
+      111
+    ],
+    "note": "A source merge, a compiled binary and a visible GitHub Release are distinct. Pending build, verified upload and Windows/Android physical smoke checks.",
+    "sourceMergeStatus": {
+      "pr118": "merged-into-feat/pwa-installable-release",
+      "pr117": "merged-into-codex/guitar-practice-tools",
+      "pr116": "open-unmerged-into-master",
+      "sourceInMaster": false
+    },
+    "workflowTrigger": "manual GitHub Actions workflow_dispatch from master",
+    "sourceBranch": "codex/guitar-practice-tools",
+    "releaseCommitPolicy": "Pin exact source SHA from staging branch during verify, carry it through both platform builds and tag the release on that SHA."
+  }
 }

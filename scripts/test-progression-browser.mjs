@@ -258,11 +258,23 @@ try {
   assert.ok(desk.ok && (await desk.text()).includes("instrument-desk-app.js"));
   await evaluate("window.scrollTo(0, 0)");
   await screenshot("desktop-default");
-  assert.equal(await evaluate("document.querySelectorAll('#quick-controls > .field').length"), 9);
+  assert.equal(await evaluate("document.querySelectorAll('#quick-controls > .field').length"), 10);
   assert.equal(await evaluate("document.querySelector('#quick-favorite').getAttribute('aria-pressed')"), "false");
   assert.equal(await evaluate("document.querySelector('#quick-drums').getAttribute('aria-pressed')"), "false");
   await press("#quick-drums", " ");
   assert.equal(await evaluate("document.querySelector('#drum-groove').value"), "pop-backbeat");
+
+  assert.equal(await evaluate("Array.from(document.querySelector('#drum-groove').options).some(option => option.value === 'light-funk')"), true);
+  await setValue("#drum-groove", "light-funk");
+  await evaluate("document.querySelector('#advanced-settings').open = true");
+  await press("[data-settings=rhythm]", " ");
+  await evaluate("document.querySelector('.drum-editor').open = true");
+  assert.equal(await evaluate("document.querySelectorAll('#drum-grid button').length"), 48, "16-step funk pattern exposes three editable drum rows");
+  await setValue("#drum-groove", "pop-backbeat");
+  await evaluate("document.querySelector('.drum-editor').open = false");
+  await press("[data-settings=chords]", " ");
+  await evaluate("document.querySelector('#advanced-settings').open = false");
+
   assert.equal(await evaluate("document.querySelector('#quick-drums').getAttribute('aria-pressed')"), "true");
   await press("#quick-drums", " ");
   assert.equal(await evaluate("document.querySelector('#drums-mute').checked"), true);
@@ -479,6 +491,13 @@ try {
   await waitFor("document.querySelector('#play-progression').getAttribute('aria-label') === 'Pause progression'", "resumed transport");
   await evaluate("document.querySelector('.drum-editor').scrollIntoView({ block: 'center' })");
   await screenshot("rhythm-controls");
+  await setValue("#style", "bossa");
+  await click("#apply-style-rhythm");
+  assert.equal(await evaluate("document.querySelector('#drum-groove').value"), "bossa-basic-kit");
+  assert.equal(await evaluate("document.querySelector('#strum-pattern').value"), "bossa-bass");
+  assert.equal(await evaluate("document.querySelector('#tempo').value"), "126");
+  await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "live style rhythm change");
+  await screenshot("style-bossa");
   await evaluate("document.querySelector('#progression-cards').scrollIntoView({ block: 'center' })");
   await screenshot("desktop-playback");
   await press("#stop-progression", " ");
@@ -520,16 +539,87 @@ try {
   await setValue("#mode", "locrian");
   await press("#generate", "Enter");
   assert.match(await evaluate("document.querySelector('#context-heading').textContent"), /B Locrian/);
-  assert.equal(await evaluate("document.querySelector('[data-slot]').dataset.chord"), "Bdim");
-  assert.ok(await evaluate("document.querySelectorAll('[data-slot=\"0\"] .diagram-finger-number').length >= 3"));
-  await press("[data-slot='0'] [data-action=lock]", " ");
-  await setValue("#chord-color", "sevenths");
+  await viewport(1169, 719, false);
+  await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "dark" }] });
+  await evaluate("window.scrollTo(0, 0)");
+  assert.equal(await evaluate("document.querySelector('#advanced-settings').open"), false);
+  assert.ok(await evaluate("document.querySelector('#quick-controls #chord-color').getBoundingClientRect().width > 0"));
+  assert.equal(await evaluate("document.querySelector('#color-summary').textContent"), "Basic only");
+  await screenshot("chord-colors-toolbar");
+  await press("#chord-color", "Enter");
+  assert.equal(await evaluate("document.querySelectorAll('#color-groups section:not([hidden])').length"), 7);
+  assert.equal(await evaluate("getComputedStyle(document.querySelector('#color-groups')).gridTemplateColumns.split(' ').length"), 7);
+  await click("#color-all");
+  assert.equal(await evaluate("document.querySelectorAll('#color-groups input:checked').length"), 34);
+  assert.equal(await evaluate("document.querySelector('#color-count').textContent"), "34 colors selected");
+  await screenshot("chord-colors-dark");
+  await click("[data-color-view=card]");
+  assert.equal(await evaluate("document.querySelectorAll('#color-groups section:not([hidden])').length"), 1);
+  assert.ok(await evaluate("document.querySelector('[data-color-view=card]').getAttribute('aria-pressed') === 'true'"));
+  await click("#color-family-list button[aria-controls=color-group-4]");
+  assert.equal(await evaluate("document.querySelector('#color-group-4 h3').textContent"), "11ths");
+  await click("#color-group-4 .color-group-action");
+  assert.equal(await evaluate("document.querySelector('#color-count').textContent"), "30 colors selected");
+  await click("#color-group-4 .color-group-action");
+  assert.equal(await evaluate("document.querySelector('#color-count').textContent"), "34 colors selected");
+  await screenshot("chord-colors-card");
+  await click("[data-color-view=compact]");
+  await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+  await screenshot("chord-colors");
+  await viewport(390, 844, true);
+  await waitFor("innerWidth === 390", "mobile chord-color dialog");
+  assert.ok(await evaluate("document.querySelector('.color-body').scrollWidth <= document.querySelector('.color-body').clientWidth + 1"));
+  assert.ok(await evaluate("document.querySelector('#color-apply').getBoundingClientRect().bottom < innerHeight"));
+  await screenshot("chord-colors-mobile");
+  await viewport(1380, 900, false);
+  await cdp("Input.dispatchKeyEvent", { type: "rawKeyDown", key: "Escape", code: "Escape", windowsVirtualKeyCode: 27 });
+  await waitFor("!document.querySelector('#chord-color-dialog').open", "Escape closes color dialog");
+  assert.equal(await evaluate("document.activeElement.id"), "chord-color");
+  await click("#chord-color");
+  assert.equal(await evaluate("document.querySelectorAll('#color-groups input:checked').length"), 0);
+  await click('#color-groups input[value="diminished"]');
+  await click("#color-cancel");
+  await click("#chord-color");
+  assert.equal(await evaluate("document.querySelectorAll('#color-groups input:checked').length"), 0);
+  await click('#color-groups input[value="diminished"]');
+  await click("#color-apply");
   await press("#generate", "Enter");
-  assert.equal(await evaluate("document.querySelector('[data-slot]').dataset.chord"), "Bdim");
-  assert.ok(await evaluate("[...document.querySelectorAll('[data-slot]')].slice(1).some((card) => card.dataset.chord.includes('7'))"));
+  const dimIndex = await evaluate("[...document.querySelectorAll('[data-slot]')].findIndex(card => card.dataset.chord === 'Bdim')");
+  assert.ok(dimIndex >= 0);
+  assert.ok(await evaluate("document.querySelectorAll('[data-slot=\"" + dimIndex + "\"] .diagram-finger-number').length >= 3"));
+  await press("[data-slot='" + dimIndex + "'] [data-action=lock]", " ");
+  await click("#chord-color");
+  await click("#color-clear");
+  for (const quality of ["major7", "minor7", "dominant7", "halfDiminished7"]) {
+    await click('#color-groups input[value="' + quality + '"]');
+  }
+  await click("#color-apply");
+  await press("#generate", "Enter");
+  assert.equal(await evaluate("document.querySelector('[data-slot=\"" + dimIndex + "\"]').dataset.chord"), "Bdim");
+  assert.ok(await evaluate("[...document.querySelectorAll('[data-slot]')].some((card) => card.dataset.chord.includes('7'))"));
+  assert.equal(await evaluate("document.querySelector('#color-summary').textContent"), "maj7, 7, m7");
+  assert.equal(await evaluate("document.querySelector('#color-more').textContent"), "+1");
+  await evaluate("document.querySelector('#advanced-settings').open = true");
+  await press("[data-settings=rhythm]", " ");
+  await click("#chord-color");
+  assert.ok(await evaluate("document.querySelector('#chord-color-dialog').open"));
+  await click("#color-close");
+  assert.ok(await evaluate("document.querySelector('#advanced-settings').open && !document.querySelector('#rhythm-settings').hidden"));
 
   await press("#reset-workspace", " ");
   await setValue("#tonic", "C");
+  for (const [mode, label] of [["majorBlues", "major blues"], ["minorBlues", "minor blues"],
+    ["harmonicMinor", "harmonic minor"], ["melodicMinorAscending", "melodic minor (jazz)"]]) {
+    await setValue("#mode", mode);
+    await press("#generate", "Enter");
+    assert.equal(await evaluate("document.querySelector('#context-heading').textContent"), "C " + label);
+    if (mode.endsWith("Blues")) {
+      await press("#show-key-chords", " ");
+      assert.equal(await evaluate("document.querySelectorAll('#key-chords-grid button').length"), 3);
+      assert.match(await evaluate("document.querySelector('#fretboard-title').textContent"), /backing chords/);
+      await press("#show-scale", " ");
+    }
+  }
   await setValue("#mode", "major");
   await press("#generate", "Enter");
   assert.equal(await evaluate("document.querySelectorAll('.fret-number').length"), 16);
@@ -551,9 +641,13 @@ try {
   assert.ok(await evaluate("document.querySelector('#scale-layer-control').hidden"));
   assert.ok(await evaluate("!!document.querySelector('.fret-note.root')"));
 
+  await click("#chord-color");
+  await click('#color-groups input[value="add9"]');
+  await click('#color-groups input[value="major13"]');
+  await click("#color-apply");
   await setValue("[data-slot='1'] [data-action=replace]", "1:add9");
   await press("[data-slot='1'] [data-action=voicing][data-step='1']", " ");
-  await press("#advanced-settings > summary", " ");
+  await evaluate("document.querySelector('#advanced-settings').open = true");
   await press("[data-settings=rhythm]", " ");
   await setValue("#meter", "6/8");
   await setValue("#drum-groove", "six-eight-drive");
@@ -564,6 +658,7 @@ try {
   await setValue("#fretboard-labels", "intervals");
   const savedState = "JSON.stringify({cards:[...document.querySelectorAll('[data-slot]')].map(card=>[card.dataset.chord,card.querySelector('.diagram-wrap').dataset.voicing,card.querySelector('[data-action=lock]').getAttribute('aria-pressed')]),settings:['#meter','#drum-groove','#guitar-tone','#fretboard-labels'].map(selector=>document.querySelector(selector).value),rhythm:[document.querySelector('#metronome-click').checked,document.querySelector('#drum-grid [data-part=snare][data-step=\\\"1\\\"]').getAttribute('aria-pressed')],form:document.querySelector('#caged-positions [aria-pressed=true]').dataset.position})";
   const original = await evaluate(savedState);
+  assert.equal(await evaluate("document.querySelector('#color-summary').textContent"), "add9, maj13");
   await evaluate("document.querySelector('#library-drawer').open = true");
   await press("#save-favorite", " ");
   assert.equal(await evaluate("document.querySelectorAll('#favorites li').length"), 1);
@@ -596,6 +691,7 @@ try {
   await cdp("Page.navigate", { url: shareLink });
   await waitFor("document.querySelector('#library-status')?.textContent === 'Shared progression restored.'", "shared state restoration");
   assert.equal(await evaluate(savedState), original);
+  assert.equal(await evaluate("document.querySelector('#color-summary').textContent"), "add9, maj13");
   await evaluate("location.hash = 'p=%'");
   await waitFor("document.querySelector('#library-status').textContent.includes('invalid format')", "invalid hash notice");
   assert.equal(await evaluate(savedState), original);
@@ -700,6 +796,13 @@ try {
   await setValue("#arpeggio-rhythm", "sixteenth");
   await click("#trainer-play");
   await waitFor("document.querySelector('#caged-positions [aria-pressed=true]').dataset.position !== 'A'", "cycled CAGED shape");
+  await click("#trainer-stop");
+  const startShape = await evaluate("document.querySelector('#caged-positions [aria-pressed=true]').dataset.position");
+  await click("#arpeggio-loop");
+  await click("#trainer-play");
+  await waitFor("document.querySelector('#caged-positions [aria-pressed=true]').dataset.position !== " + JSON.stringify(startShape), "cycle advances during loop");
+  await waitFor("document.querySelector('#caged-positions [aria-pressed=true]').dataset.position === " + JSON.stringify(startShape) + " && (" + alignment + ")", "cycle returns without restarting the clock");
+  assert.equal(await evaluate("window.audioClocks.size"), 1);
   await click("#trainer-stop");
   await viewport(390, 844, true);
   await waitFor("innerWidth === 390", "arpeggio mobile");
