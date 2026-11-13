@@ -18,11 +18,13 @@ but no verified native binaries or published GitHub Release. The independent
 experimental Looper Studio PR #111 is excluded.
 
 The publish workflow is `.github/workflows/build-personal-installers.yml`.
-It runs on workflow changes pushed to `feat/personal-windows-android-installers`,
-or manually through Actions if the workflow is available on the default branch.
-It builds both files on Windows and Linux hosted runners; **only after both
-succeed** does it create the GitHub prerelease
-`personal-v0.1.0-preview` and upload the two files.
+Once the workflow is integrated into `master`, open **Actions → Personal Windows
++ Android installers → Run workflow** to trigger it manually. It resolves and
+pins the exact commit currently on `codex/guitar-practice-tools` (PR #116);
+`master` does not need the unreviewed app features merged. It runs `npm run
+verify` and builds both files on Windows and Linux hosted runners. **Only after
+both builds succeed** does it create a commit-specific GitHub prerelease named
+`personal-v0.1.0-<12-character-commit-SHA>` and upload both files.
 
 Run `node scripts/test-native-packaging.mjs` to verify the source setup before
 building. This checks the package declarations, native entrypoint syntax,
@@ -58,8 +60,8 @@ testing. Tablet responsiveness must be tested separately.
 
 1. Restore GitHub Actions operation, including any account billing/spending
    restriction; `startup_failure` means no runner has started.
-2. Re-run the installer workflow on the exact branch head, or update its
-   workflow file to trigger a fresh build.
+2. From GitHub Actions on `master`, manually run **Personal Windows + Android
+   installers**. Confirm the workflow resolved the intended staging SHA.
 3. Check both Windows and Android jobs succeed. Download the run artifacts
    for local checks.
 4. Check the `github-release` job finishes and that the prerelease actually
