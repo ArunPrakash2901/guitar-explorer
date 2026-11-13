@@ -16,6 +16,20 @@ merged, not as a published production application.
 ownership, migration direction, deferred work and the distinction between current
 capabilities and the target.
 
+## Public previews and repository cleanup
+
+The repository was still **private** at the 13 November audit. Publication
+requires an owner visibility change in GitHub Settings after checking
+repository history, third-party licences and evidence assets. See
+[public-readiness and housekeeping](docs/PUBLICATION_AND_HOUSEKEEPING.md).
+
+Routine cleanup is managed by `.github/workflows/weekly-housekeeping.yml`:
+it prunes expired temporary Actions artifacts, older failed workflow runs,
+and PR-preview directories for closed PRs only. It retains successful runs,
+open PR previews, source branches, tagged releases and release attachments.
+Manual housekeeping uses a dry-run first. The first cleanup removed 31 stale
+preview directories while retaining the five existing open-PR previews.
+
 ## Installable app and GitHub release status (13 November 2026)
 
 **Release status: NOT PUBLISHED.** The repository's GitHub Releases page has
