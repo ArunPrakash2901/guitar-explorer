@@ -106,6 +106,11 @@ const requiredPaths = [
   "trainers.css",
   "trainer-ui.mjs",
   "trainer-audio.mjs",
+  "manifest.webmanifest",
+  "sw.js",
+  "pwa-install.mjs",
+  "app-icons/icon-192.png",
+  "app-icons/icon-512.png",
 ];
 
 function htmlEscape(value) {
@@ -153,6 +158,16 @@ function injectPreviewShell(filename, source) {
     transformed = transformed.replace("</head>", `${metadata}\n</head>`);
   }
   const productShell = ["index.html", "instrument-desk.html", "progression.html", "triad-trainer.html", "arpeggio-trainer.html"].includes(filename);
+  if (productShell && transformed.includes("</head>")) {
+    const installHead = [
+      '  <link rel="manifest" href="./manifest.webmanifest">',
+      '  <meta name="theme-color" content="#39523c">',
+      '  <meta name="apple-mobile-web-app-capable" content="yes">',
+      '  <link rel="apple-touch-icon" href="./app-icons/icon-192.png">',
+      '  <script type="module" src="./pwa-install.mjs"></script>',
+    ].join("\n");
+    transformed = transformed.replace("</head>", installHead + "\n</head>");
+  }
   if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs") && !productShell) {
     transformed = transformed.replace(
       "</body>",
@@ -195,7 +210,8 @@ for (const directory of ["engine", "progression"]) {
 
 // The review channel opens the progression workspace directly. Other channel
 // builds retain the Instrument Desk entry. The source index stays the Chord Lab fixture.
-const home = deploymentChannel === "preview" ? "progression.html" : "instrument-desk.html";
+const appHome = process.argv.includes("--app-home");
+const home = appHome || deploymentChannel === "preview" ? "progression.html" : "instrument-desk.html";
 await cp(join(outputRoot, home), join(outputRoot, "index.html"));
 
 // The local server aliases /harmony.html to practice.html. Static channel builds need an
@@ -214,6 +230,7 @@ for (const file of await walk(outputRoot)) {
   const original = await readFile(file, "utf8");
   const filename = relative(outputRoot, file).replaceAll("\\", "/");
   let transformed = original;
+  if (filename === "sw.js") transformed = transformed.replaceAll("__GE_REVISION__", revision);
   if (extension === ".html") transformed = injectPreviewShell(filename, transformed);
   transformed = rewriteRootReferences(transformed);
   transformed = applyPreviewCompatibility(filename, transformed);
