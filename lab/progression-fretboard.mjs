@@ -46,6 +46,7 @@ export function renderScaleBoard(container, scale, chord, mode, onNote, position
   const characteristic = modalDegrees[options.modeName] ?? null;
   const triadPitchClasses = new Set(chord.tones.slice(0, 3).map(({ pitchClass }) => pitchClass));
   container.replaceChildren();
+  const markers = options.markers;
   const shown = mode === "chords" ? chord.tones : scale.tones;
   const tones = new Map(shown.map((tone) => [tone.pitchClass, tone]));
   const firstFret = position?.fromFret ?? 0;
@@ -79,7 +80,8 @@ export function renderScaleBoard(container, scale, chord, mode, onNote, position
       cell.className = "fret-cell";
       const location = getNoteAt(STANDARD_FRETBOARD, { stringIndex, fret });
       const tone = tones.get(location.pitchClass);
-      if (tone) {
+      const marker = markers?.get(stringIndex + ":" + fret);
+      if (tone && (!markers || marker)) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "fret-note";
@@ -97,13 +99,14 @@ export function renderScaleBoard(container, scale, chord, mode, onNote, position
         button.classList.toggle("modal-tone", characteristicTone);
         const degree = degreeLabel(tone);
         const note = pretty(tone.note);
-        button.textContent = labelMode === "notes" || (mode === "chords" && labelMode !== "intervals") ? note : degree;
+        button.textContent = marker?.label ?? (labelMode === "notes" || (mode === "chords" && labelMode !== "intervals") ? note : degree);
+        if (marker?.role) button.dataset.role = marker.role;
         const stringName = stringIndex === 0 ? "low E" : stringIndex === 5 ? "high E" : labels[stringIndex];
         button.setAttribute("aria-label", note + " on " + stringName + " string, fret " + fret +
           ", degree " + degree + (root ? ", root" : "") + (grip ? ", tonic grip" : "") +
           (triad ? ", selected triad tone" : "") + (characteristicTone ? ", characteristic modal tone" : ""));
         button.title = note + " · " + degree;
-        button.addEventListener("click", () => onNote({ stringIndex, semitone: location.semitone, note }));
+        button.addEventListener("click", () => onNote({ stringIndex, fret, semitone: location.semitone, note }));
         rows[stringIndex].push(button);
         cell.append(button);
       }

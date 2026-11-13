@@ -626,8 +626,44 @@ try {
       await screenshot(name + "-" + theme);
     }
   }
+  await viewport(1380, 900, false);
+  await cdp("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: "light" }] });
+  await cdp("Page.navigate", { url: new URL("triad-trainer.html", page).href });
+  await waitFor("document.querySelectorAll('#triad-shapes .chord-card').length >= 3", "populated Triad Trainer");
+  if ((preview || hosted) && process.env.GE_EXPECTED_REVISION) {
+    assert.equal(await evaluate("document.querySelector('meta[name=guitar-explorer-revision]').content"), process.env.GE_EXPECTED_REVISION);
+  }
+  await setValue("#trainer-root", "C#");
+  assert.match(await evaluate("document.querySelector('#triad-heading').textContent"), /C♯ · E♯ · G♯/);
+  await setValue("#trainer-quality", "augmented");
+  await setValue("#string-set", "2");
+  assert.ok(await evaluate("Array.from(document.querySelectorAll('#trainer-board .fret-note')).every(note => [2,3,4].includes(Number(note.dataset.string)))"));
+  const markers = await evaluate("document.querySelectorAll('#trainer-board .fret-note').length");
+  await click("#triad-shapes input[data-visibility]");
+  assert.ok(await evaluate("document.querySelectorAll('#trainer-board .fret-note').length") < markers);
+  await click("#triad-shapes input[data-visibility]");
+  await setValue("#trainer-labels", "intervals");
+  assert.match(await evaluate("document.querySelector('#trainer-board .fret-note[data-role=fifth]').textContent"), /♯5/);
+  assert.ok(await evaluate("[...document.querySelectorAll('#triad-shapes .chord-diagram')].every(diagram => diagram.textContent.includes('♯5'))"));
+  await click("#show-movement");
+  assert.match(await evaluate("document.querySelector('#interval-movement').textContent"), /Root.*Third.*Fifth/);
+  await click("#triad-shapes [data-audition]");
+  await waitFor("!!document.querySelector('.trainer-active') && !!document.querySelector('.scale-playing')", "audio-following triad");
+  assert.ok(await evaluate("window.sampleRequests.length > 0 && window.sampleRequests.every(({ok}) => ok)"));
+  await click("#trainer-stop");
+  assert.equal(await evaluate("!!document.querySelector('.trainer-active')"), false);
+  await setValue("#triad-playback", "arpeggio");
+  await click("#trainer-play");
+  await waitFor("document.querySelectorAll('#trainer-board .scale-playing').length === 1", "single-note arpeggio highlight");
+  await click("#trainer-stop");
+  await evaluate("window.scrollTo(0, 0)");
+  await screenshot("triad-trainer", true);
+  await viewport(390, 844, true);
+  await waitFor("innerWidth === 390", "triad mobile");
+  assert.ok(await evaluate("document.documentElement.scrollWidth <= innerWidth + 1"));
+  await screenshot("triad-mobile");
   assert.deepEqual(exceptions, []);
-  console.log("Chrome progression integration passed at " + page);
+  console.log("Chrome progression and trainer integration passed at " + page);
   console.log("Screenshots: " + screenshots);
 
 } finally {

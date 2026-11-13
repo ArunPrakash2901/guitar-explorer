@@ -39,7 +39,7 @@ export function renderChordDiagram(model, chordLabel, options = {}) {
   const bottom = top + model.fretCount * fretHeight;
   const label = model.strings.map(({ stringIndex, state, fret, finger }) => {
     const name = stringNames[stringIndex] + " string";
-    return name + (state === "fretted" ? " fret " + fret + ", finger " + finger : " " + state);
+    return name + (state === "fretted" ? " fret " + fret + (finger == null ? "" : ", finger " + finger) : " " + state);
   }).join(", ");
   const barreDescription = model.barres.map(({ firstString, lastString, finger, fret }) =>
     " Finger " + finger + " barre at fret " + fret + " from " + stringNames[firstString] + " to " + stringNames[lastString] + ".");

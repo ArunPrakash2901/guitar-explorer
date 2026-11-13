@@ -369,8 +369,10 @@ main.shell { padding-block: .65rem 2rem; }
   .chord-grid { grid-template-columns: repeat(2, minmax(0,1fr)); }
 }
 @media (max-width: 620px) {
+  .site-header .brand-row { flex-wrap: wrap; gap: .25rem 1rem; padding-block: .4rem; }
   .shell { width: min(100% - 1.2rem, 91rem); }
-  .site-header nav { gap: .65rem; font-size: .8rem; }
+  .site-header nav { gap: .45rem .65rem; font-size: .8rem; flex-wrap: wrap; justify-content: flex-end; }
+  .site-header .brand { white-space: nowrap; }
   .site-header .nav-current { display: none; }
   .settings-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
   .tempo-control { grid-column: span 2; }
