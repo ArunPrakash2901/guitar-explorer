@@ -27,6 +27,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Verify native packaging configuration
+        run: node scripts/test-native-packaging.mjs
       - name: Build Guitar Explorer web assets
         run: |
           npm ci
@@ -53,6 +55,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Verify native packaging configuration
+        run: node scripts/test-native-packaging.mjs
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
