@@ -38,7 +38,7 @@ self.addEventListener("fetch", (event) => {
   const scope = new URL(self.registration.scope);
   if (url.origin !== scope.origin || !url.pathname.startsWith(scope.pathname)) return;
   // Guitar samples are large, and offline playback has not been validated.
-  if (url.pathname.includes("/samples/") || /\\.(?:ogg|wav|flac|mp3)$/i.test(url.pathname)) return;
+  if (url.pathname.includes("/samples/") || /\.(?:ogg|wav|flac|mp3)$/i.test(url.pathname)) return;
   if (request.destination === "audio" || request.destination === "video") return;
 
   event.respondWith((async () => {
