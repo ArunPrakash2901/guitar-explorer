@@ -1,6 +1,6 @@
 /* Guitar Explorer install shell. Audio samples intentionally remain network-only. */
 const CACHE_PREFIX = "guitar-explorer-install-";
-const CACHE_NAME = CACHE_PREFIX + "v1";
+const CACHE_NAME = CACHE_PREFIX + "__GE_REVISION__";
 const CORE_FILES = [
   "./",
   "./progression.html",
