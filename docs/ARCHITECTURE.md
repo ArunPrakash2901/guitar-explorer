@@ -312,9 +312,8 @@ release is visible with valid binaries and the intended devices have been tested
 
 Deployment channels are distinct from native packaging:
 
-- `preview`: exact-head PR review surface, **currently blocked** when
-  GitHub Actions returns `startup_failure`; a configured workflow does not
-  guarantee a deployed preview.
+- `preview`: exact-head PR review surface. A configured workflow does
+  not guarantee a deployed preview; check the live Actions result and URL.
 - `experimental`: opt-in/non-production.
 - `stable`: reserved, separately approved; never automatically published
   by a personal installer build.
