@@ -96,6 +96,9 @@ const requiredPaths = [
   "progression/workspace.js",
   "progression/triads.js",
   "triad-trainer.html",
+  "progression/arpeggios.js",
+  "arpeggio-trainer.html",
+  "arpeggio-trainer.mjs",
   "triad-trainer.mjs",
   "trainers.css",
   "trainer-ui.mjs",
@@ -146,7 +149,7 @@ function injectPreviewShell(filename, source) {
     ].join("\n");
     transformed = transformed.replace("</head>", `${metadata}\n</head>`);
   }
-  const productShell = ["index.html", "instrument-desk.html", "progression.html", "triad-trainer.html"].includes(filename);
+  const productShell = ["index.html", "instrument-desk.html", "progression.html", "triad-trainer.html", "arpeggio-trainer.html"].includes(filename);
   if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs") && !productShell) {
     transformed = transformed.replace(
       "</body>",

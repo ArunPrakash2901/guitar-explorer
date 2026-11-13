@@ -6,4 +6,12 @@ Try C major on strings 1–3. Play the three inversions in fret order and listen
 
 Each card has one note on each chosen string, three distinct chord tones, and a span of at most four frets counting both endpoints. The trainer uses the first 15 frets and shows up to four positions. The optional finger numbers are suggestions for a guitar trial. The chord diagram, fretboard and sampled playback use the same string and fret coordinates.
 
+## Arpeggio Trainer
+
+Select C dominant 7 in the A position. Play an octave from C up to C and back down. The TAB shows the exact string and fret sequence the audio plays. Try the E position, then loop in eighth-note triplets with the metronome. Pause, resume and cycle all available shapes. For Full shape, the path follows increasing sounding pitches with a preference for adjacent string crossings and smaller fret changes. An octave is only offered when the entire root-to-root sequence fits the position.
+
+The first count-in is one bar. Changing the tempo or material stops the current run so the new settings apply on the next Play. The display follows the Web Audio clock at the browser's paint rate. Try the paths on guitar before treating the hand-position rules as a fingering verdict.
+
+## Verification
+
 Run `npm run verify` and `npm run test:progression-browser`. For the static review build, set `GE_REVISION` and `GE_EXPECTED_REVISION` to the tested commit, then run `npm run preview:build` and `npm run test:progression-browser:preview`.

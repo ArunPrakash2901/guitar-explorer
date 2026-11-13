@@ -31,17 +31,22 @@ export function practiceTransport({ play, stop, status, highlight, pauseable = f
     play.disabled = loading;
     stop.disabled = !loading && !audio.isPlaying() && !audio.isPaused() && !audio.isActive();
   }
+  let previousStatus;
+  function setStatus(value) {
+    if (previousStatus !== value) status.textContent = value;
+    previousStatus = value;
+  }
   function monitor() {
     if (!audio.isPlaying()) {
       paint(null);
-      if (!audio.isPaused()) status.textContent = "Finished.";
+      if (!audio.isPaused()) setStatus("Finished.");
       buttons();
       onFinish();
       return;
     }
     const event = audio.activePracticeEvent();
     paint(event);
-    status.textContent = audio.isCountingIn() ? "Count-in…" : "Playing.";
+    setStatus(audio.isCountingIn() ? "Count-in…" : "Playing.");
     frame = requestAnimationFrame(monitor);
   }
   function reset(message = "") {
@@ -50,18 +55,18 @@ export function practiceTransport({ play, stop, status, highlight, pauseable = f
     cancelAnimationFrame(frame);
     loading = false;
     paint(null);
-    status.textContent = message;
+    setStatus(message);
     buttons();
   }
   async function run(action) {
     const current = ++ticket;
     loading = true;
     buttons();
-    status.textContent = "Loading recordings…";
+    setStatus("Loading recordings…");
     try {
       if (await action() && current === ticket) monitor();
     } catch (error) {
-      if (current === ticket) status.textContent = error.message;
+      if (current === ticket) setStatus(error.message);
     } finally {
       if (current === ticket) {
         loading = false;
@@ -82,7 +87,7 @@ export function practiceTransport({ play, stop, status, highlight, pauseable = f
       if (audio.isPaused()) return run(() => audio.resume());
       if (!audio.pause()) return false;
       cancelAnimationFrame(frame);
-      status.textContent = "Paused.";
+      setStatus("Paused.");
       buttons();
       return true;
     },
