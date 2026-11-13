@@ -1,9 +1,9 @@
-import { buildChord, buildScale, CHORD_FORMULAS } from "../engine/core/collections.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { CHORD_CATALOG_METADATA } from "../engine/core/chords.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { COLOR_IDS, LEGACY_COLORS, selectedChordColors } from "./chord-colors.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { MusicError } from "../engine/core/errors.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { buildDiatonicHarmony } from "../engine/core/harmony.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { formatNote, validateNote } from "../engine/core/pitch.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { buildChord, buildScale, CHORD_FORMULAS } from "../engine/core/collections.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { CHORD_CATALOG_METADATA } from "../engine/core/chords.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { COLOR_IDS, LEGACY_COLORS, selectedChordColors } from "./chord-colors.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { MusicError } from "../engine/core/errors.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { buildDiatonicHarmony } from "../engine/core/harmony.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { formatNote, validateNote } from "../engine/core/pitch.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 /**
  * A deliberately bounded progression consumer. The Music Core remains the only
  * authority for spelled scales, chords and major/natural-minor harmonization.
@@ -136,10 +136,10 @@ function colorChoices(choices, tonic, mode, qualities) {
     return choices.flatMap((base) => qualities.flatMap((chordId) => {
         const chord = buildChord({ root: base.chord.root, chordId });
         const preservesTriad = base.chord.tones.every((tone) => chord.tones.some((note) => sameNote(note.note, tone.note)));
-        const isSuspension = chordId === "sus2" || chordId === "sus4";
+        const isSuspension = chordId === "sus2" || chordId === "sus4" || chordId === "dominant7Sus4";
         const dominant = chordId.startsWith("dominant7") && base.chord.chordId === "major";
         const bluesDominant = isBluesMode(mode) && dominant;
-        const alteredDominant = dominant && base.degree === 5 && chordId !== "dominant7";
+        const alteredDominant = dominant && base.degree === 5 && chordId !== "dominant7" && !isSuspension;
         if ((!isSuspension && !preservesTriad && !alteredDominant && !bluesDominant) ||
             (!bluesDominant && !alteredDominant &&
                 !chord.tones.every((tone) => scale.tones.some((note) => sameNote(note.note, tone.note)))))

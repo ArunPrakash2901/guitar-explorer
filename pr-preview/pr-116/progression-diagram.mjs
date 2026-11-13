@@ -1,5 +1,5 @@
-import { formatNote } from "./engine/index.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { degreeLabel } from "./progression-tone-label.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { formatNote } from "./engine/index.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { degreeLabel } from "./progression-tone-label.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 const strings = ["E", "A", "D", "G", "B", "e"];
 const stringNames = ["Low E", "A", "D", "G", "B", "High E"];
 const firstString = 38;

@@ -1,4 +1,4 @@
-import { CHORD_FORMULAS } from "./collections.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { CHORD_FORMULAS } from "./collections.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 const CHORD_FAMILY_METADATA = Object.freeze([
     Object.freeze({ id: "triads", displayName: "Triads" }),
     Object.freeze({ id: "suspended", displayName: "Suspended" }),
@@ -19,6 +19,7 @@ export const CHORD_CATALOG_METADATA = Object.freeze([
     Object.freeze({ id: "augmented", family: "triads", displayName: "Augmented", symbol: "aug" }),
     Object.freeze({ id: "sus2", family: "suspended", displayName: "Suspended 2", symbol: "sus2" }),
     Object.freeze({ id: "sus4", family: "suspended", displayName: "Suspended 4", symbol: "sus4" }),
+    Object.freeze({ id: "dominant7Sus4", family: "suspended", displayName: "Dominant 7 suspended 4", symbol: "7sus4" }),
     Object.freeze({ id: "power5", family: "powerOpen", displayName: "Power 5", symbol: "5" }),
     Object.freeze({ id: "major6", family: "sixth", displayName: "Major 6", symbol: "6" }),
     Object.freeze({ id: "minor6", family: "sixth", displayName: "Minor 6", symbol: "m6" }),
@@ -39,6 +40,7 @@ export const CHORD_CATALOG_METADATA = Object.freeze([
     Object.freeze({ id: "dominant9", family: "ninth", displayName: "Dominant 9", symbol: "9" }),
     Object.freeze({ id: "minor9", family: "ninth", displayName: "Minor 9", symbol: "m9" }),
     Object.freeze({ id: "major11", family: "eleventh", displayName: "Major 11", symbol: "maj11" }),
+    Object.freeze({ id: "major7Sharp11", family: "eleventh", displayName: "Major 7 sharp 11", symbol: "maj7♯11" }),
     Object.freeze({ id: "dominant11", family: "eleventh", displayName: "Dominant 11", symbol: "11" }),
     Object.freeze({ id: "minor11", family: "eleventh", displayName: "Minor 11", symbol: "m11" }),
     Object.freeze({ id: "major13", family: "thirteenth", displayName: "Major 13", symbol: "maj13" }),

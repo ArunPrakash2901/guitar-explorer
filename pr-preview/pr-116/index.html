@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
   <title>Chord Progressions · Guitar Explorer</title>
-  <link rel="stylesheet" href="./progression.css?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8">
-  <script type="module" src="./progression-workspace.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8"></script>
-  <meta name="guitar-explorer-revision" content="49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8">
+  <link rel="stylesheet" href="./progression.css?ge-revision=00581e04556260884131d3feca93b1898bb0b741">
+  <script type="module" src="./progression-workspace.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741"></script>
+  <meta name="guitar-explorer-revision" content="00581e04556260884131d3feca93b1898bb0b741">
   <meta name="guitar-explorer-preview-pr" content="116">
   <meta name="guitar-explorer-deployment-channel" content="preview">
   <meta name="guitar-explorer-deployment-label" content="pr-116">
@@ -110,8 +110,11 @@
         <div class="field">
           <label for="chord-color">Chord colors</label>
           <button type="button" id="chord-color" class="color-trigger" aria-haspopup="dialog"
-            aria-controls="chord-color-dialog" aria-label="Choose chord colors" aria-describedby="color-summary">
-            <span id="color-summary">Major and minor</span><span aria-hidden="true">⌄</span>
+            aria-controls="chord-color-dialog" aria-label="Choose chord colors" aria-describedby="color-summary color-more">
+            <span class="color-selection">
+              <span id="color-summary">Basic only</span><span id="color-more" hidden></span>
+            </span>
+            <span class="color-chevron" aria-hidden="true"></span>
           </button>
         </div>
       </div>
@@ -313,22 +316,39 @@
       <ul id="favorites" aria-label="Saved progressions"></ul>
       </section>
     </details>
-    <dialog id="chord-color-dialog" class="chord-colors" aria-labelledby="color-title" aria-describedby="color-note">
-    <header>
-      <h2 id="color-title">Choose chord colors</h2>
-      <p id="color-note">Major and minor are always available. Extra types appear when they fit the harmony and shape filter.</p>
-      <div class="color-actions">
-        <button type="button" id="color-all" autofocus>Select all</button>
-        <button type="button" id="color-clear">Clear all</button>
-        <output id="color-count" aria-live="polite"></output>
+    <dialog id="chord-color-dialog" class="chord-colors" data-view="compact" aria-labelledby="color-title" aria-describedby="color-note">
+      <header class="color-heading">
+        <h2 id="color-title">Choose chord colors</h2>
+        <div class="color-view" role="group" aria-label="Chord color view">
+          <button type="button" data-color-view="compact" aria-pressed="true" aria-label="Compact view" title="Compact view" autofocus>
+            <span class="color-icon-list" aria-hidden="true"></span>
+          </button>
+          <button type="button" data-color-view="card" aria-pressed="false" aria-label="Card view" title="Card view">
+            <span class="color-icon-grid" aria-hidden="true"></span>
+          </button>
+        </div>
+        <button type="button" class="color-close" id="color-close" aria-label="Close">×</button>
+      </header>
+      <div class="color-body">
+        <p id="color-note">Choose which extra chord types Generate can use alongside major and minor chords.</p>
+        <div class="color-actions">
+          <button type="button" id="color-all">Select all</button>
+          <button type="button" id="color-clear">Clear all</button>
+        </div>
+        <div id="color-families" class="color-families" hidden>
+          <div class="color-family-label" id="color-family-label">Family</div>
+          <div id="color-family-list" role="group" aria-labelledby="color-family-label"></div>
+        </div>
+        <div id="color-groups" class="color-groups"></div>
       </div>
-    </header>
-    <div id="color-groups" class="color-groups"></div>
-    <footer class="color-actions">
-      <button type="button" id="color-cancel">Cancel</button>
-      <button type="button" id="color-apply" class="color-apply">Apply</button>
-    </footer>
-  </dialog>
+      <footer>
+        <output id="color-count" aria-live="polite">Major and minor chords only.</output>
+        <div class="color-actions">
+          <button type="button" id="color-cancel">Cancel</button>
+          <button type="button" id="color-apply" class="color-apply">Apply</button>
+        </div>
+      </footer>
+    </dialog>
   <dialog id="chord-zoom" class="chord-zoom" aria-labelledby="chord-zoom-title">
       <div class="zoom-heading">
         <h2 id="chord-zoom-title">Chord diagram</h2>

@@ -2,8 +2,8 @@ import {
   decodeProgression, deleteFavorite, describeProgression, encodeProgression,
   FAVORITES_KEY, MAX_COLLECTION_NAME, MAX_FAVORITE_NAME, progressionText,
   readFavorites, restoreProgression, saveFavorite, SHARE_PREFIX, updateFavorite,
-} from "./progression-library.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { downloadProgressionImage } from "./progression-image.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+} from "./progression-library.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { downloadProgressionImage } from "./progression-image.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 
 function actionButton(text, label, action) {
   const button = document.createElement("button");

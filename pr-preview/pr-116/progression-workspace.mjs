@@ -1,20 +1,20 @@
-import { buildScale, CHORD_CATALOG_METADATA, formatNote, parseNote } from "./engine/index.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { getCagedPosition, getScalePracticeNotes } from "./progression/caged.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { generateWorkspace, matchesVoicingFilter, moveWorkspaceChord, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { isBluesMode, listProgressionChoices, listProgressionVariants } from "./progression/generator.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { renderChordDiagram } from "./progression-diagram.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { renderScaleBoard } from "./progression-fretboard.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { listGenerateChoices, MODE_NAMES as modes } from "./progression-selection.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { DEFAULT_MIX, ProgressionAudio } from "./progression-audio.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { DEFAULT_EXPLORER, snapshotProgression } from "./progression-library.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { connectProgressionLibrary } from "./progression-library-view.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { connectGrooveEditor } from "./progression-groove-editor.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { DEFAULT_RHYTHM_EDIT, groovesForMeter } from "./progression-grooves.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { buildScale, CHORD_CATALOG_METADATA, formatNote, parseNote } from "./engine/index.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { getCagedPosition, getScalePracticeNotes } from "./progression/caged.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { chordDiagramModel, getPlayableVoicings } from "./progression/voicings.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { generateWorkspace, matchesVoicingFilter, moveWorkspaceChord, replaceWorkspaceChord, toggleChordLock } from "./progression/workspace.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { isBluesMode, listProgressionChoices, listProgressionVariants } from "./progression/generator.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { renderChordDiagram } from "./progression-diagram.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { renderScaleBoard } from "./progression-fretboard.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { listGenerateChoices, MODE_NAMES as modes } from "./progression-selection.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { DEFAULT_MIX, ProgressionAudio } from "./progression-audio.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { DEFAULT_EXPLORER, snapshotProgression } from "./progression-library.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { connectProgressionLibrary } from "./progression-library-view.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { connectGrooveEditor } from "./progression-groove-editor.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { DEFAULT_RHYTHM_EDIT, groovesForMeter } from "./progression-grooves.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 
-import { connectChordColors } from "./progression-color-picker.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { STYLE_PRESETS } from "./progression-style-presets.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { connectChordColors } from "./progression-color-picker.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { STYLE_PRESETS } from "./progression-style-presets.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre", triad: "Three-string triad", compact: "Compact grip" };
 const qualities = Object.fromEntries(CHORD_CATALOG_METADATA.map(({ id, displayName }) => [id, displayName.toLowerCase()]));
@@ -23,7 +23,7 @@ const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 const form = document.querySelector("#generate-form");
 const advancedSettings = document.querySelector("#advanced-settings");
 const quickControls = document.querySelector("#quick-controls");
-for (const id of ["tonic", "mode", "style", "meter", "drum-groove", "guitar-tone", "shape-filter", "strum-pattern", "tempo"]) {
+for (const id of ["tonic", "mode", "style", "shape-filter", "chord-color", "meter", "drum-groove", "guitar-tone", "strum-pattern", "tempo"]) {
   const field = document.getElementById(id)?.closest(".field");
   if (!field) throw new Error("Missing quick setting: " + id);
   quickControls.append(field);

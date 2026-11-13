@@ -1,7 +1,7 @@
-import { formatNote } from "./engine/index.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { chordDiagramModel } from "./progression/voicings.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { renderChordDiagram } from "./progression-diagram.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { describeProgression } from "./progression-library.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { formatNote } from "./engine/index.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { chordDiagramModel } from "./progression/voicings.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { renderChordDiagram } from "./progression-diagram.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { describeProgression } from "./progression-library.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 
 const diagramStyles = `
   text { font-family: system-ui, sans-serif; }

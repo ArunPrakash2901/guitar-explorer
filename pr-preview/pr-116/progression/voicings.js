@@ -1,5 +1,5 @@
-import { formatNote, parseNote, pitchClass } from "../engine/core/pitch.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { getNoteAt, STANDARD_FRETBOARD } from "../engine/guitar/fretboard.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { formatNote, parseNote, pitchClass } from "../engine/core/pitch.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { getNoteAt, STANDARD_FRETBOARD } from "../engine/guitar/fretboard.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 const x = null;
 // Finger numbers are proposed positions from index (1) through pinky (4).
 // A repeated number at the same fret denotes a full or partial barre.
@@ -29,6 +29,7 @@ const OPEN_GRIPS = [
     ["A", "sus4", [[x, 0, 2, 2, 3, 0], [x, x, 1, 2, 3, x]]],
     ["E", "sus4", [[0, 2, 2, 2, 0, 0], [x, 2, 3, 4, x, x]]],
     ["D", "sus4", [[x, x, 0, 2, 3, 3], [x, x, x, 1, 3, 4]]],
+    ["A", "dominant7Sus4", [[x, 0, 2, 0, 3, 0], [x, x, 1, x, 3, x]]],
     ["C", "add9", [[x, 3, 2, 0, 3, 3], [x, 2, 1, x, 3, 4]]],
     ["G", "add9", [[3, 2, 0, 2, 0, 3], [3, 1, x, 2, x, 4]]],
     ["A", "add9", [[x, 0, 2, 4, 2, 0], [x, x, 1, 4, 2, x]]],
@@ -49,6 +50,7 @@ const MOVABLE_GRIPS = [
     ["sus2", "a-barre", 1, [[x, 0, 2, 2, 0, 0], [x, 1, 3, 4, 1, 1]]],
     ["sus4", "a-barre", 1, [[x, 0, 2, 2, 3, 0], [x, 1, 3, 3, 4, 1]]],
     ["sus4", "e-barre", 0, [[0, 2, 2, 2, 0, 0], [1, 3, 3, 3, 1, 1]]],
+    ["dominant7Sus4", "a-barre", 1, [[x, 0, 2, 0, 3, 0], [x, 1, 3, 1, 4, 1]]],
     ["diminished", "compact", 1, [[x, 0, 1, 2, 1, x], [x, 1, 2, 4, 3, x]]],
     ["halfDiminished7", "compact", 1, [[x, 0, 1, 0, 1, x], [x, 1, 3, 2, 4, x]]],
     ["diminished7", "compact", 1, [[x, 1, 2, 0, 2, x], [x, 2, 3, 1, 4, x]]],
@@ -67,6 +69,7 @@ const MOVABLE_GRIPS = [
     ["major9", "compact", 3, [[x, 0, 0, 0, 0, 2], [x, 1, 1, 1, 1, 3]]],
     ["dominant9", "compact", 0, [[1, 0, 1, 0, 1, x], [2, 1, 3, 1, 4, x]]],
     ["minor9", "compact", 2, [[0, 0, 0, x, 1, 1], [1, 1, 1, x, 3, 4]]],
+    ["major7Sharp11", "compact", 1, [[x, 0, 1, 1, 2, 0], [x, 1, 2, 3, 4, 1]]],
     ["dominant7Flat5", "compact", 0, [[0, 1, 0, 1, x, x], [1, 3, 2, 4, x, x]]],
     ["dominant7Sharp5", "compact", 0, [[0, x, 0, 1, 1, x], [1, x, 2, 3, 4, x]]],
     ["major", "triad", 2, [[x, x, 2, 1, 0, x], [x, x, 3, 2, 1, x]]],

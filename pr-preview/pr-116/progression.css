@@ -382,48 +382,100 @@ main.shell { padding-block: .65rem 2rem; }
 }
 
 .field .color-trigger {
-  display: flex; align-items: center; justify-content: space-between; gap: .6rem; min-height: 2.55rem;
+  display: flex; align-items: center; justify-content: space-between; gap: .6rem; height: 2.55rem; min-width: 0;
   padding: .55rem .65rem; border: 1px solid var(--line); border-radius: .7rem;
   background: var(--panel); color: var(--text); font-size: .93rem; font-weight: 650;
 }
-.color-trigger:hover, .color-actions button:hover { border-color: var(--forest); }
+.color-selection { display: flex; gap: .3rem; min-width: 0; align-items: baseline; }
+#color-summary { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#color-more { color: var(--muted); font-size: .78rem; white-space: nowrap; }
+.color-chevron {
+  flex: 0 0 .45rem; height: .45rem; margin: 0 .15rem .2rem 0;
+  border: solid currentColor; border-width: 0 1.5px 1.5px 0; transform: rotate(45deg);
+}
 .chord-colors {
-  width: min(96vw, 76rem); max-width: none; max-height: min(90dvh, 46rem); padding: 0;
+  width: min(96vw, 70rem); max-width: none; max-height: 92dvh; padding: 0;
   border: 1px solid var(--line); border-radius: 1.1rem; background: var(--panel); color: var(--text);
-  box-shadow: 0 1rem 3rem #0005;
+  box-shadow: 0 1rem 3rem #0005; overflow: hidden;
 }
 .chord-colors[open] { display: flex; flex-direction: column; }
-.chord-colors::backdrop { background: #17140f9e; }
-.chord-colors header, .chord-colors footer { padding: .9rem 1.25rem; }
-.chord-colors header { border-bottom: 1px solid var(--line); }
-.chord-colors footer { border-top: 1px solid var(--line); justify-content: flex-end; margin-top: 0; }
-.chord-colors h2 { font-size: clamp(1.4rem, 3.2vw, 2rem); }
-.chord-colors p { color: var(--muted); margin: .25rem 0 .6rem; font-size: .88rem; }
-.color-actions { display: flex; flex-wrap: wrap; align-items: center; gap: .5rem; }
-.color-actions button {
-  min-height: 2.35rem; padding: .35rem .75rem; border: 1px solid var(--line);
-  border-radius: .55rem; background: var(--panel); color: var(--text); font-weight: 700;
+.chord-colors[data-view="card"] { width: min(96vw, 30rem); }
+.chord-colors::backdrop { background: #17140f70; }
+.color-heading, .color-body, .chord-colors footer { padding: .75rem .9rem; }
+.color-heading { display: flex; align-items: center; gap: .45rem; border-bottom: 1px solid var(--line); }
+.color-heading h2 { flex: 1; font: 750 1rem/1.3 system-ui, "Segoe UI", sans-serif; }
+.color-view { display: flex; gap: .15rem; padding: .15rem; border-radius: .6rem; background: var(--canvas); }
+.color-view button, .color-close {
+  display: grid; place-items: center; width: 2.4rem; height: 2.4rem; border: 1px solid transparent;
+  border-radius: .5rem; background: transparent; color: var(--muted);
 }
+.color-view button[aria-pressed="true"] { border-color: var(--line); background: var(--panel); color: var(--forest); }
+.color-close { color: var(--text); font-size: 1.45rem; line-height: 1; }
+.color-close:hover { background: var(--hover); }
+.color-icon-list {
+  width: .9rem; height: .92rem;
+  background: repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 5px) .2rem .12rem / .68rem .75rem no-repeat,
+    repeating-linear-gradient(to bottom, currentColor 0 1px, transparent 1px 5px) 0 .12rem / .1rem .75rem no-repeat;
+}
+.color-icon-grid {
+  width: .82rem; height: .82rem;
+  background: linear-gradient(currentColor 0 0) left top, linear-gradient(currentColor 0 0) right top,
+    linear-gradient(currentColor 0 0) left bottom, linear-gradient(currentColor 0 0) right bottom;
+  background-size: .31rem .31rem;
+  background-repeat: no-repeat;
+}
+.color-body { min-height: 0; overflow-y: auto; display: grid; align-content: start; gap: .65rem; }
+#color-note { color: var(--muted); font-size: .82rem; }
+.color-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .5rem; }
+.color-actions button, .color-families button, .color-group-action {
+  min-height: 2.5rem; padding: .35rem .55rem; border: 1px solid var(--line);
+  border-radius: .55rem; background: var(--canvas); color: var(--text); font-weight: 650;
+}
+.color-trigger:hover, .color-actions button:hover, .color-families button:hover, .color-group-action:hover { border-color: var(--forest); }
 .color-actions .color-apply { color: var(--on-forest); background: var(--forest); border-color: var(--forest); }
-#color-count { color: var(--muted); font-size: .85rem; margin-left: .25rem; }
+.chord-colors footer { border-top: 1px solid var(--line); margin: 0; }
+#color-count { display: block; margin-bottom: .5rem; color: var(--muted); font-size: .8rem; }
 .color-groups {
-  min-height: 0; overflow-y: auto; display: grid; grid-template-columns: repeat(7,minmax(0,1fr));
-  align-items: start; gap: .6rem; padding: .9rem 1.25rem 1.15rem;
+  display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); align-items: start; gap: .75rem;
 }
-.color-groups fieldset { min-width: 0; margin: 0; padding: 0; border: 0; }
-.color-groups legend { color: var(--forest); font-weight: 800; margin-bottom: .35rem; }
-.color-groups label {
-  display: grid; grid-template-columns: 1rem minmax(0, 1fr); gap: .06rem .35rem;
-  align-items: center; min-height: 2.5rem; padding: .3rem .38rem; margin: .25rem 0;
-  border: 1px solid var(--line); border-radius: .45rem; cursor: pointer; font-size: .79rem;
+.color-groups section { min-width: 0; }
+.color-group-heading { display: flex; align-items: center; gap: .4rem; min-height: 1.75rem; }
+.color-group-heading h3 { color: var(--forest); font-size: .8rem; white-space: nowrap; }
+.chord-colors[data-view="compact"] .color-group-heading::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+.color-items label {
+  position: relative; display: flex; align-items: center; gap: .5rem; min-height: 2.2rem;
+  border-radius: .4rem; cursor: pointer; font-size: .87rem;
 }
-.color-groups label:has(input:checked) { background: var(--olive); border-color: var(--forest); }
-.color-groups input { accent-color: var(--forest); margin: 0; }
-.color-groups small { grid-column: 2; color: var(--muted); }
-@media (max-width: 1020px) { .color-groups { grid-template-columns: repeat(4,minmax(0,1fr)); } }
+.color-items label:hover { background: var(--hover); }
+.color-items input {
+  appearance: none; display: inline-grid; align-items: center; flex: 0 0 1.5rem; width: 1.5rem; height: 1rem;
+  margin: 0; padding-inline: .12rem; border: 1px solid var(--line); border-radius: 1rem; background: var(--hover); cursor: pointer;
+}
+.color-items input::before { content: ""; width: .65rem; height: .65rem; border-radius: 50%; background: var(--muted); }
+.color-items input:checked { border-color: var(--forest); background: var(--forest); justify-items: end; }
+.color-items input:checked::before { background: var(--on-forest); }
+.color-items small { display: none; color: var(--muted); font-size: .73rem; }
+.color-family-label { color: var(--muted); font-weight: 700; font-size: .8rem; margin-bottom: .4rem; }
+#color-family-list { display: flex; flex-wrap: wrap; justify-content: center; gap: .35rem; }
+.color-families button { flex: 0 1 calc((100% - 1.05rem) / 4); padding-inline: .3rem; min-width: 3.6rem; font-size: .78rem; }
+.color-families small { display: block; color: var(--muted); font-weight: 450; }
+.color-families [aria-pressed="true"] { border-color: var(--forest); background: var(--olive); }
+.chord-colors[data-view="card"] .color-groups { grid-template-columns: minmax(0, 1fr); }
+.chord-colors[data-view="card"] .color-group-heading { justify-content: space-between; margin-bottom: .35rem; }
+.color-group-action { min-height: 2rem; font-size: .78rem; }
+.chord-colors[data-view="card"] .color-items { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .35rem; }
+.chord-colors[data-view="card"] .color-items label {
+  display: grid; justify-items: center; align-content: center; gap: .08rem; min-height: 2.8rem; padding: .28rem .35rem;
+  text-align: center; border: 1px solid var(--line); background: var(--canvas);
+}
+.chord-colors[data-view="card"] .color-items input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; }
+.chord-colors[data-view="card"] .color-items label:has(input:checked) { border-color: var(--forest); background: var(--olive); }
+.chord-colors[data-view="card"] .color-items label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: 2px; }
+.chord-colors[data-view="card"] .color-items small { display: block; }
+@media (max-width: 740px) { .color-groups { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 @media (max-width: 560px) {
-  .color-groups { grid-template-columns: repeat(2,minmax(0,1fr)); padding-inline: .8rem; }
-  .chord-colors header, .chord-colors footer { padding: .7rem .8rem; }
+  .color-groups { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .color-heading, .color-body, .chord-colors footer { padding: .65rem .75rem; }
 }
 .style-preset { grid-column: 1 / -1; display: flex; align-items: center; gap: .65rem; }
 .style-preset[hidden] { display: none; }
@@ -460,17 +512,17 @@ main.shell { padding-block: .65rem 2rem; }
 }
 .chord-edit select:hover { border-color: var(--focus); }
 
-/* P0: a single compact instrument-first toolbar, while advanced choices remain available. */
 .quick-controls {
   display: grid;
-  grid-template-columns: minmax(0, .72fr) minmax(0, 1.07fr) minmax(0, .84fr) minmax(0, .55fr) minmax(0, 1.05fr) minmax(0, 1.13fr) minmax(0, .96fr) minmax(0, 1.02fr) minmax(9rem, 1.5fr);
+  grid-template-columns: minmax(0, .72fr) minmax(0, 1.17fr) minmax(0, .95fr) minmax(0, 1.05fr)
+    minmax(0, 1.4fr) minmax(0, .58fr) minmax(0, 1.03fr) minmax(0, 1.12fr) minmax(0, 1.1fr) minmax(8rem, 1.55fr);
   align-items: end;
   gap: .65rem;
 }
 .quick-controls .field { min-width: 0; }
 .quick-controls .field select { min-width: 0; }
 .quick-controls .tempo-inline { display: flex; }
-.quick-controls .tempo-control { min-width: 10rem; }
+.quick-controls #tempo { min-width: 0; }
 .advanced-settings { border-top: 1px solid var(--line); margin-top: .65rem; padding-top: .25rem; }
 .advanced-settings > summary { display: inline-flex; align-items: center; min-height: 1.9rem; color: var(--forest); font-size: .78rem; font-weight: 700; cursor: pointer; }
 .advanced-settings:not([open]) { margin-top: .35rem; }
@@ -521,7 +573,6 @@ main.shell { padding-block: .65rem 2rem; }
 .chord-card .chord-edit select { min-height: 2.5rem; padding: .28rem .5rem; }
 @media (max-width: 1180px) {
   .quick-controls { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .quick-controls .tempo-control { min-width: 0; }
 }
 @media (max-width: 650px) {
   .quick-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }

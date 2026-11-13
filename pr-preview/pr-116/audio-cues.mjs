@@ -1,4 +1,4 @@
-import { registerChord } from "./audio-out.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { registerChord } from "./audio-out.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 
 export const DEFAULT_AUDIO_BPM = 84;
 const CHORD_LEVEL = 0.12;

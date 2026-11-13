@@ -1,5 +1,5 @@
-import { roleBoard } from "./role-plan.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { stringName } from "./practice-plan.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { roleBoard } from "./role-plan.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { stringName } from "./practice-plan.mjs?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 
 export function renderRoleTask(state, { $, document, board }) {
   const m = state.plan.rounds[state.roundIndex].material;

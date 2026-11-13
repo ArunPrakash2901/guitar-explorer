@@ -1,6 +1,6 @@
-import { assertRecord, MusicError } from "./errors.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { describeInterval, transposeNote } from "./intervals.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
-import { pitchClass, validateNote } from "./pitch.js?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8";
+import { assertRecord, MusicError } from "./errors.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { describeInterval, transposeNote } from "./intervals.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
+import { pitchClass, validateNote } from "./pitch.js?ge-revision=00581e04556260884131d3feca93b1898bb0b741";
 function formula(tones) {
     return Object.freeze(tones.map(([degree, alteration]) => Object.freeze({ degree, alteration })));
 }
@@ -26,6 +26,7 @@ export const CHORD_FORMULAS = Object.freeze({
     augmented: formula([[1, 0], [3, 0], [5, 1]]),
     sus2: formula([[1, 0], [2, 0], [5, 0]]),
     sus4: formula([[1, 0], [4, 0], [5, 0]]),
+    dominant7Sus4: formula([[1, 0], [4, 0], [5, 0], [7, -1]]),
     power5: formula([[1, 0], [5, 0]]),
     major6: formula([[1, 0], [3, 0], [5, 0], [6, 0]]),
     minor6: formula([[1, 0], [3, -1], [5, 0], [6, 0]]),
@@ -46,6 +47,7 @@ export const CHORD_FORMULAS = Object.freeze({
     dominant9: formula([[1, 0], [3, 0], [5, 0], [7, -1], [9, 0]]),
     minor9: formula([[1, 0], [3, -1], [5, 0], [7, -1], [9, 0]]),
     major11: formula([[1, 0], [3, 0], [5, 0], [7, 0], [9, 0], [11, 0]]),
+    major7Sharp11: formula([[1, 0], [3, 0], [5, 0], [7, 0], [11, 1]]),
     dominant11: formula([[1, 0], [3, 0], [5, 0], [7, -1], [9, 0], [11, 0]]),
     minor11: formula([[1, 0], [3, -1], [5, 0], [7, -1], [9, 0], [11, 0]]),
     major13: formula([[1, 0], [3, 0], [5, 0], [7, 0], [9, 0], [11, 0], [13, 0]]),
