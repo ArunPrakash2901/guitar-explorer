@@ -168,7 +168,7 @@
       "Later Apply/Jam, precise looper, breadth, songs/tone and Style remain separately authorized"
     ],
     "personalRelease": [
-      "Keep PR stack dependencies and status accurate; merge only the explicitly authorized packaging/reconciliation scope into its intended parent, without pretending it is in master",
+      "Keep PR #116 unmerged learner-facing work isolated from master while updating documentation on master; do not confuse stacked PR merges with release readiness",
       "Restore GitHub Actions execution (startup_failure before any jobs)",
       "Build Windows EXE and Android APK from an exact source head, then verify both artifacts",
       "Create/verify GitHub prerelease personal-v0.1.0-preview with both binary assets",
@@ -200,7 +200,7 @@
   ],
   "distributionPilot": {
     "kind": "personal-windows-android-installers",
-    "status": "source-prepared-binaries-not-built-no-github-release",
+    "status": "packaging-integrated-in-open-feature-stack-no-build-no-release",
     "sourcePullRequests": [
       116,
       117,
@@ -219,6 +219,12 @@
     "excludedExperimentalPullRequests": [
       111
     ],
-    "note": "A source merge, a compiled binary and a visible GitHub Release are distinct. Pending build, verified upload and Windows/Android physical smoke checks."
+    "note": "A source merge, a compiled binary and a visible GitHub Release are distinct. Pending build, verified upload and Windows/Android physical smoke checks.",
+    "sourceMergeStatus": {
+      "pr118": "merged-into-feat/pwa-installable-release",
+      "pr117": "merged-into-codex/guitar-practice-tools",
+      "pr116": "open-unmerged-into-master",
+      "sourceInMaster": false
+    }
   }
 }
