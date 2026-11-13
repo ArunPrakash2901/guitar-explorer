@@ -1,0 +1,85 @@
+name: Bootstrap public Guitar Explorer preview
+
+# One-time public transition; can also be rerun manually if Pages needs configuration.
+# Builds from the current integration-review branch without merging that code into master.
+on:
+  public:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: bootstrap-public-pr-116
+  cancel-in-progress: false
+
+jobs:
+  preview:
+    name: Verify and publish PR 116 review build
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - name: Checkout exact integration source
+        uses: actions/checkout@v4
+        with:
+          ref: codex/guitar-practice-tools
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Identify source and verify
+        id: source
+        shell: bash
+        run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          npm ci
+          npm run verify
+      - name: Build current progression review
+        env:
+          GE_REVISION: ${{ steps.source.outputs.sha }}
+          GE_PREVIEW_PR: '116'
+          GE_DEPLOYMENT_CHANNEL: preview
+          GE_DEPLOYMENT_LABEL: pr-116
+        run: npm run preview:build
+      - name: Checkout Pages publication branch
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          path: .pages-checkout
+          persist-credentials: true
+      - name: Update only the PR 116 preview
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p .pages-checkout/pr-preview/pr-116
+          rsync -a --delete --exclude '.git' .preview-dist/ .pages-checkout/pr-preview/pr-116/
+          cd .pages-checkout
+          git add -- pr-preview/pr-116
+          if git diff --cached --quiet; then
+            echo "No changed preview files"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "ci(preview): publish verified PR #116 integration review"
+            # Avoid overwriting concurrent preview changes.
+            git push origin HEAD:gh-pages
+          fi
+      - name: Confirm the exact revision is publicly reachable
+        env:
+          EXPECTED_SHA: ${{ steps.source.outputs.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          url="https://${GITHUB_REPOSITORY_OWNER,,}.github.io/guitar-explorer/pr-preview/pr-116/"
+          for attempt in {1..15}; do
+            body="$(curl --fail --silent --show-error --location --max-time 12 "$url" 2>/dev/null || true)"
+            if grep -Fq "$EXPECTED_SHA" <<< "$body"; then
+              echo "Verified exact-head preview: $url"
+              echo "$url" >> "$GITHUB_STEP_SUMMARY"
+              exit 0
+            fi
+            echo "Pages not yet at exact revision (attempt $attempt)"
+            sleep 6
+          done
+          echo "::error::Preview commit was pushed but Pages has not served the verified SHA. Check Settings > Pages branch gh-pages /(root)."
+          exit 1
