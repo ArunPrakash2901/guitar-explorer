@@ -381,6 +381,10 @@ main.shell { padding-block: .65rem 2rem; }
   .diagram-wrap { min-height: 9rem; }
 }
 
+.style-preset { grid-column: 1 / -1; display: flex; align-items: center; gap: .65rem; }
+.style-preset[hidden] { display: none; }
+.style-preset button { padding: .42rem .65rem; border: 1px solid var(--line); border-radius: .55rem; color: var(--forest); background: var(--panel); }
+.style-preset small { color: var(--muted); }
 .strum-description {
   align-self: center;
   grid-column: 1 / -1;

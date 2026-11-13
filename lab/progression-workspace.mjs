@@ -13,6 +13,8 @@ import { connectGrooveEditor } from "./progression-groove-editor.mjs";
 import { DEFAULT_RHYTHM_EDIT, groovesForMeter } from "./progression-grooves.mjs";
 import { rhythmPlan, patternsForMeter, DEFAULT_PATTERN, METERS } from "./progression-rhythm.mjs";
 
+import { STYLE_PRESETS } from "./progression-style-presets.mjs";
+
 const modes = { major: "major", naturalMinor: "natural minor", dorian: "Dorian", phrygian: "Phrygian", lydian: "Lydian", mixolydian: "Mixolydian", locrian: "Locrian" };
 const families = { open: "Open shape", "e-barre": "E-shape barre", "a-barre": "A-shape barre", triad: "Three-string triad", compact: "Compact grip" };
 const qualities = { major: "major", minor: "minor", diminished: "diminished", augmented: "augmented",
@@ -667,9 +669,11 @@ function updatePatternControls(preferred = patternInput.value) {
   tempoUnit.textContent = METERS[meterInput.value].pulseUnit === "dotted-quarter"
     ? "(dotted-quarter BPM)" : "(quarter BPM)";
   const pattern = rhythmPlan(meterInput.value, patternInput.value, tempoInput.valueAsNumber);
-  const directions = new Map(pattern.strokes.map(({ step, direction }) => [step, direction === "up" ? "↑" : "↓"]));
+  const directions = new Map(pattern.strokes.map(({ step, direction, articulation }) =>
+    [step, articulation === "bass" ? "B" : direction === "up" ? "↑" : "↓"]));
+  const bass = pattern.strokes.some(({ articulation }) => articulation === "bass") ? ", B bass" : "";
   strumDescription.textContent = Array.from({ length: pattern.stepsPerBar }, (_, step) => directions.get(step) ?? "·").join(" ") +
-    "  (↓ down, ↑ up, · rest)";
+    "  (↓ down, ↑ up, · rest" + bass + ")";
 }
 
 function updateGrooveControls(preferred = grooveInput.value) {
@@ -738,6 +742,26 @@ toneInput.addEventListener("change", () => {
   if (audio.setTone(toneInput.value)) rhythmChanged("Guitar sound changed.");
 });
 
+function updateStylePreset() {
+  const preset = STYLE_PRESETS[styleInput.value];
+  document.querySelector("#style-preset").hidden = !preset;
+  if (preset) document.querySelector("#style-tempo-range").textContent = preset.range.join("–") + " BPM";
+}
+styleInput.addEventListener("change", updateStylePreset);
+document.querySelector("#apply-style-rhythm").addEventListener("click", () => {
+  const preset = STYLE_PRESETS[styleInput.value];
+  if (!preset) return;
+  meterInput.value = preset.meter;
+  tempoInput.value = preset.bpm;
+  updatePatternControls(preset.pattern);
+  updateGrooveControls(preset.groove);
+  const drums = trackControls.find(({ track }) => track === "drums");
+  drums.mute.checked = false;
+  drums.update();
+  tempoInput.dispatchEvent(new Event("input", { bubbles: true }));
+  rhythmChanged("Style rhythm applied.");
+  window.dispatchEvent(new Event("progression-changed"));
+});
 meterInput.addEventListener("change", () => {
   updatePatternControls("");
   updateGrooveControls();
@@ -774,6 +798,7 @@ document.querySelector("#reset-workspace").addEventListener("click", () => {
   modeInput.value = "auto";
   shapeInput.value = "all";
   styleInput.value = "auto";
+  updateStylePreset();
   moodInput.value = "any";
   colorInput.value = "triads";
   toneInput.value = "natural";
@@ -981,6 +1006,7 @@ function restoreSavedProgression({ workspace: saved, preferences }, { focus }) {
   modeInput.value = preferences.modeAuto ? "auto" : saved.context.mode;
   countInput.value = String(saved.cards.length);
   styleInput.value = preferences.style;
+  updateStylePreset();
   moodInput.value = preferences.mood;
   colorInput.value = preferences.color;
   shapeInput.value = preferences.shape;

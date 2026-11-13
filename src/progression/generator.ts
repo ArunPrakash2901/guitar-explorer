@@ -272,7 +272,7 @@ function constrainedPaths(
   return best;
 }
 
-export const STYLES = ["auto", "pop", "rock", "blues", "folk", "indie", "jazz"] as const;
+export const STYLES = ["auto", "pop", "rock", "blues", "folk", "indie", "jazz", "funk", "reggae", "bossa", "country", "soul", "ballad"] as const;
 export const MOODS = ["any", "bright", "melancholic", "relaxed", "tense"] as const;
 export type ProgressionStyle = (typeof STYLES)[number];
 export type ProgressionMood = (typeof MOODS)[number];
@@ -280,6 +280,7 @@ export type ProgressionMood = (typeof MOODS)[number];
 type Profile = Readonly<{
   motifs: readonly (readonly number[])[];
   cadence: readonly (readonly [number, number])[];
+  colors?: readonly ChordId[];
 }>;
 
 // Zero-based degrees. These are preferences inside the chosen mode, so for
@@ -292,6 +293,18 @@ const PROFILES: Readonly<Record<ProgressionStyle, Profile>> = {
   folk: { motifs: [[0, 3, 0, 4], [0, 3, 5, 0], [0, 3, 4, 0]], cadence: [[0, 3], [3, 0], [4, 0]] },
   indie: { motifs: [[5, 2, 3, 0], [0, 2, 5, 3], [0, 6, 2, 3]], cadence: [[0, 2], [2, 5], [5, 3]] },
   jazz: { motifs: [[1, 4, 0, 5], [0, 5, 1, 4], [2, 5, 1, 4]], cadence: [[5, 1], [1, 4], [4, 0]] },
+  funk: { motifs: [[0, 0, 3, 0], [1, 1, 4, 1], [0, 3, 0, 3]], cadence: [[0, 0], [1, 1], [0, 3]],
+    colors: ["dominant7", "minor7", "sus4"] },
+  reggae: { motifs: [[0, 3, 0, 3], [0, 4, 5, 3], [0, 3, 4, 3]], cadence: [[3, 0], [0, 3], [5, 3]],
+    colors: ["sus2", "minor7", "dominant7"] },
+  bossa: { motifs: [[1, 4, 0, 0], [0, 5, 1, 4], [3, 6, 2, 5]], cadence: [[1, 4], [4, 0], [6, 2]],
+    colors: ["major7", "minor7", "dominant7", "add9"] },
+  country: { motifs: [[0, 3, 4, 0], [0, 0, 3, 4], [0, 5, 3, 0]], cadence: [[4, 0], [3, 4], [0, 0]],
+    colors: ["dominant7", "sus4"] },
+  soul: { motifs: [[0, 2, 5, 3], [5, 1, 4, 0], [3, 4, 2, 5]], cadence: [[2, 5], [5, 1], [4, 2]],
+    colors: ["minor7", "major7", "add9"] },
+  ballad: { motifs: [[0, 4, 5, 3], [0, 2, 3, 0], [5, 3, 0, 0]], cadence: [[2, 3], [3, 0], [0, 2]],
+    colors: ["add9", "sus2", "major7"] },
 };
 
 const MODAL_COLOR: Partial<Record<ProgressionMode, number>> = {
@@ -436,7 +449,8 @@ export function generateProgression(request: ProgressionRequest): ProgressionRes
     const triads = listProgressionChoices(request.tonic, request.mode);
     const variants = color !== "triads" || locks.some(({ chordId }) => !TRIAD_IDS.some((id) => id === chordId))
       ? colorChoices(triads, request.tonic, request.mode) : [];
-    const preferred: readonly ChordId[] = COLOR_QUALITIES[color];
+    const availableColors: readonly ChordId[] = COLOR_QUALITIES[color];
+    const preferred = [...new Set([...(PROFILES[style].colors ?? []).filter((id) => availableColors.includes(id)), ...availableColors])];
     const playable = (chord: Chord) => request.isChordPlayable?.(chord) ?? true;
     const degrees = triads.map((base) => preferred.map((id) => variants.find(({ degree, chord }) =>
       degree === base.degree && chord.chordId === id && playable(chord))).find((choice) => choice) ?? base);
