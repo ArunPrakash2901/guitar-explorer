@@ -63,7 +63,7 @@ jobs:
           name: windows-installer
           path: release-artifacts/windows/*.exe
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
 
   android:
     name: Android phone + tablet APK
@@ -109,7 +109,7 @@ jobs:
           name: android-apk
           path: release-artifacts/android/*.apk
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 7
 
   github-release:
     name: Publish GitHub pre-release
