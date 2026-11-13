@@ -28,6 +28,21 @@ for (const channel of ["stable", "experimental", "preview"]) {
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-channel" content="${channel}"`));
   assert.match(html, new RegExp(`name="guitar-explorer-deployment-label" content="${channel}-test"`));
   assert.match(html, new RegExp(`name="guitar-explorer-revision" content="${channel}-revision"`));
+  const manifest = JSON.parse(await readFile(resolve(projectRoot, ".preview-dist", "manifest.webmanifest"), "utf8"));
+  assert.equal(manifest.display, "standalone");
+  assert.equal(manifest.start_url, "./");
+  assert.deepEqual(manifest.icons.map(({ sizes }) => sizes), ["192x192", "512x512"]);
+  assert.match(html, /<link rel="manifest" href="\.\/manifest\.webmanifest">/);
+  assert.ok(html.includes(`src="./pwa-install.mjs?ge-revision=${channel}-revision"`));
+  const sw = await readFile(resolve(projectRoot, ".preview-dist", "sw.js"), "utf8");
+  assert.ok(sw.includes(`guitar-explorer-install-`));
+  assert.ok(sw.includes(`"${channel}-revision"`));
+  for (const size of [192, 512]) {
+    const icon = await readFile(resolve(projectRoot, ".preview-dist", "app-icons", `icon-${size}.png`));
+    assert.equal(icon.toString("ascii", 1, 4), "PNG");
+    assert.equal(icon.readUInt32BE(16), size);
+    assert.equal(icon.readUInt32BE(20), size);
+  }
   const preview = channel === "preview";
   const homeScript = preview ? "progression-workspace.mjs" : "instrument-desk-app.js";
   const homeStyle = preview ? "progression.css" : "instrument-desk.css";
@@ -70,6 +85,16 @@ assert.equal(defaultFallback.status, 0, `default fallback build failed:\n${defau
 html = await readFile(indexPath, "utf8");
 assert.match(html, /name="guitar-explorer-deployment-channel" content="preview"/);
 
+const appBuild = spawnSync(process.execPath, ["scripts/build-preview.mjs", "--channel", "stable", "--app-home"], {
+  cwd: projectRoot,
+  env: { ...process.env, GE_REVISION: "app-revision" },
+  encoding: "utf8",
+});
+assert.equal(appBuild.status, 0, `App build failed:\n${appBuild.stderr || appBuild.stdout}`);
+const appHtml = await readFile(indexPath, "utf8");
+assert.match(appHtml, /name="guitar-explorer-deployment-channel" content="stable"/);
+assert.match(appHtml, /src="\.\/progression-workspace\.mjs\?ge-revision=app-revision"/);
+assert.match(appHtml, /href="\.\/manifest\.webmanifest"/);
 const bad = spawnSync(process.execPath, ["scripts/build-preview.mjs", "--channel", "production-ish"], {
   cwd: projectRoot,
   encoding: "utf8",
