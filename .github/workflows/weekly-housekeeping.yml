@@ -1,0 +1,118 @@
+name: Weekly repository housekeeping
+
+# Controls temporary Actions artifacts and obsolete PR previews.
+# Tagged Releases, successful verification runs, source branches and open PRs are not deleted.
+on:
+  schedule:
+    - cron: '0 3 * * 0'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview deletions without changing GitHub (recommended for manual checks)'
+        required: false
+        type: boolean
+        default: true
+
+concurrency:
+  group: guitar-explorer-housekeeping
+  cancel-in-progress: false
+
+jobs:
+  prune-temporary-actions:
+    name: Expire temporary artifacts and older failed runs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write
+    env:
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+    steps:
+      - name: Clean bounded temporary Actions data
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const dryRun = process.env.DRY_RUN === "true";
+            const day = 24 * 60 * 60 * 1000;
+            const artifactsBefore = Date.now() - 14 * day;
+            const runsBefore = Date.now() - 30 * day;
+            // Release attachments do NOT use the Actions artifact store.
+            const artifacts = await github.paginate(github.rest.actions.listArtifactsForRepo,
+              { owner, repo, per_page: 100 });
+            let artifactCount = 0;
+            for (const a of artifacts) {
+              if (artifactCount >= 100) break;
+              if (new Date(a.created_at).getTime() >= artifactsBefore) continue;
+              core.info(`${dryRun ? "[DRY RUN] " : ""}Old artifact: ${a.name} #${a.id}`);
+              if (!dryRun) await github.rest.actions.deleteArtifact({ owner, repo, artifact_id: a.id });
+              artifactCount++;
+            }
+            const runs = await github.paginate(github.rest.actions.listWorkflowRunsForRepo,
+              { owner, repo, status: "completed", per_page: 100 });
+            let runCount = 0;
+            for (const r of runs) {
+              if (runCount >= 100) break;
+              if (r.id === context.runId || r.conclusion === "success") continue;
+              if (new Date(r.created_at).getTime() >= runsBefore) continue;
+              core.info(`${dryRun ? "[DRY RUN] " : ""}Old non-successful run: ${r.id} (${r.conclusion})`);
+              if (!dryRun) await github.rest.actions.deleteWorkflowRun({ owner, repo, run_id: r.id });
+              runCount++;
+            }
+            core.summary.addHeading("Weekly cleanup");
+            core.summary.addRaw(`Dry run: ${dryRun}; artifacts over 14 days: ${artifactCount}; non-successful workflow runs over 30 days: ${runCount}. Tagged Releases and successful runs retained.\n`);
+            await core.summary.write();
+
+  prune-closed-pr-previews:
+    name: Remove closed PR previews from gh-pages
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run || false }}
+    steps:
+      - name: Checkout gh-pages only
+        uses: actions/checkout@v4
+        with:
+          ref: gh-pages
+          fetch-depth: 1
+          persist-credentials: true
+      - name: Remove only closed-PR preview folders
+        shell: bash
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          # Fail safely when GitHub's open-PR API cannot be read.
+          gh api --method GET --paginate "repos/$GH_REPO/pulls" -f state=open -f per_page=100 |
+            jq -r '.[] | .number' > "$RUNNER_TEMP/open-prs.txt"
+
+          removed=0
+          for folder in pr-preview/pr-[0-9]*/; do
+            [[ -d "$folder" ]] || continue
+            number="${folder%/}"
+            number="${number##*/pr-}"
+            [[ "$number" =~ ^[0-9]+$ ]] || continue
+            if grep -Fxq -- "$number" "$RUNNER_TEMP/open-prs.txt"; then
+              echo "Keep open PR #$number"
+              continue
+            fi
+            echo "${DRY_RUN:+}Closed PR #$number preview: $folder"
+            if [[ "$DRY_RUN" != "true" ]]; then
+              git rm -rq -- "$folder"
+            fi
+            removed=$((removed + 1))
+          done
+
+          if [[ "$DRY_RUN" == "true" ]]; then
+            echo "Dry run: $removed closed-PR preview folders eligible"
+          elif ! git diff --cached --quiet; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore(previews): remove closed PR preview folders"
+            # Never force-push: refuse a conflicting concurrent preview update.
+            git push origin HEAD:gh-pages
+          else
+            echo "No old preview folders to remove"
+          fi
