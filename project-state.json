@@ -169,9 +169,9 @@
     ],
     "personalRelease": [
       "Keep PR #116 unmerged learner-facing work isolated from master while updating documentation on master; do not confuse stacked PR merges with release readiness",
-      "Restore GitHub Actions execution (startup_failure before any jobs)",
+      "Restore GitHub Actions and manually launch the installer workflow from master, which checks out the pinned staging branch commit",
       "Build Windows EXE and Android APK from an exact source head, then verify both artifacts",
-      "Create/verify GitHub prerelease personal-v0.1.0-preview with both binary assets",
+      "Create and verify source-SHA-specific GitHub prerelease with EXE and APK assets; only then share the download link",
       "Test on Windows, Android phone and tablet; record real results and sign/prepare production artifacts only as separately requested"
     ]
   },
@@ -208,7 +208,7 @@
     ],
     "installerPullRequest": 118,
     "installerBranch": "feat/personal-windows-android-installers",
-    "intendedTag": "personal-v0.1.0-preview",
+    "intendedTag": "personal-v0.1.0-<12-character-source-SHA>",
     "windowsFilename": "GuitarExplorer-Setup-0.1.0-x64.exe",
     "androidFilename": "GuitarExplorer-Android-Phone-Tablet.apk",
     "workflow": ".github/workflows/build-personal-installers.yml",
@@ -225,6 +225,9 @@
       "pr117": "merged-into-codex/guitar-practice-tools",
       "pr116": "open-unmerged-into-master",
       "sourceInMaster": false
-    }
+    },
+    "workflowTrigger": "manual GitHub Actions workflow_dispatch from master",
+    "sourceBranch": "codex/guitar-practice-tools",
+    "releaseCommitPolicy": "Pin exact source SHA from staging branch during verify, carry it through both platform builds and tag the release on that SHA."
   }
 }
