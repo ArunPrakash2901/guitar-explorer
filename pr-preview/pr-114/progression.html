@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Chord Progressions · Guitar Explorer</title>
+  <link rel="stylesheet" href="./progression.css?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <script type="module" src="./progression-workspace.mjs?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e"></script>
+  <meta name="guitar-explorer-revision" content="72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <meta name="guitar-explorer-preview-pr" content="114">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-114">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to chord progressions</a>
+  <header class="site-header">
+    <div class="shell brand-row">
+      <a class="brand" href="./">Guitar Explorer</a>
+      <nav aria-label="Workspace navigation">
+        <span class="nav-current" aria-current="page">Chord Progressions</span>
+        <a href="./triad-trainer.html">Triad Trainer</a>
+        <a href="./arpeggio-trainer.html">Arpeggio Trainer</a>
+        <a href="#progression-library">Favorites</a>
+        <a href="./instrument-desk.html">Instrument Desk</a>
+      </nav>
+    </div>
+  </header>
+  <main class="shell" id="main" tabindex="-1">
+    <div class="page-heading">
+      <h1>Chord Progressions</h1>
+    </div>
+
+    <form id="generate-form" class="settings" aria-label="Progression settings">
+      <div id="quick-controls" class="quick-controls" aria-label="Quick musical settings"></div>
+      <details id="advanced-settings" class="advanced-settings">
+        <summary>More settings</summary>
+      <div class="settings-switch" role="group" aria-label="Settings view">
+        <button type="button" data-settings="chords" aria-pressed="true" aria-controls="chords-settings">Chords</button>
+        <button type="button" data-settings="rhythm" aria-pressed="false" aria-controls="rhythm-settings">Rhythm</button>
+      </div>
+      <div class="settings-grid" id="chords-settings">
+        <div class="field">
+          <label for="tonic">Key</label>
+          <select id="tonic">
+            <option value="all" selected>All</option>
+            <option value="C">C</option><option value="Db">D♭</option>
+            <option value="D">D</option><option value="Eb">E♭</option>
+            <option value="E">E</option><option value="F">F</option>
+            <option value="Gb">G♭</option><option value="G">G</option>
+            <option value="Ab">A♭</option><option value="A">A</option>
+            <option value="Bb">B♭</option><option value="B">B</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mode">Mode</label>
+          <select id="mode">
+            <option value="auto" selected>Auto</option>
+            <option value="major">Major (Ionian)</option>
+            <option value="naturalMinor">Natural minor (Aeolian)</option>
+            <option value="dorian">Dorian</option>
+            <option value="phrygian">Phrygian</option>
+            <option value="lydian">Lydian</option>
+            <option value="mixolydian">Mixolydian</option>
+            <option value="locrian">Locrian</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="style">Style</label>
+          <select id="style">
+            <option value="auto" selected>Auto</option>
+            <option value="pop">Pop</option><option value="rock">Rock</option>
+            <option value="blues">Blues</option><option value="folk">Folk / acoustic</option>
+            <option value="indie">Indie / alternative</option><option value="jazz">Jazz-inspired</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="mood">Mood preference</label>
+          <select id="mood" aria-describedby="mood-hint">
+            <option value="any" selected>Any</option>
+            <option value="bright">Bright</option><option value="melancholic">Melancholic</option>
+            <option value="relaxed">Relaxed</option><option value="tense">Tense</option>
+          </select>
+          <small id="mood-hint">Biases chord colour and movement.</small>
+        </div>
+        <div class="field">
+          <label for="chord-length">Chord count</label>
+          <select id="chord-length">
+            <option>2</option><option>3</option><option selected>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+            <option>12</option><option>16</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="shape-filter">Chord shapes</label>
+          <select id="shape-filter">
+            <option value="all" selected>All shapes</option>
+            <option value="open">Open shapes</option>
+            <option value="barre">Barre shapes</option>
+            <option value="triad">Three-string triads</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="chord-color">Chord colour</label>
+          <select id="chord-color" aria-describedby="color-hint">
+            <option value="triads" selected>Triads</option>
+            <option value="sevenths">Prefer sevenths</option>
+            <option value="suspended">Prefer suspended</option>
+            <option value="add9">Prefer add9</option>
+          </select>
+          <small id="color-hint">Uses colours that fit the mode and shape filter.</small>
+        </div>
+      </div>
+      <div class="settings-grid rhythm-settings" id="rhythm-settings" hidden>
+        <div class="field">
+          <label for="meter">Meter</label>
+          <select id="meter">
+            <option value="4/4" selected>4/4</option>
+            <option value="3/4">3/4</option>
+            <option value="6/8">6/8</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="drum-groove">Drum groove</label>
+          <select id="drum-groove"></select>
+        </div>
+        <div class="field">
+          <label for="guitar-tone">Guitar sound</label>
+          <select id="guitar-tone">
+            <option value="natural" selected>Acoustic</option>
+            <option value="warm">Warm acoustic</option>
+            <option value="bright">Bright acoustic</option>
+            <option value="electric">Clean electric</option>
+          </select>
+        </div>
+        <div class="field tempo-control">
+          <label for="tempo">Tempo <span id="tempo-unit">(quarter BPM)</span></label>
+          <div class="tempo-inline">
+            <input id="tempo" type="range" min="50" max="180" step="1" value="92">
+            <output id="tempo-value" for="tempo">92 BPM</output>
+          </div>
+        </div>
+        <div class="field">
+          <label for="strum-pattern">Strum pattern</label>
+          <select id="strum-pattern" aria-describedby="strum-description"></select>
+        </div>
+        <div class="track-mixer" role="group" aria-label="Accompaniment mix">
+          <div class="track-mix">
+            <label for="guitar-volume">Guitar <output id="guitar-volume-value" for="guitar-volume">82%</output></label>
+            <input id="guitar-volume" type="range" min="0" max="100" value="82" aria-label="Guitar volume">
+            <label><input id="guitar-mute" type="checkbox"> Mute guitar</label>
+          </div>
+          <div class="track-mix">
+            <label for="drums-volume">Drums <output id="drums-volume-value" for="drums-volume">62%</output></label>
+            <input id="drums-volume" type="range" min="0" max="100" value="62" aria-label="Drum volume">
+            <label><input id="drums-mute" type="checkbox"> Mute drums</label>
+          </div>
+        </div>
+        <p id="strum-description" class="strum-description"></p>
+        <div class="rhythm-tools" role="group" aria-label="Rhythm options">
+          <label><input id="metronome-click" type="checkbox"> Hi-hat metronome</label>
+          <label><input id="drum-fill" type="checkbox"> Phrase-end fills</label>
+        </div>
+        <details class="drum-editor">
+          <summary>Edit drum pattern</summary>
+          <div class="drum-editor-heading">
+            <p id="drum-edit-status" role="status"></p>
+            <button id="reset-drum-pattern" type="button">Reset to preset</button>
+          </div>
+          <div class="drum-grid-scroll">
+            <div id="drum-grid" role="group" aria-label="One-bar drum pattern" hidden></div>
+          </div>
+        </details>
+      </div>
+      </details>
+    </form>
+
+    <section class="action-stage" aria-label="Progression actions">
+      <div class="action-row">
+        <button id="generate" form="generate-form" type="submit" class="primary">Generate</button>
+        <button id="quick-drums" class="track-toggle" type="button" aria-pressed="false" aria-controls="drums-mute" title="Toggle drum accompaniment">Rhythm off</button>
+        <button id="quick-guitar" class="track-toggle" type="button" aria-pressed="true" aria-controls="guitar-mute" title="Toggle guitar accompaniment">Chords on</button>
+        <button id="play-progression" type="button" disabled aria-label="Play progression">▶ Play</button>
+        <button id="stop-progression" type="button" disabled>■ Stop</button>
+        <button id="reset-workspace" type="button" class="quiet">Reset</button>
+      </div>
+      <p id="form-message" role="status"></p>
+      <p id="transport-message" role="status"></p>
+      <noscript><p>Enable JavaScript to generate chord progressions.</p></noscript>
+    </section>
+
+    <section class="progression-heading context" aria-labelledby="context-heading">
+      <div>
+        <h2 id="context-heading" tabindex="-1">Chord progression</h2>
+        <p id="scale-notes"></p>
+      </div>
+      <div class="progression-quick-actions">
+        <details id="diagram-options" class="mini-options">
+          <summary aria-label="Chord diagram appearance settings" title="Chord diagram settings">⚙</summary>
+          <div class="mini-options-panel">
+            <label for="diagram-labels">Diagram labels</label>
+            <select id="diagram-labels">
+              <option value="fingers" selected>Fingers</option>
+              <option value="notes">Note names</option>
+              <option value="intervals">Intervals</option>
+              <option value="none">None</option>
+            </select>
+            <label for="diagram-highlight">Chord highlights</label>
+            <select id="diagram-highlight">
+              <option value="none">None</option>
+              <option value="root" selected>Roots</option>
+              <option value="triad">Triad tones</option>
+            </select>
+          </div>
+        </details>
+        <button id="quick-mix" type="button" class="icon-action" title="Open volume settings" aria-label="Open volume settings">♫</button>
+        <button id="quick-favorite" type="button" class="icon-action" aria-label="Save current progression to favorites" title="Save favorite">☆</button>
+        <span class="chord-count" id="chord-count"></span>
+      </div>
+    </section>
+    <ol class="chord-grid" id="progression-cards" aria-label="Chord positions"></ol>
+
+    <section class="fretboard-panel" aria-labelledby="fretboard-title">
+      <div class="fretboard-heading">
+        <div>
+          <h2 id="fretboard-title">Explore the fretboard</h2>
+          <p id="fretboard-description">Select Generate to see the scale across the fretboard.</p>
+        </div>
+        <div class="fretboard-tabs" role="group" aria-label="Fretboard display">
+          <button type="button" class="tab selected" id="show-scale" aria-pressed="true">Scale</button>
+          <button type="button" class="tab" id="show-key-chords" aria-pressed="false">Key chords</button>
+          <button type="button" class="tab" id="show-chords" aria-pressed="false">Chord tones</button>
+        </div>
+      </div>
+      <div id="key-chords-grid" class="key-chords-grid" aria-label="Diatonic chords in the selected key" hidden></div>
+      <div class="fretboard-controls">
+        <div id="caged-positions" role="group" aria-label="CAGED position">
+          <button type="button" data-position="full" aria-pressed="true">Full</button>
+          <button type="button" data-position="C" aria-label="C form" aria-pressed="false">C</button>
+          <button type="button" data-position="A" aria-label="A form" aria-pressed="false">A</button>
+          <button type="button" data-position="G" aria-label="G form" aria-pressed="false">G</button>
+          <button type="button" data-position="E" aria-label="E form" aria-pressed="false">E</button>
+          <button type="button" data-position="D" aria-label="D form" aria-pressed="false">D</button>
+        </div>
+        <label id="scale-layer-control" for="scale-layer">Scale
+          <select id="scale-layer">
+            <option value="context">Current mode</option>
+            <option value="majorPentatonic">Major pentatonic</option>
+            <option value="minorPentatonic">Minor pentatonic</option>
+          </select>
+        </label>
+        <details class="fretboard-options">
+          <summary>Fretboard appearance</summary>
+          <div class="appearance-fields">
+            <label for="fretboard-labels">Labels
+              <select id="fretboard-labels">
+                <option value="degrees" selected>Automatic</option>
+                <option value="intervals">Degrees / intervals</option>
+                <option value="notes">Note names</option>
+              </select>
+            </label>
+            <label for="fretboard-highlights">Highlights
+              <select id="fretboard-highlights">
+                <option value="root" selected>Roots</option>
+                <option value="triad">Selected triad</option>
+                <option value="modal">Characteristic modal notes</option>
+              </select>
+            </label>
+          </div>
+        </details>
+      </div>
+      <div class="fretboard-scroll" tabindex="0" aria-label="Horizontal guitar fretboard with six strings">
+        <div class="fretboard" id="fretboard"></div>
+      </div>
+      <div class="scale-practice" id="scale-practice">
+        <label for="scale-play-mode">Practice
+          <select id="scale-play-mode">
+            <option value="once" selected>Once: selected position</option>
+            <option value="loop">Loop: selected position</option>
+            <option value="all">All: full fretboard</option>
+          </select>
+        </label>
+        <button id="play-scale" type="button">▶ Play scale notes</button>
+        <button id="stop-scale" type="button">Stop shape</button>
+        <span id="scale-practice-message" role="status"></span>
+      </div>
+      <p class="fretboard-hint" id="fretboard-hint">Play any highlighted note. Use arrow keys to move between notes. Red marks the root.</p>
+    </section>
+    <details id="library-drawer" class="library-drawer">
+      <summary>Favorites and sharing</summary>
+      <section id="progression-library" class="progression-library" aria-labelledby="library-title">
+      <h2 id="library-title" class="visually-hidden">Favorites and sharing</h2>
+      <div class="library-actions">
+        <button id="save-favorite" type="button" data-library="save">Save favorite</button>
+        <button id="copy-progression" type="button" data-library="text">Copy text</button>
+        <button id="share-progression" type="button" data-library="link">Copy link</button>
+        <button id="export-progression" type="button" data-library="image">Export PNG</button>
+      </div>
+      <p id="library-status" role="status"></p>
+      <textarea id="copy-fallback" rows="3" aria-label="Text or link to copy" readonly hidden></textarea>
+      <label id="favorite-collections" for="favorite-collection" hidden>Collection
+        <select id="favorite-collection" aria-label="Filter favorites by collection"></select>
+      </label>
+      <p id="favorites-empty">No favorites saved on this device.</p>
+      <ul id="favorites" aria-label="Saved progressions"></ul>
+      </section>
+    </details>
+    <dialog id="chord-zoom" class="chord-zoom" aria-labelledby="chord-zoom-title">
+      <div class="zoom-heading">
+        <h2 id="chord-zoom-title">Chord diagram</h2>
+        <button id="close-chord-zoom" type="button" aria-label="Close enlarged chord diagram">✕</button>
+      </div>
+      <div id="chord-zoom-diagram"></div>
+      <div class="zoom-audition">
+        <button type="button" id="chord-zoom-audition">Hear chord</button>
+        <p id="chord-zoom-status" role="status"></p>
+      </div>
+      <div class="zoom-nav">
+        <button id="chord-zoom-prev" type="button" aria-label="Previous chord">← Previous</button>
+        <span id="chord-zoom-count"></span>
+        <button id="chord-zoom-next" type="button" aria-label="Next chord">Next →</button>
+      </div>
+    </dialog>
+    <p class="credits">Acoustic guitar by Meta Open Sound, clean electric by FreePats, drums from Virtuosity Drums. CC0-1.0.</p>
+  </main>
+</body>
+</html>

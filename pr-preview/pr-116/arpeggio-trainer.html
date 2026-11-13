@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Arpeggio Trainer · Guitar Explorer</title>
+  <link rel="stylesheet" href="./progression.css?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8">
+  <link rel="stylesheet" href="./trainers.css?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8">
+  <script type="module" src="./arpeggio-trainer.mjs?ge-revision=49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8"></script>
+  <meta name="guitar-explorer-revision" content="49dc7b3c771c023cbc4f8427bb431de7e2d4dcc8">
+  <meta name="guitar-explorer-preview-pr" content="116">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-116">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to arpeggio trainer</a>
+  <header class="site-header">
+    <div class="shell brand-row">
+      <a class="brand" href="./">Guitar Explorer</a>
+      <nav aria-label="Workspace navigation">
+        <a href="./progression.html">Chord Progressions</a>
+        <a href="./triad-trainer.html">Triad Trainer</a>
+        <span class="nav-current" aria-current="page">Arpeggio Trainer</span>
+        <a href="./instrument-desk.html">Instrument Desk</a>
+      </nav>
+    </div>
+  </header>
+  <main class="shell trainer" id="main" tabindex="-1">
+    <div class="page-heading"><h1>Arpeggio Trainer</h1></div>
+    <section class="settings" aria-label="Arpeggio settings">
+      <div class="trainer-settings">
+        <div class="field"><label for="trainer-root">Root</label><select id="trainer-root"></select></div>
+        <div class="field"><label for="trainer-quality">Quality</label><select id="trainer-quality"></select></div>
+        <div class="field"><label for="arpeggio-range">Range</label>
+          <select id="arpeggio-range"><option value="full">Full shape</option><option value="octave">One octave</option></select>
+        </div>
+        <div class="field"><label for="arpeggio-direction">Direction</label>
+          <select id="arpeggio-direction"><option value="up">Up</option><option value="down">Down</option><option value="both">Up &amp; down</option></select>
+        </div>
+        <div class="field"><label for="arpeggio-rhythm">Rhythm</label>
+          <select id="arpeggio-rhythm"><option value="quarter">Quarter notes</option><option value="eighth" selected>Eighth notes</option><option value="sixteenth">Sixteenth notes</option><option value="triplet">Eighth-note triplets</option></select>
+        </div>
+        <div class="field"><label for="trainer-tempo">Tempo <output id="trainer-bpm">96 BPM</output></label>
+          <input id="trainer-tempo" type="range" min="50" max="180" value="96">
+        </div>
+      </div>
+      <div class="arpeggio-options" role="group" aria-label="Playback options">
+        <label class="trainer-inline"><input id="arpeggio-count-in" type="checkbox"> Count-in</label>
+        <label class="trainer-inline"><input id="arpeggio-click" type="checkbox"> Metronome</label>
+        <label class="trainer-inline"><input id="arpeggio-loop" type="checkbox"> Loop</label>
+        <label class="trainer-inline"><input id="arpeggio-cycle" type="checkbox"> Cycle shapes</label>
+      </div>
+    </section>
+    <div class="action-row trainer-actions">
+      <button type="button" id="trainer-play" class="primary" data-label="Play arpeggio">Play arpeggio</button>
+      <button type="button" id="trainer-stop" disabled>Stop</button>
+    </div>
+    <p id="trainer-status" role="status"></p>
+    <section class="fretboard-panel" aria-labelledby="trainer-board-heading">
+      <div class="fretboard-heading">
+        <h2 id="trainer-board-heading">Arpeggio fretboard</h2>
+        <div id="caged-positions" role="group" aria-label="CAGED position">
+          <button type="button" data-position="C" aria-label="C shape">C</button>
+          <button type="button" data-position="A" aria-label="A shape">A</button>
+          <button type="button" data-position="G" aria-label="G shape">G</button>
+          <button type="button" data-position="E" aria-label="E shape">E</button>
+          <button type="button" data-position="D" aria-label="D shape">D</button>
+        </div>
+      </div>
+      <p id="arpeggio-roles" class="arpeggio-roles"></p>
+      <div class="fretboard-scroll" tabindex="0" aria-label="Horizontal guitar fretboard">
+        <div class="fretboard" id="trainer-board"></div>
+      </div>
+      <p class="trainer-note" id="arpeggio-range-note" role="status"></p>
+    </section>
+    <section class="fretboard-panel" aria-labelledby="tab-heading">
+      <div class="fretboard-heading"><h2 id="tab-heading">Tablature</h2><p id="tab-position"></p></div>
+      <div id="arpeggio-tab" class="tab-scroll" tabindex="0" aria-label="Horizontal guitar tablature"></div>
+    </section>
+    <p class="trainer-credit">Acoustic guitar recordings by Meta Open Sound. CC0-1.0.</p>
+  </main>
+</body>
+</html>

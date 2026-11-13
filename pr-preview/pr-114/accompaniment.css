@@ -1,0 +1,119 @@
+.accompaniment-workspace {
+  display: grid;
+  gap: 1rem;
+}
+
+.accompaniment-card,
+.physical-card {
+  border: 1px solid var(--line, #313845);
+  border-radius: 18px;
+  padding: 1rem;
+  background: color-mix(in srgb, var(--panel, #171b22) 92%, transparent);
+}
+
+.section-heading-row {
+  display: flex;
+  gap: 1rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.section-heading-row h2,
+.physical-card h2 {
+  margin: 0.15rem 0 0;
+}
+
+.progression-controls {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(120px, 1fr));
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.chord-control {
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.85rem;
+  border-radius: 14px;
+  background: rgba(255,255,255,0.04);
+}
+
+.chord-control strong {
+  font-size: 1.2rem;
+}
+
+.chord-control select {
+  width: 100%;
+}
+
+#accompaniment-tempo {
+  width: 100%;
+}
+
+.preset-row,
+.playback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 0.8rem;
+}
+
+.pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(56px, 1fr));
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.pattern-slot {
+  min-height: 84px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.2rem;
+  border: 1px solid var(--line, #313845);
+  border-radius: 12px;
+  background: rgba(255,255,255,0.035);
+  color: inherit;
+  cursor: pointer;
+}
+
+.pattern-slot:hover,
+.pattern-slot:focus-visible {
+  border-color: currentColor;
+}
+
+.pattern-count {
+  font-size: 0.75rem;
+  opacity: 0.62;
+}
+
+.pattern-action {
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.pattern-readable {
+  margin: 0.8rem 0 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  letter-spacing: 0.08em;
+}
+
+.playback-card {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (max-width: 760px) {
+  .progression-controls {
+    grid-template-columns: repeat(2, minmax(120px, 1fr));
+  }
+
+  .pattern-grid {
+    grid-template-columns: repeat(4, minmax(56px, 1fr));
+  }
+
+  .section-heading-row {
+    display: grid;
+  }
+}

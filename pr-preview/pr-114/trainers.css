@@ -1,0 +1,49 @@
+.trainer-settings {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  align-items: end;
+  gap: .65rem;
+}
+.trainer-settings input[type="range"] { width: 100%; min-height: 2.55rem; accent-color: var(--forest); }
+.trainer-settings output { color: var(--muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.trainer-actions { margin-top: .75rem; }
+#trainer-status { text-align: center; margin-top: .28rem; min-height: 1.3rem; color: var(--muted); }
+.trainer-heading { text-align: center; margin: .35rem 0; font-size: clamp(1.3rem, 3vw, 1.8rem); }
+.trainer-note { color: var(--muted); text-align: center; font-size: .83rem; margin: 0 0 .5rem; }
+.trainer-note:empty { display: none; }
+.trainer-card { padding: .75rem; }
+.trainer-card h3 { font-family: Georgia, serif; font-size: 1.55rem; }
+.trainer-card .inversion { color: var(--forest); font-size: .86rem; font-weight: 700; }
+.trainer-card .diagram-wrap { margin-top: .2rem; }
+.trainer-card .shape-tones { display: grid; gap: .13rem; margin: .3rem 0; padding: 0; list-style: none; color: var(--muted); font-size: .79rem; }
+.trainer-card .shape-tones strong { display: inline-block; min-width: 2em; color: var(--text); }
+.trainer-card-actions { display: flex; gap: .6rem; align-items: center; flex-wrap: wrap; margin-top: auto; }
+.trainer-card-actions button { padding: .25rem .6rem; }
+.trainer-card-actions label, .trainer-inline { font-size: .83rem; color: var(--muted); }
+.trainer-inline input, .trainer-card-actions input { vertical-align: middle; accent-color: var(--forest); }
+.trainer-active { outline: 2px solid var(--focus); }
+.trainer .fret-note[data-role="third"] { background: #59623b; }
+.trainer .fret-note[data-role="fifth"] { background: #365653; }
+.trainer .fret-note[data-role="seventh"] { background: #654572; }
+.interval-movement { margin: .5rem auto; display: flex; justify-content: center; flex-wrap: wrap; gap: .35rem 1.2rem; font-size: .83rem; color: var(--muted); }
+.interval-movement[hidden] { display: none; }
+.trainer-credit { margin: .9rem 0; text-align: center; color: var(--muted); font-size: .78rem; }
+.arpeggio-options { display: flex; flex-wrap: wrap; gap: .35rem 1.2rem; margin-top: .65rem; }
+.arpeggio-roles, #tab-position { margin: .4rem 0; color: var(--muted); font-size: .86rem; }
+.tab-scroll { overflow-x: auto; max-width: 68rem; margin: .5rem auto 0; }
+.trainer-tab { display: block; margin-inline: auto; font: .84rem system-ui, sans-serif; fill: var(--text); }
+.trainer-tab line { stroke: var(--muted); }
+.trainer-tab .tab-bar { stroke-width: 2px; }
+.tab-note rect { fill: var(--panel); }
+.tab-note text { font-weight: 750; }
+.tab-note .tab-role { fill: var(--muted); }
+.tab-note[data-role="root"] .tab-role { fill: var(--warm); }
+.tab-current rect { fill: var(--forest); }
+.tab-current text { fill: var(--on-forest); }
+.tab-current .tab-role { fill: var(--forest); }
+@media (max-width: 900px) { .trainer-settings { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 530px) {
+  .trainer-settings { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-header .brand-row { flex-wrap: wrap; gap: .2rem .8rem; padding-block: .45rem; }
+  .site-header nav { flex-wrap: wrap; }
+}

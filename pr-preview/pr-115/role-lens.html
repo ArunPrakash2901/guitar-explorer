@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · Role Lens</title>
+  <link rel="stylesheet" href="./fretboard.css?ge-revision=8615044429dcaddc9dd105f438796048a7317c34">
+  <link rel="stylesheet" href="./product-spine.css?ge-revision=8615044429dcaddc9dd105f438796048a7317c34">
+  <link rel="stylesheet" href="./role-lens.css?ge-revision=8615044429dcaddc9dd105f438796048a7317c34">
+  <meta name="guitar-explorer-revision" content="8615044429dcaddc9dd105f438796048a7317c34">
+  <meta name="guitar-explorer-preview-pr" content="115">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-115">
+</head>
+<body class="product-spine role-lens">
+  <header class="product-header" aria-label="Guitar Explorer workspace">
+    <a class="brand" href="./product-spine.html">Guitar Explorer</a>
+    <nav class="intent-nav" aria-label="Workspace intention">
+      <a class="intent-tab" href="./product-spine.html">Explore</a>
+      <span class="intent-tab" aria-pressed="true">Practice</span>
+      <span class="intent-tab is-disabled" aria-disabled="true">Apply</span>
+    </nav>
+    <div class="header-spacer"></div>
+    <p id="key-label" class="key-label">G major</p>
+    <a class="secondary compact back-link" href="./product-spine.html">Return to desk</a>
+  </header>
+
+  <main class="workspace">
+    <div class="moment-context">
+      <p class="eyebrow">Role Lens v0</p>
+      <p id="context-label" class="context-label">One pitch · changing harmony</p>
+    </div>
+
+    <div id="role-steps" class="practice-moments" aria-label="Role Lens journey">
+      <span data-step="hear">HEAR</span>
+      <span data-step="role">ROLE</span>
+      <span data-step="use">USE</span>
+      <span data-step="transfer">TRANSFER</span>
+      <span data-step="reflect">REFLECT</span>
+    </div>
+
+    <h1 id="stage-title" tabindex="-1"></h1>
+    <p id="stage-lead" class="stage-lead"></p>
+
+    <section id="hear-panel" class="role-panel" hidden aria-label="Hear one pitch through changing harmony">
+      <div id="hear-sequence" class="chord-sequence"></div>
+      <div class="instruction-card">
+        <strong id="anchor-instruction"></strong>
+        <p>Strum one chord, let it ring briefly, then play or sing the anchor pitch. Leave space between comparisons.</p>
+      </div>
+      <div aria-label="Optional app audio comparison">
+        <div>
+          <label for="role-audio-tempo"><strong>Playback tempo</strong> · <output id="role-audio-tempo-value" for="role-audio-tempo">84 BPM</output></label>
+          <input type="range" id="role-audio-tempo" min="50" max="140" step="1" value="84" aria-describedby="role-audio-tempo-help">
+          <p id="role-audio-tempo-help" class="muted">Change only the playback pace. The musical roles and your prediction task stay the same.</p>
+        </div>
+        <button type="button" id="role-audio-anchor" class="secondary compact">Hear anchor note</button>
+        <button type="button" id="role-audio-play" class="secondary compact">Hear all three comparisons</button>
+        <button type="button" id="role-audio-stop" class="secondary compact">Stop audio</button>
+        <p id="role-audio-status" class="muted" role="status" aria-live="polite">Optional: hear the supplied guitar-like comparison, then repeat it yourself with the same anchor pitch.</p>
+      </div>
+    </section>
+
+    <section id="predict-panel" class="role-panel" hidden aria-labelledby="predict-heading">
+      <h2 id="predict-heading">Commit what you think the anchor is doing</h2>
+      <p class="muted">For each chord, choose only whether the same pitch belongs to the chord. Exact interval labels stay hidden until you commit all three.</p>
+      <div id="role-predictions" class="role-predictions"></div>
+    </section>
+
+    <section id="reveal-panel" class="role-panel" hidden aria-labelledby="reveal-heading">
+      <h2 id="reveal-heading">Same pitch. Different role.</h2>
+      <div id="role-facts" class="role-facts"></div>
+      <div id="anchor-board" class="board-slot role-board" aria-label="Anchor pitch locations"></div>
+      <p id="location-note" class="muted"></p>
+    </section>
+
+    <section id="use-panel" class="role-panel" hidden aria-labelledby="use-heading">
+      <h2 id="use-heading">Turn the observation into a musical choice</h2>
+      <p id="use-instruction"></p>
+      <div id="ending-options" class="ending-options"></div>
+      <div id="ending-detail" class="instruction-card" hidden></div>
+    </section>
+
+    <section id="variation-panel" class="role-panel" hidden aria-labelledby="variation-heading">
+      <h2 id="variation-heading">Keep the ending. Change the phrase.</h2>
+      <p id="variation-instruction"></p>
+      <div class="variation-grid">
+        <div><strong>Keep</strong><span id="variation-keep"></span></div>
+        <div><strong>Change</strong><span>rhythm, repetition or note order</span></div>
+        <div><strong>Listen for</strong><span>whether the ending still feels deliberate</span></div>
+      </div>
+    </section>
+
+    <section id="transfer-panel" class="role-panel" hidden aria-label="Transfer Role Lens to A major">
+      <div class="context-change-panel transfer-change">
+        <div><span>Original</span><strong>G major</strong></div>
+        <b aria-hidden="true">→</b>
+        <div><span>Transfer</span><strong>A major</strong></div>
+      </div>
+      <div id="transfer-content"></div>
+    </section>
+
+    <section id="reflection-panel" class="reflection-panel" hidden aria-labelledby="reflection-heading">
+      <h2 id="reflection-heading">What changed for you?</h2>
+      <p>This is descriptive evidence, not a mastery score.</p>
+      <div id="reflection-options" class="reflection-options"></div>
+    </section>
+
+    <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+
+    <div class="moment-actions">
+      <button type="button" id="secondary-action" class="secondary" hidden></button>
+      <div class="action-spacer"></div>
+      <button type="button" id="primary-action" class="primary"></button>
+    </div>
+  </main>
+
+  <footer class="product-footer">
+    <span>App audio can demonstrate the supplied comparison; your guitar still does the learning work.</span>
+    <span>One material · two learner actions · no score</span>
+  </footer>
+
+  <script type="module" src="./role-lens-app.js?ge-revision=8615044429dcaddc9dd105f438796048a7317c34"></script>
+  <script type="module" src="./role-lens-audio.js?ge-revision=8615044429dcaddc9dd105f438796048a7317c34"></script>
+  <script type="module" src="./session-evidence.mjs?ge-revision=8615044429dcaddc9dd105f438796048a7317c34"></script>
+</body>
+</html>

@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guitar Explorer · Practice</title>
+  <meta name="description" content="Hear a relationship, find it on your guitar, make a phrase and move it somewhere new. A short, generated guitar practice session.">
+  <link rel="stylesheet" href="./fretboard.css?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <link rel="stylesheet" href="./instrument-desk.css?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <meta name="guitar-explorer-revision" content="72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <meta name="guitar-explorer-preview-pr" content="114">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-114">
+</head>
+<body class="instrument-desk practice-product">
+  <a class="skip-link" href="#main">Skip to practice</a>
+  <header class="practice-header">
+    <button type="button" class="brand-home" id="brand-home">Guitar Explorer</button>
+    <nav aria-label="Main">
+      <button type="button" id="nav-home" aria-current="page">Home</button>
+      <button type="button" id="nav-practice" hidden>Practice</button>
+    </nav>
+    <div class="theme-toggle" aria-label="Appearance">
+      <button type="button" id="theme-light" aria-pressed="true">Light</button>
+      <button type="button" id="theme-dark" aria-pressed="false">Dark</button>
+    </div>
+  </header>
+
+  <main id="main" class="practice-main">
+    <section id="home-view" aria-labelledby="home-title">
+      <p class="eyebrow">Your guitar. One useful session.</p>
+      <h1 id="home-title" tabindex="-1">Find a relationship.<br>Make it music.</h1>
+      <p class="home-intro" id="home-intro">Hear it, locate it on your acoustic guitar, then carry it to a new root. A small region. Time to listen.</p>
+      <div class="home-layout">
+        <section class="panel start-panel" aria-labelledby="focus-title">
+          <p class="eyebrow" id="focus-kicker">Fretboard + theory</p>
+          <h2 id="focus-title">Get to know your thirds</h2>
+          <p id="focus-description">Find two notes that belong together. Use them in a phrase, move register, then find the same relationship from a different root.</p>
+          <label for="practice-focus">Today’s focus</label>
+          <select id="practice-focus">
+            <option value="major">Major thirds</option>
+            <option value="minor">Minor thirds</option>
+            <option value="role">One pitch, changing chords</option>
+          </select>
+          <p class="quiet" id="session-length">3 rounds · about 6–8 minutes · open strings to fret 3</p>
+          <div class="button-row">
+            <button type="button" class="primary" id="continue-practice" hidden>Continue practice</button>
+            <button type="button" class="primary" id="start-practice">Start practice</button>
+          </div>
+          <p class="quiet" id="continue-note" hidden>Your current session is kept while this tab stays open. Reloading starts fresh.</p>
+          <p class="feedback" id="home-error" role="status"></p>
+        </section>
+        <aside class="home-guide" aria-label="Your session">
+          <h2 id="guide-title">Pick up your guitar.</h2>
+          <ol class="session-outline">
+            <li><strong id="outline-1-title">Find</strong><span id="outline-1-copy">Start from one root. Search before the answer appears.</span></li>
+            <li><strong id="outline-2-title">Move</strong><span id="outline-2-copy">Keep the interval. Play it in a different register.</span></li>
+            <li><strong id="outline-3-title">Transfer</strong><span id="outline-3-copy">Change the root. Turn the same relationship into a phrase.</span></li>
+          </ol>
+          <p class="quiet">Standard tuning: E A D G B E.<br>Recorded acoustic guitar is there when you want a reference.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section id="runtime-view" hidden aria-labelledby="task-title">
+      <div class="session-topline">
+        <p class="eyebrow" id="round-label"></p>
+        <button type="button" class="text-button" id="pause-practice">Pause &amp; return Home</button>
+      </div>
+      <progress id="session-progress" max="3" value="0" aria-label="Session rounds completed"></progress>
+      <h1 id="task-title" tabindex="-1"></h1>
+      <p class="task-intro" id="task-instruction"></p>
+      <div class="runtime-layout">
+        <aside class="task-card panel">
+          <p class="eyebrow" id="round-purpose"></p>
+          <h2 id="relationship-title"></h2>
+          <p id="root-location"></p>
+          <p id="target-region"></p>
+          <div class="audio-tools" aria-label="Recorded guitar reference">
+            <button type="button" id="hear-root">Hear root</button>
+            <button type="button" id="hear-pair" hidden>Hear root → third → root</button>
+            <button type="button" class="text-button" id="stop-sound">Stop sound</button>
+            <p class="quiet" id="audio-status" role="status">Play first, or hear the root as a reference.</p>
+          </div>
+        </aside>
+        <div class="working-surface">
+          <section class="panel board-panel" id="board-panel" aria-label="Your guitar fretboard">
+            <div class="board-heading"><strong>Find it on your guitar</strong><span id="board-region">Open–3 · standard tuning</span></div>
+            <div id="desk-board" class="desk-board"></div>
+            <p class="quiet board-help" id="board-help">String 1 is high E; string 6 is low E. Choose with a click, or use Tab and the arrow keys, then Enter.</p>
+          </section>
+          <div id="find-controls" class="response-controls">
+            <p id="selection-label">Play the root, then try a third on your guitar. Mark your choice above.</p>
+            <div class="button-row">
+              <button type="button" class="primary" id="check-position" disabled>Check this position</button>
+              <button type="button" id="help-reveal" hidden>Show me after my attempt</button>
+            </div>
+          </div>
+          <section id="reveal-controls" class="panel use-panel" hidden aria-labelledby="reveal-title">
+            <p class="eyebrow" id="support-label"></p>
+            <h2 id="reveal-title"></h2>
+            <p id="relationship-explanation"></p>
+            <p class="physical-prompt" id="phrase-prompt"></p>
+            <label class="check-label"><input type="checkbox" id="played-phrase"> I played the notes and tried my own phrase.</label>
+            <fieldset>
+              <legend>After leaving silence, what did you hear?</legend>
+              <label><input type="radio" name="reflection" id="reflection-home" value="home"> The root felt like home</label>
+              <label><input type="radio" name="reflection" id="reflection-exploring" value="exploring"> I’m still exploring the sound</label>
+            </fieldset>
+            <p class="quiet">Your listening impression has no right or wrong answer.</p>
+            <button type="button" class="primary" id="next-round" disabled>Next round</button>
+          </section>
+          <section id="role-controls" class="panel role-panel" hidden aria-label="Listen, understand and use">
+            <div id="role-listen">
+              <p class="eyebrow" id="role-context-counter"></p>
+              <h2 id="role-context-title"></h2>
+              <fieldset>
+                <legend>How did the anchor feel with this chord?</legend>
+                <label><input type="radio" name="role-impression" id="role-settled" value="settled"> Settled</label>
+                <label><input type="radio" name="role-impression" id="role-tense" value="tense"> Tense</label>
+                <label><input type="radio" name="role-impression" id="role-unsure" value="unsure"> Unsure</label>
+              </fieldset>
+              <p class="quiet" id="role-listening-note"></p>
+            </div>
+            <div id="role-reveal" hidden>
+              <h2>One pitch, three relationships</h2>
+              <div id="role-facts"></div>
+              <p class="quiet">Chord membership describes the supplied harmony. Settled, tense and unsure remain your listening impressions.</p>
+            </div>
+            <div id="role-use" hidden>
+              <h2 id="role-use-title"></h2>
+              <p class="physical-prompt" id="role-use-copy"></p>
+              <label class="check-label"><input type="checkbox" id="role-played"> I played the same pitch while the chords changed.</label>
+              <p class="quiet" id="role-use-note"></p>
+            </div>
+            <button type="button" class="primary" id="role-next" disabled>Keep my impression</button>
+          </section>
+          <p class="feedback" id="task-feedback" role="status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section id="complete-view" hidden aria-labelledby="complete-title">
+      <p class="eyebrow">Session complete</p>
+      <h1 id="complete-title" tabindex="-1">One relationship.<br>More than one place.</h1>
+      <p class="home-intro" id="complete-intro">You reached the end of this practice. Keep one short phrase you liked, and play it once more with the screen out of sight.</p>
+      <div class="panel complete-panel">
+        <h2 id="complete-relationship"></h2>
+        <ul id="complete-rounds"></ul>
+        <p id="complete-next-copy">Your next session changes the starting material and keeps the same small steps: find, hear, use and transfer.</p>
+        <div class="button-row">
+          <button type="button" class="primary" id="another-session">Start another session</button>
+          <button type="button" id="finish-home">Back Home</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <footer class="practice-footer"><span>Play first. Listen. Leave space.</span><a href="./samples/steel/PROVENANCE.md">Guitar sound credits</a></footer>
+  <script type="module" src="./product-theme.js?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e"></script>
+  <script type="module" src="./instrument-desk-app.js?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e"></script>
+</body>
+</html>

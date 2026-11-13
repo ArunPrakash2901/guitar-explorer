@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <title>Triad Trainer · Guitar Explorer</title>
+  <link rel="stylesheet" href="./progression.css?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <link rel="stylesheet" href="./trainers.css?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <script type="module" src="./triad-trainer.mjs?ge-revision=72d035b994510ff9f5662f42758107c3c7a42f5e"></script>
+  <meta name="guitar-explorer-revision" content="72d035b994510ff9f5662f42758107c3c7a42f5e">
+  <meta name="guitar-explorer-preview-pr" content="114">
+  <meta name="guitar-explorer-deployment-channel" content="preview">
+  <meta name="guitar-explorer-deployment-label" content="pr-114">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to triad trainer</a>
+  <header class="site-header">
+    <div class="shell brand-row">
+      <a class="brand" href="./">Guitar Explorer</a>
+      <nav aria-label="Workspace navigation">
+        <a href="./progression.html">Chord Progressions</a>
+        <span class="nav-current" aria-current="page">Triad Trainer</span>
+        <a href="./arpeggio-trainer.html">Arpeggio Trainer</a>
+        <a href="./instrument-desk.html">Instrument Desk</a>
+      </nav>
+    </div>
+  </header>
+  <main id="main" class="shell trainer" tabindex="-1">
+    <div class="page-heading"><h1>Triad Trainer</h1></div>
+    <section class="settings" aria-label="Triad settings">
+      <div class="trainer-settings">
+        <div class="field"><label for="trainer-root">Root</label><select id="trainer-root"></select></div>
+        <div class="field"><label for="trainer-quality">Quality</label><select id="trainer-quality"></select></div>
+        <div class="field"><label for="string-set">String set</label>
+          <select id="string-set">
+            <option value="1">1–3 · e B G</option><option value="2">2–4 · B G D</option>
+            <option value="3">3–5 · G D A</option><option value="4">4–6 · D A E</option>
+          </select>
+        </div>
+        <div class="field"><label for="triad-playback">Playback</label>
+          <select id="triad-playback"><option value="strum">Strum</option><option value="arpeggio">Arpeggio</option></select>
+        </div>
+        <div class="field"><label for="trainer-labels">Labels</label>
+          <select id="trainer-labels"><option value="notes">Note names</option><option value="intervals">Intervals</option><option value="fingers">Suggested fingers</option></select>
+        </div>
+        <div class="field"><label for="trainer-tempo">Tempo <output id="trainer-bpm">96 BPM</output></label>
+          <input type="range" id="trainer-tempo" min="50" max="180" value="96">
+        </div>
+      </div>
+    </section>
+    <div class="action-row trainer-actions">
+      <button type="button" id="trainer-play" class="primary" data-label="Play all shapes">Play all shapes</button>
+      <button type="button" id="trainer-stop" disabled>Stop</button>
+    </div>
+    <p id="trainer-status" role="status"></p>
+    <section aria-labelledby="triad-heading">
+      <h2 id="triad-heading" class="trainer-heading"></h2>
+      <p id="shape-note" class="trainer-note"></p>
+      <ol id="triad-shapes" class="chord-grid"></ol>
+    </section>
+    <section class="fretboard-panel" aria-labelledby="trainer-board-heading">
+      <div class="fretboard-heading">
+        <h2 id="trainer-board-heading">Connected fretboard</h2>
+        <label class="trainer-inline"><input type="checkbox" id="show-movement"> Show interval movement</label>
+      </div>
+      <div class="fretboard-scroll" tabindex="0" aria-label="Horizontal guitar fretboard">
+        <div class="fretboard" id="trainer-board"></div>
+      </div>
+      <div id="interval-movement" class="interval-movement" hidden></div>
+    </section>
+    <p class="trainer-credit">Acoustic guitar recordings by Meta Open Sound. CC0-1.0.</p>
+  </main>
+</body>
+</html>
