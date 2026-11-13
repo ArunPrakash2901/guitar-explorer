@@ -112,6 +112,37 @@ Keep evidence local-only unless explicitly authorized otherwise. Do not add tele
 
 Recorded learner audio is media/observation, not proof of correctness.
 
+## Native packaging and release responsibility
+
+The owner-approved personal installer pilot is a **distribution surface**, not
+a second product or source of musical truth:
+
+- `packaging/windows/` owns the Electron host, local asset protocol and NSIS
+  metadata. `packaging/android/` owns Capacitor and Android packaging. Neither
+  may duplicate music/query rules, progression generation, trainer state or the
+  shared Web Audio clock.
+- `scripts/build-preview.mjs` owns the bounded static asset build;
+  `npm run app:build` packages that output for native containers.
+- `.github/workflows/build-personal-installers.yml` owns personal EXE/APK
+  compilation and GitHub prerelease attachments. It must not be confused with
+  production publication, app-store approvals, or the PR-review preview route.
+- Record three distinct statuses in user handoffs: **source merged**,
+  **binary build succeeded**, **GitHub Release published with verified
+  attachments**. One does not imply another.
+- Never invent a release URL, claim that a `.exe` or `.apk` exists, or
+  weaken the validation gate merely because an Actions job could not start.
+  `startup_failure` with no jobs is a billing/account/infrastructure blocker,
+  not evidence about source correctness.
+- Keep the current audio/physical review gates for learner-facing product
+  changes. Do not use distribution work to implicitly merge unrelated
+  unreviewed progressions/trainers or Looper Studio PR #111.
+- Merges into an **intermediate stack branch** are not merges into `master`.
+  Respect explicit user authorization, record the actual merge target and
+  preserve unmerged ancestors until their integration is accounted for.
+
+See `docs/PERSONAL_INSTALLER_RELEASE.md` for test-install details and
+`PROJECT_STATE.md` for the current blocker.
+
 ## Repository and planning authority
 
 - GitHub `master` = merged implementation/capability authority.

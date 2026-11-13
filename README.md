@@ -5,18 +5,89 @@ the guitarist see musical relationships they currently cannot see, hear them,
 physically locate them, manipulate them and reuse them in real music. It is not
 primarily a course app.
 
-The implemented product is a tested TypeScript music kernel with browser Lab
-consumers. PR #44 adds the first bounded Product Spine workspace for Harmonic
-Gravity while preserving every existing Lab route. The longer-term target remains
-one shared musical workspace with **Explore**, **Practice** and **Apply** intentions;
-this first vertical slice does not implement a general Experience Router or fixed
-exercise architecture.
+The **merged `master` baseline** contains the deterministic TypeScript music
+kernel and the accepted early Practice runtime. Separately, the current
+**unmerged development stack** adds Chord Progressions, recorded sampled playback,
+triad and arpeggio trainers, chord colours and style/groove controls. Treat those
+newer features as review code until they have been independently validated and
+merged, not as a published production application.
 
 [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) is the current source of truth for
 ownership, migration direction, deferred work and the distinction between current
 capabilities and the target.
 
-## Current status
+## Installable app and GitHub release status (13 November 2026)
+
+**Release status: NOT PUBLISHED.** The repository's GitHub Releases page has
+no Windows or Android download artifacts. GitHub Actions is returning
+`startup_failure` before jobs are allocated, so merging source alone **will not**
+produce binaries or publish a GitHub Release.
+
+The intended *personal test* binaries are:
+
+| Device | Intended file | Packaging |
+| --- | --- | --- |
+| Windows 10/11 x64 | `GuitarExplorer-Setup-0.1.0-x64.exe` | Electron + NSIS |
+| Android phone/tablet | `GuitarExplorer-Android-Phone-Tablet.apk` | Capacitor + Android debug APK |
+
+The installer source and the opt-in release workflow are in
+[PR #118](https://github.com/ArunPrakash2901/guitar-explorer/pull/118),
+stacked on the [PWA packaging PR #117](https://github.com/ArunPrakash2901/guitar-explorer/pull/117)
+and the learner-facing [progression/trainer PR #116](https://github.com/ArunPrakash2901/guitar-explorer/pull/116).
+The precise status must be read from GitHub; a merged PR is **not** proof that
+an installer or app-store release exists.
+
+**For a native release:** restore GitHub Actions execution, run the exact-head
+`.github/workflows/build-personal-installers.yml` workflow, verify the
+Windows/Android binary jobs and the release-upload job, then confirm the actual
+files on [GitHub Releases](https://github.com/ArunPrakash2901/guitar-explorer/releases).
+The workflow targets the pre-release tag `personal-v0.1.0-preview`, but this
+tag is *not a download link* until GitHub has published it.
+
+The Windows app contains local static assets behind an isolated Electron protocol;
+the Android APK packages the same web UI in a local WebView. Neither requires a
+live Guitar Explorer website for the bundled pages, but recorded audio, persistence,
+touch interaction and file export still need real-device checks. The Windows
+installer is unsigned and the Android installer is debug-signed for sideloading;
+neither is a signed store-distribution package.
+
+See [personal installer guide](docs/PERSONAL_INSTALLER_RELEASE.md) and
+[installable PWA notes](docs/APP_RELEASE.md) for commands, boundaries and rollback.
+The independent experimental Looper Studio PR #111 is **not** included.
+
+### Run the current development app locally
+
+Requires Node.js 22.17+ (including on Windows). On the checked-out
+integration/installer branch:
+
+```sh
+npm ci
+npm run lab
+```
+
+Open `http://127.0.0.1:4173/progression.html` for the progression workspace,
+`/triad-trainer.html` or `/arpeggio-trainer.html` for the trainers.
+The static `npm run app:build` produces `.preview-dist` for packaging; that
+directory is **not** itself a Windows setup file or Android APK.
+
+### Repository responsibilities and source of truth
+
+| Layer | Responsibility |
+| --- | --- |
+| `src/engine`, `src/guitar`, `musicQueries` | Deterministic musical facts; no learner/session/audio implementation |
+| `src/progression`, bounded `lab/progression-*.mjs` | Progression selection, playable voicings, style/strum/groove choices above music truth |
+| `lab/progression-audio.mjs`, sample manifests | Playback clock, sample selection and audio output; not theory or user grading |
+| `lab/*trainer*` and page modules | Learner interactions, display and practice flow |
+| `packaging/windows`, `packaging/android` | Native shells and installer metadata only; no duplicate musical engine |
+| `scripts/build-preview.mjs` and `.github/workflows/build-personal-installers.yml` | Build and distribution; not evidence of a successful release |
+| `master`, issues/PRs and docs | Merged capability, bounded changes and review evidence; see `AGENTS.md` and `PROJECT_STATE.md` |
+
+The active branch/PR graph is *stacked*: merging a leaf into an intermediate
+branch does not put it on `master`. Keep release status, merged-source status and
+physical verification separate. Do not delete an unmerged ancestor branch just
+because its name looks old.
+
+## Merged kernel baseline and historical Lab guide
 
 **Phase 1 — Foundation Kernel: implemented**
 
