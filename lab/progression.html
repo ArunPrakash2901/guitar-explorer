@@ -66,6 +66,9 @@
             <option value="pop">Pop</option><option value="rock">Rock</option>
             <option value="blues">Blues</option><option value="folk">Folk / acoustic</option>
             <option value="indie">Indie / alternative</option><option value="jazz">Jazz-inspired</option>
+            <option value="funk">Funk</option><option value="reggae">Reggae</option>
+            <option value="bossa">Bossa Nova</option><option value="country">Country</option>
+            <option value="soul">Soul / R&amp;B</option><option value="ballad">Acoustic Ballad</option>
           </select>
         </div>
         <div class="field">
@@ -151,6 +154,10 @@
           </div>
         </div>
         <p id="strum-description" class="strum-description"></p>
+        <div class="style-preset" id="style-preset" hidden>
+          <button type="button" id="apply-style-rhythm">Use style rhythm</button>
+          <small id="style-tempo-range"></small>
+        </div>
         <div class="rhythm-tools" role="group" aria-label="Rhythm options">
           <label><input id="metronome-click" type="checkbox"> Hi-hat metronome</label>
           <label><input id="drum-fill" type="checkbox"> Phrase-end fills</label>

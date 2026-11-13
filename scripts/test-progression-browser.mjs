@@ -491,6 +491,13 @@ try {
   await waitFor("document.querySelector('#play-progression').getAttribute('aria-label') === 'Pause progression'", "resumed transport");
   await evaluate("document.querySelector('.drum-editor').scrollIntoView({ block: 'center' })");
   await screenshot("rhythm-controls");
+  await setValue("#style", "bossa");
+  await click("#apply-style-rhythm");
+  assert.equal(await evaluate("document.querySelector('#drum-groove').value"), "bossa-basic-kit");
+  assert.equal(await evaluate("document.querySelector('#strum-pattern').value"), "bossa-bass");
+  assert.equal(await evaluate("document.querySelector('#tempo').value"), "126");
+  await waitFor("document.querySelector('#transport-message').textContent.includes('Playing loop')", "live style rhythm change");
+  await screenshot("style-bossa");
   await evaluate("document.querySelector('#progression-cards').scrollIntoView({ block: 'center' })");
   await screenshot("desktop-playback");
   await press("#stop-progression", " ");
