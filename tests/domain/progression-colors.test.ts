@@ -14,6 +14,7 @@ const modes = ["major", "naturalMinor", "dorian", "phrygian", "lydian", "mixolyd
 describe("independent chord colors", () => {
   it("offers distinct playable chord identities in seven groups", () => {
     expect(COLOR_GROUPS.map(({ name }) => name)).toEqual(["7ths", "Sus/add", "6ths", "9ths", "11ths", "13ths", "Dim/aug"]);
+    expect(COLOR_GROUPS.flatMap(({ chords }) => chords.map(({ id }) => id)).sort()).toEqual([...COLOR_IDS].sort());
     expect(new Set(COLOR_IDS).size).toBe(COLOR_IDS.length);
     expect(selectedChordColors(["major7", "major7", "minor9"])).toEqual(["major7", "minor9"]);
     expect(selectedChordColors(["major", "unknown"])).toBeNull();

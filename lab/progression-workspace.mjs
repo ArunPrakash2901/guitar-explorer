@@ -23,7 +23,7 @@ const noteText = (value) => value.replaceAll("#", "♯").replaceAll("b", "♭");
 const form = document.querySelector("#generate-form");
 const advancedSettings = document.querySelector("#advanced-settings");
 const quickControls = document.querySelector("#quick-controls");
-for (const id of ["tonic", "mode", "style", "meter", "drum-groove", "guitar-tone", "shape-filter", "strum-pattern", "tempo"]) {
+for (const id of ["tonic", "mode", "style", "shape-filter", "chord-color", "meter", "drum-groove", "guitar-tone", "strum-pattern", "tempo"]) {
   const field = document.getElementById(id)?.closest(".field");
   if (!field) throw new Error("Missing quick setting: " + id);
   quickControls.append(field);

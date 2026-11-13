@@ -208,10 +208,10 @@ function colorChoices(choices: readonly ProgressionChordChoice[], tonic: NoteNam
     qualities.flatMap((chordId): ProgressionChordChoice[] => {
       const chord = buildChord({ root: base.chord.root, chordId });
       const preservesTriad = base.chord.tones.every((tone) => chord.tones.some((note) => sameNote(note.note, tone.note)));
-      const isSuspension = chordId === "sus2" || chordId === "sus4";
+      const isSuspension = chordId === "sus2" || chordId === "sus4" || chordId === "dominant7Sus4";
       const dominant = chordId.startsWith("dominant7") && base.chord.chordId === "major";
       const bluesDominant = isBluesMode(mode) && dominant;
-      const alteredDominant = dominant && base.degree === 5 && chordId !== "dominant7";
+      const alteredDominant = dominant && base.degree === 5 && chordId !== "dominant7" && !isSuspension;
       if ((!isSuspension && !preservesTriad && !alteredDominant && !bluesDominant) ||
         (!bluesDominant && !alteredDominant &&
           !chord.tones.every((tone) => scale.tones.some((note) => sameNote(note.note, tone.note))))) return [];

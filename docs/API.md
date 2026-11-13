@@ -220,13 +220,13 @@ The catalogue's stable IDs and display symbols are:
 | Family | IDs and symbols |
 |---|---|
 | Triads | `major` (empty suffix), `minor` (`m`), `diminished` (`dim`), `augmented` (`aug`) |
-| Suspended | `sus2` (`sus2`), `sus4` (`sus4`) |
+| Suspended | `sus2` (`sus2`), `sus4` (`sus4`), `dominant7Sus4` (`7sus4`) |
 | Power / Open | `power5` (`5`) |
 | Sixth | `major6` (`6`), `minor6` (`m6`), `major6Add9` (`6/9`), `minor6Add9` (`m6/9`) |
 | Seventh | `major7` (`maj7`), `dominant7` (`7`), `minor7` (`m7`), `minorMajor7` (`m(maj7)`), `halfDiminished7` (`m7♭5`), `diminished7` (`dim7`), `augmentedMajor7` (`aug(maj7)`) |
 | Added Tone | `add9` (`add9`), `minorAdd9` (`m(add9)`), `add11` (`add11`), `minorAdd11` (`m(add11)`) |
 | Ninth | `major9` (`maj9`), `dominant9` (`9`), `minor9` (`m9`) |
-| Eleventh | `major11` (`maj11`), `dominant11` (`11`), `minor11` (`m11`) |
+| Eleventh | `major11` (`maj11`), `major7Sharp11` (`maj7♯11`), `dominant11` (`11`), `minor11` (`m11`) |
 | Thirteenth | `major13` (`maj13`), `dominant13` (`13`), `minor13` (`m13`) |
 | Altered Dominant | `dominant7Flat5` (`7♭5`), `dominant7Sharp5` (`7♯5`), `dominant7Flat9` (`7♭9`), `dominant7Sharp9` (`7♯9`) |
 - Formula alterations use major/perfect reference intervals independently of key.
