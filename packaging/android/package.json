@@ -1,0 +1,16 @@
+{
+  "name": "guitar-explorer-android",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "native:add": "cap add android",
+    "native:sync": "cap sync android"
+  },
+  "dependencies": {
+    "@capacitor/core": "8.6.0",
+    "@capacitor/android": "8.6.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.6.0"
+  }
+}

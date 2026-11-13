@@ -1,0 +1,147 @@
+name: Personal Windows + Android installers
+
+# Personal-release workflow. Publish only after verification and both native jobs.
+# A new workflow is also triggered once when first merged into master.
+on:
+  push:
+    branches:
+      - feat/personal-windows-android-installers
+      - master
+    paths:
+      - .github/workflows/build-personal-installers.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: personal-installers-release
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify app and packaging source
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run verify
+      - run: node scripts/test-native-packaging.mjs
+
+  windows:
+    name: Windows setup EXE
+    needs: verify
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify native packaging configuration
+        run: node scripts/test-native-packaging.mjs
+      - name: Build Guitar Explorer web assets
+        run: |
+          npm ci
+          npm run app:build
+      - name: Package Windows application
+        run: |
+          npm install --prefix packaging/windows --no-audit --no-fund
+          node scripts/prepare-windows-installer.mjs
+          npm run dist:win --prefix packaging/windows
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-installer
+          path: release-artifacts/windows/*.exe
+          if-no-files-found: error
+          retention-days: 30
+
+  android:
+    name: Android phone + tablet APK
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Verify native packaging configuration
+        run: node scripts/test-native-packaging.mjs
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - name: Build Guitar Explorer web assets
+        run: |
+          npm ci
+          npm run app:build
+      - name: Generate Android native project and package APK
+        working-directory: packaging/android
+        run: |
+          npm install --no-audit --no-fund
+          npx cap add android
+          npx cap sync android
+          chmod +x android/gradlew
+          cd android
+          ./gradlew assembleDebug --no-daemon
+      - name: Name the phone/tablet APK
+        run: |
+          mkdir -p release-artifacts/android
+          cp packaging/android/android/app/build/outputs/apk/debug/app-debug.apk release-artifacts/android/GuitarExplorer-Android-Phone-Tablet.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: android-apk
+          path: release-artifacts/android/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  github-release:
+    name: Publish GitHub pre-release
+    runs-on: ubuntu-latest
+    needs: [windows, android]
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: windows-installer
+          path: release-assets
+      - uses: actions/download-artifact@v4
+        with:
+          name: android-apk
+          path: release-assets
+      - name: Verify that both installers exist
+        shell: bash
+        run: |
+          shopt -s nullglob
+          exe=(release-assets/*.exe)
+          apk=(release-assets/*.apk)
+          test "${#exe[@]}" -ge 1
+          test "${#apk[@]}" -eq 1
+          file "${exe[0]}" "${apk[0]}"
+      - name: Publish signed-in GitHub personal test release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TAG: personal-v0.1.0-preview
+          HEAD_SHA: ${{ github.sha }}
+        shell: bash
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release tag exists; uploading current build outputs."
+            gh release upload "$TAG" release-assets/* --clobber
+          else
+            gh release create "$TAG" release-assets/* \
+              --target "$HEAD_SHA" \
+              --title "Guitar Explorer · Windows and Android personal preview" \
+              --notes "Personal-use preview. Windows EXE is unsigned; Windows SmartScreen may display a warning. Android APK is debug-signed for sideloading on phones and tablets. Install on devices at your own discretion. This build is based on the experimental PR stack, not merged master. Offline desktop/Android assets are bundled; app-specific audio and device behaviour require real-device testing." \
+              --prerelease
+          fi

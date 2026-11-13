@@ -1,0 +1,46 @@
+{
+  "name": "guitar-explorer-desktop",
+  "productName": "Guitar Explorer",
+  "version": "0.1.0",
+  "description": "Personal desktop build of Guitar Explorer",
+  "main": "main.cjs",
+  "private": true,
+  "scripts": {
+    "dist:win": "electron-builder --win nsis --x64 --publish never"
+  },
+  "devDependencies": {
+    "electron": "45.3.1",
+    "electron-builder": "26.18.0"
+  },
+  "build": {
+    "appId": "app.guitarexplorer.desktop",
+    "productName": "Guitar Explorer",
+    "asar": true,
+    "directories": {
+      "output": "../../release-artifacts/windows"
+    },
+    "files": [
+      "main.cjs",
+      "site/**/*"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "icon.ico"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "artifactName": "GuitarExplorer-Setup-${version}-${arch}.${ext}",
+      "installerIcon": "icon.ico",
+      "uninstallerIcon": "icon.ico"
+    }
+  }
+}
