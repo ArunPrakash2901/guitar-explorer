@@ -7,6 +7,7 @@ const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const labRoot = resolve(projectRoot, "lab");
 const buildRoot = resolve(projectRoot, ".lab-dist");
 const progressionPage = resolve(labRoot, "progression.html");
+const triadPage = resolve(labRoot, "triad-trainer.html");
 
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -49,10 +50,15 @@ function resolveRequest(pathname) {
     "/session-evidence-core.mjs",
     "/scenario-identity.mjs",
     "/scenario-context.mjs",
+    "/triad-trainer.mjs",
+    "/trainers.css",
+    "/trainer-ui.mjs",
+    "/trainer-audio.mjs",
   ].includes(pathname)) {
     return resolve(labRoot, pathname.slice(1));
   }
   if (["/", "/index.html", "/progression.html", "/progression"].includes(pathname)) return progressionPage;
+  if (pathname === "/triad-trainer.html") return triadPage;
   if (["/instrument-desk.html", "/instrument-desk"].includes(pathname)) {
     return resolve(labRoot, "instrument-desk.html");
   }
@@ -132,7 +138,7 @@ async function serveRequest(request, response) {
 
     const extension = extname(filename);
     let body = await readFile(filename);
-    if (extension === ".html" && filename !== progressionPage && !filename.endsWith("instrument-desk.html")) {
+    if (extension === ".html" && filename !== progressionPage && filename !== triadPage && !filename.endsWith("instrument-desk.html")) {
       body = Buffer.from(injectEvidenceRecorder(body.toString("utf8")), "utf8");
     }
 

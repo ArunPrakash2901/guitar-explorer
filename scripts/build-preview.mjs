@@ -94,6 +94,12 @@ const requiredPaths = [
   "progression/generator.js",
   "progression/voicings.js",
   "progression/workspace.js",
+  "progression/triads.js",
+  "triad-trainer.html",
+  "triad-trainer.mjs",
+  "trainers.css",
+  "trainer-ui.mjs",
+  "trainer-audio.mjs",
 ];
 
 function htmlEscape(value) {
@@ -140,7 +146,7 @@ function injectPreviewShell(filename, source) {
     ].join("\n");
     transformed = transformed.replace("</head>", `${metadata}\n</head>`);
   }
-  const productShell = ["index.html", "instrument-desk.html", "progression.html"].includes(filename);
+  const productShell = ["index.html", "instrument-desk.html", "progression.html", "triad-trainer.html"].includes(filename);
   if (transformed.includes("</body>") && !transformed.includes("session-evidence.mjs") && !productShell) {
     transformed = transformed.replace(
       "</body>",

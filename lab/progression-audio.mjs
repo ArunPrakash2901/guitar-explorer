@@ -358,6 +358,28 @@ export class ProgressionAudio {
     return true;
   }
 
+  async playPractice(plan) {
+    this.stop();
+    const revision = this.revision;
+    const drums = plan.countIn ? [...plan.clickHits, { voice: "hat" }] : plan.clickHits;
+    await this.preload(plan.strokes, drums);
+    if (revision !== this.revision) return false;
+    this.startPlan(plan, 0, plan.countIn);
+    return true;
+  }
+
+  activePracticeEvent() {
+    if (!this.playing || this.plan?.kind !== "practice") return null;
+    const elapsed = this.context.currentTime - this.loopStart;
+    if (elapsed < 0 || (!this.plan.repeat && elapsed >= this.plan.loopSeconds)) return null;
+    const position = elapsed % this.plan.loopSeconds;
+    return this.plan.strokes.findLast((event) => event.seconds <= position) ?? null;
+  }
+
+  isCountingIn() {
+    return this.playing && this.plan?.kind === "practice" && this.context.currentTime < this.loopStart;
+  }
+
   async playScale(notes, bpm, options = {}) {
     const plan = planScaleNotes(notes, bpm, options);
     this.stop();
@@ -368,9 +390,13 @@ export class ProgressionAudio {
     return true;
   }
 
-  startPlan(plan, offset) {
+  startPlan(plan, offset, countIn = 0) {
     this.plan = plan;
-    this.transportStartsAt = this.context.currentTime + 0.12;
+    const anchor = this.context.currentTime + 0.12;
+    this.transportStartsAt = anchor + countIn;
+    if (countIn) {
+      for (let beat = 0; beat < 4; beat++) this.scheduleDrum("hat", anchor + beat * plan.countInBeat, beat === 0 ? .9 : .47, true);
+    }
     this.loopStart = this.transportStartsAt - offset;
     const first = plan.events.findIndex(({ seconds }) => seconds >= offset);
     this.nextEvent = first < 0 ? plan.events.length : first;
@@ -382,7 +408,8 @@ export class ProgressionAudio {
 
   pause() {
     if (!this.playing) return false;
-    this.pausedOffset = Math.max(0, this.context.currentTime - this.loopStart) % this.plan.loopSeconds;
+    const elapsed = Math.max(0, this.context.currentTime - this.loopStart);
+    this.pausedOffset = this.plan.repeat ? elapsed % this.plan.loopSeconds : Math.min(elapsed, this.plan.loopSeconds);
     this.revision += 1;
     this.playing = false;
     this.clearSchedule();

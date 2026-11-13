@@ -174,7 +174,7 @@ export function getPlayableVoicings(chord: Chord): readonly GuitarVoicing[] {
   return Object.freeze([...candidates, ...alternatives].filter((grip): grip is GuitarVoicing => grip !== null));
 }
 
-export function chordDiagramModel(voicing: GuitarVoicing): ChordDiagramModel {
+export function chordDiagramModel(voicing: Pick<GuitarVoicing, "shapeFamily" | "lowestFret" | "highestFret" | "frets" | "fingers" | "barres">): ChordDiagramModel {
   const baseFret = voicing.shapeFamily === "open" ? 1 : Math.max(1, voicing.lowestFret);
   if (voicing.highestFret > baseFret + 3) throw new RangeError("A voicing exceeds the four-fret diagram window");
   const strings = voicing.frets.map((fret, stringIndex): DiagramString => Object.freeze({
