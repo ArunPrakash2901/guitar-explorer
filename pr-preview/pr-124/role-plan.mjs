@@ -1,4 +1,4 @@
-import { stringName } from "./practice-plan.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+import { stringName } from "./practice-plan.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 const key = ({ stringIndex, fret }) => stringIndex + ":" + fret;
 export const LISTENING_IMPRESSIONS = Object.freeze(["settled", "tense", "unsure"]);

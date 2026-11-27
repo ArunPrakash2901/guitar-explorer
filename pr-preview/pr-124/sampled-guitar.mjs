@@ -1,4 +1,4 @@
-import { STEEL_SAMPLES } from "./sampled-guitar-manifest.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+import { STEEL_SAMPLES } from "./sampled-guitar-manifest.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 const sampleByPosition = new Map(STEEL_SAMPLES.map((sample) => [
   `${sample.stringIndex}:${sample.fret}`, sample,

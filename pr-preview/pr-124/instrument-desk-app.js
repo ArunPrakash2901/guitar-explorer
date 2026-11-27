@@ -1,14 +1,14 @@
-import { musicQueries, formatNote } from "./engine/index.js?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { createFretboard } from "./fretboard-view.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { STEEL_SAMPLES } from "./sampled-guitar-manifest.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { createSampledGuitar } from "./sampled-guitar.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { composeIntervalSession } from "./practice-material.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { beginSession, advanceSession, intervalBoard, intervalCue, stringName } from "./practice-plan.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+import { musicQueries, formatNote } from "./engine/index.js?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { createFretboard } from "./fretboard-view.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { STEEL_SAMPLES } from "./sampled-guitar-manifest.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { createSampledGuitar } from "./sampled-guitar.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { composeIntervalSession } from "./practice-material.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { beginSession, advanceSession, intervalBoard, intervalCue, stringName } from "./practice-plan.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
-import { composeRoleSession } from "./role-material.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { prepareRolePerformance, roleCue } from "./role-performance.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { beginRoleSession, advanceRoleSession } from "./role-plan.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { renderRoleTask } from "./role-view.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+import { composeRoleSession } from "./role-material.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { prepareRolePerformance, roleCue } from "./role-performance.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { beginRoleSession, advanceRoleSession } from "./role-plan.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { renderRoleTask } from "./role-view.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 const $ = (id) => document.getElementById(id);
 const audio = createSampledGuitar();

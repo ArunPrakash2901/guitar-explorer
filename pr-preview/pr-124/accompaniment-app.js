@@ -4,9 +4,9 @@ import {
   musicQueries,
   toSemitone,
   transposePitch,
-} from "./engine/index.js?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { createPracticePlan } from "./practice-session.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { createAudioOut } from "./audio-out.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+} from "./engine/index.js?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { createPracticePlan } from "./practice-session.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { createAudioOut } from "./audio-out.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 import {
   ACCOMPANIMENT_ACTIONS,
   ACCOMPANIMENT_PRESETS,
@@ -14,7 +14,7 @@ import {
   accompanimentDurationSeconds,
   buildAccompanimentCue,
   createAccompanimentPlan,
-} from "./accompaniment-plan.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+} from "./accompaniment-plan.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 const $ = (id) => document.getElementById(id);
 

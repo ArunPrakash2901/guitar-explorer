@@ -1,4 +1,4 @@
-import { scenarioIdentity } from "./scenario-identity.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+import { scenarioIdentity } from "./scenario-identity.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 // The active scenario is set only after preparation succeeds. Picker values and
 // display prose are not reliable evidence of the accepted teaching material.

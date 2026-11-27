@@ -4,8 +4,8 @@ import {
   finalizeEvidenceSession,
   recordEvidenceInteraction,
   withEvidenceScenario,
-} from "./session-evidence-core.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { readScenarioContext } from "./scenario-context.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+} from "./session-evidence-core.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { readScenarioContext } from "./scenario-context.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 const FIELD_IDS = {
   easierWithoutAnswers: "ge-evidence-easier",

@@ -2,16 +2,16 @@
 // Prepares validated, engine-resolved Melody material and teaching plans
 // for both catalogue and generated sources without browser dependencies.
 
-import { getScenarioById } from "./scenario-catalogue.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { resolveScenario } from "./scenario-resolver.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+import { getScenarioById } from "./scenario-catalogue.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { resolveScenario } from "./scenario-resolver.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 import {
   generateMelodyScenario,
   generateDistinctMelodyScenario,
   getScenarioFingerprint,
   GenerationError,
-} from "./melody-generator.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { createMelodyPlan } from "./melody-session.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
-import { getMelodyRuleById } from "./rule-contract.mjs?ge-revision=57e04601c8bca7d7a3e45d4ed013b27269028be0";
+} from "./melody-generator.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { createMelodyPlan } from "./melody-session.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
+import { getMelodyRuleById } from "./rule-contract.mjs?ge-revision=6e40007f9d0cd0d50a116d456870dccda77ff889";
 
 export class MelodyPreparationError extends Error {
   constructor(code, message, details = {}) {
