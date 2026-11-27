@@ -146,7 +146,9 @@ function assertSubpathSafe(filename, source) {
 
 await rm(outputRoot, { recursive: true, force: true });
 await mkdir(outputRoot, { recursive: true });
-await cp(labRoot, outputRoot, { recursive: true });
+// The hardware diagnostic is served only by the local Lab.
+const localLooper = resolve(labRoot, "looper-studio");
+await cp(labRoot, outputRoot, { recursive: true, filter: (source) => source !== localLooper });
 await cp(engineRoot, join(outputRoot, "engine"), { recursive: true });
 
 // Product builds expose the Instrument Desk at the root while retaining the Chord Lab

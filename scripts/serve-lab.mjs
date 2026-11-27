@@ -5,12 +5,18 @@ import { fileURLToPath } from "node:url";
 
 const projectRoot = resolve(fileURLToPath(new URL("..", import.meta.url)));
 const labRoot = resolve(projectRoot, "lab");
+const looperRoot = resolve(labRoot, "looper-studio");
 const engineRoot = resolve(projectRoot, ".lab-dist", "engine");
 const port = Number.parseInt(process.env.PORT ?? "4173", 10);
 
-if (!Number.isInteger(port) || port < 1 || port > 65535) {
-  throw new Error("PORT must be an integer between 1 and 65535");
+if (!Number.isInteger(port) || port < 0 || port > 65535) {
+  throw new Error("PORT must be an integer between 0 and 65535");
 }
+
+const looperFiles = new Set([
+  "index.html", "looper-studio.css", "looper-studio.mjs", "looper-grid.mjs", "looper-pcm.mjs",
+  "looper-audio.mjs", "looper-midi.mjs", "looper-store.mjs", "looper-capture-worklet.mjs", "looper-capture-worker.mjs",
+]);
 
 const contentTypes = new Map([
   [".html", "text/html; charset=utf-8"],
@@ -27,6 +33,10 @@ function inside(base, candidate) {
 }
 
 function resolveRequest(pathname) {
+  if (pathname.startsWith("/looper-studio/")) {
+    const file = pathname.slice("/looper-studio/".length) || "index.html";
+    return looperFiles.has(file) ? resolve(looperRoot, file) : null;
+  }
   if (pathname.startsWith("/samples/steel/")) {
     const base = resolve(labRoot, "samples", "steel");
     const candidate = resolve(labRoot, pathname.slice(1));
@@ -128,7 +138,7 @@ const server = createServer(async (request, response) => {
 
     const extension = extname(filename);
     let body = await readFile(filename);
-    if (extension === ".html" && !filename.endsWith("instrument-desk.html")) {
+    if (extension === ".html" && !filename.endsWith("instrument-desk.html") && !inside(looperRoot, filename)) {
       body = Buffer.from(injectEvidenceRecorder(body.toString("utf8")), "utf8");
     }
 
@@ -144,6 +154,6 @@ const server = createServer(async (request, response) => {
 });
 
 server.listen(port, "127.0.0.1", () => {
-  console.log(`Guitar Explorer Lab is running at http://127.0.0.1:${port}`);
+  console.log(`Guitar Explorer Lab is running at http://127.0.0.1:${server.address().port}`);
   console.log("Press Ctrl+C to stop.");
 });
