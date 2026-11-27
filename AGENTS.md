@@ -17,6 +17,10 @@ When instructions disagree, use this order:
 
 A lower-level source must never broaden work beyond a higher-level one.
 
+## SDD recovery policy (proposed under #123)
+
+During recovery, do not resume old exercise tasks or expand learner features. Read docs/SDD_TRANSITION_AUDIT.md and the active OpenSpec change. Accepted specs in openspec/specs describe approved behavior; openspec/changes contains proposed deltas only. One authorized issue/change and one integration branch at a time by default. Research is evidence, not authority. Validate specs and run existing gates; no automatic archive, merge, release or branch deletion. Existing approval and architecture rules remain binding. When instructions conflict, stop scope expansion and record the discrepancy in #123.
+
 ## Product north star
 
 Guitar Explorer is a fretboard-first musical reasoning and practice environment. Work should help the learner hear, understand, locate, play, manipulate, create, improvise or transfer musical relationships more reliably on a real guitar.

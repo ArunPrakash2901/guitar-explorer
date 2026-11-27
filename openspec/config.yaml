@@ -1,0 +1,22 @@
+schema: spec-driven
+context: |
+  Guitar Explorer: TypeScript musical truth and guitar geometry, native Web Audio, browser Lab and practice tools.
+  Read AGENTS.md, docs/AUTONOMY_CONTRACT.md, docs/ARCHITECTURE.md and PROJECT_STATE.md.
+  GitHub master is merged implementation evidence; accepted specs define normative behavior.
+  Keep musical facts separate from performance, audio, material and learner judgments.
+  Preserve existing exact-head preview, npm run verify, physical guitar and explicit approval gates.
+  Do not expand features while #123 recovery is active. Candidate capabilities are change deltas, not accepted specs.
+  No implicit production release, telemetry, account/backend expansion, destructive cleanup or public learner evidence.
+rules:
+  proposal:
+    - Link one authorized GitHub issue and identify the exact base SHA, scope and non-goals.
+    - Distinguish observed behavior, proposed changes and evidence gaps.
+  specs:
+    - Use testable SHALL requirements and scenarios with source/test traceability.
+    - Do not canonize unmerged or unvalidated behavior.
+  design:
+    - Identify layer ownership, dependency direction, conflicts, migration and rollback.
+    - Specify browser, audio, physical review and provenance where relevant.
+  tasks:
+    - Each task names its verification method and acceptance evidence.
+    - No archive or merge until existing review gates are met.

@@ -16,6 +16,10 @@ merged, not as a published production application.
 ownership, migration direction, deferred work and the distinction between current
 capabilities and the target.
 
+## SDD transition (28 November 2026 — proposed)
+
+See [the SDD recovery audit](docs/SDD_TRANSITION_AUDIT.md) and [Issue #123](https://github.com/ArunPrakash2901/guitar-explorer/issues/123) before resuming development. The repository is now public. No GitHub release is published. The November 13 public bootstrap and installer verification jobs started but failed; the historical startup_failure note below is not a current diagnosis. Exact-head review and release gates remain mandatory. The proposed OpenSpec scaffold is not yet CLI-validated.
+
 ## Public previews and repository cleanup
 
 The repository was still **private** at the 13 November audit. Publication

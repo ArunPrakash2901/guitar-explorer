@@ -1,6 +1,10 @@
 # Guitar Explorer — Project State
 
-Last updated: 2026-11-13 (Australia/Melbourne). This release/integration note reconciles newer draft work without retroactively declaring it merged or physically accepted.
+Last updated: 2026-11-28 (Australia/Melbourne), proposed on SDD audit branch.
+
+## Active recovery gate — #123
+
+The current scope is SDD adoption and integration recovery, not Target Landing #75 (historical, not an open issue), Song Study, or new features. See [SDD audit](docs/SDD_TRANSITION_AUDIT.md) and [candidate change](openspec/changes/consolidate-practice-tools/proposal.md). Repository is public. No releases exist. November 13 preview and installer verification jobs did start but failed; logs unavailable. November 22 housekeeping succeeded. Exact-head integration, CLI validation, preview and physical approval are outstanding. Prior sections below are historical snapshots and not current instructions.
 
 ## Current app distribution and integration — 13 November 2026
 
