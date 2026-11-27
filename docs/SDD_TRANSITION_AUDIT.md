@@ -27,7 +27,7 @@ Tracking: #123. Scope: recovery and governance only. This is a pinned read-side 
 | #84/#85 | Exercise reset and Black Dog study | Separate, mutually divergent product track; owner decision needed. #85 comparison with #116: 2 unique commits, 135 files in fork delta; no implied song rights |
 | #111 | PCM looper proof | Separate experiment; 1 unique commit, 17 files in fork delta; real hardware review required |
 
-#89 head 837355c4b65ac50e3577e14cae342d5073129561 is confirmed ancestor of #116. Other ancestry is inferred from PR bases only, not exhaustively checked. No PR or branch retired by this audit. Closed merged staging PRs #117/#118 do not mean master includes packaging. #119–122 are master maintenance history.
+#89 head 837355c4b65ac50e3577e14cae342d5073129561 is confirmed ancestor of #116. Every original open PR head has now been checked against #116; see the appendix below. Ancestry is not behavioral equivalence: later commits may override earlier behavior. No PR or branch retired by this audit. Closed merged staging PRs #117/#118 do not mean master includes packaging. #119–122 are master maintenance history.
 
 ## Recovery sequence
 
@@ -41,4 +41,72 @@ Tracking: #123. Scope: recovery and governance only. This is a pinned read-side 
 
 ## Evidence and gaps
 
-Directly inspected AGENTS, docs/AUTONOMY_CONTRACT, README, PROJECT_STATE, project-state.json, scripts/project-context.mjs, package scripts, architecture excerpts, open PR metadata, selected compare results, workflow/job metadata, master core/guitar/time/phrase/harmony test excerpts and candidate progression/trainer tests/workspace/review guide. Not a complete source-line audit, all-branch patch-equivalence pass, full clone, build, CI rerun, actual hardware trial, public history/license audit or CLI execution. No claim of current preview availability. Existing tool has no usable historical job logs. Read full source and run tests before final acceptance.
+Directly inspected AGENTS, docs/AUTONOMY_CONTRACT, README, PROJECT_STATE, project-state.json, scripts/project-context.mjs, package scripts, architecture excerpts, open PR metadata, selected compare results, workflow/job metadata, master core/guitar/time/phrase/harmony test excerpts and candidate progression/trainer tests/workspace/review guide. Not a complete source-line audit, all-branch patch-equivalence pass (ancestry for all original open PRs and non-PR refs is now classified), full clone, build, CI rerun, actual hardware trial, public history/license audit or CLI execution. No claim of current preview availability. Existing tool has no usable historical job logs. Read full source and run tests before final acceptance.
+
+## Appendix — complete original PR ancestry and remaining branch triage
+
+All 33 original open PR heads compared against pinned #116. Ahead counts below mean commits unique to the compared PR head, not to the whole repository. For the 28 ancestor PRs, ahead is zero; the number shown is how many commits behind #116 each head was. Record exact refs from the original snapshot before any close or delete operation.
+
+| PR | Status vs #116 | Ahead | Behind |
+|---|---|---:|---:|
+| #84 | diverged | 1 | 138 |
+| #85 | diverged | 2 | 138 |
+| #86 | ancestor | 0 | 135 |
+| #87 | ancestor | 0 | 130 |
+| #88 | ancestor | 0 | 129 |
+| #89 | ancestor | 0 | 120 |
+| #90 | diverged | 1 | 129 |
+| #91 | ancestor | 0 | 107 |
+| #92 | ancestor | 0 | 97 |
+| #93 | ancestor | 0 | 92 |
+| #94 | ancestor | 0 | 85 |
+| #95 | ancestor | 0 | 84 |
+| #96 | ancestor | 0 | 83 |
+| #97 | ancestor | 0 | 82 |
+| #98 | ancestor | 0 | 81 |
+| #99 | ancestor | 0 | 80 |
+| #100 | ancestor | 0 | 79 |
+| #101 | ancestor | 0 | 78 |
+| #102 | ancestor | 0 | 76 |
+| #103 | ancestor | 0 | 72 |
+| #104 | ancestor | 0 | 57 |
+| #105 | ancestor | 0 | 56 |
+| #106 | ancestor | 0 | 55 |
+| #107 | ancestor | 0 | 54 |
+| #108 | ancestor | 0 | 53 |
+| #109 | ancestor | 0 | 52 |
+| #110 | ancestor | 0 | 51 |
+| #111 | diverged | 1 | 138 |
+| #112 | ancestor | 0 | 46 |
+| #113 | ancestor | 0 | 50 |
+| #114 | ancestor | 0 | 49 |
+| #115 | ancestor | 0 | 45 |
+| #116 | identical | 0 | 0 |
+
+**Outcome:** 28 ancestor PRs can be considered for consolidation only after acceptance of the combined candidate. Four divergent PRs (#84, #85, #90, #111) cannot be retired on ancestry grounds. #116 is the reference candidate. No PR was closed.
+
+Remaining 19 refs (not heads of those 33 open PRs):
+
+| Branch | Classification | Proposed action |
+|---|---|---|
+| master | Canonical integrated baseline | Keep |
+| gh-pages | Deployment branch | Keep; not a source integration target |
+| chore/weekly-repository-housekeeping | Ancestor of master (6 behind) | Cleanup candidate after refs/evidence check |
+| ci/bootstrap-public-previews-and-releases | Ancestor of master (1 behind) | Same |
+| ci/manual-personal-installer-release | Ancestor of master (11 behind) | Same |
+| docs/installer-release-status-reconciliation | Ancestor of master (17 behind) | Same |
+| feat/pwa-installable-release | Ancestor of #116 (11 behind) | Keep until candidate accepted |
+| feat/personal-windows-android-installers | Ancestor of #116 (13 behind) | Same |
+| codex/product-spine-melody-preparation | 1 commit unique vs master | Preserve and inspect |
+| feat/guitar-performance-v0 | 6 unique vs master | Preserve historical reference |
+| feat/interesting-material-v0 | 12 unique vs master | Preserve historical reference |
+| feat/looper-v0 | 13 unique vs master | Preserve historical reference |
+| feat/melody-assistant-exchange | 1 unique vs master, 1 vs #116 | Preserve |
+| feat/musical-worlds-expansive-practice | 4 unique vs master and #116 | Preserve |
+| feat/practice-depth-v0 | 3 unique vs master and #116 | Preserve |
+| feat/product-surface-consolidation-v0 | 18 unique vs master | Preserve historical reference |
+| feat/sampled-acoustic-audition-v0 | 8 unique vs master | Preserve historical reference |
+| scaffold/chord-tone-markers-20261111 | 5 unique vs master and #116 | Preserve |
+| ui/harmonic-gravity-focus-refinement | 2 unique vs master | Preserve |
+
+Four master-ancestor refs are low-risk cleanup candidates, not deletion authorization. Eleven historical refs have commits not in master; some may be represented by equivalent patches or staging commits. Do not delete them based on names, age, or closed PR status. The new SDD audit branch is not counted in the historical 52.

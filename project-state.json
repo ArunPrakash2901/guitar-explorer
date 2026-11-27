@@ -10,7 +10,7 @@
   },
   "activeWork": {
     "issue": 123,
-    "pullRequest": null,
+    "pullRequest": 124,
     "kind": "governance-and-recovery",
     "summary": "Reconcile project authority and prepare isolated integration; no new learner-facing features or unapproved merge. See docs/SDD_TRANSITION_AUDIT.md."
   },
